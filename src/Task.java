@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
@@ -9,7 +10,7 @@ import java.util.GregorianCalendar;
  *
  * @author Sia Wei Kiat Jason
  */
-public class Task {
+public class Task implements Serializable {
     private int id;
     private String description = "";
     private ArrayList<DatePair> dateList = new ArrayList<DatePair>();
