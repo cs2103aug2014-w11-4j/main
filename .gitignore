@@ -14,3 +14,4 @@ hs_err_pid*
 # Eclipse Files & Folder #
 /bin/
 .checkstyle
+.settings/edu.umd.cs.findbugs.core.prefs
