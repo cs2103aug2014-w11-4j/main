@@ -1,3 +1,5 @@
+//@author A0119416H
+
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.BufferedWriter;
@@ -37,12 +39,12 @@ public class DatabaseManager<T extends Serializable> implements Iterable<T> {
             try {
                 return getInstance(OffsetIterator.next());
             } catch (IOException e) {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException("IOException: " + e.getMessage());
             }
         }
 
         public void remove() {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("Cannot remove instance.");
         }
     }
 
