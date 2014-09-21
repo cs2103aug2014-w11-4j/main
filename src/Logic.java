@@ -96,5 +96,27 @@ public class Logic {
             return "error";
         }
     }
-
+    
+    /**
+     * Search for task based on description
+     * 
+     * @param the keyword that is used to search for the task
+     */
+    public static String searchWithKeyword(String keywords){
+        String result = "";
+        ArrayList <Task> relatedTasks = new ArrayList<Task> ();
+        for (Task task : dbManager) {
+            String taskInDb= task.getDescription();
+            taskInDb= taskInDb.toLowerCase();
+            if(taskInDb.contains(keywords.toLowerCase())){
+                relatedTasks.add(task);
+            }
+        }
+        
+        for(int i = 0 ; i < relatedTasks.size(); i++){
+            result = result + relatedTasks.get(i).toString();
+        }
+        
+        return result;
+    }
 }
