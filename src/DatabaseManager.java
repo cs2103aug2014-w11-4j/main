@@ -28,16 +28,15 @@ import java.util.Iterator;
 public class DatabaseManager<T extends Serializable> implements Iterable<T> {
 
     private class InstanceIterator implements Iterator<T> {
-        private Iterator<Long> OffsetIterator = validInstancesMap.keySet()
-                .iterator();
+        private Iterator<Long> offsetIterator = validInstancesMap.keySet().iterator();
 
         public boolean hasNext() {
-            return OffsetIterator.hasNext();
+            return offsetIterator.hasNext();
         }
 
         public T next() {
             try {
-                return getInstance(OffsetIterator.next());
+                return getInstance(offsetIterator.next());
             } catch (IOException e) {
                 throw new UnsupportedOperationException("IOException: " + e.getMessage());
             }
