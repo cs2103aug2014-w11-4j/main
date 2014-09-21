@@ -328,4 +328,34 @@ public class DatabaseManager<T extends Serializable> implements Iterable<T> {
         }
     }
 
+    /**
+     * Check whether an ID exists (either represents a valid or invalid instance).
+     *
+     * @param instanceId the ID to be checked
+     * @return if the ID exists
+     */
+    public boolean contains(long instanceId) {
+        return (isValidId(instanceId) || isInvalidId(instanceId));
+    }
+
+    /**
+     * Check whether an ID represents a valid instance.
+     *
+     * @param instanceId the ID to be checked
+     * @return if the ID represents a valid instance.
+     */
+    public boolean isValidId(long instanceId) {
+        return validInstancesMap.containsKey(instanceId);
+    }
+
+    /**
+     * Check whether an ID represents an invalid instance.
+     *
+     * @param instanceId the ID to be checked
+     * @return if the ID represents an invalid instance.
+     */
+    public boolean isInvalidId(long instanceId) {
+        return invalidInstancesMap.containsKey(instanceId);
+    }
+
 }
