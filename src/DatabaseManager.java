@@ -52,7 +52,7 @@ public class DatabaseManager<T extends Serializable> implements Iterable<T> {
      * Returns an iterator over valid instances in the database. Note that
      * IOException happened while reading instances will be thrown as
      * UnsupportedOperationException.
-     * 
+     *
      * @return an Iterator over valid instances in the database.
      */
     public Iterator<T> iterator() {
@@ -84,7 +84,7 @@ public class DatabaseManager<T extends Serializable> implements Iterable<T> {
      * Construct a backend database with the given file path.
      *
      * @param filePath path to the database file. If exists it must be readable
-     *            and writable.
+     *                 and writable.
      * @throws FileNotFoundException if the file cannot be opened (non-writable)
      * @throws IOException
      */
@@ -265,8 +265,8 @@ public class DatabaseManager<T extends Serializable> implements Iterable<T> {
      *
      * @param instanceId The ID of instance to be fetched.
      * @return The reconstructed instance. Note that it is not the same object
-     *         with the one that was written to the file. If the ID does not
-     *         exist, null will be returned.
+     * with the one that was written to the file. If the ID does not
+     * exist, null will be returned.
      * @throws IOException
      */
     public T getInstance(long instanceId) throws IOException {
@@ -283,7 +283,7 @@ public class DatabaseManager<T extends Serializable> implements Iterable<T> {
      *
      * @param instanceId the ID of the instance to be marked.
      * @throws IndexOutOfBoundsException if the ID is not found (or it is
-     *             already invalid)
+     *                                   already invalid)
      * @throws IOException
      */
     public void markAsInvalid(long instanceId) throws IOException {
@@ -308,7 +308,7 @@ public class DatabaseManager<T extends Serializable> implements Iterable<T> {
      *
      * @param instanceId the ID of the instance to be marked.
      * @throws IndexOutOfBoundsException if the ID is not found (or it is
-     *             already valid)
+     *                                   already valid)
      * @throws IOException
      */
     public void markAsValid(long instanceId) throws IOException {
