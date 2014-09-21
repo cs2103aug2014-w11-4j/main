@@ -3,6 +3,7 @@ import static org.junit.Assert.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import org.junit.Test;
 
@@ -153,4 +154,160 @@ public class LogicTest {
         
     }
 
+    /**
+     * Search for keyword in description
+     * 
+     */
+    @Test
+    public void searchKeywordTest() {
+        Logic.startDatabase();
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+
+        Long id = Logic.addTask(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                dpList);
+        String actual = Logic.searchWithKeyword("Lorem");
+        String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done ";
+        Logic.delete(id);
+        assertEquals(expected, actual);
+
+    }
+
+    /**
+     * Test for searching task within period
+     * Condition: Task have both start date and end date within period
+     */
+    @Test
+    public void searchWithinPeriodOne() {
+        Logic.startDatabase();
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Calendar startDate = Calendar.getInstance();
+        startDate.set(2014, Calendar.AUGUST, 10);
+        Calendar endDate = Calendar.getInstance();
+        endDate.set(2014, Calendar.AUGUST, 20);
+        DatePair dp = new DatePair(startDate, endDate);
+        dpList.add(dp);
+        long id = Logic.addTask("Within Period", dpList);
+
+        Calendar startDateRange = new GregorianCalendar();
+        startDateRange.set(2014, Calendar.AUGUST, 1);
+        Calendar endDateRange = new GregorianCalendar();
+        endDateRange.set(2014, Calendar.AUGUST, 30);
+        DatePair dpRange = new DatePair(startDateRange, endDateRange);
+        ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
+        dpRangeList.add(dpRange);
+
+        String actual = Logic.searchWithPeriod(dpRange);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
+        String sd = dateFormat.format(startDate.getTime());
+        String ed = dateFormat.format(endDate.getTime());
+        String expected = "Within Period Not Done \n" + sd + " " + ed;
+        Logic.delete(id);
+        assertEquals(actual, expected);
+
+    }
+
+    /**
+     * Test for searching task within period
+     * Condition: Task have only start date
+     */
+    @Test
+    public void searchWithinPeriodTwo() {
+        Logic.startDatabase();
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Calendar startDate = Calendar.getInstance();
+        startDate.set(2014, Calendar.AUGUST, 10);
+
+        DatePair dp = new DatePair(startDate, null);
+        dpList.add(dp);
+        long id = Logic.addTask("No End Date", dpList);
+
+        Calendar startDateRange = new GregorianCalendar();
+        startDateRange.set(2014, Calendar.AUGUST, 1);
+        Calendar endDateRange = new GregorianCalendar();
+        endDateRange.set(2014, Calendar.AUGUST, 30);
+        DatePair dpRange = new DatePair(startDateRange, endDateRange);
+        ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
+        dpRangeList.add(dpRange);
+
+        String actual = Logic.searchWithPeriod(dpRange);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
+        String sd = dateFormat.format(startDate.getTime());
+
+        String expected = "No End Date Not Done \n" + sd + "[No End Date]";
+        Logic.delete(id);
+        assertEquals(expected, actual);
+
+    }
+
+    /**
+     * Test for searching task within period
+     * Condition: Task have only end date
+     */
+    @Test
+    public void searchWithinPeriodThree() {
+        Logic.startDatabase();
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Calendar endDate = Calendar.getInstance();
+        endDate.set(2014, Calendar.AUGUST, 10);
+
+        DatePair dp = new DatePair(null, endDate);
+        dpList.add(dp);
+        long id = Logic.addTask("No Start Date", dpList);
+
+        Calendar startDateRange = new GregorianCalendar();
+        startDateRange.set(2014, Calendar.AUGUST, 1);
+        Calendar endDateRange = new GregorianCalendar();
+        endDateRange.set(2014, Calendar.AUGUST, 30);
+        DatePair dpRange = new DatePair(startDateRange, endDateRange);
+        ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
+        dpRangeList.add(dpRange);
+
+        String actual = Logic.searchWithPeriod(dpRange);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
+        String ed = dateFormat.format(endDate.getTime());
+
+        String expected = "No Start Date Not Done \n[No Start Date] " + ed;
+        Logic.delete(id);
+        assertEquals(expected, actual);
+
+    }
+
+    /**
+     * Test for searching task within period
+     * Condition: Task have both start date and end date beyond period
+     */
+    @Test
+    public void searchWithinPeriodFour() {
+        Logic.startDatabase();
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Calendar startDate = Calendar.getInstance();
+        startDate.set(2014, Calendar.JULY, 10);
+        Calendar endDate = Calendar.getInstance();
+        endDate.set(2014, Calendar.SEPTEMBER, 20);
+        DatePair dp = new DatePair(startDate, endDate);
+        dpList.add(dp);
+        long id = Logic.addTask("Overlapping Period", dpList);
+
+        Calendar startDateRange = new GregorianCalendar();
+        startDateRange.set(2014, Calendar.AUGUST, 1);
+        Calendar endDateRange = new GregorianCalendar();
+        endDateRange.set(2014, Calendar.AUGUST, 30);
+        DatePair dpRange = new DatePair(startDateRange, endDateRange);
+        ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
+        dpRangeList.add(dpRange);
+
+        String actual = Logic.searchWithPeriod(dpRange);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
+        String sd = dateFormat.format(startDate.getTime());
+        String ed = dateFormat.format(endDate.getTime());
+        String expected = "Overlapping Period Not Done \n" + sd + " " + ed;
+        Logic.delete(id);
+        assertEquals(expected, actual);
+
+    }
 }
