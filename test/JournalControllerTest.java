@@ -1,7 +1,7 @@
+//@author A0119416H
+
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
 import java.io.File;
 
