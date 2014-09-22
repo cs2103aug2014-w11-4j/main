@@ -99,4 +99,12 @@ public class JournalController<T extends Serializable> {
         return lastAction.getDescription();
     }
 
+    public int getUndoStackSize() {
+        return undoStack.size();
+    }
+
+    public int getRedoStackSize() {
+        return redoStack.size();
+    }
+
 }
