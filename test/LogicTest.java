@@ -154,24 +154,7 @@ public class LogicTest {
         
     }
 
-    /**
-     * Search for keyword in description
-     * 
-     */
-    @Test
-    public void searchKeywordTest() {
-        Logic.startDatabase();
-        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-
-        Long id = Logic.addTask(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                dpList);
-        String actual = Logic.searchWithKeyword("Lorem");
-        String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done ";
-        Logic.delete(id);
-        assertEquals(expected, actual);
-
-    }
+ 
 
     /**
      * Test for searching task within period
