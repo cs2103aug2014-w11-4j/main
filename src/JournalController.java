@@ -1,12 +1,13 @@
 //@author A0119416H
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Stack;
 
 /**
  * This class records all the actions done and controls undo/redo operations.
  */
-public class JournalController {
+public class JournalController<T extends Serializable> {
 
     private class IDPair {
         private Long previousId;
@@ -31,14 +32,14 @@ public class JournalController {
     private Stack<IDPair> undoStack = new Stack<IDPair>();
     private Stack<IDPair> redoStack = new Stack<IDPair>();
 
-    private DatabaseManager<Task> dbManager;
+    private DatabaseManager<T> dbManager;
 
     /**
      * Initialize the JournalController with the given dbManager.
      *
      * @param dbManager an initialized instance of DatabaseManager
      */
-    public JournalController(DatabaseManager<Task> dbManager) {
+    public JournalController(DatabaseManager<T> dbManager) {
         this.dbManager = dbManager;
     }
 
