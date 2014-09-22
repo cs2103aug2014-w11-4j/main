@@ -11,15 +11,20 @@ public class JournalController {
     private class IDPair {
         private Long previousId;
         private Long newId;
-        public IDPair(Long previousId, Long newId) {
+        private String description;
+        public IDPair(Long previousId, Long newId, String description) {
             this.previousId = previousId;
             this.newId = newId;
+            this.description = description;
         }
         public Long getPreviousId() {
             return previousId;
         }
         public Long getNewId() {
             return newId;
+        }
+        public String getDescription() {
+            return description;
         }
     }
 
@@ -42,19 +47,21 @@ public class JournalController {
      *
      * @param previousId the ID of the old instance, can be null if the action is add
      * @param newId the ID of the new instance, can be null if the action is delete
+     * @param description the description of the recorded action
      */
-    public void recordAction(Long previousId, Long newId) {
+    public void recordAction(Long previousId, Long newId, String description) {
         redoStack.clear();
-        undoStack.add(new IDPair(previousId, newId));
+        undoStack.add(new IDPair(previousId, newId, description));
     }
 
     /**
      * Undo the last action
      *
+     * @return the description of the undone action
      * @throws IOException if file IO failed in dbManager
      * @throws UnsupportedOperationException if there is no action to undo
      */
-    public void undo() throws IOException, UnsupportedOperationException {
+    public String undo() throws IOException, UnsupportedOperationException {
         if (undoStack.size() == 0) {
             throw new UnsupportedOperationException("Nothing to undo.");
         }
@@ -66,15 +73,17 @@ public class JournalController {
             dbManager.markAsValid(lastAction.getPreviousId());
         }
         redoStack.push(lastAction);
+        return lastAction.getDescription();
     }
 
     /**
      * Redo the last undo action
      *
+     * @return the description of the redone action
      * @throws IOException if file IO failed in dbManager
      * @throws UnsupportedOperationException if there is no action to redo
      */
-    public void redo() throws IOException, UnsupportedOperationException {
+    public String redo() throws IOException, UnsupportedOperationException {
         if (redoStack.size() == 0) {
             throw new UnsupportedOperationException("Nothing to redo.");
         }
@@ -86,6 +95,7 @@ public class JournalController {
             dbManager.markAsValid(lastAction.getNewId());
         }
         undoStack.push(lastAction);
+        return lastAction.getDescription();
     }
 
 }
