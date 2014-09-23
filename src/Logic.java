@@ -5,6 +5,7 @@
  * 
  */
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,7 +25,7 @@ public class Logic {
      */
     public static boolean startDatabase() {
         try {
-            dbManager = new DatabaseManager<Task>(currentDirectory + "\\"
+            dbManager = new DatabaseManager<Task>(currentDirectory + File.separator
                     + databaseName);
         } catch (IOException e) {
             System.out.println(e.toString());
