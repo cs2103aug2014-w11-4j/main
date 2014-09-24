@@ -273,4 +273,22 @@ public class LogicTest {
         assertEquals(expected, actual);
 
     }
+    
+    
+    /**
+     * Delete exist task
+     *  
+     */
+    @Test
+    public void DeleteExistTask() {
+        boolean isDeleted = false;
+    	Logic.startDatabase();
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Long id = Logic.addTask(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                dpList);
+        isDeleted  = Logic.delete(id);
+        assertTrue(isDeleted);
+    }
+    
 }
