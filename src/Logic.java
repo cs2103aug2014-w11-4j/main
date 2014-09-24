@@ -121,6 +121,7 @@ public class Logic {
      * 
      * @param the keyword that is used to search for the task
      */
+
     public static String searchWithKeyword(String keywords) {
         String result = "";
         ArrayList<Task> relatedTasks = new ArrayList<Task>();
@@ -234,4 +235,5 @@ public class Logic {
 
         return inPeriod;
     }
+
 }

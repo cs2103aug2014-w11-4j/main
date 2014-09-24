@@ -1,0 +1,214 @@
+#DBMNGR_INVAL
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.7.0_51" class="java.beans.XMLDecoder">
+ <object class="Task">
+  <void property="description">
+   <string>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>
+  </void>
+ </object>
+</java>
+
+#DBMNGR_INVAL
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.7.0_51" class="java.beans.XMLDecoder">
+ <object class="Task">
+  <void property="dateList">
+   <void method="add">
+    <object class="DatePair">
+     <void property="endDate">
+      <void property="time">
+       <object class="java.util.Date">
+        <long>1411471888582</long>
+       </object>
+      </void>
+     </void>
+     <void property="startDate">
+      <void property="time">
+       <object class="java.util.Date">
+        <long>1411471888582</long>
+       </object>
+      </void>
+     </void>
+    </object>
+   </void>
+  </void>
+  <void property="description">
+   <string>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>
+  </void>
+ </object>
+</java>
+
+#DBMNGR_INVAL
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.7.0_51" class="java.beans.XMLDecoder">
+ <object class="Task">
+  <void property="dateList">
+   <void method="add">
+    <object class="DatePair">
+     <void property="endDate">
+      <void property="time">
+       <object class="java.util.Date">
+        <long>1411212688620</long>
+       </object>
+      </void>
+     </void>
+     <void property="startDate">
+      <void property="time">
+       <object class="java.util.Date">
+        <long>1404991888620</long>
+       </object>
+      </void>
+     </void>
+    </object>
+   </void>
+  </void>
+  <void property="description">
+   <string>Overlapping Period</string>
+  </void>
+ </object>
+</java>
+
+#DBMNGR_INVAL
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.7.0_51" class="java.beans.XMLDecoder">
+ <object class="Task">
+  <void property="dateList">
+   <void method="add">
+    <object class="DatePair">
+     <void property="endDate">
+      <void property="time">
+       <object class="java.util.Date">
+        <long>1411471888640</long>
+       </object>
+      </void>
+     </void>
+     <void property="startDate">
+      <null/>
+     </void>
+    </object>
+   </void>
+  </void>
+  <void property="description">
+   <string>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>
+  </void>
+ </object>
+</java>
+
+#DBMNGR_INVAL
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.7.0_51" class="java.beans.XMLDecoder">
+ <object class="Task">
+  <void property="dateList">
+   <void method="add">
+    <object class="DatePair">
+     <void property="endDate">
+      <null/>
+     </void>
+     <void property="startDate">
+      <void property="time">
+       <object class="java.util.Date">
+        <long>1411471888661</long>
+       </object>
+      </void>
+     </void>
+    </object>
+   </void>
+  </void>
+  <void property="description">
+   <string>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>
+  </void>
+ </object>
+</java>
+
+#DBMNGR_INVAL
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.7.0_51" class="java.beans.XMLDecoder">
+ <object class="Task">
+  <void property="description">
+   <string>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>
+  </void>
+ </object>
+</java>
+
+#DBMNGR_INVAL
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.7.0_51" class="java.beans.XMLDecoder">
+ <object class="Task">
+  <void property="dateList">
+   <void method="add">
+    <object class="DatePair">
+     <void property="endDate">
+      <void property="time">
+       <object class="java.util.Date">
+        <long>1408534288733</long>
+       </object>
+      </void>
+     </void>
+     <void property="startDate">
+      <void property="time">
+       <object class="java.util.Date">
+        <long>1407670288733</long>
+       </object>
+      </void>
+     </void>
+    </object>
+   </void>
+  </void>
+  <void property="description">
+   <string>Within Period</string>
+  </void>
+ </object>
+</java>
+
+#DBMNGR_INVAL
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.7.0_51" class="java.beans.XMLDecoder">
+ <object class="Task">
+  <void property="dateList">
+   <void method="add">
+    <object class="DatePair">
+     <void property="endDate">
+      <null/>
+     </void>
+     <void property="startDate">
+      <void property="time">
+       <object class="java.util.Date">
+        <long>1407670288811</long>
+       </object>
+      </void>
+     </void>
+    </object>
+   </void>
+  </void>
+  <void property="description">
+   <string>No End Date</string>
+  </void>
+ </object>
+</java>
+
+#DBMNGR_INVAL
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.7.0_51" class="java.beans.XMLDecoder">
+ <object class="Task">
+  <void property="dateList">
+   <void method="add">
+    <object class="DatePair">
+     <void property="endDate">
+      <void property="time">
+       <object class="java.util.Date">
+        <long>1407670288891</long>
+       </object>
+      </void>
+     </void>
+     <void property="startDate">
+      <null/>
+     </void>
+    </object>
+   </void>
+  </void>
+  <void property="description">
+   <string>No Start Date</string>
+  </void>
+ </object>
+</java>
+
