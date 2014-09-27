@@ -71,7 +71,7 @@ public class Parser {
      */
     public static Command parseView(String args) {
         /* Extract all date from user's input */
-        String dateRegex = "(?=\\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\\x20|$))|(?:2[0-8]|1\\d|0?[1-9]))([-./])(?:1[012]|0?[1-9])?\\1(?:1[6-9]|[2-9]\\d)?\\d\\d(?:(?=\\x20\\d)\\x20|$))?(((0?[1-9]|1[012])(:[0-5]\\d){0,2}(\\s?[AP]M))|([01]\\d|2[0-3])(:[0-5]\\d){1,2})?";
+        String dateRegex = "(((0[1-9]|[12][0-9]|3[01])([/])(0[13578]|10|12)([/])(\\d{4}))|(([0][1-9]|[12][0-9]|30)([/])(0[469]|11)([/])(\\d{4}))|((0[1-9]|1[0-9]|2[0-8])([/])(02)([/])(\\d{4}))|((29)(\\.|-|\\/)(02)([/])([02468][048]00))|((29)([/])(02)([/])([13579][26]00))|((29)([/])(02)([/])([0-9][0-9][0][48]))|((29)([/])(02)([/])([0-9][0-9][2468][048]))|((29)([/])(02)([/])([0-9][0-9][13579][26])))(?:\\s?(?:((?:[01][0-9]|2[0-3])[:.]?(?:[0-5][0-9]))(?!\\s*[apAP][mM])|((?:[0-1]?[0-9]|[2][0-3])(?:[:.](?:[0-5][0-9]))?(?:\\s*)(?:[apAP][mM])\\s*))(?:\\b(?:to|-)\\b\\s*)?(?:((?:[01][0-9]|2[0-3])[:.]?(?:[0-5][0-9]))(?!\\s*[apAP][mM])|((?:[0-1]?[0-9]|[2][0-3])(?:[:.](?:[0-5][0-9]))?(?:\\s*)(?:[apAP][mM])\\s*))?)?";
         Pattern datePattern = Pattern.compile(dateRegex);
         Matcher dateMatcher = datePattern.matcher(args);
         DatePair date = null;
@@ -96,7 +96,7 @@ public class Parser {
                 Calendar startDate = Calendar.getInstance();
                 Calendar endDate = Calendar.getInstance();
                 endDate.add(Calendar.DAY_OF_WEEK,
-                        -(endDate.get(Calendar.DAY_OF_WEEK) - 1));
+                        (endDate.get(Calendar.DAY_OF_WEEK) - 1));
                 date = new DatePair(startDate, endDate);
             } else if (keyword.equalsIgnoreCase("tommorrow")) {
                 Calendar startDate = Calendar.getInstance();
@@ -136,7 +136,7 @@ public class Parser {
      */
     public static Command parseAdd(String args) {
         /* Extract all date from user's input */
-        String dateRegex = "(?=\\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\\x20|$))|(?:2[0-8]|1\\d|0?[1-9]))([-./])(?:1[012]|0?[1-9])?\\1(?:1[6-9]|[2-9]\\d)?\\d\\d(?:(?=\\x20\\d)\\x20|$))?(((0?[1-9]|1[012])(:[0-5]\\d){0,2}(\\s?[AP]M))|([01]\\d|2[0-3])(:[0-5]\\d){1,2})?";
+        String dateRegex = "(((0[1-9]|[12][0-9]|3[01])([/])(0[13578]|10|12)([/])(\\d{4}))|(([0][1-9]|[12][0-9]|30)([/])(0[469]|11)([/])(\\d{4}))|((0[1-9]|1[0-9]|2[0-8])([/])(02)([/])(\\d{4}))|((29)(\\.|-|\\/)(02)([/])([02468][048]00))|((29)([/])(02)([/])([13579][26]00))|((29)([/])(02)([/])([0-9][0-9][0][48]))|((29)([/])(02)([/])([0-9][0-9][2468][048]))|((29)([/])(02)([/])([0-9][0-9][13579][26])))(?:\\s?(?:((?:[01][0-9]|2[0-3])[:.]?(?:[0-5][0-9]))(?!\\s*[apAP][mM])|((?:[0-1]?[0-9]|[2][0-3])(?:[:.](?:[0-5][0-9]))?(?:\\s*)(?:[apAP][mM])\\s*))(?:\\b(?:to|-)\\b\\s*)?(?:((?:[01][0-9]|2[0-3])[:.]?(?:[0-5][0-9]))(?!\\s*[apAP][mM])|((?:[0-1]?[0-9]|[2][0-3])(?:[:.](?:[0-5][0-9]))?(?:\\s*)(?:[apAP][mM])\\s*))?)?";
         Pattern datePattern = Pattern.compile(dateRegex);
         Matcher dateMatcher = datePattern.matcher(args);
         DatePair date = null;
@@ -157,13 +157,21 @@ public class Parser {
         return new Command(CommandType.ADD, desc, date);
     }
 
+    /**
+     * Currently quite strict date parsing. There must be space
+     * between the minute and am/pm.
+     *
+     * @param date
+     * @return Calendar object
+     */
     private static Calendar parseDate(String date) {
         Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm aaa",
+        SimpleDateFormat sdf = new SimpleDateFormat("d/M/yy h:mm aa",
                 Locale.ENGLISH);
         try {
             cal.setTime(sdf.parse(date));
         } catch (ParseException e) {
+            System.out.println(date);
             // TODO: Throw a better error
             return null;
         }
@@ -187,7 +195,7 @@ public class Parser {
             args = removeFirstWord(args);
 
             /* Extract all date from user's input */
-            String dateRegex = "(?=\\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\\x20|$))|(?:2[0-8]|1\\d|0?[1-9]))([-./])(?:1[012]|0?[1-9])?\\1(?:1[6-9]|[2-9]\\d)?\\d\\d(?:(?=\\x20\\d)\\x20|$))?(((0?[1-9]|1[012])(:[0-5]\\d){0,2}(\\s?[AP]M))|([01]\\d|2[0-3])(:[0-5]\\d){1,2})?";
+            String dateRegex = "(((0[1-9]|[12][0-9]|3[01])([/])(0[13578]|10|12)([/])(\\d{4}))|(([0][1-9]|[12][0-9]|30)([/])(0[469]|11)([/])(\\d{4}))|((0[1-9]|1[0-9]|2[0-8])([/])(02)([/])(\\d{4}))|((29)(\\.|-|\\/)(02)([/])([02468][048]00))|((29)([/])(02)([/])([13579][26]00))|((29)([/])(02)([/])([0-9][0-9][0][48]))|((29)([/])(02)([/])([0-9][0-9][2468][048]))|((29)([/])(02)([/])([0-9][0-9][13579][26])))(?:\\s?(?:((?:[01][0-9]|2[0-3])[:.]?(?:[0-5][0-9]))(?!\\s*[apAP][mM])|((?:[0-1]?[0-9]|[2][0-3])(?:[:.](?:[0-5][0-9]))?(?:\\s*)(?:[apAP][mM])\\s*))(?:\\b(?:to|-)\\b\\s*)?(?:((?:[01][0-9]|2[0-3])[:.]?(?:[0-5][0-9]))(?!\\s*[apAP][mM])|((?:[0-1]?[0-9]|[2][0-3])(?:[:.](?:[0-5][0-9]))?(?:\\s*)(?:[apAP][mM])\\s*))?)?";
             Pattern datePattern = Pattern.compile(dateRegex);
             Matcher dateMatcher = datePattern.matcher(args);
             DatePair date = null;
