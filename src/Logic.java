@@ -13,10 +13,10 @@ import java.util.Calendar;
 public class Logic {
 
     private static final String databaseName = "database.xml";
-    public static DatabaseManager<Task> dbManager = null;
+    private static DatabaseManager<Task> dbManager = null;
     private static String currentDirectory = System.getProperty("user.dir");
     private static JournalController<Task> journal = null;
-    
+
     /**
      * Start the database,
      * if not found new database will be created
@@ -27,10 +27,10 @@ public class Logic {
      */
     public static boolean startDatabase() {
         try {
-            dbManager = new DatabaseManager<Task>(currentDirectory + File.separator
-                    + databaseName);
+            dbManager = new DatabaseManager<Task>(currentDirectory
+                    + File.separator + databaseName);
             journal = new JournalController<Task>(dbManager);
-            
+
         } catch (IOException e) {
             System.out.println(e.toString());
             return false;
@@ -38,9 +38,35 @@ public class Logic {
         return true;
 
     }
-    
-    
-    
+
+    /**
+     * 
+     */
+
+    public static void executeCommand(Command cmd) {
+        CommandType cmdType = cmd.getType();
+
+        if (cmdType.equals(CommandType.ADD)) {
+            ArrayList<DatePair> dateRangeList = new ArrayList<DatePair>();
+            dateRangeList.add(cmd.getDateRange());
+            addTask(cmd.getDescription(), dateRangeList);
+        } else if (cmdType.equals(CommandType.VIEW)) {
+            viewAll();
+        } else if (cmdType.equals(CommandType.SEARCH)) {
+            // yet to determine search type
+            // using search by keywords
+            String result = searchWithKeyword(cmd.getDescription());
+            System.out.println(result);
+        } else if (cmdType.equals(CommandType.DELETE)) {
+            // yet to implement
+        } else if (cmdType.equals(CommandType.UPDATE)) {
+            // yet to implement
+        } else if (cmdType.equals(CommandType.INVALID)) {
+            System.out.println("Invalid Command");
+        } else if (cmdType.equals(CommandType.EXIT)) {
+            System.exit(0);
+        }
+    }
 
     /**
      * Create and add the task to the database
@@ -225,29 +251,35 @@ public class Logic {
 
         return inPeriod;
     }
-    
+
     /**
      * Undo previous action
      * 
      */
-    public static void undo(){
+    public static void undo() {
         try {
             journal.undo();
         } catch (Exception e) {
             System.out.println(e.toString());
         }
     }
-    
+
     /**
      * Redo previous action
      * 
-     */    
-    public static void redo(){
+     */
+    public static void redo() {
         try {
             journal.redo();
         } catch (Exception e) {
             System.out.println(e.toString());
         }
     }
-
+    
+    /**
+     * 
+     */
+    public static DatabaseManager<Task> getDB(){
+        return dbManager;
+    }
 }

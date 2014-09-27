@@ -329,7 +329,7 @@ public class LogicTest {
                 dpList); 
         Logic.undo();
         Logic.redo();
-        int actual = Logic.dbManager.getValidIdList().size();
+        int actual = Logic.getDB().getValidIdList().size();
         Logic.delete(id);
         Logic.delete(id2);
         assertEquals(2, actual);     
