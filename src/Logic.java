@@ -275,11 +275,11 @@ public class Logic {
             System.out.println(e.toString());
         }
     }
-    
+
     /**
      * 
      */
-    public static DatabaseManager<Task> getDB(){
+    public static DatabaseManager<Task> getDB() {
         return dbManager;
     }
 }
