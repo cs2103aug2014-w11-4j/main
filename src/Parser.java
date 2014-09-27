@@ -1,3 +1,10 @@
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.Calendar;
+import java.util.Locale;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 /**
  * Parser that reads in raw user input and provides instruction on how the UI
  * should call for the correction execution at the logic.
@@ -50,8 +57,57 @@ public class Parser {
 
     }
 
+    /**
+     * v0.1 - Parse simple view command from user input:
+     * Current acceptable format
+     *  - view this week
+     *  - view today
+     *  - view tommorrow
+     *  - view [date]
+     *  - view [date] - [date]
+     *
+     * @param args
+     * @return
+     */
     public static Command parseView(String args) {
-        throw new UnsupportedOperationException("Command not integrated yet");
+        /* Extract all date from user's input */
+        String dateRegex = "(?=\\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\\x20|$))|(?:2[0-8]|1\\d|0?[1-9]))([-./])(?:1[012]|0?[1-9])?\\1(?:1[6-9]|[2-9]\\d)?\\d\\d(?:(?=\\x20\\d)\\x20|$))?(((0?[1-9]|1[012])(:[0-5]\\d){0,2}(\\s?[AP]M))|([01]\\d|2[0-3])(:[0-5]\\d){1,2})?";
+        Pattern datePattern = Pattern.compile(dateRegex);
+        Matcher dateMatcher = datePattern.matcher(args);
+        DatePair date = null;
+
+        if (dateMatcher.find()) {
+            Calendar startDate = parseDate(dateMatcher.group());
+            if (dateMatcher.find()) {
+                Calendar endDate = parseDate(dateMatcher.group());
+                date = new DatePair(startDate, endDate);
+            } else {
+                date = new DatePair(startDate);
+            }
+        }
+
+        /* String Search if no provided date */
+        if (date == null) {
+            String keyword = args.trim();
+            if (keyword.equalsIgnoreCase("today")) {
+                Calendar startDate = Calendar.getInstance();
+                date = new DatePair(startDate);
+            } else if (keyword.equalsIgnoreCase("this week")) {
+                Calendar startDate = Calendar.getInstance();
+                Calendar endDate = Calendar.getInstance();
+                endDate.add(Calendar.DAY_OF_WEEK,
+                        -(endDate.get(Calendar.DAY_OF_WEEK) - 1));
+                date = new DatePair(startDate, endDate);
+            } else if (keyword.equalsIgnoreCase("tommorrow")) {
+                Calendar startDate = Calendar.getInstance();
+                startDate.add(Calendar.DATE, 1);
+                date = new DatePair(startDate);
+            } else {
+                /* Invalid Command */
+            }
+        }
+
+        return new Command(CommandType.VIEW, false, date);
     }
 
     /**
@@ -68,8 +124,51 @@ public class Parser {
         }
     }
 
+    /**
+     * v0.1 - Parse simple add command from user input:
+     * Current acceptable format
+     * - add [desc]
+     * - add [desc] [date] <time | 0000>
+     * - add [desc] [date] <time | 0000> [date] <time | 0000>
+     *
+     * @param args user given arguments
+     * @return add command
+     */
     public static Command parseAdd(String args) {
-        throw new UnsupportedOperationException("Command not integrated yet");
+        /* Extract all date from user's input */
+        String dateRegex = "(?=\\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\\x20|$))|(?:2[0-8]|1\\d|0?[1-9]))([-./])(?:1[012]|0?[1-9])?\\1(?:1[6-9]|[2-9]\\d)?\\d\\d(?:(?=\\x20\\d)\\x20|$))?(((0?[1-9]|1[012])(:[0-5]\\d){0,2}(\\s?[AP]M))|([01]\\d|2[0-3])(:[0-5]\\d){1,2})?";
+        Pattern datePattern = Pattern.compile(dateRegex);
+        Matcher dateMatcher = datePattern.matcher(args);
+        DatePair date = null;
+
+        if (dateMatcher.find()) {
+            Calendar startDate = parseDate(dateMatcher.group());
+            args = args.replace(dateMatcher.group(), "");
+            if (dateMatcher.find()) {
+                Calendar endDate = parseDate(dateMatcher.group());
+                date = new DatePair(startDate, endDate);
+                args = args.replace(dateMatcher.group(), "");
+            } else {
+                date = new DatePair(startDate);
+            }
+        }
+
+        String desc = args.trim();
+        return new Command(CommandType.ADD, desc, date);
+    }
+
+    private static Calendar parseDate(String date) {
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm aaa",
+                Locale.ENGLISH);
+        try {
+            cal.setTime(sdf.parse(date));
+        } catch (ParseException e) {
+            // TODO: Throw a better error
+            return null;
+        }
+
+        return cal;
     }
 
     public static Command parseDelete(String args) {
@@ -82,7 +181,33 @@ public class Parser {
     }
 
     public static Command parseUpdate(String args) {
-        throw new UnsupportedOperationException("Command not integrated yet");
+        try {
+            int taskId = Integer.parseInt(getFirstWord(args.trim()));
+
+            args = removeFirstWord(args);
+
+            /* Extract all date from user's input */
+            String dateRegex = "(?=\\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\\x20|$))|(?:2[0-8]|1\\d|0?[1-9]))([-./])(?:1[012]|0?[1-9])?\\1(?:1[6-9]|[2-9]\\d)?\\d\\d(?:(?=\\x20\\d)\\x20|$))?(((0?[1-9]|1[012])(:[0-5]\\d){0,2}(\\s?[AP]M))|([01]\\d|2[0-3])(:[0-5]\\d){1,2})?";
+            Pattern datePattern = Pattern.compile(dateRegex);
+            Matcher dateMatcher = datePattern.matcher(args);
+            DatePair date = null;
+
+            if (dateMatcher.find()) {
+                Calendar startDate = parseDate(dateMatcher.group());
+                args = args.replace(dateMatcher.group(), "");
+                if (dateMatcher.find()) {
+                    Calendar endDate = parseDate(dateMatcher.group());
+                    date = new DatePair(startDate, endDate);
+                    args = args.replace(dateMatcher.group(), "");
+                } else {
+                    date = new DatePair(startDate);
+                }
+            }
+
+            return new Command(CommandType.UPDATE, taskId, args.trim(), date);
+        } catch (NumberFormatException e) {
+            return new Command(CommandType.INVALID, DELETE_ERROR_INVALID);
+        }
     }
 
     public static Command parseExit(String args) {

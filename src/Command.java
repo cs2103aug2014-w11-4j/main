@@ -41,9 +41,9 @@ public class Command {
     }
 
     /* Constructor for add command */
-    public Command(CommandType type, String des, DatePair dateRange) {
+    public Command(CommandType type, String desc, DatePair dateRange) {
         this.type = type;
-        this.description = des;
+        this.description = desc;
         this.dateRange = dateRange;
     }
 
@@ -54,10 +54,10 @@ public class Command {
     }
 
     /* Constructor for update command */
-    public Command(CommandType type, int taskId, String des, DatePair dateRange) {
+    public Command(CommandType type, int taskId, String desc, DatePair dateRange) {
         this.type = type;
         this.taskId = taskId;
-        this.description = des;
+        this.description = desc;
         this.dateRange = dateRange;
     }
 

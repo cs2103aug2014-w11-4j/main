@@ -43,5 +43,4 @@ public class DatePair implements Serializable {
     public void setEndDate(Calendar endDate) {
         this.endDate = endDate;
     }
-
 }
