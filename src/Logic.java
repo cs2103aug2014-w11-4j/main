@@ -13,13 +13,15 @@ import java.util.Calendar;
 public class Logic {
 
     private static final String databaseName = "database.xml";
-    private static DatabaseManager<Task> dbManager = null;
+    public static DatabaseManager<Task> dbManager = null;
     private static String currentDirectory = System.getProperty("user.dir");
-    private static ArrayList<Long> log = new ArrayList<Long>();
-
+    private static JournalController<Task> journal = null;
+    
     /**
      * Start the database,
      * if not found new database will be created
+     * 
+     * Create a new journal using the database that is created
      * 
      * @return states if the database has been started successfully
      */
@@ -27,6 +29,8 @@ public class Logic {
         try {
             dbManager = new DatabaseManager<Task>(currentDirectory + File.separator
                     + databaseName);
+            journal = new JournalController<Task>(dbManager);
+            
         } catch (IOException e) {
             System.out.println(e.toString());
             return false;
@@ -34,6 +38,9 @@ public class Logic {
         return true;
 
     }
+    
+    
+    
 
     /**
      * Create and add the task to the database
@@ -48,7 +55,7 @@ public class Logic {
         Task task = new Task(description, dateList);
         try {
             id = dbManager.putInstance(task);
-            log.add(id);
+            journal.recordAction(null, id, description);
         } catch (IOException e) {
             return id;
         }
@@ -217,6 +224,30 @@ public class Logic {
         }
 
         return inPeriod;
+    }
+    
+    /**
+     * Undo previous action
+     * 
+     */
+    public static void undo(){
+        try {
+            journal.undo();
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+    }
+    
+    /**
+     * Redo previous action
+     * 
+     */    
+    public static void redo(){
+        try {
+            journal.redo();
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
     }
 
 }

@@ -144,13 +144,10 @@ public class LogicTest {
         Long id = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        System.out.println(id);
         String actual = Logic.searchWithKeyword("Lorem");
         String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done ";
         Logic.delete(id);
-        assertEquals(expected, actual);
-        
-        
+        assertEquals(expected, actual);              
         
     }
 
@@ -293,4 +290,50 @@ public class LogicTest {
         assertEquals(expected, actual);
 
     }
+    
+    /**
+     * Test undo function on Journal
+     * Add in a task, and call undo,
+     * Expected: Display all should not have any values
+     */
+    @Test
+    public void testJournalUndo(){
+        Logic.startDatabase();
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Long id = Logic.addTask(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                dpList);
+        Logic.undo();        
+        String actual = Logic.viewAll();
+        String expected = "";
+        //Logic.delete(id);
+        assertEquals(expected, actual);     
+        
+    }
+    
+    /**
+     * Test redo function on Journal
+     * Add in a task, and call undo,
+     * Followed by calling redo
+     * 
+     */
+    @Test
+    public void testJournalRedo(){
+        Logic.startDatabase();
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Long id = Logic.addTask(
+                "Test 1",
+                dpList); 
+        Long id2 = Logic.addTask(
+                "Test 2",
+                dpList); 
+        Logic.undo();
+        Logic.redo();
+        int actual = Logic.dbManager.getValidIdList().size();
+        Logic.delete(id);
+        Logic.delete(id2);
+        assertEquals(2, actual);     
+        
+    }
+    
 }
