@@ -1,8 +1,8 @@
 /**
  * Logic Class: Logic Component
- * Interacts with UI and DatabaseManager: 
- * Act as middleman that communicates between userinput and database 
- * 
+ * Interacts with UI and DatabaseManager:
+ * Act as middleman that communicates between userinput and database
+ *
  */
 
 import java.io.File;
@@ -20,9 +20,9 @@ public class Logic {
     /**
      * Start the database,
      * if not found new database will be created
-     * 
+     *
      * Create a new journal using the database that is created
-     * 
+     *
      * @return states if the database has been started successfully
      */
     public static boolean startDatabase() {
@@ -40,10 +40,10 @@ public class Logic {
     }
 
     /**
-     * 
+     *
      */
 
-    public static void executeCommand(Command cmd) {
+    public static String executeCommand(Command cmd) {
         CommandType cmdType = cmd.getType();
 
         if (cmdType.equals(CommandType.ADD)) {
@@ -66,14 +66,17 @@ public class Logic {
         } else if (cmdType.equals(CommandType.EXIT)) {
             System.exit(0);
         }
+
+        //TODO: For each function, return output (String) back to interface.
+        return null;
     }
 
     /**
      * Create and add the task to the database
-     * 
+     *
      * @param description of the task
      * @param dateList of possible DatePair
-     * 
+     *
      * @return id of the task, if id == 0, task failed to create
      */
     public static long addTask(String description, ArrayList<DatePair> dateList) {
@@ -90,7 +93,7 @@ public class Logic {
 
     /**
      * Return all the valid task stored in the database
-     * 
+     *
      * @return list of tasks and their information in the database which are valid
      */
     public static String viewAll() {
@@ -104,7 +107,7 @@ public class Logic {
     /**
      * Non Official Method
      * Added quickly to assist testing
-     * 
+     *
      * @return if the task has been mark invalid
      */
     public static boolean delete(long id) {
@@ -121,8 +124,8 @@ public class Logic {
      * Non Official Method
      * Added quickly to assist testing
      * @return details of the task requested
-     * @throws IOException 
-     * 
+     * @throws IOException
+     *
      */
     public static String viewTask(long id) {
         try {
@@ -134,7 +137,7 @@ public class Logic {
 
     /**
      * Search for task based on description
-     * 
+     *
      * @param the keyword that is used to search for the task
      */
 
@@ -157,7 +160,7 @@ public class Logic {
     }
 
     /**
-     * 
+     *
      * @param dateRange DatePair object containing the start date and end date
      * @return result of all the tasks that are within the period as queried
      */
@@ -177,18 +180,18 @@ public class Logic {
 
     /**
      * Check if the task is within the given dateRange
-     * 
+     *
      * List of allowed task within the range includes:
-     * 
+     *
      * Task start date end date falling within requested date range,
      * Task with start date falling after the requested date range's start date and no end date
      * Task with end date falling before the requested date range's end date and no start date
      * Task with start date before requested start date but with end date in between requested date range
      * Task with end date after requested end date but with start date in between requested date range
      * Task with date range overlapping the entire date requested date range
-     * 
-     * 
-     * 
+     *
+     *
+     *
      * @param task the task that is being used to check if it falls within the dateRange
      * @param dateRange DatePair object containing the start date and end date as queried
      * @return boolean to state if the task being compared falls within the range
@@ -254,7 +257,7 @@ public class Logic {
 
     /**
      * Undo previous action
-     * 
+     *
      */
     public static void undo() {
         try {
@@ -266,7 +269,7 @@ public class Logic {
 
     /**
      * Redo previous action
-     * 
+     *
      */
     public static void redo() {
         try {
@@ -277,7 +280,7 @@ public class Logic {
     }
 
     /**
-     * 
+     *
      */
     public static DatabaseManager<Task> getDB() {
         return dbManager;

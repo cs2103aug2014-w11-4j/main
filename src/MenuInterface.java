@@ -9,6 +9,7 @@ import java.util.Scanner;
  *
  */
 public class MenuInterface {
+    private static final String WELCOME_MESSAGE = "Welcome to RubberDuck.";
 
     /**
      * Method that handles the interface of the program. It prompts from user
@@ -17,11 +18,11 @@ public class MenuInterface {
      */
     public void handleInterface() {
         Scanner sc = new Scanner(System.in);
-
+        showToUser(WELCOME_MESSAGE);
         while (true) {
             String rawInput = acceptInput(sc);
             Command userCommand = Parser.parse(rawInput);
-            String response = executeCommand(userCommand);
+            String response = Logic.executeCommand(userCommand);
             showToUser(response);
         }
     }
@@ -33,17 +34,6 @@ public class MenuInterface {
      */
     private String acceptInput(Scanner sc) {
         return sc.nextLine();
-    }
-
-    /**
-     * Given the command provided, the method executes the correct method in the
-     * logic.
-     *
-     * @param c the command to execute
-     */
-    private String executeCommand(Command c) {
-        throw new UnsupportedOperationException(
-                "Not integrated with logic yet.");
     }
 
     /* Helper Methods for Parser */
