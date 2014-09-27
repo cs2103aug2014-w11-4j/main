@@ -94,7 +94,7 @@ public class LogicTest {
         dateFormat.setCalendar(dp.getEndDate());
         String endDate = dateFormat.format(dp.getEndDate().getTime());
 
-        String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done \n[No Start Date] "
+        String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done \n[No Start Date]"
                 + endDate;
         Logic.delete(id);
         assertEquals(expected, actual);
@@ -131,30 +131,25 @@ public class LogicTest {
         assertEquals(expected, actual);
 
     }
-    
+
     /**
      * Search for keyword in description
      * 
      */
     @Test
-    public void searchKeywordTest(){
+    public void searchKeywordTest() {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-               
+
         Long id = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        System.out.println(id);
         String actual = Logic.searchWithKeyword("Lorem");
         String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done ";
         Logic.delete(id);
         assertEquals(expected, actual);
-        
-        
-        
-    }
 
- 
+    }
 
     /**
      * Test for searching task within period
@@ -253,7 +248,7 @@ public class LogicTest {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
         String ed = dateFormat.format(endDate.getTime());
 
-        String expected = "No Start Date Not Done \n[No Start Date] " + ed;
+        String expected = "No Start Date Not Done \n[No Start Date]" + ed;
         Logic.delete(id);
         assertEquals(expected, actual);
 
@@ -293,4 +288,47 @@ public class LogicTest {
         assertEquals(expected, actual);
 
     }
+
+    /**
+     * Test undo function on Journal
+     * Add in a task, and call undo,
+     * Expected: Display all should not have any values
+     */
+    @Test
+    public void testJournalUndo() {
+        Logic.startDatabase();
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Long id = Logic.addTask(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                dpList);
+        Logic.undo();
+        String actual = Logic.viewAll();
+        String expected = "";
+        assertEquals(expected, actual);
+
+    }
+
+    /**
+     * Test redo function on Journal
+     * Add in a task, and call undo,
+     * Followed by calling redo
+     * 
+     */
+    @Test
+    public void testJournalRedo() {
+
+        Logic.startDatabase();
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Long id = Logic.addTask("Test 1", dpList);
+        Long id2 = Logic.addTask("Test 2", dpList);
+        System.out.println(Logic.viewAll());
+        Logic.undo();
+        Logic.redo();
+        int actual = Logic.getDB().getValidIdList().size();
+        Logic.delete(id);
+        Logic.delete(id2);
+        assertEquals(2, actual);
+
+    }
+
 }

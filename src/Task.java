@@ -159,7 +159,7 @@ public class Task implements Serializable {
             } else {
                 dateFormat.setCalendar(dp.getEndDate());
                 endDate = dateFormat.format(dp.getEndDate().getTime());
-                datePair = datePair + "[No Start Date] " + endDate;
+                datePair = datePair + "[No Start Date]" + endDate;
 
             }
 
