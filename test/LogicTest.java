@@ -94,7 +94,7 @@ public class LogicTest {
         dateFormat.setCalendar(dp.getEndDate());
         String endDate = dateFormat.format(dp.getEndDate().getTime());
 
-        String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done \n[No Start Date] "
+        String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done \n[No Start Date]"
                 + endDate;
         Logic.delete(id);
         assertEquals(expected, actual);
@@ -253,7 +253,7 @@ public class LogicTest {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
         String ed = dateFormat.format(endDate.getTime());
 
-        String expected = "No Start Date Not Done \n[No Start Date] " + ed;
+        String expected = "No Start Date Not Done \n[No Start Date]" + ed;
         Logic.delete(id);
         assertEquals(expected, actual);
 
