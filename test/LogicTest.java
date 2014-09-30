@@ -148,8 +148,8 @@ public class LogicTest {
         String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done ";
         Logic.delete(id);
         assertEquals(expected, actual);
-
     }
+ 
 
     /**
      * Test for searching task within period
@@ -330,5 +330,43 @@ public class LogicTest {
         assertEquals(2, actual);
 
     }
+    
+    
+    /**
+     * Delete exist task
+     *  
+     */
+    @Test
+    public void DeleteExistTask() {
+        boolean isDeleted = false;
+    	Logic.startDatabase();
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Long id = Logic.addTask(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                dpList);
+        isDeleted  = Logic.delete(id);
+        assertTrue(isDeleted);
+    }
+    
+    /**
+     * Adding Task without start date / end date
+     * 
+     * update the task description
+     *  
+     */
 
+    @Test
+    public void updateTask() {
+        Logic.startDatabase();
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Long id = Logic.addTask(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                dpList);
+        Long newID = Logic.updateTask(id, "Lorem ipsum dolor sit amet.", dpList);
+        String actual = Logic.viewTask(newID);
+        String expected = "Lorem ipsum dolor sit amet. Not Done ";
+        Logic.delete(newID);
+        assertEquals(expected, actual);
+
+    }
 }
