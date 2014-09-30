@@ -92,6 +92,24 @@ public class Logic {
     }
 
     /**
+     * update the task to the database
+     * 
+     * @param id of the task
+     * @param updated description
+     * @param updated date list
+     * 
+     * @return new id of the task, if id == 0, task failed to update
+     */
+    public static long updateTask(long id, String description, ArrayList<DatePair> dateList) {
+  
+        long newTaskId = 0;
+        newTaskId  = addTask(description, dateList);
+		delete(id);
+		journal.recordAction(id, newTaskId, description);
+        return newTaskId;
+        
+    }
+    /**
      * Return all the valid task stored in the database
      *
      * @return list of tasks and their information in the database which are valid
