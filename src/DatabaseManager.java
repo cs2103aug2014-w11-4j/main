@@ -154,6 +154,16 @@ public class DatabaseManager<T extends Serializable> implements Iterable<T> {
     }
 
     /**
+     * Delete all instances and reset the database.
+     *
+     * @throws IOException
+     */
+    public void resetDatabase() throws IOException {
+        randomAccessFile.setLength(0);
+        rewriteFile();
+    }
+
+    /**
      * Rewrite the file with all valid instances and close the file. All invalid
      * instances are discarded.
      *
