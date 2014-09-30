@@ -51,20 +51,16 @@ public class Logic {
             dateRangeList.add(cmd.getDateRange());
             addTask(cmd.getDescription(), dateRangeList);
         } else if (cmdType.equals(CommandType.VIEW)) {
-            System.out.println(viewAll());
+            return viewAll();
         } else if (cmdType.equals(CommandType.SEARCH)) {
             // yet to determine search type
             // using search by keywords
             String result = searchWithKeyword(cmd.getDescription());
-            System.out.println(result);
+            return result;
         } else if (cmdType.equals(CommandType.DELETE)) {
             // yet to implement
         } else if (cmdType.equals(CommandType.UPDATE)) {
             // yet to implement
-        } else if (cmdType.equals(CommandType.UNDO)) {
-            undo();
-        } else if (cmdType.equals(CommandType.REDO)) {
-            redo();
         } else if (cmdType.equals(CommandType.INVALID)) {
             System.out.println("Invalid Command");
         } else if (cmdType.equals(CommandType.EXIT)) {
@@ -97,21 +93,21 @@ public class Logic {
 
     /**
      * update the task to the database
-     * 
+     *
      * @param id of the task
      * @param updated description
      * @param updated date list
-     * 
+     *
      * @return new id of the task, if id == 0, task failed to update
      */
     public static long updateTask(long id, String description, ArrayList<DatePair> dateList) {
-  
+
         long newTaskId = 0;
         newTaskId  = addTask(description, dateList);
-		delete(id);
-		journal.recordAction(id, newTaskId, description);
+        delete(id);
+        journal.recordAction(id, newTaskId, description);
         return newTaskId;
-        
+
     }
     /**
      * Return all the valid task stored in the database

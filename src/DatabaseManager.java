@@ -75,8 +75,8 @@ public class DatabaseManager<T extends Serializable> implements Iterable<T> {
     /**
      * Store the IDs of both valid and invalid instances and their offset.
      */
-    private HashMap<Long, Long> validInstancesMap = new HashMap<Long, Long>();
-    private HashMap<Long, Long> invalidInstancesMap = new HashMap<Long, Long>();
+    private HashMap<Long, Long> validInstancesMap = null;
+    private HashMap<Long, Long> invalidInstancesMap = null;
     private long currentId;
 
     /**
@@ -118,6 +118,8 @@ public class DatabaseManager<T extends Serializable> implements Iterable<T> {
      */
     private void scanFile() throws IOException {
         resetId();
+        validInstancesMap = new HashMap<Long, Long>();
+        invalidInstancesMap = new HashMap<Long, Long>();
         randomAccessFile.seek(0);
         long offset = randomAccessFile.getFilePointer();
         String line;
@@ -149,6 +151,16 @@ public class DatabaseManager<T extends Serializable> implements Iterable<T> {
         writeChangesAndClose();
         openFile();
         scanFile();
+    }
+
+    /**
+     * Delete all instances and reset the database.
+     *
+     * @throws IOException
+     */
+    public void resetDatabase() throws IOException {
+        randomAccessFile.setLength(0);
+        rewriteFile();
     }
 
     /**
