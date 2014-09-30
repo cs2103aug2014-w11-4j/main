@@ -10,6 +10,7 @@
 public class RubberDuck {
     public static void main(String[] args) {
         MenuInterface menu = new MenuInterface();
+        Logic.startDatabase();
         menu.handleInterface();
     }
 }

@@ -51,7 +51,7 @@ public class Logic {
             dateRangeList.add(cmd.getDateRange());
             addTask(cmd.getDescription(), dateRangeList);
         } else if (cmdType.equals(CommandType.VIEW)) {
-            viewAll();
+            System.out.println(viewAll());
         } else if (cmdType.equals(CommandType.SEARCH)) {
             // yet to determine search type
             // using search by keywords
@@ -61,6 +61,10 @@ public class Logic {
             // yet to implement
         } else if (cmdType.equals(CommandType.UPDATE)) {
             // yet to implement
+        } else if (cmdType.equals(CommandType.UNDO)) {
+            undo();
+        } else if (cmdType.equals(CommandType.REDO)) {
+            redo();
         } else if (cmdType.equals(CommandType.INVALID)) {
             System.out.println("Invalid Command");
         } else if (cmdType.equals(CommandType.EXIT)) {

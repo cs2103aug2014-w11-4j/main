@@ -44,6 +44,12 @@ public class Parser {
             case UPDATE:
                 return parseUpdate(args);
 
+            case UNDO:
+                return parseUndo(args);
+
+            case REDO:
+                return parseRedo(args);
+
             case EXIT:
                 return parseExit(args);
 
@@ -216,6 +222,14 @@ public class Parser {
         } catch (NumberFormatException e) {
             return new Command(CommandType.INVALID, DELETE_ERROR_INVALID);
         }
+    }
+
+    public static Command parseUndo(String args) {
+        return new Command(CommandType.UNDO);
+    }
+
+    public static Command parseRedo(String args) {
+        return new Command(CommandType.REDO);
     }
 
     public static Command parseExit(String args) {
