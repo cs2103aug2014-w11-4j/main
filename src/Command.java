@@ -61,7 +61,7 @@ public class Command {
         this.dateRange = dateRange;
     }
 
-    /* Constructor for exit command */
+    /* Constructor for exit, undo, redo command */
     public Command(CommandType type) {
         this.type = type;
     }
