@@ -99,7 +99,47 @@ public class Logic {
         }
         return id;
     }
-
+    
+    /**
+     * Create and add the completed task to the database
+     *
+     * @param description of the task
+     * @param dateList of possible DatePair
+     *
+     * @return id of the task, if id == 0, task failed to create
+     */
+    public static long addCompletedTask(String description, ArrayList<DatePair> dateList) {
+        long id = 0;
+        Task task = new Task(description, dateList);
+        task.setIsDone(true);
+        try {
+            id = dbManager.putInstance(task);
+            journal.recordAction(null, id, description);
+        } catch (IOException e) {
+            return id;
+        }
+        return id;
+    }
+    
+    /**
+     * Mark a task as completed
+     *
+     * @param displayed id of the task
+     *
+     * @return database id of the task, if id == 0, task failed to be marked
+     * @throws IOException 
+     */
+    public static long markTaskcompleted(long displayedId) throws IOException{
+    	long databaseId = displayedTasksMap.get(displayedId);
+    	Task oldTask = dbManager.getInstance(databaseId);
+        String oldDescription = oldTask.getDescription();
+        ArrayList<DatePair> oldDateList = oldTask.getDateList();
+        long newTaskId = addCompletedTask(oldDescription,oldDateList);
+        delete(databaseId);
+        journal.recordAction(databaseId, newTaskId, oldDescription);
+    	return newTaskId;
+    }
+    
     /**
      * update the task to the database
      *
