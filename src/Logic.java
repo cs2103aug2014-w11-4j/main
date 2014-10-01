@@ -109,12 +109,24 @@ public class Logic {
      *
      * @return new id of the task, if id == 0, task failed to update
      */
-    public static long updateTask(long id, String description, ArrayList<DatePair> dateList) {
-
-        long newTaskId = 0;
-        newTaskId  = addTask(description, dateList);
-        delete(id);
-        journal.recordAction(id, newTaskId, description);
+    public static long updateTask(long displayedTaskId, String description, ArrayList<DatePair> dateList) throws IOException{
+    	long databaseId = displayedTasksMap.get(displayedTaskId);
+    	Task oldTask = dbManager.getInstance(databaseId);
+        String oldDescription = oldTask.getDescription();
+        ArrayList<DatePair> oldDateList = oldTask.getDateList();
+        long newTaskId;
+        if (description == null && dateList !=null){
+        	newTaskId = addTask(oldDescription, dateList);
+        }else if (description == null && dateList != null){
+        	newTaskId = addTask(description, oldDateList);
+        }else if (description != null && dateList != null){
+        	newTaskId = addTask(description, dateList);
+        }else {
+        	//magic string here, will change
+        	return databaseId;
+        }
+        delete(databaseId);
+        journal.recordAction(databaseId, newTaskId, description);
         return newTaskId;
 
     }
