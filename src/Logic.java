@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 public class Logic {
 
@@ -16,6 +17,8 @@ public class Logic {
     private static DatabaseManager<Task> dbManager = null;
     private static String currentDirectory = System.getProperty("user.dir");
     private static JournalController<Task> journal = null;
+
+    private static HashMap<Long, Long> displayedTasksMap = new HashMap<Long, Long>();
 
     /**
      * Start the database,
@@ -46,25 +49,31 @@ public class Logic {
     public static String executeCommand(Command cmd) {
         CommandType cmdType = cmd.getType();
 
-        if (cmdType.equals(CommandType.ADD)) {
-            ArrayList<DatePair> dateRangeList = new ArrayList<DatePair>();
-            dateRangeList.add(cmd.getDateRange());
-            addTask(cmd.getDescription(), dateRangeList);
-        } else if (cmdType.equals(CommandType.VIEW)) {
-            viewAll();
-        } else if (cmdType.equals(CommandType.SEARCH)) {
-            // yet to determine search type
-            // using search by keywords
-            String result = searchWithKeyword(cmd.getDescription());
-            System.out.println(result);
-        } else if (cmdType.equals(CommandType.DELETE)) {
-            // yet to implement
-        } else if (cmdType.equals(CommandType.UPDATE)) {
-            // yet to implement
-        } else if (cmdType.equals(CommandType.INVALID)) {
-            System.out.println("Invalid Command");
-        } else if (cmdType.equals(CommandType.EXIT)) {
-            System.exit(0);
+        try {
+            if (cmdType.equals(CommandType.ADD)) {
+                ArrayList<DatePair> dateRangeList = new ArrayList<DatePair>();
+                dateRangeList.add(cmd.getDateRange());
+                addTask(cmd.getDescription(), dateRangeList);
+            } else if (cmdType.equals(CommandType.VIEW)) {
+                viewAll();
+            } else if (cmdType.equals(CommandType.SEARCH)) {
+                // yet to determine search type
+                // using search by keywords
+                String result = searchWithKeyword(cmd.getDescription());
+                System.out.println(result);
+            } else if (cmdType.equals(CommandType.DELETE)) {
+                // yet to implement
+            } else if (cmdType.equals(CommandType.UPDATE)) {
+                // yet to implement
+            } else if (cmdType.equals(CommandType.INVALID)) {
+                System.out.println("Invalid Command");
+            } else if (cmdType.equals(CommandType.EXIT)) {
+                dbManager.closeFile();
+                System.exit(0);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            // TODO
         }
 
         //TODO: For each function, return output (String) back to interface.
@@ -114,10 +123,14 @@ public class Logic {
      *
      * @return list of tasks and their information in the database which are valid
      */
-    public static String viewAll() {
+    public static String viewAll() throws IOException {
         String taskString = "";
-        for (Task task : dbManager) {
-            taskString = taskString + task.toString() + "\n";
+        Long displayingId = (long) 1;
+        displayedTasksMap.clear();
+        for (Long databaseId : dbManager.getValidIdList()) {
+            displayedTasksMap.put(displayingId, databaseId);
+            taskString = taskString + dbManager.getInstance(databaseId).toString() + "\n";
+            displayingId++;
         }
         return taskString;
     }
@@ -159,16 +172,22 @@ public class Logic {
      * @param the keyword that is used to search for the task
      */
 
-    public static String searchWithKeyword(String keywords) {
+    public static String searchWithKeyword(String keywords) throws IOException {
         String result = "";
         ArrayList<Task> relatedTasks = new ArrayList<Task>();
-        for (Task task : dbManager) {
-            String taskInDb = task.getDescription();
+
+        displayedTasksMap.clear();
+        Long displayingId = (long) 1;
+        for (Long databaseId : dbManager.getValidIdList()) {
+            String taskInDb = dbManager.getInstance(databaseId).getDescription();
             taskInDb = taskInDb.toLowerCase();
             if (taskInDb.contains(keywords.toLowerCase())) {
-                relatedTasks.add(task);
+                displayedTasksMap.put(displayingId, databaseId);
+                relatedTasks.add(dbManager.getInstance(databaseId));
+                displayingId++;
             }
         }
+
 
         for (int i = 0; i < relatedTasks.size(); i++) {
             result = result + relatedTasks.get(i).toString();
@@ -183,13 +202,17 @@ public class Logic {
      * @return result of all the tasks that are within the period as queried
      */
 
-    public static String searchWithPeriod(DatePair dateRange) {
+    public static String searchWithPeriod(DatePair dateRange) throws IOException {
         String result = "";
-        for (Task task : dbManager) {
-            boolean inPeriod = isWithinPeriod(task, dateRange);
+
+        displayedTasksMap.clear();
+        Long displayingId = (long) 1;
+        for (Long databaseId : dbManager.getValidIdList()) {
+            boolean inPeriod = isWithinPeriod(dbManager.getInstance(databaseId), dateRange);
             if (inPeriod) {
-                result = result + task.toString();
-                break;
+                displayedTasksMap.put(displayingId, databaseId);
+                result = result + dbManager.getInstance(databaseId).toString();
+                displayingId++;
             }
         }
 
