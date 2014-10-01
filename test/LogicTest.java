@@ -1,5 +1,6 @@
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -352,20 +353,21 @@ public class LogicTest {
      * Adding Task without start date / end date
      * 
      * update the task description
+     * @throws IOException 
      *  
      */
 
     @Test
-    public void updateTask() {
+    public void updateTask() throws IOException {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        Long id = Logic.addTask(
+        Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        Long newID = Logic.updateTask(id, "Lorem ipsum dolor sit amet.", dpList);
-        String actual = Logic.viewTask(newID);
+        long newTaskId = Logic.updateTask(1, "Lorem ipsum dolor sit amet.", dpList);
         String expected = "Lorem ipsum dolor sit amet. Not Done ";
-        Logic.delete(newID);
+        String actual = Logic.viewTask(newTaskId);
+        Logic.delete(newTaskId);
         assertEquals(expected, actual);
 
     }
