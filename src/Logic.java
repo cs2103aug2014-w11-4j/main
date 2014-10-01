@@ -55,12 +55,12 @@ public class Logic {
                 dateRangeList.add(cmd.getDateRange());
                 addTask(cmd.getDescription(), dateRangeList);
             } else if (cmdType.equals(CommandType.VIEW)) {
-                viewAll();
+                return viewAll();
             } else if (cmdType.equals(CommandType.SEARCH)) {
                 // yet to determine search type
                 // using search by keywords
                 String result = searchWithKeyword(cmd.getDescription());
-                System.out.println(result);
+                return result;
             } else if (cmdType.equals(CommandType.DELETE)) {
                 // yet to implement
             } else if (cmdType.equals(CommandType.UPDATE)) {
