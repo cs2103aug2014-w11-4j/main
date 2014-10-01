@@ -137,7 +137,7 @@ public class LogicTest {
      * 
      */
     @Test
-    public void searchKeywordTest() {
+    public void searchKeywordTest() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
@@ -156,7 +156,7 @@ public class LogicTest {
      * Condition: Task have both start date and end date within period
      */
     @Test
-    public void searchWithinPeriodOne() {
+    public void searchWithinPeriodOne() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar startDate = Calendar.getInstance();
@@ -191,7 +191,7 @@ public class LogicTest {
      * Condition: Task have only start date
      */
     @Test
-    public void searchWithinPeriodTwo() {
+    public void searchWithinPeriodTwo() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar startDate = Calendar.getInstance();
@@ -225,7 +225,7 @@ public class LogicTest {
      * Condition: Task have only end date
      */
     @Test
-    public void searchWithinPeriodThree() {
+    public void searchWithinPeriodThree() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar endDate = Calendar.getInstance();
@@ -259,7 +259,7 @@ public class LogicTest {
      * Condition: Task have both start date and end date beyond period
      */
     @Test
-    public void searchWithinPeriodFour() {
+    public void searchWithinPeriodFour() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar startDate = Calendar.getInstance();
@@ -295,7 +295,7 @@ public class LogicTest {
      * Expected: Display all should not have any values
      */
     @Test
-    public void testJournalUndo() {
+    public void testJournalUndo() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Long id = Logic.addTask(
@@ -315,7 +315,7 @@ public class LogicTest {
      * 
      */
     @Test
-    public void testJournalRedo() {
+    public void testJournalRedo() throws Exception {
 
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
