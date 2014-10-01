@@ -350,7 +350,6 @@ public class LogicTest {
     }
     
     /**
-     * Adding Task without start date / end date
      * 
      * update the task description
      * @throws IOException 
@@ -369,6 +368,25 @@ public class LogicTest {
         String actual = Logic.viewTask(newTaskId);
         Logic.delete(newTaskId);
         assertEquals(expected, actual);
+
+    }
+    
+    /**
+     * 
+     * mark task as completed
+     * @throws IOException 
+     *  
+     */
+    @Test
+    public void MarkTask() throws IOException {
+        Logic.startDatabase();
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        long taskId = Logic.addTask(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                dpList);
+        Long newTaskId = Logic.markTaskcompleted(taskId);
+        boolean expected  = Logic.getDB().getInstance(newTaskId).getIsDone();
+        assertEquals(expected, true);
 
     }
 }
