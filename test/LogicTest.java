@@ -377,16 +377,17 @@ public class LogicTest {
      * @throws IOException 
      *  
      */
+    
     @Test
-    public void MarkTask() throws IOException {
+    public void markTask() throws IOException {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         long taskId = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         Long newTaskId = Logic.markTaskcompleted(taskId);
-        boolean expected  = Logic.getDB().getInstance(newTaskId).getIsDone();
-        assertEquals(expected, true);
-
+        boolean actual  = Logic.getDB().getInstance(newTaskId).getIsDone();
+        assertTrue(actual);
+        Logic.delete(newTaskId);
     }
 }
