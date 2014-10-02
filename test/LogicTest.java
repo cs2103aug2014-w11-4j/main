@@ -1,5 +1,6 @@
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -137,7 +138,7 @@ public class LogicTest {
      * 
      */
     @Test
-    public void searchKeywordTest() {
+    public void searchKeywordTest() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
@@ -152,11 +153,11 @@ public class LogicTest {
  
 
     /**
-     * Test for searching task within period
+     * Test for viewing task within period
      * Condition: Task have both start date and end date within period
      */
     @Test
-    public void searchWithinPeriodOne() {
+    public void viewWithinPeriodOne() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar startDate = Calendar.getInstance();
@@ -175,7 +176,7 @@ public class LogicTest {
         ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
         dpRangeList.add(dpRange);
 
-        String actual = Logic.searchWithPeriod(dpRange);
+        String actual = Logic.viewByPeriod(dpRange);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
         String sd = dateFormat.format(startDate.getTime());
@@ -187,11 +188,11 @@ public class LogicTest {
     }
 
     /**
-     * Test for searching task within period
+     * Test for viewing task within period
      * Condition: Task have only start date
      */
     @Test
-    public void searchWithinPeriodTwo() {
+    public void viewWithinPeriodTwo() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar startDate = Calendar.getInstance();
@@ -209,7 +210,7 @@ public class LogicTest {
         ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
         dpRangeList.add(dpRange);
 
-        String actual = Logic.searchWithPeriod(dpRange);
+        String actual = Logic.viewByPeriod(dpRange);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
         String sd = dateFormat.format(startDate.getTime());
@@ -221,11 +222,11 @@ public class LogicTest {
     }
 
     /**
-     * Test for searching task within period
+     * Test for viewing task within period
      * Condition: Task have only end date
      */
     @Test
-    public void searchWithinPeriodThree() {
+    public void viewWithinPeriodThree() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar endDate = Calendar.getInstance();
@@ -243,7 +244,7 @@ public class LogicTest {
         ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
         dpRangeList.add(dpRange);
 
-        String actual = Logic.searchWithPeriod(dpRange);
+        String actual = Logic.viewByPeriod(dpRange);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
         String ed = dateFormat.format(endDate.getTime());
@@ -255,11 +256,11 @@ public class LogicTest {
     }
 
     /**
-     * Test for searching task within period
+     * Test for viewing task within period
      * Condition: Task have both start date and end date beyond period
      */
     @Test
-    public void searchWithinPeriodFour() {
+    public void viewWithinPeriodFour() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar startDate = Calendar.getInstance();
@@ -278,7 +279,7 @@ public class LogicTest {
         ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
         dpRangeList.add(dpRange);
 
-        String actual = Logic.searchWithPeriod(dpRange);
+        String actual = Logic.viewByPeriod(dpRange);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
         String sd = dateFormat.format(startDate.getTime());
@@ -295,7 +296,7 @@ public class LogicTest {
      * Expected: Display all should not have any values
      */
     @Test
-    public void testJournalUndo() {
+    public void testJournalUndo() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Long id = Logic.addTask(
@@ -315,7 +316,7 @@ public class LogicTest {
      * 
      */
     @Test
-    public void testJournalRedo() {
+    public void testJournalRedo() throws Exception {
 
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
@@ -349,24 +350,44 @@ public class LogicTest {
     }
     
     /**
-     * Adding Task without start date / end date
      * 
      * update the task description
+     * @throws IOException 
      *  
      */
 
     @Test
-    public void updateTask() {
+    public void updateTask() throws IOException {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        Long id = Logic.addTask(
+        Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        Long newID = Logic.updateTask(id, "Lorem ipsum dolor sit amet.", dpList);
-        String actual = Logic.viewTask(newID);
+        long newTaskId = Logic.updateTask(1, "Lorem ipsum dolor sit amet.", dpList);
         String expected = "Lorem ipsum dolor sit amet. Not Done ";
-        Logic.delete(newID);
+        String actual = Logic.viewTask(newTaskId);
+        Logic.delete(newTaskId);
         assertEquals(expected, actual);
 
+    }
+    
+    /**
+     * 
+     * mark task as completed
+     * @throws IOException 
+     *  
+     */
+    
+    @Test
+    public void markTask() throws IOException {
+        Logic.startDatabase();
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        long taskId = Logic.addTask(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                dpList);
+        Long newTaskId = Logic.markTaskcompleted(taskId);
+        boolean actual  = Logic.getDB().getInstance(newTaskId).getIsDone();
+        assertTrue(actual);
+        Logic.delete(newTaskId);
     }
 }
