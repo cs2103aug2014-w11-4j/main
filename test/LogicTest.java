@@ -22,30 +22,25 @@ public class LogicTest {
      */
     @Test
     public void addTask() {
-
+        
         Logic.startDatabase();
+        DatabaseManager <Task> db = Logic.getDB();
+        try {
+            db.resetDatabase();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar today = Calendar.getInstance();
         DatePair dp = new DatePair(today);
         datePairList.add(dp);
         Long id = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                datePairList);
-        String actual = Logic.viewTask(id);
+                datePairList);       
 
-        // formatting current dateTime
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
-        String datePair = "";
-        dateFormat.setCalendar(dp.getStartDate());
-        String startDate = dateFormat.format(dp.getStartDate().getTime());
-        dateFormat.setCalendar(dp.getEndDate());
-        String endDate = dateFormat.format(dp.getEndDate().getTime());
-        datePair = startDate + " " + endDate;
-
-        String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done \n"
-                + datePair;
-        Logic.delete(id);
-        assertEquals(expected, actual);
+   
+        assertEquals(1, db.getValidIdList().size());
 
     }
 
@@ -140,6 +135,8 @@ public class LogicTest {
     @Test
     public void searchKeywordTest() throws Exception {
         Logic.startDatabase();
+        DatabaseManager <Task> db = Logic.getDB();
+        db.resetDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
         Long id = Logic.addTask(
@@ -299,13 +296,14 @@ public class LogicTest {
     public void testJournalUndo() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        DatabaseManager <Task> db = Logic.getDB();
+        int originalSize = db.getValidIdList().size();
         Long id = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         Logic.undo();
-        String actual = Logic.viewAll();
-        String expected = "";
-        assertEquals(expected, actual);
+
+        assertEquals(originalSize, db.getValidIdList().size());
 
     }
 
@@ -319,16 +317,15 @@ public class LogicTest {
     public void testJournalRedo() throws Exception {
 
         Logic.startDatabase();
+        DatabaseManager <Task> db = Logic.getDB();
+        int originalSize = db.getValidIdList().size();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Long id = Logic.addTask("Test 1", dpList);
         Long id2 = Logic.addTask("Test 2", dpList);
-        System.out.println(Logic.viewAll());
         Logic.undo();
         Logic.redo();
-        int actual = Logic.getDB().getValidIdList().size();
-        Logic.delete(id);
-        Logic.delete(id2);
-        assertEquals(2, actual);
+
+        assertEquals(originalSize+2, db.getValidIdList().size());
 
     }
     
