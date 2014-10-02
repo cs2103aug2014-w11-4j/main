@@ -57,12 +57,13 @@ public class Logic {
                 dateRangeList.add(command.getDateRange());
                 addTask(command.getDescription(), dateRangeList);
             } else if (cmdType.equals(CommandType.VIEW)) {
-                return viewAll();
+                if (command.isViewAll()) {
+                    return viewAll();
+                } else {
+                    return viewByPeriod(command.getDateRange());
+                }
             } else if (cmdType.equals(CommandType.SEARCH)) {
-                // yet to determine search type
-                // using search by keywords
-                String result = searchWithKeyword(command.getKeyword());
-                return result;
+                return searchWithKeyword(command.getKeyword());
             } else if (cmdType.equals(CommandType.DELETE)) {
                 // yet to implement
             } else if (cmdType.equals(CommandType.UPDATE)) {
@@ -261,8 +262,7 @@ public class Logic {
      * @return result of all the tasks that are within the period as queried
      */
 
-    public static String searchWithPeriod(DatePair dateRange)
-            throws IOException {
+    public static String viewByPeriod(DatePair dateRange) throws IOException {
         String result = "";
 
         displayedTasksMap.clear();

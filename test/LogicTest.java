@@ -153,11 +153,11 @@ public class LogicTest {
  
 
     /**
-     * Test for searching task within period
+     * Test for viewing task within period
      * Condition: Task have both start date and end date within period
      */
     @Test
-    public void searchWithinPeriodOne() throws Exception {
+    public void viewWithinPeriodOne() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar startDate = Calendar.getInstance();
@@ -176,7 +176,7 @@ public class LogicTest {
         ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
         dpRangeList.add(dpRange);
 
-        String actual = Logic.searchWithPeriod(dpRange);
+        String actual = Logic.viewByPeriod(dpRange);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
         String sd = dateFormat.format(startDate.getTime());
@@ -188,11 +188,11 @@ public class LogicTest {
     }
 
     /**
-     * Test for searching task within period
+     * Test for viewing task within period
      * Condition: Task have only start date
      */
     @Test
-    public void searchWithinPeriodTwo() throws Exception {
+    public void viewWithinPeriodTwo() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar startDate = Calendar.getInstance();
@@ -210,7 +210,7 @@ public class LogicTest {
         ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
         dpRangeList.add(dpRange);
 
-        String actual = Logic.searchWithPeriod(dpRange);
+        String actual = Logic.viewByPeriod(dpRange);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
         String sd = dateFormat.format(startDate.getTime());
@@ -222,11 +222,11 @@ public class LogicTest {
     }
 
     /**
-     * Test for searching task within period
+     * Test for viewing task within period
      * Condition: Task have only end date
      */
     @Test
-    public void searchWithinPeriodThree() throws Exception {
+    public void viewWithinPeriodThree() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar endDate = Calendar.getInstance();
@@ -244,7 +244,7 @@ public class LogicTest {
         ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
         dpRangeList.add(dpRange);
 
-        String actual = Logic.searchWithPeriod(dpRange);
+        String actual = Logic.viewByPeriod(dpRange);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
         String ed = dateFormat.format(endDate.getTime());
@@ -256,11 +256,11 @@ public class LogicTest {
     }
 
     /**
-     * Test for searching task within period
+     * Test for viewing task within period
      * Condition: Task have both start date and end date beyond period
      */
     @Test
-    public void searchWithinPeriodFour() throws Exception {
+    public void viewWithinPeriodFour() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar startDate = Calendar.getInstance();
@@ -279,7 +279,7 @@ public class LogicTest {
         ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
         dpRangeList.add(dpRange);
 
-        String actual = Logic.searchWithPeriod(dpRange);
+        String actual = Logic.viewByPeriod(dpRange);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
         String sd = dateFormat.format(startDate.getTime());
