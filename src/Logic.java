@@ -13,7 +13,9 @@ import java.util.HashMap;
 
 public class Logic {
 
-    private static final String databaseName = "database.xml";
+    private static final String DATABASE_NAME = "database.xml";
+    private static final String INVALID_COMMAND_MESSAGE = "Invalid Command";
+    
     private static DatabaseManager<Task> dbManager = null;
     private static String currentDirectory = System.getProperty("user.dir");
     private static JournalController<Task> journal = null;
@@ -31,7 +33,7 @@ public class Logic {
     public static boolean startDatabase() {
         try {
             dbManager = new DatabaseManager<Task>(currentDirectory
-                    + File.separator + databaseName);
+                    + File.separator + DATABASE_NAME);
             journal = new JournalController<Task>(dbManager);
 
         } catch (IOException e) {
@@ -51,6 +53,7 @@ public class Logic {
 
     public static String executeCommand(Command command) {
         CommandType cmdType = command.getType();
+        String result= "";
         try {
             if (cmdType.equals(CommandType.ADD)) {
                 ArrayList<DatePair> dateRangeList = new ArrayList<DatePair>();
@@ -58,29 +61,29 @@ public class Logic {
                 addTask(command.getDescription(), dateRangeList);
             } else if (cmdType.equals(CommandType.VIEW)) {
                 if (command.isViewAll()) {
-                    return viewAll();
+                    result = viewAll();
                 } else {
-                    return viewByPeriod(command.getDateRange());
+                    result = viewByPeriod(command.getDateRange());
                 }
             } else if (cmdType.equals(CommandType.SEARCH)) {
-                return searchWithKeyword(command.getKeyword());
+                result = searchWithKeyword(command.getKeyword());
             } else if (cmdType.equals(CommandType.DELETE)) {
                 // yet to implement
             } else if (cmdType.equals(CommandType.UPDATE)) {
                 // yet to implement
             } else if (cmdType.equals(CommandType.INVALID)) {
-                System.out.println("Invalid Command");
+                result = INVALID_COMMAND_MESSAGE;
             } else if (cmdType.equals(CommandType.EXIT)) {
                 dbManager.closeFile();
                 System.exit(0);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace();            
             // TODO
         }
 
         // TODO: For each function, return output (String) back to interface.
-        return null;
+        return result;
     }
 
     /**
