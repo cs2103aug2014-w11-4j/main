@@ -150,7 +150,7 @@ public class Task implements Serializable {
         if (!isDone) {
             status = "Not Done";  // TODO
         }
-        return description + " " + status + " " + datePair.trim(); // TODO
+        return description + " " + status + " " + datePair; // TODO
     }
 
     /**
