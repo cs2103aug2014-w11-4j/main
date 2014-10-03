@@ -11,6 +11,7 @@ public class RubberDuck {
     public static void main(String[] args) {
         MenuInterface menu = new MenuInterface();
         Logic.startDatabase();
+        Parser.initParser();
         menu.handleInterface();
     }
 }

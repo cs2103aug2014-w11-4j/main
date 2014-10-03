@@ -13,8 +13,8 @@ public enum CommandType {
     /* use var args to populate all possible variations for each command type */
     VIEW("view", "display"), SEARCH("find", "lookup", "search"), ADD("add",
             "insert", "ins", "new"), DELETE("delete", "remove"), UPDATE(
-            "change", "update", "edit"), EXIT("exit", "quit"), INVALID(
-            "invalid"), UNDO("undo"), REDO("redo");
+            "change", "update", "edit"), UNDO("undo"), REDO("redo"), MARK(
+            "mark, completed, done"), EXIT("exit", "quit"), INVALID("invalid");
 
     private List<String> tags;
     private static final Map<String, CommandType> tagMap = new HashMap<String, CommandType>();
