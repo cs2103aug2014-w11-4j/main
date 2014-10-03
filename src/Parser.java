@@ -1,9 +1,13 @@
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
+
+import com.joestelmach.natty.DateGroup;
 
 /**
  * Parser that reads in raw user input and provides instruction on how the UI
@@ -15,6 +19,9 @@ import java.text.SimpleDateFormat;
 public class Parser {
     private static final String SEARCH_ERROR_EMPTY = "Please enter a keyword to search for.";
     private static final String DELETE_ERROR_INVALID = "Please enter a valid id to delete.";
+
+    /* Used specifically to parse date from user's input */
+    private static com.joestelmach.natty.Parser dateParser = new com.joestelmach.natty.Parser();
 
     public static Command parse(String input) {
         CommandType userCommand = determineCommandType(input);
@@ -64,53 +71,30 @@ public class Parser {
     }
 
     /**
-     * v0.1 - Parse simple view command from user input:
-     * Current acceptable format
-     *  - view this week
-     *  - view today
-     *  - view tommorrow
-     *  - view [date]
-     *  - view [date] - [date]
+     * v0.2 - Parse view command from user with natural language support.
+     * Current limitation is restricted to only one DatePair
      *
-     * @param args
-     * @return
+     * @param args the arguments the user input
+     * @return either a VIEW command or INVALID command
      */
     public static Command parseView(String args) {
-        /* Extract all date from user's input */
-        String dateRegex = "(((0[1-9]|[12][0-9]|3[01])([/])(0[13578]|10|12)([/])(\\d{4}))|(([0][1-9]|[12][0-9]|30)([/])(0[469]|11)([/])(\\d{4}))|((0[1-9]|1[0-9]|2[0-8])([/])(02)([/])(\\d{4}))|((29)(\\.|-|\\/)(02)([/])([02468][048]00))|((29)([/])(02)([/])([13579][26]00))|((29)([/])(02)([/])([0-9][0-9][0][48]))|((29)([/])(02)([/])([0-9][0-9][2468][048]))|((29)([/])(02)([/])([0-9][0-9][13579][26])))(?:\\s?(?:((?:[01][0-9]|2[0-3])[:.]?(?:[0-5][0-9]))(?!\\s*[apAP][mM])|((?:[0-1]?[0-9]|[2][0-3])(?:[:.](?:[0-5][0-9]))?(?:\\s*)(?:[apAP][mM])\\s*))(?:\\b(?:to|-)\\b\\s*)?(?:((?:[01][0-9]|2[0-3])[:.]?(?:[0-5][0-9]))(?!\\s*[apAP][mM])|((?:[0-1]?[0-9]|[2][0-3])(?:[:.](?:[0-5][0-9]))?(?:\\s*)(?:[apAP][mM])\\s*))?)?";
-        Pattern datePattern = Pattern.compile(dateRegex);
-        Matcher dateMatcher = datePattern.matcher(args);
-        DatePair date = null;
-
-        if (dateMatcher.find()) {
-            Calendar startDate = parseDate(dateMatcher.group());
-            if (dateMatcher.find()) {
-                Calendar endDate = parseDate(dateMatcher.group());
-                date = new DatePair(startDate, endDate);
-            } else {
-                date = new DatePair(startDate);
-            }
+        /* If user decides to view all uncompleted tasks */
+        if (args.contains("all")) {
+            return new Command(CommandType.VIEW, true, null);
         }
 
-        /* String Search if no provided date */
-        if (date == null) {
-            String keyword = args.trim();
-            if (keyword.equalsIgnoreCase("today")) {
-                Calendar startDate = Calendar.getInstance();
-                date = new DatePair(startDate);
-            } else if (keyword.equalsIgnoreCase("this week")) {
-                Calendar startDate = Calendar.getInstance();
-                Calendar endDate = Calendar.getInstance();
-                endDate.add(Calendar.DAY_OF_WEEK,
-                        (endDate.get(Calendar.DAY_OF_WEEK) - 1));
-                date = new DatePair(startDate, endDate);
-            } else if (keyword.equalsIgnoreCase("tommorrow")) {
-                Calendar startDate = Calendar.getInstance();
-                startDate.add(Calendar.DATE, 1);
-                date = new DatePair(startDate);
-            } else {
-                /* Invalid Command */
+        List<DateGroup> groups = dateParser.parse(args);
+        DatePair date = new DatePair();
+        for (DateGroup group : groups) {
+            List<Date> dates = group.getDates();
+
+            if (dates.size() == 2) {
+                date.setEndDate(dateToCalendar(dates.get(1)));
+                System.out.println(date.getEndDate().getTime());
             }
+
+            date.setStartDate(dateToCalendar(dates.get(0)));
+            System.out.println(date.getStartDate().getTime());
         }
 
         return new Command(CommandType.VIEW, false, date);
@@ -131,14 +115,10 @@ public class Parser {
     }
 
     /**
-     * v0.1 - Parse simple add command from user input:
-     * Current acceptable format
-     * - add [desc]
-     * - add [desc] [date] <time | 0000>
-     * - add [desc] [date] <time | 0000> [date] <time | 0000>
+     * v0.2 - Parse add command from user with natural language support.
      *
-     * @param args user given arguments
-     * @return add command
+     * @param args the arguments the user input
+     * @return either a ADD command or INVALID command
      */
     public static Command parseAdd(String args) {
         /* Extract all date from user's input */
@@ -164,8 +144,8 @@ public class Parser {
     }
 
     /**
-     * Currently quite strict date parsing. There must be space
-     * between the minute and am/pm.
+     * Currently quite strict date parsing. There must be space between the
+     * minute and am/pm.
      *
      * @param date
      * @return Calendar object
@@ -244,5 +224,11 @@ public class Parser {
     private static String removeFirstWord(String input) {
         String[] splitWord = input.split("\\s+", 2);
         return splitWord.length == 1 ? splitWord[0] : splitWord[1];
+    }
+
+    public static Calendar dateToCalendar(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal;
     }
 }
