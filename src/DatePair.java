@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -44,5 +45,25 @@ public class DatePair implements Serializable {
 
     public void setEndDate(Calendar endDate) {
         this.endDate = endDate;
+    }
+
+    public String toString() {
+        String formattedStartDate, formattedEndDate;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
+
+        if (startDate != null) {
+            formattedStartDate = dateFormat.format(startDate.getTime());
+        } else {
+            formattedStartDate = "[No Start Date]";
+        }
+
+        if (endDate != null) {
+            formattedEndDate = dateFormat.format(endDate.getTime());
+        } else {
+            formattedEndDate = "[No End Date]";
+        }
+
+        return String.format("%s %s", formattedStartDate, formattedEndDate);
+
     }
 }

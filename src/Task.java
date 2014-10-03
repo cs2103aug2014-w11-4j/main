@@ -140,35 +140,17 @@ public class Task implements Serializable {
     public String toString() {
         String status = "Done";
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
         String datePair = "";
         for (DatePair dp : dateList) {
-            datePair = "\n" + datePair;
-            String startDate = "";
-            String endDate = "";
-            if (dp.getStartDate() != null && dp.getEndDate() != null) {
-                dateFormat.setCalendar(dp.getStartDate());
-                startDate = dateFormat.format(dp.getStartDate().getTime());
-                dateFormat.setCalendar(dp.getEndDate());
-                endDate = dateFormat.format(dp.getEndDate().getTime());
-                datePair = datePair + startDate + " " + endDate;
-            } else if (dp.getStartDate() != null) {
-                dateFormat.setCalendar(dp.getStartDate());
-                startDate = dateFormat.format(dp.getStartDate().getTime());
-                datePair = datePair + startDate + "[No End Date]";
-            } else {
-                dateFormat.setCalendar(dp.getEndDate());
-                endDate = dateFormat.format(dp.getEndDate().getTime());
-                datePair = datePair + "[No Start Date]" + endDate;
-
+            if (dp != null) {
+                datePair += ("\n" + dp.toString());
             }
-
         }
 
         if (!isDone) {
-            status = "Not Done";
+            status = "Not Done";  // TODO
         }
-        return description + " " + status + " " + datePair;
+        return description + " " + status + " " + datePair.trim(); // TODO
     }
 
 }
