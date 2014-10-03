@@ -26,7 +26,7 @@ public class DatePair implements Serializable {
     }
 
     public DatePair(Calendar startDate, Calendar endDate) {
-        if (startDate.after(endDate)) {
+        if (startDate != null && startDate.after(endDate)) {
             throw new IllegalArgumentException("Start date later than end date."); // TODO: Refactor this
         }
         this.startDate = startDate;
@@ -41,17 +41,13 @@ public class DatePair implements Serializable {
         return this.endDate;
     }
 
+    // This should never be called manually, only for Java Bean.
     public void setStartDate(Calendar startDate) {
-        if (startDate.after(this.endDate)) {
-            throw new IllegalArgumentException("Start date later than end date."); // TODO: Refactor this
-        }
         this.startDate = startDate;
     }
 
+    // This should never be called manually, only for Java Bean.
     public void setEndDate(Calendar endDate) {
-        if (this.startDate.after(endDate)) {
-            throw new IllegalArgumentException("Start date later than end date."); // TODO: Refactor this
-        }
         this.endDate = endDate;
     }
 
@@ -99,8 +95,12 @@ public class DatePair implements Serializable {
             return (startDate != null && startDate.after(startDateCriteria)) || (endDate.after(startDateCriteria));
         }
 
-        if ((endDate == null && startDate.after(startDateCriteria)) || (startDate == null && endDate.before(endDateCriteria))) {
-                return true;
+        if (endDate == null) {
+            return (!startDate.after(endDateCriteria));
+        }
+
+        if (startDate == null) {
+            return (!endDate.before(startDateCriteria));
         }
 
         return !(startDate.after(endDateCriteria) || endDate.before(startDateCriteria));

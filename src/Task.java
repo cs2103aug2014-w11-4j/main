@@ -150,7 +150,7 @@ public class Task implements Serializable {
         if (!isDone) {
             status = "Not Done";  // TODO
         }
-        return description + " " + status + " " + datePair.trim(); // TODO
+        return description + " " + status + " " + datePair; // TODO
     }
 
     /**
@@ -161,15 +161,20 @@ public class Task implements Serializable {
      * @author Huang Yue
      */
     public boolean isWithinPeriod(DatePair dateRange) { // TODO: THIS METHOD IS NOT TESTED! write tests for this
-        if (dateList.size() == 0) {
+        if (dateList.isEmpty()) {
             return true;
         }
+        boolean flag = true; // TODO: temporary fix for null in dataList (WHY?)
         for (DatePair datePair : dateList) {
-            if (datePair != null && datePair.isWithinPeriod(dateRange)) { // TODO: why it can be null?
-                return true;
+            if (datePair != null) {
+                if (datePair.isWithinPeriod(dateRange)) { // TODO: why it can be null?
+                    return true;
+                } else {
+                    flag = false;
+                }
             }
         }
-        return false;
+        return flag;
     }
 
 }
