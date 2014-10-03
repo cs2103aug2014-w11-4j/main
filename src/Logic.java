@@ -57,7 +57,9 @@ public class Logic {
         try {
             if (cmdType.equals(CommandType.ADD)) {
                 ArrayList<DatePair> dateRangeList = new ArrayList<DatePair>();
-                dateRangeList.add(command.getDateRange());
+                if (command.getDateRange() != null) { // TODO: Temporary fix by Huang Yue, please refactor this
+                    dateRangeList.add(command.getDateRange());
+                }
                 addTask(command.getDescription(), dateRangeList);
             } else if (cmdType.equals(CommandType.VIEW)) {
                 if (command.isViewAll()) {
@@ -301,62 +303,9 @@ public class Logic {
      * @return boolean to state if the task being compared falls within the range
      */
 
+    //TODO: Check if this works and remove this temporary method.
     private static boolean isWithinPeriod(Task task, DatePair dateRange) {
-        boolean inPeriod = false;
-        Calendar startDateCriteria = dateRange.getStartDate();
-        Calendar endDateCriteria = dateRange.getEndDate();
-        ArrayList<DatePair> taskDateList = task.getDateList();
-
-        for (int i = 0; i < taskDateList.size(); i++) {
-            DatePair taskDatePair = task.getDateList().get(i);
-            Calendar taskStartDate = taskDatePair.getStartDate();
-            Calendar taskEndDate = taskDatePair.getEndDate();
-
-            if (taskStartDate == null && taskEndDate == null) {
-                inPeriod = true;
-                break;
-            }
-
-            if (taskEndDate == null) {
-                if (taskStartDate.after(startDateCriteria)) {
-                    inPeriod = true;
-                    break;
-                }
-            } else if (taskStartDate == null) {
-                if (taskEndDate.before(endDateCriteria)) {
-                    inPeriod = true;
-                    break;
-                }
-            }
-
-            if (taskStartDate.after(startDateCriteria)
-                    && taskEndDate.before(endDateCriteria)) {
-                inPeriod = true;
-                break;
-            }
-
-            if (taskStartDate.before(startDateCriteria)
-                    && taskEndDate.after(endDateCriteria)) {
-                inPeriod = true;
-                break;
-            }
-
-            if (taskStartDate.before(startDateCriteria)
-                    && taskEndDate.after(startDateCriteria)) {
-                inPeriod = true;
-                break;
-            }
-
-            if (taskStartDate.before(startDateCriteria)
-                    && taskEndDate.after(endDateCriteria)) {
-                inPeriod = true;
-                break;
-
-            }
-
-        }
-
-        return inPeriod;
+        return task.isWithinPeriod(dateRange);
     }
 
     /**

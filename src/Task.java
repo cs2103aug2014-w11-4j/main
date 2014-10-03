@@ -140,35 +140,36 @@ public class Task implements Serializable {
     public String toString() {
         String status = "Done";
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
         String datePair = "";
         for (DatePair dp : dateList) {
-            datePair = "\n" + datePair;
-            String startDate = "";
-            String endDate = "";
-            if (dp.getStartDate() != null && dp.getEndDate() != null) {
-                dateFormat.setCalendar(dp.getStartDate());
-                startDate = dateFormat.format(dp.getStartDate().getTime());
-                dateFormat.setCalendar(dp.getEndDate());
-                endDate = dateFormat.format(dp.getEndDate().getTime());
-                datePair = datePair + startDate + " " + endDate;
-            } else if (dp.getStartDate() != null) {
-                dateFormat.setCalendar(dp.getStartDate());
-                startDate = dateFormat.format(dp.getStartDate().getTime());
-                datePair = datePair + startDate + "[No End Date]";
-            } else {
-                dateFormat.setCalendar(dp.getEndDate());
-                endDate = dateFormat.format(dp.getEndDate().getTime());
-                datePair = datePair + "[No Start Date]" + endDate;
-
+            if (dp != null) { // TODO: why it can be null?
+                datePair += ("\n" + dp.toString());
             }
-
         }
 
         if (!isDone) {
-            status = "Not Done";
+            status = "Not Done";  // TODO
         }
-        return description + " " + status + " " + datePair;
+        return description + " " + status + " " + datePair.trim(); // TODO
+    }
+
+    /**
+     * Test if there is overlap with a given DatePair.
+     *
+     * @param dateRange the DatePair to be compared with
+     * @return true if there is overlap with the given DatePair
+     * @author Huang Yue
+     */
+    public boolean isWithinPeriod(DatePair dateRange) { // TODO: THIS METHOD IS NOT TESTED! write tests for this
+        if (dateList.size() == 0) {
+            return true;
+        }
+        for (DatePair datePair : dateList) {
+            if (datePair != null && datePair.isWithinPeriod(dateRange)) { // TODO: why it can be null?
+                return true;
+            }
+        }
+        return false;
     }
 
 }
