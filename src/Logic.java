@@ -142,7 +142,7 @@ public class Logic {
         String oldDescription = oldTask.getDescription();
         ArrayList<DatePair> oldDateList = oldTask.getDateList();
         long newTaskId = addCompletedTask(oldDescription, oldDateList);
-        delete(databaseId);
+        dbManager.markAsInvalid(databaseId);
         journal.recordAction(databaseId, newTaskId, oldDescription);
         return newTaskId;
     }
