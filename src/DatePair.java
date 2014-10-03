@@ -26,6 +26,9 @@ public class DatePair implements Serializable {
     }
 
     public DatePair(Calendar startDate, Calendar endDate) {
+        if (startDate.after(endDate)) {
+            throw new IllegalArgumentException("Start date later than end date."); // TODO: Refactor this
+        }
         this.startDate = startDate;
         this.endDate = endDate;
     }
@@ -39,11 +42,16 @@ public class DatePair implements Serializable {
     }
 
     public void setStartDate(Calendar startDate) {
+        if (startDate.after(this.endDate)) {
+            throw new IllegalArgumentException("Start date later than end date."); // TODO: Refactor this
+        }
         this.startDate = startDate;
-
     }
 
     public void setEndDate(Calendar endDate) {
+        if (this.startDate.after(endDate)) {
+            throw new IllegalArgumentException("Start date later than end date."); // TODO: Refactor this
+        }
         this.endDate = endDate;
     }
 
