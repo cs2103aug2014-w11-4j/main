@@ -121,7 +121,6 @@ public class Logic {
         task.setIsDone(true);
         try {
             id = dbManager.putInstance(task);
-            journal.recordAction(null, id, description);
         } catch (IOException e) {
             return id;
         }
