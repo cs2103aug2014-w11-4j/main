@@ -95,8 +95,12 @@ public class DatePair implements Serializable {
             return (startDate != null && startDate.after(startDateCriteria)) || (endDate.after(startDateCriteria));
         }
 
-        if ((endDate == null && startDate.after(startDateCriteria)) || (startDate == null && endDate.before(endDateCriteria))) {
-                return true;
+        if (endDate == null) {
+            return (!startDate.after(endDateCriteria));
+        }
+
+        if (startDate == null) {
+            return (!endDate.before(startDateCriteria));
         }
 
         return !(startDate.after(endDateCriteria) || endDate.before(startDateCriteria));
