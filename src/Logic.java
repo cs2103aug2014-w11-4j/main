@@ -173,7 +173,7 @@ public class Logic {
             // magic string here, will change
             return databaseId;
         }
-        delete(databaseId);
+        dbManager.markAsInvalid(databaseId);
         journal.recordAction(databaseId, newTaskId, description);
         return newTaskId;
 
@@ -205,6 +205,7 @@ public class Logic {
     public static boolean delete(long id) {
         try {
             dbManager.markAsInvalid(id);
+            journal.recordAction(id, null, "delete task");//TODO 
             return true;
         } catch (IOException e) {
             e.printStackTrace();
