@@ -47,7 +47,7 @@ public class Command {
         this.dateRange = dateRange;
     }
 
-    /* Constructor for delete command */
+    /* Constructor for delete, mark command */
     public Command(CommandType type, int taskId) {
         this.type = type;
         this.taskId = taskId;
