@@ -142,7 +142,7 @@ public class Task implements Serializable {
 
         String datePair = "";
         for (DatePair dp : dateList) {
-            if (dp != null) {
+            if (dp != null) { // TODO: why it can be null?
                 datePair += ("\n" + dp.toString());
             }
         }
@@ -151,6 +151,25 @@ public class Task implements Serializable {
             status = "Not Done";  // TODO
         }
         return description + " " + status + " " + datePair.trim(); // TODO
+    }
+
+    /**
+     * Test if there is overlap with a given DatePair.
+     *
+     * @param dateRange the DatePair to be compared with
+     * @return true if there is overlap with the given DatePair
+     * @author Huang Yue
+     */
+    public boolean isWithinPeriod(DatePair dateRange) { // TODO: THIS METHOD IS NOT TESTED! write tests for this
+        if (dateList.size() == 0) {
+            return true;
+        }
+        for (DatePair datePair : dateList) {
+            if (datePair != null && datePair.isWithinPeriod(dateRange)) { // TODO: why it can be null?
+                return true;
+            }
+        }
+        return false;
     }
 
 }
