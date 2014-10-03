@@ -382,6 +382,7 @@ public class LogicTest {
         long taskId = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
+        Logic.viewAll();
         Long newTaskId = Logic.markTaskcompleted(taskId);
         boolean actual  = Logic.getDB().getInstance(newTaskId).getIsDone();
         assertTrue(actual);
