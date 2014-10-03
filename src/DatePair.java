@@ -19,8 +19,9 @@ public class DatePair implements Serializable {
 
     }
 
-    public DatePair(Calendar startDate) {
-        this.startDate = startDate;
+    public DatePair(Calendar endDate) {
+        this.endDate = endDate;
+        this.startDate = null;
     }
 
     public DatePair(Calendar startDate, Calendar endDate) {

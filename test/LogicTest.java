@@ -97,36 +97,6 @@ public class LogicTest {
 
     }
 
-    /**
-     * Adding Task with start date without end date 
-     * 
-     * Adding task without end date
-     * After retrieving the value, mark it as invalid
-     *  
-     */
-
-    @Test
-    public void addNoEndDateTask() {
-        Logic.startDatabase();
-        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        DatePair dp = new DatePair(Calendar.getInstance(), null);
-        dpList.add(dp);
-        Long id = Logic.addTask(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                dpList);
-        String actual = Logic.viewTask(id);
-
-        // formatting current dateTime
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
-        dateFormat.setCalendar(dp.getStartDate());
-        String startDate = dateFormat.format(dp.getStartDate().getTime());
-
-        String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done \n"
-                + startDate + "[No End Date]";
-        Logic.delete(id);
-        assertEquals(expected, actual);
-
-    }
 
     /**
      * Search for keyword in description
@@ -154,7 +124,7 @@ public class LogicTest {
      * Condition: Task have both start date and end date within period
      */
     @Test
-    public void viewWithinPeriodOne() throws Exception {
+    public void viewWithinPeriod() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar startDate = Calendar.getInstance();
@@ -184,46 +154,14 @@ public class LogicTest {
 
     }
 
-    /**
-     * Test for viewing task within period
-     * Condition: Task have only start date
-     */
-    @Test
-    public void viewWithinPeriodTwo() throws Exception {
-        Logic.startDatabase();
-        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        Calendar startDate = Calendar.getInstance();
-        startDate.set(2014, Calendar.AUGUST, 10);
-
-        DatePair dp = new DatePair(startDate, null);
-        dpList.add(dp);
-        long id = Logic.addTask("No End Date", dpList);
-
-        Calendar startDateRange = new GregorianCalendar();
-        startDateRange.set(2014, Calendar.AUGUST, 1);
-        Calendar endDateRange = new GregorianCalendar();
-        endDateRange.set(2014, Calendar.AUGUST, 30);
-        DatePair dpRange = new DatePair(startDateRange, endDateRange);
-        ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
-        dpRangeList.add(dpRange);
-
-        String actual = Logic.viewByPeriod(dpRange);
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
-        String sd = dateFormat.format(startDate.getTime());
-
-        String expected = "No End Date Not Done \n" + sd + "[No End Date]";
-        Logic.delete(id);
-        assertEquals(expected, actual);
-
-    }
+    
 
     /**
      * Test for viewing task within period
      * Condition: Task have only end date
      */
     @Test
-    public void viewWithinPeriodThree() throws Exception {
+    public void viewEndDateInPeriod() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar endDate = Calendar.getInstance();
@@ -257,7 +195,7 @@ public class LogicTest {
      * Condition: Task have both start date and end date beyond period
      */
     @Test
-    public void viewWithinPeriodFour() throws Exception {
+    public void viewPeriodWithinTaskRange() throws Exception {
         Logic.startDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar startDate = Calendar.getInstance();
