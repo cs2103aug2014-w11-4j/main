@@ -121,7 +121,6 @@ public class Logic {
         task.setIsDone(true);
         try {
             id = dbManager.putInstance(task);
-            journal.recordAction(null, id, description);
         } catch (IOException e) {
             return id;
         }
@@ -142,7 +141,7 @@ public class Logic {
         String oldDescription = oldTask.getDescription();
         ArrayList<DatePair> oldDateList = oldTask.getDateList();
         long newTaskId = addCompletedTask(oldDescription, oldDateList);
-        delete(databaseId);
+        dbManager.markAsInvalid(databaseId);
         journal.recordAction(databaseId, newTaskId, oldDescription);
         return newTaskId;
     }
@@ -173,7 +172,7 @@ public class Logic {
             // magic string here, will change
             return databaseId;
         }
-        delete(databaseId);
+        dbManager.markAsInvalid(databaseId);
         journal.recordAction(databaseId, newTaskId, description);
         return newTaskId;
 
@@ -182,7 +181,7 @@ public class Logic {
     /**
      * Return all the valid task stored in the database
      *
-     * @return list of tasks and their information in the database which are valid
+     * @return list of tasks and their information in the database
      */
     public static String viewAll() throws IOException {
         String taskString = "";
@@ -198,14 +197,14 @@ public class Logic {
     }
 
     /**
-     * Non Official Method
-     * Added quickly to assist testing
+     * Delete Task of Database
      *
-     * @return if the task has been mark invalid
+     * @return if the task has been deleted from database
      */
     public static boolean delete(long id) {
         try {
             dbManager.markAsInvalid(id);
+            journal.recordAction(id, null, "delete task");//TODO 
             return true;
         } catch (IOException e) {
             e.printStackTrace();

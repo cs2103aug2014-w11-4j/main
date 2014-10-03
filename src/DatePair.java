@@ -10,11 +10,12 @@ import java.util.GregorianCalendar;
  * @author Sia Wei Kiat Jason
  */
 public class DatePair implements Serializable {
-    /* Default date: 01 January 1970 */
-    private Calendar startDate = new GregorianCalendar();
-    private Calendar endDate = new GregorianCalendar();
+    private Calendar startDate = null;
+    private Calendar endDate = null;
 
     public DatePair() {
+        this.startDate = null;
+        this.endDate = null;
 
     }
 
