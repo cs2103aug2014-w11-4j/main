@@ -8,7 +8,6 @@
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 
 public class Logic {
@@ -132,12 +131,12 @@ public class Logic {
     /**
      * Mark a task as completed
      *
-     * @param displayed id of the task
+     * @param displayedId id of the task as displayed in the last view command
      *
      * @return database id of the task, if id == 0, task failed to be marked
      * @throws IOException 
      */
-    public static long markTaskcompleted(long displayedId) throws IOException {
+    public static long markTaskcompleted(long displayedId) throws IOException { //TODO: don't return 0 when failed, throw an exception instead
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
@@ -151,15 +150,15 @@ public class Logic {
     /**
      * Update the task to the database
      *
-     * @param id of the task
-     * @param updated description
-     * @param updated date list
+     * @param displayedId id of the task as displayed in the last view command
+     * @param description updated description, if not changed will be null
+     * @param dateList updated date list, if not changed will be null
      *
      * @return new id of the task, if id == 0, task failed to update
      */
-    public static long updateTask(long displayedTaskId, String description,
+    public static long updateTask(long displayedId, String description, //TODO: don't return 0 when failed, throw an exception instead
             ArrayList<DatePair> dateList) throws IOException {
-        long databaseId = displayedTasksMap.get(displayedTaskId);
+        long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
         ArrayList<DatePair> oldDateList = oldTask.getDateList();
@@ -221,21 +220,17 @@ public class Logic {
      * @throws IOException
      *
      */
-    public static String viewTask(long id) {
-        try {
-            return dbManager.getInstance(id).toString();
-        } catch (IOException io) {
-            return "error";
-        }
+    public static String viewTask(long id) throws IOException {
+        return dbManager.getInstance(id).toString();
     }
 
     /**
      * Search for task based on description
      *
-     * @param the keyword that is used to search for the task
+     * @param keyword the keyword that is used to search for the task
      */
 
-    public static String searchWithKeyword(String keywords) throws IOException {
+    public static String searchWithKeyword(String keyword) throws IOException {
         String result = "";
         ArrayList<Task> relatedTasks = new ArrayList<Task>();
 
@@ -245,7 +240,7 @@ public class Logic {
             String taskInDb = dbManager.getInstance(databaseId)
                     .getDescription();
             taskInDb = taskInDb.toLowerCase();
-            if (taskInDb.contains(keywords.toLowerCase())) {
+            if (taskInDb.contains(keyword.toLowerCase())) {
                 displayedTasksMap.put(displayingId, databaseId);
                 relatedTasks.add(dbManager.getInstance(databaseId));
                 displayingId++;

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,6 +16,11 @@ public class LogicTest {
     public void setUp() throws IOException {
         Logic.startDatabase();
         Logic.getDB().resetDatabase();
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        Logic.getDB().closeFile();
     }
 
     /**
@@ -29,26 +35,14 @@ public class LogicTest {
      */
     @Test
     public void addTask() {
-        
-        
-        DatabaseManager <Task> db = Logic.getDB();
-        try {
-            db.resetDatabase();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar today = Calendar.getInstance();
         DatePair dp = new DatePair(today);
         datePairList.add(dp);
         Long id = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                datePairList);       
-
-   
-        assertEquals(1, db.getValidIdList().size());
-
+                datePairList);
+        assertEquals(1, Logic.getDB().getValidIdList().size());
     }
 
     /**
@@ -58,10 +52,8 @@ public class LogicTest {
      * After retrieving the value, mark it as invalid
      *  
      */
-
     @Test
-    public void addNoDateTask() {
-        
+    public void addNoDateTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Long id = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -70,7 +62,6 @@ public class LogicTest {
         String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done ";
         Logic.delete(id);
         assertEquals(expected, actual);
-
     }
 
     /**
@@ -80,10 +71,8 @@ public class LogicTest {
      * After retrieving the value, mark it as invalid
      *  
      */
-
     @Test
-    public void addNoStartDateTask() {
-        
+    public void addNoStartDateTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         DatePair dp = new DatePair(null, Calendar.getInstance());
         dpList.add(dp);
@@ -111,9 +100,6 @@ public class LogicTest {
      */
     @Test
     public void searchKeywordTest() throws IOException {
-        
-        DatabaseManager <Task> db = Logic.getDB();
-        db.resetDatabase();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
         Long id = Logic.addTask(
@@ -132,7 +118,6 @@ public class LogicTest {
      */
     @Test
     public void viewWithinPeriod() throws IOException {
-        
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar startDate = Calendar.getInstance();
         startDate.set(2014, Calendar.AUGUST, 10);
@@ -158,7 +143,6 @@ public class LogicTest {
         String expected = "Within Period Not Done \n" + sd + " " + ed;
         Logic.delete(id);
         assertEquals(actual, expected);
-
     }
 
     
@@ -169,7 +153,6 @@ public class LogicTest {
      */
     @Test
     public void viewEndDateInPeriod() throws IOException {
-        
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar endDate = Calendar.getInstance();
         endDate.set(2014, Calendar.AUGUST, 10);
@@ -194,7 +177,6 @@ public class LogicTest {
         String expected = "No Start Date Not Done \n[No Start Date] " + ed;
         Logic.delete(id);
         assertEquals(expected, actual);
-
     }
 
     /**
@@ -203,7 +185,6 @@ public class LogicTest {
      */
     @Test
     public void viewPeriodWithinTaskRange() throws IOException {
-        
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar startDate = Calendar.getInstance();
         startDate.set(2014, Calendar.JULY, 10);
@@ -229,7 +210,6 @@ public class LogicTest {
         String expected = "Overlapping Period Not Done \n" + sd + " " + ed;
         Logic.delete(id);
         assertEquals(expected, actual);
-
     }
 
     /**
@@ -239,17 +219,14 @@ public class LogicTest {
      */
     @Test
     public void testJournalUndo() throws IOException {
-        
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        DatabaseManager <Task> db = Logic.getDB();
-        int originalSize = db.getValidIdList().size();
+        int originalSize = Logic.getDB().getValidIdList().size();
         Long id = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         Logic.undo();
 
-        assertEquals(originalSize, db.getValidIdList().size());
-
+        assertEquals(originalSize, Logic.getDB().getValidIdList().size());
     }
 
     /**
@@ -260,18 +237,14 @@ public class LogicTest {
      */
     @Test
     public void testJournalRedo() throws IOException {
-
-        
-        DatabaseManager <Task> db = Logic.getDB();
-        int originalSize = db.getValidIdList().size();
+        int originalSize = Logic.getDB().getValidIdList().size();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Long id = Logic.addTask("Test 1", dpList);
         Long id2 = Logic.addTask("Test 2", dpList);
         Logic.undo();
         Logic.redo();
 
-        assertEquals(originalSize+2, db.getValidIdList().size());
-
+        assertEquals(originalSize + 2, Logic.getDB().getValidIdList().size());
     }
     
     
@@ -300,7 +273,6 @@ public class LogicTest {
 
     @Test
     public void updateTask() throws IOException {
-        
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -311,7 +283,6 @@ public class LogicTest {
         String actual = Logic.viewTask(newTaskId);
         Logic.delete(newTaskId);
         assertEquals(expected, actual);
-
     }
     
     /**
@@ -323,7 +294,6 @@ public class LogicTest {
     
     @Test
     public void markTask() throws IOException {
-        
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         long taskId = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
