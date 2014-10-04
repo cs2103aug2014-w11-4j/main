@@ -79,6 +79,10 @@ public class Logic {
                 // yet to implement
             } else if (cmdType.equals(CommandType.UPDATE)) {
                 // yet to implement
+            } else if (cmdType.equals(CommandType.UNDO)) {
+                result = undo();
+            } else if (cmdType.equals(CommandType.REDO)) {
+                result = redo();
             } else if (cmdType.equals(CommandType.INVALID)) {
                 result = INVALID_COMMAND_MESSAGE;
             } else if (cmdType.equals(CommandType.EXIT)) {
