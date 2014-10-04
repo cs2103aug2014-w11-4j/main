@@ -17,9 +17,16 @@ public class Logic {
     
     private static DatabaseManager<Task> dbManager = null;
     private static String currentDirectory = System.getProperty("user.dir");
-    private static JournalController<Task> journal = null;
 
     private static HashMap<Long, Long> displayedTasksMap = new HashMap<Long, Long>();
+
+    private static JournalController<Task> journal = null;
+    private static final String JOURNAL_MESSAGE_UNDONE = "Undone operation \"%s\"";
+    private static final String JOURNAL_MESSAGE_REDONE = "Redone operation \"%s\"";
+    private static final String JOURNAL_MESSAGE_ADD = "Add task %s";
+    private static final String JOURNAL_MESSAGE_MARK_AS_COMPLETED = "Mark task %s as completed";
+    private static final String JOURNAL_MESSAGE_UPDATE = "Update task %s";
+    private static final String JOURNAL_MESSAGE_DELETE = "Delete task %s";
 
     /**
      * Start the database,
@@ -100,7 +107,7 @@ public class Logic {
         Task task = new Task(description, dateList);
         try {
             id = dbManager.putInstance(task);
-            journal.recordAction(null, id, description);
+            journal.recordAction(null, id, String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
         } catch (IOException e) {
             return id;
         }
@@ -143,7 +150,7 @@ public class Logic {
         ArrayList<DatePair> oldDateList = oldTask.getDateList();
         long newTaskId = addCompletedTask(oldDescription, oldDateList);
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(databaseId, newTaskId, oldDescription);
+        journal.recordAction(databaseId, newTaskId, String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED, oldTask.getDescription()));
         return newTaskId;
     }
 
@@ -174,7 +181,7 @@ public class Logic {
             return databaseId;
         }
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(databaseId, newTaskId, description);
+        journal.recordAction(databaseId, newTaskId, String.format(JOURNAL_MESSAGE_UPDATE, oldTask.getDescription())); // TODO: Shall the description contain updated task info?
         return newTaskId;
 
     }
@@ -205,7 +212,7 @@ public class Logic {
     public static boolean delete(long id) {
         try {
             dbManager.markAsInvalid(id);
-            journal.recordAction(id, null, "delete task");//TODO 
+            journal.recordAction(id, null, "delete task"); //TODO
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -307,11 +314,11 @@ public class Logic {
      * Undo previous action
      *
      */
-    public static void undo() {
+    public static String undo() throws IOException {
         try {
-            journal.undo();
-        } catch (Exception e) {
-            System.out.println(e.toString());
+            return String.format(JOURNAL_MESSAGE_UNDONE, journal.undo());
+        } catch (UnsupportedOperationException e) { // Nothing to undo
+            return e.getMessage();
         }
     }
 
@@ -319,11 +326,11 @@ public class Logic {
      * Redo previous action
      *
      */
-    public static void redo() {
+    public static String redo() throws IOException {
         try {
-            journal.redo();
-        } catch (Exception e) {
-            System.out.println(e.toString());
+            return String.format(JOURNAL_MESSAGE_REDONE, journal.redo());
+        } catch (UnsupportedOperationException e) { // Nothing to redo
+            return e.getMessage();
         }
     }
 
