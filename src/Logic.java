@@ -17,9 +17,16 @@ public class Logic {
     
     private static DatabaseManager<Task> dbManager = null;
     private static String currentDirectory = System.getProperty("user.dir");
-    private static JournalController<Task> journal = null;
 
     private static HashMap<Long, Long> displayedTasksMap = new HashMap<Long, Long>();
+
+    private static JournalController<Task> journal = null;
+    private static final String JOURNAL_MESSAGE_UNDONE = "Undone operation \"%s\"";
+    private static final String JOURNAL_MESSAGE_REDONE = "Redone operation \"%s\"";
+    private static final String JOURNAL_MESSAGE_ADD = "Add task %s";
+    private static final String JOURNAL_MESSAGE_MARK_AS_COMPLETED = "Mark task %s as completed";
+    private static final String JOURNAL_MESSAGE_UPDATE = "Update task %s";
+    private static final String JOURNAL_MESSAGE_DELETE = "Delete task %s";
 
     /**
      * Start the database,
@@ -72,6 +79,10 @@ public class Logic {
                 // yet to implement
             } else if (cmdType.equals(CommandType.UPDATE)) {
                 // yet to implement
+            } else if (cmdType.equals(CommandType.UNDO)) {
+                result = undo();
+            } else if (cmdType.equals(CommandType.REDO)) {
+                result = redo();
             } else if (cmdType.equals(CommandType.INVALID)) {
                 result = INVALID_COMMAND_MESSAGE;
             } else if (cmdType.equals(CommandType.EXIT)) {
@@ -100,7 +111,7 @@ public class Logic {
         Task task = new Task(description, dateList);
         try {
             id = dbManager.putInstance(task);
-            journal.recordAction(null, id, description);
+            journal.recordAction(null, id, String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
         } catch (IOException e) {
             return id;
         }
@@ -131,34 +142,34 @@ public class Logic {
     /**
      * Mark a task as completed
      *
-     * @param displayed id of the task
+     * @param displayedId id of the task as displayed in the last view command
      *
      * @return database id of the task, if id == 0, task failed to be marked
      * @throws IOException 
      */
-    public static long markTaskcompleted(long displayedId) throws IOException {
+    public static long markTaskcompleted(long displayedId) throws IOException { //TODO: don't return 0 when failed, throw an exception instead
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
         ArrayList<DatePair> oldDateList = oldTask.getDateList();
         long newTaskId = addCompletedTask(oldDescription, oldDateList);
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(databaseId, newTaskId, oldDescription);
+        journal.recordAction(databaseId, newTaskId, String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED, oldTask.getDescription()));
         return newTaskId;
     }
 
     /**
      * Update the task to the database
      *
-     * @param id of the task
-     * @param updated description
-     * @param updated date list
+     * @param displayedId id of the task as displayed in the last view command
+     * @param description updated description, if not changed will be null
+     * @param dateList updated date list, if not changed will be null
      *
      * @return new id of the task, if id == 0, task failed to update
      */
-    public static long updateTask(long displayedTaskId, String description,
+    public static long updateTask(long displayedId, String description, //TODO: don't return 0 when failed, throw an exception instead
             ArrayList<DatePair> dateList) throws IOException {
-        long databaseId = displayedTasksMap.get(displayedTaskId);
+        long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
         ArrayList<DatePair> oldDateList = oldTask.getDateList();
@@ -174,7 +185,7 @@ public class Logic {
             return databaseId;
         }
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(databaseId, newTaskId, description);
+        journal.recordAction(databaseId, newTaskId, String.format(JOURNAL_MESSAGE_UPDATE, oldTask.getDescription())); // TODO: Shall the description contain updated task info?
         return newTaskId;
 
     }
@@ -205,7 +216,7 @@ public class Logic {
     public static boolean delete(long id) {
         try {
             dbManager.markAsInvalid(id);
-            journal.recordAction(id, null, "delete task");//TODO 
+            journal.recordAction(id, null, "delete task"); //TODO
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -220,21 +231,17 @@ public class Logic {
      * @throws IOException
      *
      */
-    public static String viewTask(long id) {
-        try {
-            return dbManager.getInstance(id).toString();
-        } catch (IOException io) {
-            return "error";
-        }
+    public static String viewTask(long id) throws IOException {
+        return dbManager.getInstance(id).toString();
     }
 
     /**
      * Search for task based on description
      *
-     * @param the keyword that is used to search for the task
+     * @param keyword the keyword that is used to search for the task
      */
 
-    public static String searchWithKeyword(String keywords) throws IOException {
+    public static String searchWithKeyword(String keyword) throws IOException {
         String result = "";
         ArrayList<Task> relatedTasks = new ArrayList<Task>();
 
@@ -244,7 +251,7 @@ public class Logic {
             String taskInDb = dbManager.getInstance(databaseId)
                     .getDescription();
             taskInDb = taskInDb.toLowerCase();
-            if (taskInDb.contains(keywords.toLowerCase())) {
+            if (taskInDb.contains(keyword.toLowerCase())) {
                 displayedTasksMap.put(displayingId, databaseId);
                 relatedTasks.add(dbManager.getInstance(databaseId));
                 displayingId++;
@@ -311,11 +318,11 @@ public class Logic {
      * Undo previous action
      *
      */
-    public static void undo() {
+    public static String undo() throws IOException {
         try {
-            journal.undo();
-        } catch (Exception e) {
-            System.out.println(e.toString());
+            return String.format(JOURNAL_MESSAGE_UNDONE, journal.undo());
+        } catch (UnsupportedOperationException e) { // Nothing to undo
+            return e.getMessage();
         }
     }
 
@@ -323,11 +330,11 @@ public class Logic {
      * Redo previous action
      *
      */
-    public static void redo() {
+    public static String redo() throws IOException {
         try {
-            journal.redo();
-        } catch (Exception e) {
-            System.out.println(e.toString());
+            return String.format(JOURNAL_MESSAGE_REDONE, journal.redo());
+        } catch (UnsupportedOperationException e) { // Nothing to redo
+            return e.getMessage();
         }
     }
 
