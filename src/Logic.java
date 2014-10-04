@@ -221,12 +221,8 @@ public class Logic {
      * @throws IOException
      *
      */
-    public static String viewTask(long id) {
-        try {
-            return dbManager.getInstance(id).toString();
-        } catch (IOException io) {
-            return "error";
-        }
+    public static String viewTask(long id) throws IOException {
+        return dbManager.getInstance(id).toString();
     }
 
     /**
