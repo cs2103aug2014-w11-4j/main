@@ -37,16 +37,6 @@ public class LogicTest {
      */
     @Test
     public void addTask() {
-
-
-        DatabaseManager<Task> db = Logic.getDB();
-        try {
-            db.resetDatabase();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar today = Calendar.getInstance();
         DatePair dp = new DatePair(today);
@@ -55,9 +45,7 @@ public class LogicTest {
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 datePairList);
 
-        assertEquals(1, db.getValidIdList().size());
-
-
+        assertEquals(1, Logic.getDB().getValidIdList().size());
     }
 
     /**
@@ -70,7 +58,6 @@ public class LogicTest {
     @Test
 
     public void addNoDateTask() throws IOException {
-
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Long id = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -90,7 +77,6 @@ public class LogicTest {
      */
     @Test
     public void addNoStartDateTask() throws IOException {
-
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         DatePair dp = new DatePair(null, Calendar.getInstance());
         dpList.add(dp);
@@ -108,7 +94,6 @@ public class LogicTest {
                 + endDate;
         Logic.delete(id);
         assertEquals(expected, actual);
-
     }
 
     /**
@@ -117,10 +102,6 @@ public class LogicTest {
      */
     @Test
     public void searchKeywordTest() throws IOException {
-
-        DatabaseManager<Task> db = Logic.getDB();
-        db.resetDatabase();
-
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
         Long id = Logic.addTask(
@@ -138,7 +119,6 @@ public class LogicTest {
      */
     @Test
     public void viewWithinPeriod() throws IOException {
-
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar startDate = Calendar.getInstance();
         startDate.set(2014, Calendar.AUGUST, 10);
@@ -172,7 +152,6 @@ public class LogicTest {
      */
     @Test
     public void viewEndDateInPeriod() throws IOException {
-
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar endDate = Calendar.getInstance();
         endDate.set(2014, Calendar.AUGUST, 10);
@@ -205,7 +184,6 @@ public class LogicTest {
      */
     @Test
     public void viewPeriodWithinTaskRange() throws IOException {
-
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Calendar startDate = Calendar.getInstance();
         startDate.set(2014, Calendar.JULY, 10);
@@ -267,7 +245,6 @@ public class LogicTest {
         Logic.redo();
 
         assertEquals(originalSize + 2, Logic.getDB().getValidIdList().size());
-
     }
 
     /**
@@ -275,7 +252,7 @@ public class LogicTest {
      *  
      */
     @Test
-    public void DeleteExistTask() {
+    public void DeleteExistTask() { //TODO: This test has no meaning. Redo it after Logic.deleteTask is done
         boolean isDeleted = false;
 
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
@@ -295,7 +272,6 @@ public class LogicTest {
 
     @Test
     public void updateTask() throws IOException {
-
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -305,7 +281,6 @@ public class LogicTest {
                 dpList);
         String expected = "Lorem ipsum dolor sit amet. Not Done ";
         String actual = Logic.viewTask(newTaskId);
-        Logic.delete(newTaskId);
         assertEquals(expected, actual);
     }
 
@@ -318,7 +293,6 @@ public class LogicTest {
 
     @Test
     public void markTask() throws IOException {
-
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         long taskId = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -327,6 +301,5 @@ public class LogicTest {
         Long newTaskId = Logic.markTaskcompleted(taskId);
         boolean actual = Logic.getDB().getInstance(newTaskId).getIsDone();
         assertTrue(actual);
-        Logic.delete(newTaskId);
     }
 }
