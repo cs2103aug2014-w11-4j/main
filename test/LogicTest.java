@@ -179,10 +179,9 @@ public class LogicTest {
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         Logic.viewAll();
-        long newTaskId = Logic.updateTask(1, "Lorem ipsum dolor sit amet.",
+        String actual = Logic.updateTask(1, "Lorem ipsum dolor sit amet.",
                 dpList);
-        String expected = "Lorem ipsum dolor sit amet. Not Done ";
-        String actual = Logic.viewTask(newTaskId);
+        String expected = "Update task 1";
         assertEquals(expected, actual);
     }
 
