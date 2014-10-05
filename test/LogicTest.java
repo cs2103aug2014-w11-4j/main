@@ -154,14 +154,15 @@ public class LogicTest {
     @Test
     public void DeleteExistTask() { // TODO: This test has no meaning. Redo it
                                     // after Logic.deleteTask is done
-        boolean isDeleted = false;
+ 
 
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Long id = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        isDeleted = Logic.delete(id);
-        assertTrue(isDeleted);
+        String actual = Logic.delete(id);
+        String expected = ("Delete task "+ id);
+        assertEquals(actual, expected);
     }
 
     /**
