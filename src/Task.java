@@ -140,9 +140,7 @@ public class Task implements Serializable {
 
         String datePair = "";
         for (DatePair dp : dateList) {
-            if (dp != null) { // TODO: why it can be null?
                 datePair += ("\n" + dp.toString());
-            }
         }
 
         if (!isDone) {
