@@ -261,7 +261,7 @@ public class Logic {
         try {
             dbManager.markAsInvalid(id);
             journal.recordAction(id, null, "delete task"); // TODO
-            return String.format(JOURNAL_MESSAGE_UNDONE, id);
+            return String.format(JOURNAL_MESSAGE_DELETE, id);
         } catch (IOException e) {
             e.printStackTrace();
             return e.getMessage();
