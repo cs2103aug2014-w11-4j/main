@@ -9,8 +9,6 @@
 
 import java.io.Serializable;
 
-import java.text.SimpleDateFormat;
-
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
@@ -148,9 +146,18 @@ public class Task implements Serializable {
         }
 
         if (!isDone) {
-            status = "Not Done";  // TODO
+            status = "Not Done"; // TODO
         }
         return description + " " + status + " " + datePair; // TODO
+    }
+
+    public boolean isDateListEmpty() {
+        if (dateList.size() == 0) {
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     /**
@@ -160,14 +167,17 @@ public class Task implements Serializable {
      * @return true if there is overlap with the given DatePair
      * @author Huang Yue
      */
-    public boolean isWithinPeriod(DatePair dateRange) { // TODO: THIS METHOD IS NOT TESTED! write tests for this
+    public boolean isWithinPeriod(DatePair dateRange) { // TODO: THIS METHOD IS
+                                                        // NOT TESTED! write
+                                                        // tests for this
         if (dateList.isEmpty()) {
             return true;
         }
         boolean flag = true; // TODO: temporary fix for null in dataList (WHY?)
         for (DatePair datePair : dateList) {
             if (datePair != null) {
-                if (datePair.isWithinPeriod(dateRange)) { // TODO: why it can be null?
+                if (datePair.isWithinPeriod(dateRange)) { // TODO: why it can be
+                                                          // null?
                     return true;
                 } else {
                     flag = false;
