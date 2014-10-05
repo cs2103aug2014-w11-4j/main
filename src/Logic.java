@@ -82,7 +82,15 @@ public class Logic {
             } else if (cmdType.equals(CommandType.DELETE)) {
                 delete(command.getTaskId());
             } else if (cmdType.equals(CommandType.UPDATE)) {
-                // yet to implement
+                String description = null;
+                description = command.getDescription();
+                ArrayList<DatePair> dateRangeList = new ArrayList<DatePair>();
+                if (command.getDateRange() != null) { // TODO: Temporary fix by
+                                                      // Huang Yue, please
+                                                      // refactor this
+                    dateRangeList.add(command.getDateRange());
+                }
+                updateTask(command.getTaskId(), description, dateRangeList);
             } else if (cmdType.equals(CommandType.UNDO)) {
                 result = undo();
             } else if (cmdType.equals(CommandType.REDO)) {
@@ -185,33 +193,24 @@ public class Logic {
      *
      * @return new id of the task, if id == 0, task failed to update
      */
-    public static long updateTask(long displayedId, String description, // TODO:
-                                                                        // don't
-                                                                        // return
-                                                                        // 0
-                                                                        // when
-                                                                        // failed,
-                                                                        // throw
-                                                                        // an
-                                                                        // exception
-                                                                        // instead
+    public static String updateTask(long displayedId, String description, 
             ArrayList<DatePair> dateList) throws IOException {
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
         ArrayList<DatePair> oldDateList = oldTask.getDateList();
+        String result = "";
         long newTaskId;
+        
         if (description == null && dateList != null) {
             newTaskId = addTask(oldDescription, dateList);
         } else if (description == null && dateList != null) {
             newTaskId = addTask(description, oldDateList);
-        } else if (description != null && dateList != null) {
-            newTaskId = addTask(description, dateList);
         } else {
-            // magic string here, will change
-            return databaseId;
+            newTaskId = addTask(description, dateList);
         }
         dbManager.markAsInvalid(databaseId);
+        result = String.format(JOURNAL_MESSAGE_UPDATE, displayedId); 
         journal.recordAction(databaseId, newTaskId,
                 String.format(JOURNAL_MESSAGE_UPDATE, oldTask.getDescription())); // TODO:
                                                                                   // Shall
@@ -221,7 +220,7 @@ public class Logic {
                                                                                   // updated
                                                                                   // task
                                                                                   // info?
-        return newTaskId;
+        return result;
 
     }
 
