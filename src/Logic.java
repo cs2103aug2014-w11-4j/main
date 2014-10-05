@@ -278,8 +278,7 @@ public class Logic {
         displayedTasksMap.clear();
         Long displayingId = (long) 1;
         for (Long databaseId : dbManager.getValidIdList()) {
-            boolean inPeriod = isWithinPeriod(
-                    dbManager.getInstance(databaseId), dateRange);
+            boolean inPeriod = dbManager.getInstance(databaseId).isWithinPeriod(dateRange);
             if (inPeriod) {
                 displayedTasksMap.put(displayingId, databaseId);
                 result = result + dbManager.getInstance(databaseId).toString();
@@ -290,29 +289,6 @@ public class Logic {
         return result;
     }
 
-    /**
-     * Check if the task is within the given dateRange
-     *
-     * List of allowed task within the range includes:
-     *
-     * Task start date end date falling within requested date range,
-     * Task with start date falling after the requested date range's start date and no end date
-     * Task with end date falling before the requested date range's end date and no start date
-     * Task with start date before requested start date but with end date in between requested date range
-     * Task with end date after requested end date but with start date in between requested date range
-     * Task with date range overlapping the entire date requested date range
-     *
-     *
-     *
-     * @param task the task that is being used to check if it falls within the dateRange
-     * @param dateRange DatePair object containing the start date and end date as queried
-     * @return boolean to state if the task being compared falls within the range
-     */
-
-    //TODO: Check if this works and remove this temporary method.
-    private static boolean isWithinPeriod(Task task, DatePair dateRange) {
-        return task.isWithinPeriod(dateRange);
-    }
 
     /**
      * Undo previous action
