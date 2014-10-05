@@ -96,11 +96,11 @@ public class DatePair implements Serializable {
         }
 
         if (startDateCriteria == null) {
-            return (startDate != null && startDate.before(endDateCriteria)) || (endDate.before(endDateCriteria));
+            return (startDate == null) || (!startDate.after(endDateCriteria));
         }
 
         if (endDateCriteria == null) {
-            return (startDate != null && startDate.after(startDateCriteria)) || (endDate.after(startDateCriteria));
+            return (endDate == null) || (!endDate.before(startDateCriteria));
         }
 
         if (endDate == null) {
