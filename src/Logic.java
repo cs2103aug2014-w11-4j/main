@@ -182,7 +182,7 @@ public class Logic {
      * @param description updated description, if not changed will be null
      * @param dateList updated date list, if not changed will be null
      *
-     * @return new id of the task, if id == 0, task failed to update
+     * @return updated message with the displayed id
      */
     public static String updateTask(long displayedId, String description, 
             ArrayList<DatePair> dateList) throws IOException {
