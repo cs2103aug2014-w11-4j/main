@@ -52,19 +52,11 @@ public class DatePair implements Serializable {
     }
     
     public boolean hasStartDate(){
-        if(this.startDate == null){
-            return false;
-        }else {
-            return true;
-        }
+        return (this.startDate != null);
     }
     
     public boolean hasEndDate(){
-        if(this.endDate == null){
-            return false;
-        }else {
-            return true;
-        }
+        return (this.endDate != null);
     }
 
     public String toString() {
