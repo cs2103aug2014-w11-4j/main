@@ -80,7 +80,7 @@ public class Logic {
             } else if (cmdType.equals(CommandType.SEARCH)) {
                 result = searchWithKeyword(command.getKeyword());
             } else if (cmdType.equals(CommandType.DELETE)) {
-                // yet to implement
+                delete(command.getTaskId());
             } else if (cmdType.equals(CommandType.UPDATE)) {
                 // yet to implement
             } else if (cmdType.equals(CommandType.UNDO)) {
@@ -257,14 +257,14 @@ public class Logic {
      *
      * @return if the task has been deleted from database
      */
-    public static boolean delete(long id) {
+    public static String delete(long id) {
         try {
             dbManager.markAsInvalid(id);
             journal.recordAction(id, null, "delete task"); // TODO
-            return true;
+            return String.format(JOURNAL_MESSAGE_UNDONE, id);
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            return e.getMessage();
         }
     }
 
