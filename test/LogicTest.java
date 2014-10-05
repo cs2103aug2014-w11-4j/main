@@ -152,10 +152,7 @@ public class LogicTest {
      *  
      */
     @Test
-    public void DeleteExistTask() { // TODO: This test has no meaning. Redo it
-                                    // after Logic.deleteTask is done
- 
-
+    public void DeleteExistTask() {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Long id = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
