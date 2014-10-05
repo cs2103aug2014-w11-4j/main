@@ -155,21 +155,12 @@ public class Logic {
     /**
      * Mark a task as completed
      *
-     * @param displayedId id of the task as displayed in the last view command
+     * @param displayed id of the task
+     * @return new id of the task
      *
-     * @return database id of the task, if id == 0, task failed to be marked
      * @throws IOException 
      */
-    public static long markTaskcompleted(long displayedId) throws IOException { // TODO:
-                                                                                // don't
-                                                                                // return
-                                                                                // 0
-                                                                                // when
-                                                                                // failed,
-                                                                                // throw
-                                                                                // an
-                                                                                // exception
-                                                                                // instead
+    public static long markTaskcompleted(long displayedId) throws IOException { 
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
