@@ -31,6 +31,9 @@ public class Logic {
     private static final String JOURNAL_MESSAGE_DELETE = "Delete task %s";
     private static final String DELETE_MESSAGE = "\'%s\' has been deleted.";
     private static final String UPDATE_MESSAGE = "\'%s\' has been updated.";
+    private static final String MARK_COMPLETED_MESSAGE = "\'%s\' has been marked to completed.";
+    private static final String MARK_UNCOMPLETED_MESSAGE = "\'%s\' has been marked to uncompleted.";
+
 
     /**
      * Start the database,
@@ -160,11 +163,11 @@ public class Logic {
      * Mark a task as completed
      *
      * @param displayed id of the task
-     * @return new id of the task
+     * @return message of mark task to completed
      *
      * @throws IOException 
      */
-    public static long markTaskCompleted(long displayedId) throws IOException { 
+    public static String markTaskCompleted(long displayedId) throws IOException { 
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
@@ -176,7 +179,7 @@ public class Logic {
                 newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
                         oldTask.getDescription()));
-        return newTaskId;
+        return String.format(MARK_COMPLETED_MESSAGE, oldTask.getDescription());
     }
 
     /**
