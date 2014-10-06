@@ -29,6 +29,7 @@ public class Logic {
     private static final String JOURNAL_MESSAGE_MARK_AS_COMPLETED = "Mark task %s as completed";
     private static final String JOURNAL_MESSAGE_UPDATE = "Update task %s";
     private static final String JOURNAL_MESSAGE_DELETE = "Delete task %s";
+    private static final String DELETE_MESSAGE = "\'%s\' has been deleted.";
 
     /**
      * Start the database,
@@ -244,18 +245,18 @@ public class Logic {
 
     /**
      * Delete Task of Database
+     * @param displayed id of the task
      *
-     * @return if the task has been deleted from database
+     * @return delete message including the task description
+     * @throws IOException 
      */
-    public static String delete(long id) {
-        try {
-            dbManager.markAsInvalid(id);
-            journal.recordAction(id, null, "delete task"); // TODO
-            return String.format(JOURNAL_MESSAGE_DELETE, id);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return e.getMessage();
-        }
+    public static String delete(long displayedId) throws IOException {
+    	long databaseId = displayedTasksMap.get(displayedId);
+        Task oldTask = dbManager.getInstance(databaseId);
+        String oldDescription = oldTask.getDescription();
+    	dbManager.markAsInvalid(databaseId);
+        journal.recordAction(databaseId, null, String.format(DELETE_MESSAGE, oldDescription));
+        return String.format(DELETE_MESSAGE, oldDescription);
     }
 
     /**
