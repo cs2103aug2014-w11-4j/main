@@ -86,7 +86,11 @@ public class Logic {
             } else if (cmdType.equals(CommandType.SEARCH)) {
                 result = searchWithKeyword(command.getKeyword());
             } else if (cmdType.equals(CommandType.MARK)) {
-                markTaskCompleted(command.getTaskId());
+            	if(isCompletedTask(command.getTaskId())){
+            		markTaskUncompleted(command.getTaskId());
+            	} else {
+            		markTaskCompleted(command.getTaskId());
+            	}
             } else if (cmdType.equals(CommandType.DELETE)) {
                 delete(command.getTaskId());
             } else if (cmdType.equals(CommandType.UPDATE)) {
@@ -139,6 +143,20 @@ public class Logic {
         return id;
     }
 
+    /**
+     * Check whether the task is completed
+     *
+     * @param displayedId of the task
+     *
+     * @return true if the task is completed
+     * @throws IOException 
+     */
+    public static boolean isCompletedTask(long displayedId) throws IOException{
+    	long databaseId = displayedTasksMap.get(displayedId);
+        Task oldTask = dbManager.getInstance(databaseId);
+        return oldTask.getIsDone();
+    }
+    
     /**
      * Create and add the completed task to the database
      *
