@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 import org.junit.After;
 import org.junit.Before;
@@ -56,7 +55,6 @@ public class LogicTest {
      *  
      */
     @Test
-
     public void addNoDateTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Long id = Logic.addTask(
@@ -114,104 +112,6 @@ public class LogicTest {
     }
 
     /**
-     * Test for viewing task within period
-     * Condition: Task have both start date and end date within period
-     */
-    @Test
-    public void viewWithinPeriod() throws IOException {
-        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        Calendar startDate = Calendar.getInstance();
-        startDate.set(2014, Calendar.AUGUST, 10);
-        Calendar endDate = Calendar.getInstance();
-        endDate.set(2014, Calendar.AUGUST, 20);
-        DatePair dp = new DatePair(startDate, endDate);
-        dpList.add(dp);
-        long id = Logic.addTask("Within Period", dpList);
-
-        Calendar startDateRange = new GregorianCalendar();
-        startDateRange.set(2014, Calendar.AUGUST, 1);
-        Calendar endDateRange = new GregorianCalendar();
-        endDateRange.set(2014, Calendar.AUGUST, 30);
-        DatePair dpRange = new DatePair(startDateRange, endDateRange);
-        ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
-        dpRangeList.add(dpRange);
-
-        String actual = Logic.viewByPeriod(dpRange);
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
-        String sd = dateFormat.format(startDate.getTime());
-        String ed = dateFormat.format(endDate.getTime());
-        String expected = "Within Period Not Done \n" + sd + " " + ed;
-        Logic.delete(id);
-        assertEquals(actual, expected);
-    }
-
-    /**
-     * Test for viewing task within period
-     * Condition: Task have only end date
-     */
-    @Test
-    public void viewEndDateInPeriod() throws IOException {
-        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        Calendar endDate = Calendar.getInstance();
-        endDate.set(2014, Calendar.AUGUST, 10);
-
-        DatePair dp = new DatePair(null, endDate);
-        dpList.add(dp);
-        long id = Logic.addTask("No Start Date", dpList);
-
-        Calendar startDateRange = new GregorianCalendar();
-        startDateRange.set(2014, Calendar.AUGUST, 1);
-        Calendar endDateRange = new GregorianCalendar();
-        endDateRange.set(2014, Calendar.AUGUST, 30);
-        DatePair dpRange = new DatePair(startDateRange, endDateRange);
-        ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
-        dpRangeList.add(dpRange);
-
-        String actual = Logic.viewByPeriod(dpRange);
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
-        String ed = dateFormat.format(endDate.getTime());
-
-        String expected = "No Start Date Not Done \n[No Start Date] " + ed;
-        Logic.delete(id);
-        assertEquals(expected, actual);
-    }
-
-    /**
-     * Test for viewing task within period
-     * Condition: Task have both start date and end date beyond period
-     */
-    @Test
-    public void viewPeriodWithinTaskRange() throws IOException {
-        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        Calendar startDate = Calendar.getInstance();
-        startDate.set(2014, Calendar.JULY, 10);
-        Calendar endDate = Calendar.getInstance();
-        endDate.set(2014, Calendar.SEPTEMBER, 20);
-        DatePair dp = new DatePair(startDate, endDate);
-        dpList.add(dp);
-        long id = Logic.addTask("Overlapping Period", dpList);
-
-        Calendar startDateRange = new GregorianCalendar();
-        startDateRange.set(2014, Calendar.AUGUST, 1);
-        Calendar endDateRange = new GregorianCalendar();
-        endDateRange.set(2014, Calendar.AUGUST, 30);
-        DatePair dpRange = new DatePair(startDateRange, endDateRange);
-        ArrayList<DatePair> dpRangeList = new ArrayList<DatePair>();
-        dpRangeList.add(dpRange);
-
-        String actual = Logic.viewByPeriod(dpRange);
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
-        String sd = dateFormat.format(startDate.getTime());
-        String ed = dateFormat.format(endDate.getTime());
-        String expected = "Overlapping Period Not Done \n" + sd + " " + ed;
-        Logic.delete(id);
-        assertEquals(expected, actual);
-    }
-
-    /**
      * Test undo function on Journal
      * Add in a task, and call undo,
      * Expected: Display all should not have any values
@@ -252,15 +152,14 @@ public class LogicTest {
      *  
      */
     @Test
-    public void DeleteExistTask() { //TODO: This test has no meaning. Redo it after Logic.deleteTask is done
-        boolean isDeleted = false;
-
+    public void DeleteExistTask() {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Long id = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        isDeleted = Logic.delete(id);
-        assertTrue(isDeleted);
+        String actual = Logic.delete(id);
+        String expected = ("Delete task "+ id);
+        assertEquals(actual, expected);
     }
 
     /**
@@ -277,10 +176,9 @@ public class LogicTest {
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         Logic.viewAll();
-        long newTaskId = Logic.updateTask(1, "Lorem ipsum dolor sit amet.",
+        String actual = Logic.updateTask(1, "Lorem ipsum dolor sit amet.",
                 dpList);
-        String expected = "Lorem ipsum dolor sit amet. Not Done ";
-        String actual = Logic.viewTask(newTaskId);
+        String expected = "Update task 1";
         assertEquals(expected, actual);
     }
 
@@ -302,4 +200,6 @@ public class LogicTest {
         boolean actual = Logic.getDB().getInstance(newTaskId).getIsDone();
         assertTrue(actual);
     }
+
+
 }

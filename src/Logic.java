@@ -9,12 +9,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 public class Logic {
 
     private static final String DATABASE_NAME = "database.xml";
     private static final String INVALID_COMMAND_MESSAGE = "Invalid Command";
-    
+
     private static DatabaseManager<Task> dbManager = null;
     private static String currentDirectory = System.getProperty("user.dir");
 
@@ -59,11 +61,13 @@ public class Logic {
 
     public static String executeCommand(Command command) {
         CommandType cmdType = command.getType();
-        String result= "";
+        String result = "";
         try {
             if (cmdType.equals(CommandType.ADD)) {
                 ArrayList<DatePair> dateRangeList = new ArrayList<DatePair>();
-                if (command.getDateRange() != null) { // TODO: Temporary fix by Huang Yue, please refactor this
+                if (command.getDateRange() != null) { // TODO: Temporary fix by
+                                                      // Huang Yue, please
+                                                      // refactor this
                     dateRangeList.add(command.getDateRange());
                 }
                 addTask(command.getDescription(), dateRangeList);
@@ -76,9 +80,17 @@ public class Logic {
             } else if (cmdType.equals(CommandType.SEARCH)) {
                 result = searchWithKeyword(command.getKeyword());
             } else if (cmdType.equals(CommandType.DELETE)) {
-                // yet to implement
+                delete(command.getTaskId());
             } else if (cmdType.equals(CommandType.UPDATE)) {
-                // yet to implement
+                String description = null;
+                description = command.getDescription();
+                ArrayList<DatePair> dateRangeList = new ArrayList<DatePair>();
+                if (command.getDateRange() != null) { // TODO: Temporary fix by
+                                                      // Huang Yue, please
+                                                      // refactor this
+                    dateRangeList.add(command.getDateRange());
+                }
+                updateTask(command.getTaskId(), description, dateRangeList);
             } else if (cmdType.equals(CommandType.UNDO)) {
                 result = undo();
             } else if (cmdType.equals(CommandType.REDO)) {
@@ -90,7 +102,7 @@ public class Logic {
                 System.exit(0);
             }
         } catch (IOException e) {
-            e.printStackTrace();            
+            e.printStackTrace();
             // TODO
         }
 
@@ -111,7 +123,8 @@ public class Logic {
         Task task = new Task(description, dateList);
         try {
             id = dbManager.putInstance(task);
-            journal.recordAction(null, id, String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
+            journal.recordAction(null, id,
+                    String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
         } catch (IOException e) {
             return id;
         }
@@ -142,19 +155,23 @@ public class Logic {
     /**
      * Mark a task as completed
      *
-     * @param displayedId id of the task as displayed in the last view command
+     * @param displayed id of the task
+     * @return new id of the task
      *
-     * @return database id of the task, if id == 0, task failed to be marked
      * @throws IOException 
      */
-    public static long markTaskcompleted(long displayedId) throws IOException { //TODO: don't return 0 when failed, throw an exception instead
+    public static long markTaskcompleted(long displayedId) throws IOException { 
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
         ArrayList<DatePair> oldDateList = oldTask.getDateList();
         long newTaskId = addCompletedTask(oldDescription, oldDateList);
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(databaseId, newTaskId, String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED, oldTask.getDescription()));
+        journal.recordAction(
+                databaseId,
+                newTaskId,
+                String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
+                        oldTask.getDescription()));
         return newTaskId;
     }
 
@@ -165,28 +182,36 @@ public class Logic {
      * @param description updated description, if not changed will be null
      * @param dateList updated date list, if not changed will be null
      *
-     * @return new id of the task, if id == 0, task failed to update
+     * @return updated message with the displayed id
      */
-    public static long updateTask(long displayedId, String description, //TODO: don't return 0 when failed, throw an exception instead
+    public static String updateTask(long displayedId, String description, 
             ArrayList<DatePair> dateList) throws IOException {
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
         ArrayList<DatePair> oldDateList = oldTask.getDateList();
+        String result = "";
         long newTaskId;
+        
         if (description == null && dateList != null) {
             newTaskId = addTask(oldDescription, dateList);
         } else if (description == null && dateList != null) {
             newTaskId = addTask(description, oldDateList);
-        } else if (description != null && dateList != null) {
-            newTaskId = addTask(description, dateList);
         } else {
-            // magic string here, will change
-            return databaseId;
+            newTaskId = addTask(description, dateList);
         }
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(databaseId, newTaskId, String.format(JOURNAL_MESSAGE_UPDATE, oldTask.getDescription())); // TODO: Shall the description contain updated task info?
-        return newTaskId;
+        result = String.format(JOURNAL_MESSAGE_UPDATE, displayedId); 
+        journal.recordAction(databaseId, newTaskId,
+                String.format(JOURNAL_MESSAGE_UPDATE, oldTask.getDescription())); // TODO:
+                                                                                  // Shall
+                                                                                  // the
+                                                                                  // description
+                                                                                  // contain
+                                                                                  // updated
+                                                                                  // task
+                                                                                  // info?
+        return result;
 
     }
 
@@ -199,11 +224,20 @@ public class Logic {
         String taskString = "";
         Long displayingId = (long) 1;
         displayedTasksMap.clear();
-        for (Long databaseId : dbManager.getValidIdList()) {
+
+        for (int i = 0; i < dbManager.getValidIdList().size(); i++) {
+            Long databaseId = dbManager.getValidIdList().get(i);
             displayedTasksMap.put(displayingId, databaseId);
-            taskString = taskString
-                    + dbManager.getInstance(databaseId).toString() + "\n";
-            displayingId++;
+            if (displayingId == displayedTasksMap.size() - 1) {
+                taskString = taskString + displayingId + ": "
+                        + dbManager.getInstance(databaseId).toString();
+                displayingId++;
+            } else {
+                taskString = taskString + displayingId + ": "
+                        + dbManager.getInstance(databaseId).toString() + "\n";
+                displayingId++;
+            }
+
         }
         return taskString;
     }
@@ -213,14 +247,14 @@ public class Logic {
      *
      * @return if the task has been deleted from database
      */
-    public static boolean delete(long id) {
+    public static String delete(long id) {
         try {
             dbManager.markAsInvalid(id);
-            journal.recordAction(id, null, "delete task"); //TODO
-            return true;
+            journal.recordAction(id, null, "delete task"); // TODO
+            return String.format(JOURNAL_MESSAGE_DELETE, id);
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            return e.getMessage();
         }
     }
 
@@ -278,40 +312,37 @@ public class Logic {
         displayedTasksMap.clear();
         Long displayingId = (long) 1;
         for (Long databaseId : dbManager.getValidIdList()) {
-            boolean inPeriod = isWithinPeriod(
-                    dbManager.getInstance(databaseId), dateRange);
+            boolean inPeriod = dbManager.getInstance(databaseId)
+                    .isWithinPeriod(dateRange);
             if (inPeriod) {
                 displayedTasksMap.put(displayingId, databaseId);
-                result = result + dbManager.getInstance(databaseId).toString();
+                // result = result +
+                // dbManager.getInstance(databaseId).toString();
                 displayingId++;
             }
         }
 
+        Set<Long> idSet = displayedTasksMap.keySet();
+        Iterator<Long> idSetIterator = idSet.iterator();
+        while (idSetIterator.hasNext()) {
+            Long key = idSetIterator.next();
+            if (key == displayedTasksMap.size()) {
+                result = result
+                        + key.toString()
+                        + ": "
+                        + dbManager.getInstance(displayedTasksMap.get(key))
+                                .toString();
+            } else {
+                result = result
+                        + key.toString()
+                        + ": "
+                        + dbManager.getInstance(displayedTasksMap.get(key))
+                                .toString() + "\n";
+            }
+
+        }
+
         return result;
-    }
-
-    /**
-     * Check if the task is within the given dateRange
-     *
-     * List of allowed task within the range includes:
-     *
-     * Task start date end date falling within requested date range,
-     * Task with start date falling after the requested date range's start date and no end date
-     * Task with end date falling before the requested date range's end date and no start date
-     * Task with start date before requested start date but with end date in between requested date range
-     * Task with end date after requested end date but with start date in between requested date range
-     * Task with date range overlapping the entire date requested date range
-     *
-     *
-     *
-     * @param task the task that is being used to check if it falls within the dateRange
-     * @param dateRange DatePair object containing the start date and end date as queried
-     * @return boolean to state if the task being compared falls within the range
-     */
-
-    //TODO: Check if this works and remove this temporary method.
-    private static boolean isWithinPeriod(Task task, DatePair dateRange) {
-        return task.isWithinPeriod(dateRange);
     }
 
     /**
