@@ -180,7 +180,7 @@ public class LogicTest {
         Logic.viewAll();
         String actual = Logic.updateTask(1, "Lorem ipsum dolor sit amet.",
                 dpList);
-        String expected = "Update task 1";
+        String expected = "\'Lorem ipsum dolor sit amet, consectetur adipiscing elit.\' has been updated.";
         assertEquals(expected, actual);
     }
 
