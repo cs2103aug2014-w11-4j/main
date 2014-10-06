@@ -27,6 +27,7 @@ public class Logic {
     private static final String JOURNAL_MESSAGE_REDONE = "Redone operation \"%s\"";
     private static final String JOURNAL_MESSAGE_ADD = "Add task %s";
     private static final String JOURNAL_MESSAGE_MARK_AS_COMPLETED = "Mark task %s as completed";
+    private static final String JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED = "Mark task %s as uncompleted";
     private static final String JOURNAL_MESSAGE_UPDATE = "Update task %s";
     private static final String JOURNAL_MESSAGE_DELETE = "Delete task %s";
     private static final String DELETE_MESSAGE = "\'%s\' has been deleted.";
@@ -196,6 +197,29 @@ public class Logic {
                 String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
                         oldTask.getDescription()));
         return String.format(MARK_COMPLETED_MESSAGE, oldTask.getDescription());
+    }
+    
+    /**
+     * Mark a task as Uncompleted
+     *
+     * @param displayed id of the task
+     * @return message of mark task to uncompleted
+     *
+     * @throws IOException 
+     */
+    public static String markTaskUncompleted(long displayedId) throws IOException { 
+        long databaseId = displayedTasksMap.get(displayedId);
+        Task oldTask = dbManager.getInstance(databaseId);
+        String oldDescription = oldTask.getDescription();
+        ArrayList<DatePair> oldDateList = oldTask.getDateList();
+        long newTaskId = addUncompletedTask(oldDescription, oldDateList);
+        dbManager.markAsInvalid(databaseId);
+        journal.recordAction(
+                databaseId,
+                newTaskId,
+                String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,
+                        oldTask.getDescription()));
+        return String.format(MARK_UNCOMPLETED_MESSAGE, oldTask.getDescription());
     }
 
     /**
