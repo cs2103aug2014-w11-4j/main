@@ -149,16 +149,18 @@ public class LogicTest {
 
     /**
      * Delete exist task
+     * @throws IOException 
      *  
      */
     @Test
-    public void DeleteExistTask() {
+    public void DeleteExistTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Long id = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        String actual = Logic.delete(id);
-        String expected = ("Delete task "+ id);
+        Logic.viewAll();
+        String actual = Logic.delete(1);
+        String expected = ("\'Lorem ipsum dolor sit amet, consectetur adipiscing elit.\' has been deleted.");
         assertEquals(actual, expected);
     }
 
@@ -178,7 +180,7 @@ public class LogicTest {
         Logic.viewAll();
         String actual = Logic.updateTask(1, "Lorem ipsum dolor sit amet.",
                 dpList);
-        String expected = "Update task 1";
+        String expected = "\'Lorem ipsum dolor sit amet, consectetur adipiscing elit.\' has been updated.";
         assertEquals(expected, actual);
     }
 
@@ -190,16 +192,35 @@ public class LogicTest {
      */
 
     @Test
-    public void markTask() throws IOException {
+    public void markTaskCompleted() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         long taskId = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         Logic.viewAll();
-        Long newTaskId = Logic.markTaskcompleted(taskId);
-        boolean actual = Logic.getDB().getInstance(newTaskId).getIsDone();
-        assertTrue(actual);
+        String actual = Logic.markTaskCompleted(1);
+        String expected = "\'Lorem ipsum dolor sit amet, consectetur adipiscing elit.\' has been marked to completed.";
+        assertEquals(actual,expected);
     }
 
+    /**
+     * 
+     * mark task as completed
+     * @throws IOException 
+     *  
+     */
+    @Test
+    public void markTaskUncompleted() throws IOException {
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        long taskId = Logic.addTask(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                dpList);
+        Logic.viewAll();
+        Logic.markTaskCompleted(1);
+        Logic.viewAll();
+        String actual = Logic.markTaskUncompleted(1);
+        String expected = "\'Lorem ipsum dolor sit amet, consectetur adipiscing elit.\' has been marked to uncompleted.";
+        assertEquals(actual,expected);
+    }
 
 }
