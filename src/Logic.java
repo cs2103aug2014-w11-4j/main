@@ -81,6 +81,8 @@ public class Logic {
                 }
             } else if (cmdType.equals(CommandType.SEARCH)) {
                 result = searchWithKeyword(command.getKeyword());
+            } else if (cmdType.equals(CommandType.MARK)) {
+                markTaskCompleted(command.getTaskId());
             } else if (cmdType.equals(CommandType.DELETE)) {
                 delete(command.getTaskId());
             } else if (cmdType.equals(CommandType.UPDATE)) {
