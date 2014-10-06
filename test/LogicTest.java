@@ -149,16 +149,18 @@ public class LogicTest {
 
     /**
      * Delete exist task
+     * @throws IOException 
      *  
      */
     @Test
-    public void DeleteExistTask() {
+    public void DeleteExistTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Long id = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        String actual = Logic.delete(id);
-        String expected = ("Delete task "+ id);
+        Logic.viewAll();
+        String actual = Logic.delete(1);
+        String expected = ("\'Lorem ipsum dolor sit amet, consectetur adipiscing elit.\' has been deleted.");
         assertEquals(actual, expected);
     }
 
