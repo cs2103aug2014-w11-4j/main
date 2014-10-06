@@ -196,7 +196,7 @@ public class LogicTest {
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         Logic.viewAll();
-        Long newTaskId = Logic.markTaskcompleted(taskId);
+        Long newTaskId = Logic.markTaskCompleted(taskId);
         boolean actual = Logic.getDB().getInstance(newTaskId).getIsDone();
         assertTrue(actual);
     }
