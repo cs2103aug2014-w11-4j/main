@@ -30,6 +30,7 @@ public class Logic {
     private static final String JOURNAL_MESSAGE_UPDATE = "Update task %s";
     private static final String JOURNAL_MESSAGE_DELETE = "Delete task %s";
     private static final String DELETE_MESSAGE = "\'%s\' has been deleted.";
+    private static final String UPDATE_MESSAGE = "\'%s\' has been updated.";
 
     /**
      * Start the database,
@@ -202,16 +203,9 @@ public class Logic {
             newTaskId = addTask(description, dateList);
         }
         dbManager.markAsInvalid(databaseId);
-        result = String.format(JOURNAL_MESSAGE_UPDATE, displayedId); 
+        result = String.format(UPDATE_MESSAGE, oldDescription); 
         journal.recordAction(databaseId, newTaskId,
-                String.format(JOURNAL_MESSAGE_UPDATE, oldTask.getDescription())); // TODO:
-                                                                                  // Shall
-                                                                                  // the
-                                                                                  // description
-                                                                                  // contain
-                                                                                  // updated
-                                                                                  // task
-                                                                                  // info?
+                String.format(JOURNAL_MESSAGE_UPDATE, oldDescription)); //TODO
         return result;
 
     }
@@ -255,7 +249,7 @@ public class Logic {
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
     	dbManager.markAsInvalid(databaseId);
-        journal.recordAction(databaseId, null, String.format(DELETE_MESSAGE, oldDescription));
+        journal.recordAction(databaseId, null, String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
         return String.format(DELETE_MESSAGE, oldDescription);
     }
 
