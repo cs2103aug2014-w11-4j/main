@@ -160,7 +160,7 @@ public class Logic {
      *
      * @throws IOException 
      */
-    public static long markTaskcompleted(long displayedId) throws IOException { 
+    public static long markTaskCompleted(long displayedId) throws IOException { 
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
