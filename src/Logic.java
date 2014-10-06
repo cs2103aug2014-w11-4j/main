@@ -87,12 +87,12 @@ public class Logic {
                 result = searchWithKeyword(command.getKeyword());
             } else if (cmdType.equals(CommandType.MARK)) {
             	if(isCompletedTask(command.getTaskId())){
-            		markTaskUncompleted(command.getTaskId());
+            		result = markTaskUncompleted(command.getTaskId());
             	} else {
-            		markTaskCompleted(command.getTaskId());
+            		result = markTaskCompleted(command.getTaskId());
             	}
             } else if (cmdType.equals(CommandType.DELETE)) {
-                delete(command.getTaskId());
+                result = delete(command.getTaskId());
             } else if (cmdType.equals(CommandType.UPDATE)) {
                 String description = null;
                 description = command.getDescription();
