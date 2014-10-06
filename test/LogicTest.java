@@ -198,10 +198,29 @@ public class LogicTest {
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         Logic.viewAll();
-        String actual = Logic.markTaskCompleted(taskId);
+        String actual = Logic.markTaskCompleted(1);
         String expected = "\'Lorem ipsum dolor sit amet, consectetur adipiscing elit.\' has been marked to completed.";
         assertEquals(actual,expected);
     }
 
+    /**
+     * 
+     * mark task as completed
+     * @throws IOException 
+     *  
+     */
+    @Test
+    public void markTaskUncompleted() throws IOException {
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        long taskId = Logic.addTask(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                dpList);
+        Logic.viewAll();
+        Logic.markTaskCompleted(1);
+        Logic.viewAll();
+        String actual = Logic.markTaskUncompleted(1);
+        String expected = "\'Lorem ipsum dolor sit amet, consectetur adipiscing elit.\' has been marked to uncompleted.";
+        assertEquals(actual,expected);
+    }
 
 }
