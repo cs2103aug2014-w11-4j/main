@@ -192,15 +192,15 @@ public class LogicTest {
      */
 
     @Test
-    public void markTask() throws IOException {
+    public void markTaskCompleted() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         long taskId = Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         Logic.viewAll();
-        Long newTaskId = Logic.markTaskCompleted(taskId);
-        boolean actual = Logic.getDB().getInstance(newTaskId).getIsDone();
-        assertTrue(actual);
+        String actual = Logic.markTaskCompleted(taskId);
+        String expected = "\'Lorem ipsum dolor sit amet, consectetur adipiscing elit.\' has been marked to completed.";
+        assertEquals(actual,expected);
     }
 
 
