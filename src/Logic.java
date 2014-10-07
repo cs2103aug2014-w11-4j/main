@@ -7,10 +7,12 @@
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.LinkedList;
 
 public class Logic {
 
@@ -23,22 +25,26 @@ public class Logic {
     private static HashMap<Long, Long> displayedTasksMap = new HashMap<Long, Long>();
 
     private static JournalController<Task> journal = null;
-    private static final String JOURNAL_MESSAGE_UNDONE = "Undone operation \"%s\"";
-    private static final String JOURNAL_MESSAGE_REDONE = "Redone operation \"%s\"";
-    private static final String JOURNAL_MESSAGE_ADD = "Add task %s";
-    private static final String JOURNAL_MESSAGE_MARK_AS_COMPLETED = "Mark task %s as completed";
-    private static final String JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED = "Mark task %s as uncompleted";
-    private static final String JOURNAL_MESSAGE_UPDATE = "Update task %s";
-    private static final String JOURNAL_MESSAGE_DELETE = "Delete task %s";
-    private static final String DELETE_MESSAGE = "\'%s\' has been deleted.";
-    private static final String UPDATE_MESSAGE = "\'%s\' has been updated.";
-    private static final String MARK_COMPLETED_MESSAGE = "\'%s\' has been marked to completed.";
-    private static final String MARK_UNCOMPLETED_MESSAGE = "\'%s\' has been marked to uncompleted.";
-
+    private static final String JOURNAL_MESSAGE_UNDONE = "Undone operation \"%s\".";
+    private static final String JOURNAL_MESSAGE_REDONE = "Redone operation \"%s\".";
+    private static final String JOURNAL_MESSAGE_ADD = "Added task \"%s\"";
+    private static final String JOURNAL_MESSAGE_MARK_AS_COMPLETED = "Mark task \"%s\" as completed";
+    private static final String JOURNAL_MESSAGE_MARK_AS_INCOMPLETE = "Mark task \"%s\" as incomplete";
+    private static final String JOURNAL_MESSAGE_UPDATE = "Updated task \"%s\"";
+    private static final String JOURNAL_MESSAGE_DELETE = "Deleted task \"%s\"";
+    private static final String ADD_MESSAGE = "\"%s\" has been successfully added.";
+    private static final String DELETE_MESSAGE = "\"%s\" has been successfully deleted.";
+    private static final String UPDATE_MESSAGE = "\"%s\" has been successfully updated.";
+    private static final String MARK_COMPLETED_MESSAGE = "\"%s\" has been marked to completed.";
+    private static final String MARK_INCOMPLETE_MESSAGE = "\'%s\" has been marked to incomplete.";
+    private static final String VIEW_TASK_HEADER = String.format(
+            "%-7s%-6s%-43s%-23s", "ID", "Done", "Task", "Date");
+    private static final String VIEW_TASK_BORDER = "--------------------------------------------------------------------------------";
+    private static final String VIEW_TASK_MESSAGE = "You have %s incomplete task(s).";
+    private static final String SEARCH_RESULT_MESSAGE = "%s task with \"%s\" has been found.";
 
     /**
-     * Start the database,
-     * if not found new database will be created
+     * Start the database, if not found new database will be created
      *
      * Create a new journal using the database that is created
      *
@@ -60,7 +66,7 @@ public class Logic {
 
     /**
      * Executes command provided by user in the interface
-     * 
+     *
      * @param command the command object that holds instruction from user
      * @return result of the command instruction
      */
@@ -77,6 +83,7 @@ public class Logic {
                     dateRangeList.add(command.getDateRange());
                 }
                 addTask(command.getDescription(), dateRangeList);
+                result = String.format(ADD_MESSAGE, command.getDescription());
             } else if (cmdType.equals(CommandType.VIEW)) {
                 if (command.isViewAll()) {
                     result = viewAll();
@@ -86,11 +93,11 @@ public class Logic {
             } else if (cmdType.equals(CommandType.SEARCH)) {
                 result = searchWithKeyword(command.getKeyword());
             } else if (cmdType.equals(CommandType.MARK)) {
-            	if(isCompletedTask(command.getTaskId())){
-            		result = markTaskUncompleted(command.getTaskId());
-            	} else {
-            		result = markTaskCompleted(command.getTaskId());
-            	}
+                if (isCompletedTask(command.getTaskId())) {
+                    result = markTaskUncompleted(command.getTaskId());
+                } else {
+                    result = markTaskCompleted(command.getTaskId());
+                }
             } else if (cmdType.equals(CommandType.DELETE)) {
                 result = delete(command.getTaskId());
             } else if (cmdType.equals(CommandType.UPDATE)) {
@@ -149,14 +156,14 @@ public class Logic {
      * @param displayedId of the task
      *
      * @return true if the task is completed
-     * @throws IOException 
+     * @throws IOException
      */
-    public static boolean isCompletedTask(long displayedId) throws IOException{
-    	long databaseId = displayedTasksMap.get(displayedId);
+    public static boolean isCompletedTask(long displayedId) throws IOException {
+        long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         return oldTask.getIsDone();
     }
-    
+
     /**
      * Create and add the completed task to the database
      *
@@ -164,7 +171,7 @@ public class Logic {
      * @param dateList of possible DatePair
      *
      * @return id of the task, if id == 0, task failed to create
-     * @throws IOException 
+     * @throws IOException
      */
     public static long addCompletedTask(String description,
             ArrayList<DatePair> dateList) throws IOException {
@@ -172,10 +179,10 @@ public class Logic {
         Task task = new Task(description, dateList);
         task.setIsDone(true);
         id = dbManager.putInstance(task);
-    
+
         return id;
     }
-    
+
     /**
      * Create and add the uncompleted task to the database
      *
@@ -183,7 +190,7 @@ public class Logic {
      * @param dateList of possible DatePair
      *
      * @return id of the task, if id == 0, task failed to create
-     * @throws IOException 
+     * @throws IOException
      */
     public static long addUncompletedTask(String description,
             ArrayList<DatePair> dateList) throws IOException {
@@ -193,16 +200,15 @@ public class Logic {
         return id;
     }
 
-
     /**
      * Mark a task as completed
      *
      * @param displayed id of the task
      * @return message of mark task to completed
      *
-     * @throws IOException 
+     * @throws IOException
      */
-    public static String markTaskCompleted(long displayedId) throws IOException { 
+    public static String markTaskCompleted(long displayedId) throws IOException {
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
@@ -216,16 +222,17 @@ public class Logic {
                         oldTask.getDescription()));
         return String.format(MARK_COMPLETED_MESSAGE, oldTask.getDescription());
     }
-    
+
     /**
      * Mark a task as Uncompleted
      *
      * @param displayed id of the task
      * @return message of mark task to uncompleted
      *
-     * @throws IOException 
+     * @throws IOException
      */
-    public static String markTaskUncompleted(long displayedId) throws IOException { 
+    public static String markTaskUncompleted(long displayedId)
+            throws IOException {
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
@@ -235,9 +242,9 @@ public class Logic {
         journal.recordAction(
                 databaseId,
                 newTaskId,
-                String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,
+                String.format(JOURNAL_MESSAGE_MARK_AS_INCOMPLETE,
                         oldTask.getDescription()));
-        return String.format(MARK_UNCOMPLETED_MESSAGE, oldTask.getDescription());
+        return String.format(MARK_INCOMPLETE_MESSAGE, oldTask.getDescription());
     }
 
     /**
@@ -249,7 +256,7 @@ public class Logic {
      *
      * @return updated message with the displayed id
      */
-    public static String updateTask(long displayedId, String description, 
+    public static String updateTask(long displayedId, String description,
             ArrayList<DatePair> dateList) throws IOException {
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
@@ -257,7 +264,7 @@ public class Logic {
         ArrayList<DatePair> oldDateList = oldTask.getDateList();
         String result = "";
         long newTaskId;
-        
+
         if (description == null && dateList != null) {
             newTaskId = addTask(oldDescription, dateList);
         } else if (description == null && dateList != null) {
@@ -266,9 +273,9 @@ public class Logic {
             newTaskId = addTask(description, dateList);
         }
         dbManager.markAsInvalid(databaseId);
-        result = String.format(UPDATE_MESSAGE, oldDescription); 
+        result = String.format(UPDATE_MESSAGE, oldDescription);
         journal.recordAction(databaseId, newTaskId,
-                String.format(JOURNAL_MESSAGE_UPDATE, oldDescription)); //TODO
+                String.format(JOURNAL_MESSAGE_UPDATE, oldDescription)); // TODO
         return result;
 
     }
@@ -282,22 +289,85 @@ public class Logic {
         String taskString = "";
         Long displayingId = (long) 1;
         displayedTasksMap.clear();
-
+        taskString += String.format(VIEW_TASK_MESSAGE, dbManager
+                .getValidIdList().size());
+        if (dbManager.getValidIdList().size() == 0) {
+            return taskString;
+        }
+        taskString += System.lineSeparator() + VIEW_TASK_BORDER
+                + System.lineSeparator() + VIEW_TASK_HEADER
+                + System.lineSeparator() + VIEW_TASK_BORDER
+                + System.lineSeparator();
         for (int i = 0; i < dbManager.getValidIdList().size(); i++) {
             Long databaseId = dbManager.getValidIdList().get(i);
             displayedTasksMap.put(displayingId, databaseId);
-            if (displayingId == displayedTasksMap.size() - 1) {
-                taskString = taskString + displayingId + ": "
-                        + dbManager.getInstance(databaseId).toString();
-                displayingId++;
+            taskString += formatTaskOutput(displayingId)
+                    + System.lineSeparator();
+            displayingId++;
+        }
+
+        taskString += VIEW_TASK_BORDER;
+        return taskString;
+    }
+
+    private static String formatTaskOutput(Long displayingId)
+            throws IOException {
+        String taskOutput = "";
+        Task task = dbManager.getInstance(displayedTasksMap.get(displayingId));
+        String description = task.getDescription();
+        ArrayList<DatePair> dates = task.getDateList();
+        char isDone = task.getIsDone() ? 'Y' : 'N';
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa");
+        LinkedList<String> wordWrapList = new LinkedList<String>();
+        LinkedList<String> dateList = new LinkedList<String>();
+        while (!description.isEmpty()) {
+            if (description.length() <= 41) {
+                wordWrapList.add(description);
+                description = "";
             } else {
-                taskString = taskString + displayingId + ": "
-                        + dbManager.getInstance(databaseId).toString() + "\n";
-                displayingId++;
+                int i = description.lastIndexOf(" ", 41);
+                /* if there's a word with more than 41 characters long */
+                if (i == -1) {
+                    i = 41;
+                }
+                wordWrapList.add(description.substring(0, i));
+                description = description.substring(i + 1);
+            }
+        }
+
+        /* Currently do for one date first */
+        DatePair dp = dates.get(0);
+        if (dp.hasDateRange()) {
+            dateList.add(dateFormat.format(dp.getStartDate().getTime()) + " to");
+            dateList.add(dateFormat.format(dp.getEndDate().getTime()));
+        } else if (dp.hasStartDate()) {
+            dateList.add(dateFormat.format(dp.getStartDate().getTime()));
+        } else if (dp.hasEndDate()) {
+            dateList.add(dateFormat.format(dp.getEndDate().getTime()));
+        }
+
+        while (!wordWrapList.isEmpty() || !dateList.isEmpty()) {
+            String lineTask = "";
+            String lineDate = "";
+            if (!wordWrapList.isEmpty()) {
+                lineTask = wordWrapList.removeFirst();
             }
 
+            if (!dateList.isEmpty()) {
+                lineDate = dateList.removeFirst();
+            }
+
+            if (taskOutput.isEmpty()) {
+                taskOutput = String.format("%-7s%-6s%-43s%-23s", displayingId,
+                        isDone, lineTask, lineDate);
+            } else {
+                taskOutput += System.getProperty("line.separator")
+                        + String.format("%-7s%-6s%-43s%-23s", "", "", lineTask,
+                                lineDate);
+            }
         }
-        return taskString;
+
+        return taskOutput;
     }
 
     /**
@@ -305,20 +375,20 @@ public class Logic {
      * @param displayed id of the task
      *
      * @return delete message including the task description
-     * @throws IOException 
+     * @throws IOException
      */
     public static String delete(long displayedId) throws IOException {
-    	long databaseId = displayedTasksMap.get(displayedId);
+        long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
-    	dbManager.markAsInvalid(databaseId);
-        journal.recordAction(databaseId, null, String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
+        dbManager.markAsInvalid(databaseId);
+        journal.recordAction(databaseId, null,
+                String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
         return String.format(DELETE_MESSAGE, oldDescription);
     }
 
     /**
-     * Non Official Method
-     * Added quickly to assist testing
+     * Non Official Method Added quickly to assist testing
      * @return details of the task requested
      * @throws IOException
      *
@@ -334,7 +404,7 @@ public class Logic {
      */
 
     public static String searchWithKeyword(String keyword) throws IOException {
-        String result = "";
+        String taskString = "";
         ArrayList<Task> relatedTasks = new ArrayList<Task>();
 
         displayedTasksMap.clear();
@@ -350,22 +420,36 @@ public class Logic {
             }
         }
 
-        for (int i = 0; i < relatedTasks.size(); i++) {
-            result = result + relatedTasks.get(i).toString();
+        taskString += String.format(SEARCH_RESULT_MESSAGE, relatedTasks.size(),
+                keyword);
+
+        if (relatedTasks.size() == 0) {
+            return taskString;
         }
 
-        return result;
+        taskString += System.lineSeparator() + VIEW_TASK_BORDER
+                + System.lineSeparator() + VIEW_TASK_HEADER
+                + System.lineSeparator() + VIEW_TASK_BORDER
+                + System.lineSeparator();
+
+        for (long i = 0; i < relatedTasks.size(); i++) {
+            taskString += formatTaskOutput(i + 1) + System.lineSeparator();
+        }
+
+        taskString += VIEW_TASK_BORDER;
+        return taskString;
     }
 
     /**
-     * Searches the Database for a related task that coincides with the dateRange requested 
+     * Searches the Database for a related task that coincides with the
+     * dateRange requested
      *
      * @param dateRange DatePair object containing the start date and end date
      * @return result of all the tasks that are within the period as queried
      */
 
     public static String viewByPeriod(DatePair dateRange) throws IOException {
-        String result = "";
+        String taskString = "";
 
         displayedTasksMap.clear();
         Long displayingId = (long) 1;
@@ -382,25 +466,25 @@ public class Logic {
 
         Set<Long> idSet = displayedTasksMap.keySet();
         Iterator<Long> idSetIterator = idSet.iterator();
-        while (idSetIterator.hasNext()) {
-            Long key = idSetIterator.next();
-            if (key == displayedTasksMap.size()) {
-                result = result
-                        + key.toString()
-                        + ": "
-                        + dbManager.getInstance(displayedTasksMap.get(key))
-                                .toString();
-            } else {
-                result = result
-                        + key.toString()
-                        + ": "
-                        + dbManager.getInstance(displayedTasksMap.get(key))
-                                .toString() + "\n";
-            }
-
+        taskString += String.format(VIEW_TASK_MESSAGE, dbManager
+                .getValidIdList().size());
+        if (dbManager.getValidIdList().size() == 0) {
+            return taskString;
         }
 
-        return result;
+        taskString += System.lineSeparator() + VIEW_TASK_BORDER
+                + System.lineSeparator() + VIEW_TASK_HEADER
+                + System.lineSeparator() + VIEW_TASK_BORDER
+                + System.lineSeparator();
+
+        while (idSetIterator.hasNext()) {
+            Long key = idSetIterator.next();
+
+            taskString += formatTaskOutput(key) + System.lineSeparator();
+        }
+
+        taskString += VIEW_TASK_BORDER;
+        return taskString;
     }
 
     /**
@@ -433,4 +517,5 @@ public class Logic {
     public static DatabaseManager<Task> getDB() {
         return dbManager;
     }
+
 }

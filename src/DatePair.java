@@ -50,13 +50,17 @@ public class DatePair implements Serializable {
     public void setEndDate(Calendar endDate) {
         this.endDate = endDate;
     }
-    
+
     public boolean hasStartDate(){
         return (this.startDate != null);
     }
-    
+
     public boolean hasEndDate(){
         return (this.endDate != null);
+    }
+
+    public boolean hasDateRange() {
+        return (this.startDate != null && this.endDate != null);
     }
 
     public String toString() {
