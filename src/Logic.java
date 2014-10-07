@@ -35,10 +35,11 @@ public class Logic {
     private static final String MESSAGE_MARK_UNCOMPLETED = "\"%s\" has been marked to uncompleted.";
     private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
     private static final String MESSAGE_VIEW_RESULT = "You have %s uncompleted task(s).";
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID = "Wrong task ID!";
 
     private static final int CONSOLE_MAX_WIDTH = 80;
 
-    /**
+	/**
      * Start the database, if not found new database will be created.
      *
      * Create a new journal using the database that is created.
@@ -159,6 +160,9 @@ public class Logic {
      * @throws IOException
      */
     public static String markTaskCompleted(long displayedId) throws IOException {
+    	if(!displayedTasksMap.containsKey(displayedId)){
+    		return MESSAGE_ERROR_WRONG_TASK_ID;
+        }
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         oldTask.setIsDone(true);
@@ -183,6 +187,9 @@ public class Logic {
      */
     public static String markTaskUncompleted(long displayedId)
             throws IOException {
+    	if(!displayedTasksMap.containsKey(displayedId)){
+    		return MESSAGE_ERROR_WRONG_TASK_ID;
+        }
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         oldTask.setIsDone(false);
@@ -208,7 +215,10 @@ public class Logic {
      */
     public static String updateTask(long displayedId, String description,
             ArrayList<DatePair> dateList) throws IOException {
-        long databaseId = displayedTasksMap.get(displayedId);
+        if(!displayedTasksMap.containsKey(displayedId)){
+        	return MESSAGE_ERROR_WRONG_TASK_ID;
+        }
+    	long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
         String result = "";
@@ -271,6 +281,9 @@ public class Logic {
      * @throws IOException
      */
     public static String delete(long displayedId) throws IOException {
+    	 if(!displayedTasksMap.containsKey(displayedId)){
+         	return MESSAGE_ERROR_WRONG_TASK_ID;
+         }
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
