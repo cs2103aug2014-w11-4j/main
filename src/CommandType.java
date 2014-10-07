@@ -14,7 +14,7 @@ public enum CommandType {
     VIEW("view", "display"), SEARCH("find", "lookup", "search"), ADD("add",
             "insert", "ins", "new"), DELETE("delete", "remove"), UPDATE(
             "change", "update", "edit"), UNDO("undo", "ud"), REDO("redo", "rd"), MARK(
-            "mark", "completed", "done"), EXIT("exit", "quit"), INVALID("invalid");
+            "mark", "completed", "done"), EXIT("exit", "quit"), INVALID;
 
     private List<String> tags;
     private static final Map<String, CommandType> tagMap = new HashMap<String, CommandType>();

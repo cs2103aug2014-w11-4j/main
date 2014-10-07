@@ -8,13 +8,11 @@
  */
 
 import java.io.Serializable;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.UUID;
-
 
 public class Task implements Serializable {
     private String description;
@@ -31,7 +29,7 @@ public class Task implements Serializable {
 
     /**
      * Creates a task with notes field only
-     * 
+     *
      * @param description notes about the task
      */
 
@@ -41,7 +39,7 @@ public class Task implements Serializable {
 
     /**
      * Creates a task with notes and DatePair fields
-     * 
+     *
      * @param description about the task
      * @param dateList of possible DatePair
      */
@@ -54,7 +52,7 @@ public class Task implements Serializable {
 
     /**
      * Change the description of the notes
-     * 
+     *
      * @param description of the task
      */
     public void setDescription(String description) {
@@ -109,7 +107,7 @@ public class Task implements Serializable {
 
     /**
      * Shortcut to adding another DatePair into DatePairList
-     * @param datePair 
+     * @param datePair
      */
     public void addDatePair(DatePair datePair) {
         dateList.add(datePair);
@@ -126,7 +124,7 @@ public class Task implements Serializable {
 
     /**
      * Check if the status is completed
-     * 
+     *
      * @return if the task is completed
      */
 
@@ -151,10 +149,9 @@ public class Task implements Serializable {
     }
 
     /**
-     * 
-     * @return Tasks information:
-     * description, status, list of DatePair
-     * 
+     *
+     * @return Tasks information: description, status, list of DatePair
+     *
      */
 
     public String toString() {
@@ -162,7 +159,7 @@ public class Task implements Serializable {
 
         String datePair = "";
         for (DatePair dp : dateList) {
-                datePair += ("\n" + dp.toString());
+            datePair += ("\n" + dp.toString());
         }
 
         if (!isDone) {
@@ -194,7 +191,8 @@ public class Task implements Serializable {
         boolean flag = true; // TODO: temporary fix for null in dataList (WHY?)
         for (DatePair datePair : dateList) {
             if (datePair != null) {
-                if (datePair.isWithinPeriod(dateRange)) { // TODO: why it can be null?
+                if (datePair.isWithinPeriod(dateRange)) { // TODO: why it can be
+                                                          // null?
                     return true;
                 } else {
                     flag = false;
@@ -204,63 +202,67 @@ public class Task implements Serializable {
         return flag;
     }
 
+    /**
+     * Format individual task into output format for display.
+     *
+     * @param displayingId the id of the task
+     * @return the formatted string of the task
+     * @author hooitong
+     */
     public String formatOutput(long displayingId) {
+        final int MAX_DESC_LENGTH = 41;
         StringBuilder stringBuilder = new StringBuilder();
-
         String description = getDescription();
         ArrayList<DatePair> dates = getDateList();
         char isDone = getIsDone() ? 'Y' : 'N';
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa");
+
+        /* Used to store fragments of description and dates */
         LinkedList<String> wordWrapList = new LinkedList<String>();
         LinkedList<String> dateList = new LinkedList<String>();
 
+        /* Break sentences into multiple lines and add into list */
         while (!description.isEmpty()) {
-            if (description.length() <= 41) {
+            if (description.length() <= MAX_DESC_LENGTH) {
                 wordWrapList.add(description);
                 description = "";
             } else {
-                int i = description.lastIndexOf(" ", 41);
+                int i = description.lastIndexOf(" ", MAX_DESC_LENGTH);
                 /* if there's a word with more than 41 characters long */
                 if (i == -1) {
-                    i = 41;
+                    i = MAX_DESC_LENGTH;
                 }
                 wordWrapList.add(description.substring(0, i));
                 description = description.substring(i + 1);
             }
         }
 
-        /* Currently do for one date first */
+        /* Currently supported for one date in v0.1 */
+        /* TODO: Support for multiple dates for tentative tasks */
         if (!dates.isEmpty()) {
             DatePair dp = dates.get(0);
             if (dp.hasDateRange()) {
-                dateList.add(dateFormat.format(dp.getStartDate().getTime()) + " to");
+                dateList.add(dateFormat.format(dp.getStartDate().getTime())
+                        + " to");
                 dateList.add(dateFormat.format(dp.getEndDate().getTime()));
             } else if (dp.hasStartDate()) {
                 dateList.add(dateFormat.format(dp.getStartDate().getTime()));
-            } else if (dp.hasEndDate()) {
-                dateList.add(dateFormat.format(dp.getEndDate().getTime()));
             }
         }
 
+        /* Format all fragments in desc and date into multiple lines */
         while (!wordWrapList.isEmpty() || !dateList.isEmpty()) {
-            String lineTask = "";
-            String lineDate = "";
-            if (!wordWrapList.isEmpty()) {
-                lineTask = wordWrapList.removeFirst();
-            }
+            String desc = wordWrapList.isEmpty() ? "" : wordWrapList
+                    .removeFirst();
 
-            if (!dateList.isEmpty()) {
-                lineDate = dateList.removeFirst();
-            }
+            String date = dateList.isEmpty() ? "" : dateList.removeFirst();
 
-            if (stringBuilder.length() == 0) {
-                stringBuilder.append(String.format("%-7s%-6s%-43s%-23s", displayingId,
-                        isDone, lineTask, lineDate));
-            } else {
+            if (stringBuilder.length() != 0) {
                 stringBuilder.append(System.lineSeparator());
-                stringBuilder.append(String.format("%-7s%-6s%-43s%-23s", "", "", lineTask,
-                        lineDate));
             }
+
+            stringBuilder.append(String.format("%-7s%-6s%-43s%-23s",
+                    displayingId, isDone, desc, date));
         }
 
         return stringBuilder.toString();

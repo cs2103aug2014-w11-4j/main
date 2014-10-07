@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 /**
  * Class that represents a command object where it stores the type of command it
  * is and all its arguments.
@@ -6,16 +8,17 @@
  *
  */
 public class Command {
-    /* Must-have for all types of command */
+    /* Must-have var for all types of command */
     private CommandType type;
 
     /* Information required for add, update */
     private String description;
 
-    /* Information required for add, update, view */
-    private DatePair dateRange;
+    /* Information required for add, update */
+    private ArrayList<DatePair> datePairs;
 
     /* Information required for view */
+    private DatePair viewRange;
     private boolean viewAll;
 
     /* Information required for delete & update */
@@ -25,10 +28,10 @@ public class Command {
     private String keyword;
 
     /* Constructor for view command */
-    public Command(CommandType type, boolean viewAll, DatePair dateRange) {
+    public Command(CommandType type, boolean viewAll, DatePair viewRange) {
         this.type = type;
         this.viewAll = viewAll;
-        this.dateRange = dateRange;
+        this.viewRange = viewRange;
     }
 
     /* Constructor for search & invalid command */
@@ -41,10 +44,10 @@ public class Command {
     }
 
     /* Constructor for add command */
-    public Command(CommandType type, String desc, DatePair dateRange) {
+    public Command(CommandType type, String desc, ArrayList<DatePair> datePairs) {
         this.type = type;
         this.description = desc;
-        this.dateRange = dateRange;
+        this.datePairs = datePairs;
     }
 
     /* Constructor for delete, mark command */
@@ -54,11 +57,12 @@ public class Command {
     }
 
     /* Constructor for update command */
-    public Command(CommandType type, int taskId, String desc, DatePair dateRange) {
+    public Command(CommandType type, int taskId, String desc,
+            ArrayList<DatePair> datePairs) {
         this.type = type;
         this.taskId = taskId;
         this.description = desc;
-        this.dateRange = dateRange;
+        this.datePairs = datePairs;
     }
 
     /* Constructor for exit, undo, redo command */
@@ -76,8 +80,12 @@ public class Command {
         return description;
     }
 
-    public DatePair getDateRange() {
-        return dateRange;
+    public DatePair getViewRange() {
+        return viewRange;
+    }
+
+    public ArrayList<DatePair> getDatePairs() {
+        return datePairs;
     }
 
     public boolean isViewAll() {
