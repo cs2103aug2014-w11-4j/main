@@ -20,6 +20,7 @@ public class Command {
     /* Information required for view */
     private DatePair viewRange;
     private boolean viewAll;
+    private boolean completed;
 
     /* Information required for delete & update */
     private int taskId;
@@ -28,10 +29,11 @@ public class Command {
     private String keyword;
 
     /* Constructor for view command */
-    public Command(CommandType type, boolean viewAll, DatePair viewRange) {
+    public Command(CommandType type, boolean viewAll, boolean completed, DatePair viewRange) {
         this.type = type;
         this.viewAll = viewAll;
         this.viewRange = viewRange;
+        this.completed = completed;
     }
 
     /* Constructor for search & invalid command */
@@ -90,6 +92,10 @@ public class Command {
 
     public boolean isViewAll() {
         return viewAll;
+    }
+
+    public boolean isCompleted() {
+        return completed;
     }
 
     public int getTaskId() {
