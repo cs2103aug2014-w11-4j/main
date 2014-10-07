@@ -33,6 +33,7 @@ public class MenuInterface {
      * @return raw user's input
      */
     private String acceptInput(Scanner sc) {
+        System.out.print("> ");
         return sc.nextLine();
     }
 

@@ -26,16 +26,16 @@ public class LogicTest {
 
     /**
      * Test adding of task with todays date
-     * 
+     *
      * Add a task with todays date and current runtime
      * Call display to display specified task via id
      * Store both actual and expected values
      * Mark recent created task as invalid
      * Execute comparison
-     * 
+     *
      */
     @Test
-    public void addTask() {
+    public void addTask() throws IOException {
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar today = Calendar.getInstance();
         DatePair dp = new DatePair(today);
@@ -49,10 +49,10 @@ public class LogicTest {
 
     /**
      * Adding Task without start date / end date
-     * 
+     *
      * Add a task without specifying any date
      * After retrieving the value, mark it as invalid
-     *  
+     *
      */
     @Test
     public void addNoDateTask() throws IOException {
@@ -67,11 +67,11 @@ public class LogicTest {
     }
 
     /**
-     * Adding Task with end date without start date 
-     * 
+     * Adding Task with end date without start date
+     *
      * Adding Task without a start date
      * After retrieving the value, mark it as invalid
-     *  
+     *
      */
     @Test
     public void addNoStartDateTask() throws IOException {
@@ -96,7 +96,7 @@ public class LogicTest {
 
     /**
      * Search for keyword in description
-     * 
+     *
      */
     @Test
     public void searchKeywordTest() throws IOException {
@@ -132,7 +132,7 @@ public class LogicTest {
      * Test redo function on Journal
      * Add in a task, and call undo,
      * Followed by calling redo
-     * 
+     *
      */
     @Test
     public void testJournalRedo() throws IOException {
@@ -149,26 +149,29 @@ public class LogicTest {
 
     /**
      * Delete exist task
-     *  
+     * @throws IOException
+     *
      */
     @Test
-    public void DeleteExistTask() { // TODO: This test has no meaning. Redo it
-                                    // after Logic.deleteTask is done
-        boolean isDeleted = false;
+
+    public void DeleteExistTask() throws IOException {
 
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        Long id = Logic.addTask(
+        Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        isDeleted = Logic.delete(id);
-        assertTrue(isDeleted);
+        Logic.viewAll();
+        String expected = Logic.delete(1);
+        String actual = (
+        		"\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully deleted.");
+        assertEquals(actual, expected);
     }
 
     /**
-     * 
+     *
      * update the task description
-     * @throws IOException 
-     *  
+     * @throws IOException
+     *
      */
 
     @Test
@@ -178,30 +181,50 @@ public class LogicTest {
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         Logic.viewAll();
-        long newTaskId = Logic.updateTask(1, "Lorem ipsum dolor sit amet.",
+        String actual = Logic.updateTask(1, "Lorem ipsum dolor sit amet.",
                 dpList);
-        String expected = "Lorem ipsum dolor sit amet. Not Done ";
-        String actual = Logic.viewTask(newTaskId);
+        String expected =
+        		"\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully updated.";
         assertEquals(expected, actual);
     }
 
     /**
-     * 
+     *
      * mark task as completed
-     * @throws IOException 
-     *  
+     * @throws IOException
+     *
      */
 
     @Test
-    public void markTask() throws IOException {
+    public void markTaskCompleted() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        long taskId = Logic.addTask(
+        Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         Logic.viewAll();
-        Long newTaskId = Logic.markTaskcompleted(taskId);
-        boolean actual = Logic.getDB().getInstance(newTaskId).getIsDone();
-        assertTrue(actual);
+        String expected = Logic.markTaskCompleted(1);
+        String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to completed.";
+        assertEquals(actual,expected);
+    }
+
+
+    /**
+     *
+     * mark task as completed
+     * @throws IOException
+     *
+     */
+    @Test
+    public void markTaskUncompleted() throws IOException {
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Logic.addTask(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                dpList);
+        Logic.viewAll();
+        Logic.markTaskCompleted(1);
+        String expected = Logic.markTaskUncompleted(1);
+        String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to uncompleted.";
+        assertEquals(actual,expected);
     }
 
 

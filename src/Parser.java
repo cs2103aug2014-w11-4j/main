@@ -1,10 +1,12 @@
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import com.joestelmach.natty.DateGroup;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.joestelmach.natty.CalendarSource;
+import com.joestelmach.natty.DateGroup;
 
 /**
  * Parser that reads in raw user input and provides instruction on how the UI
@@ -14,19 +16,39 @@ import com.joestelmach.natty.CalendarSource;
  *
  */
 public class Parser {
+    /* Parser specific error messages to return */
     private static final String SEARCH_ERROR_EMPTY = "Please enter a keyword to search for.";
-    private static final String DELETE_ERROR_INVALID = "Please enter a valid id to delete.";
-    private static final String MARK_ERROR_INVALID = "Please enter a valid id to mark";
+    private static final String ADD_ERROR_NO_DESC = "Please enter a task description to add.";
+    private static final String VIEW_ERROR_EMPTY = "Please enter a valid date range to view.";
+    private static final String DELETE_ERROR_INVALID = "Please enter a task id to delete.";
+    private static final String UPDATE_ERROR_INVALID = "Please enter a task id to update.";
+    private static final String MARK_ERROR_INVALID = "Please enter a task id to mark.";
+    private static final String UPDATE_ERROR_EMPTY = "Please enter something to update.";
+    private static final String INVALID_COMMAND = "Please enter a valid command.";
 
     /* Used specifically to parse date from user's input */
     private static com.joestelmach.natty.Parser dateParser = new com.joestelmach.natty.Parser();
 
+    /**
+     * Public method called by interface which accepts a input from the user and
+     * return the command after parsing.
+     *
+     * @param input the raw input user provides
+     * @return Command object with the correct argument and type
+     */
     public static Command parse(String input) {
         CommandType userCommand = determineCommandType(input);
         String args = removeFirstWord(input);
         return parseCommand(userCommand, args);
     }
 
+    /**
+     * Retrieve the command (from the first word) and return the command type
+     * the user specifies.
+     *
+     * @param input the raw input user provides
+     * @return the command type of the input
+     */
     private static CommandType determineCommandType(String input) {
         String command = getFirstWord(input);
         return CommandType.getCommandType(command);
@@ -70,11 +92,10 @@ public class Parser {
                 return parseExit(args);
 
             case INVALID:
-                return new Command(userCommand);
+                return new Command(userCommand, INVALID_COMMAND);
 
-            default:
-                throw new UnsupportedOperationException(
-                        "Command not integrated yet");
+            default: // all unrecognized command are invalid commands
+                throw new AssertionError(userCommand);
         }
 
     }
@@ -87,9 +108,12 @@ public class Parser {
      * @return either a VIEW command or INVALID command
      */
     public static Command parseView(String args) {
+        /* Create empty DatePair object */
+        DatePair dateRange = new DatePair();
+
         /* If user decides to view all uncompleted tasks */
         if (args.contains("all")) {
-            return new Command(CommandType.VIEW, true, null);
+            return new Command(CommandType.VIEW, true, dateRange);
         }
 
         /* Parse all US Date to SG Date Formal Format */
@@ -97,19 +121,24 @@ public class Parser {
 
         /* Use Natty library to parse date specified by user */
         List<DateGroup> groups = dateParser.parse(input);
-        DatePair date = new DatePair();
+        /* If no matched dates, return invalid command */
+        if (groups.isEmpty()) {
+            return new Command(CommandType.INVALID, VIEW_ERROR_EMPTY);
+        }
+
+        /* Extract up to two dates from user's input */
         for (DateGroup group : groups) {
             List<Date> dates = group.getDates();
 
             if (dates.size() == 2) {
-                date.setEndDate(dateToCalendar(dates.get(1)));
+                dateRange.setEndDate(dateToCalendar(dates.get(1)));
             }
 
-            date.setStartDate(dateToCalendar(dates.get(0)));
+            dateRange.setStartDate(dateToCalendar(dates.get(0)));
         }
 
         /* Return view command with retrieved arguments */
-        return new Command(CommandType.VIEW, false, date);
+        return new Command(CommandType.VIEW, false, dateRange);
     }
 
     /**
@@ -140,6 +169,8 @@ public class Parser {
         /* Use Natty library to parse date specified by user */
         List<DateGroup> groups = dateParser.parse(input);
         DatePair date = new DatePair();
+
+        /* Extract up to 2 dates from user's input */
         for (DateGroup group : groups) {
             List<Date> dates = group.getDates();
 
@@ -152,8 +183,19 @@ public class Parser {
             input = input.replace(group.getText(), "");
         }
 
+        ArrayList<DatePair> datePairs = new ArrayList<DatePair>();
+        /* TODO: No support for more than 2 dates at the moment */
+        if (date.hasDateRange()) {
+            datePairs.add(date);
+        }
+
         String desc = input.trim();
-        return new Command(CommandType.ADD, desc, date);
+
+        if (desc.isEmpty()) {
+            return new Command(CommandType.INVALID, ADD_ERROR_NO_DESC);
+        } else {
+            return new Command(CommandType.ADD, desc, datePairs);
+        }
     }
 
     /**
@@ -202,15 +244,27 @@ public class Parser {
             }
 
             String desc = input.trim();
-            return new Command(CommandType.UPDATE, deleteId, desc, date);
+
+            ArrayList<DatePair> datePairs = new ArrayList<DatePair>();
+            /* TODO: No support for more than 2 dates at the moment */
+            if (date.hasStartDate()) {
+                datePairs.add(date);
+            }
+
+            if (!(date.hasStartDate() || !desc.isEmpty())) {
+                return new Command(CommandType.INVALID, UPDATE_ERROR_EMPTY);
+            }
+
+            return new Command(CommandType.UPDATE, deleteId, desc, datePairs);
         } catch (NumberFormatException e) {
-            return new Command(CommandType.INVALID, DELETE_ERROR_INVALID);
+            return new Command(CommandType.INVALID, UPDATE_ERROR_INVALID);
         }
 
     }
 
     /**
-     * Parse undo command from user.
+     * Parse undo command from user. Arguments are ignored and not considered as
+     * error.
      *
      * @param args the arguments the user input
      * @return UNDO command
@@ -220,7 +274,8 @@ public class Parser {
     }
 
     /**
-     * Parse redo command from user.
+     * Parse redo command from user. Arguments are ignored and not considered as
+     * error.
      *
      * @param args the arguments the user input
      * @return REDO command
@@ -282,7 +337,7 @@ public class Parser {
 
     private static String removeFirstWord(String input) {
         String[] splitWord = input.split("\\s+", 2);
-        return splitWord.length == 1 ? splitWord[0] : splitWord[1];
+        return splitWord.length == 1 ? "" : splitWord[1];
     }
 
     private static Calendar dateToCalendar(Date date) {
