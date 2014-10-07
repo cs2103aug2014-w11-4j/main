@@ -275,6 +275,7 @@ public class Logic {
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
         dbManager.markAsInvalid(databaseId);
+        displayedTasksMap.remove(displayedId);
         journal.recordAction(databaseId, null,
                 String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
         return String.format(MESSAGE_DELETE, oldDescription);

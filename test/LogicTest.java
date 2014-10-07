@@ -153,9 +153,7 @@ public class LogicTest {
      *
      */
     @Test
-
     public void DeleteExistTask() throws IOException {
-
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -207,7 +205,6 @@ public class LogicTest {
         assertEquals(actual,expected);
     }
 
-
     /**
      *
      * mark task as completed
@@ -226,6 +223,5 @@ public class LogicTest {
         String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to uncompleted.";
         assertEquals(actual,expected);
     }
-
 
 }

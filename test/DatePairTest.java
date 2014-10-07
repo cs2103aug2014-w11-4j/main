@@ -111,7 +111,6 @@ public class DatePairTest {
 
     }
 
-
     /**
      * Test: null startDate / endDate
      * Expected: true
