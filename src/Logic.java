@@ -89,14 +89,10 @@ public class Logic {
                     return searchWithKeyword(command.getKeyword());
 
                 case MARK:
-                    if (isCompletedTask(command.getTaskId())) {
-                        return markTaskUncompleted(command.getTaskId());
-                    } else {
-                        return markTaskCompleted(command.getTaskId());
-                    }
+                    return markTask(command.getTaskId());
 
                 case DELETE:
-                    return delete(command.getTaskId());
+                    return deleteTask(command.getTaskId());
 
                 case UPDATE:
                     return updateTask(command.getTaskId(),
@@ -158,6 +154,23 @@ public class Logic {
     }
 
     /**
+     * Mark a task (completed to uncompleted and vice versa)
+     * @param displayedId displayed id of the task
+     * @return message of mark
+     * @throws IOException
+     */
+    public static String markTask(long displayedId) throws IOException {
+        if(!displayedTasksMap.containsKey(displayedId)){
+            return MESSAGE_ERROR_WRONG_TASK_ID;
+        }
+        if (isCompletedTask(displayedId)) {
+            return markTaskUncompleted(displayedId);
+        } else {
+            return markTaskCompleted(displayedId);
+        }
+    }
+
+    /**
      * Mark a task as completed.
      *
      * @param displayedId displayed id of the task
@@ -166,9 +179,6 @@ public class Logic {
      * @throws IOException
      */
     public static String markTaskCompleted(long displayedId) throws IOException {
-    	if(!displayedTasksMap.containsKey(displayedId)){
-    		return MESSAGE_ERROR_WRONG_TASK_ID;
-        }
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         oldTask.setIsDone(true);
@@ -193,9 +203,6 @@ public class Logic {
      */
     public static String markTaskUncompleted(long displayedId)
             throws IOException {
-    	if(!displayedTasksMap.containsKey(displayedId)){
-    		return MESSAGE_ERROR_WRONG_TASK_ID;
-        }
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         oldTask.setIsDone(false);
@@ -224,31 +231,26 @@ public class Logic {
         if(!displayedTasksMap.containsKey(displayedId)){
         	return MESSAGE_ERROR_WRONG_TASK_ID;
         }
-    	long databaseId = displayedTasksMap.get(displayedId);
-        Task oldTask = dbManager.getInstance(databaseId);
-        String oldDescription = oldTask.getDescription();
-        String result = "";
-        long newTaskId;
 
-        if (description.isEmpty() && !dateList.isEmpty()) {
-            oldTask.setDateList(dateList);
-            newTaskId = dbManager.putInstance(oldTask);
-            displayedTasksMap.put(displayedId, newTaskId);
-        } else if (!description.isEmpty() && dateList.isEmpty()) {
-            oldTask.setDescription(description);
-            newTaskId = dbManager.putInstance(oldTask);
-            displayedTasksMap.put(displayedId, newTaskId);
-        } else {
-            oldTask.setDescription(description);
-            oldTask.setDateList(dateList);
-            newTaskId = dbManager.putInstance(oldTask);
-            displayedTasksMap.put(displayedId, newTaskId);
+    	long oldDatabaseId = displayedTasksMap.get(displayedId);
+        Task task = dbManager.getInstance(oldDatabaseId);
+        String oldDescription = task.getDescription();
+
+        if (!description.isEmpty()) {
+            task.setDescription(description);
         }
-        dbManager.markAsInvalid(databaseId);
-        result = String.format(MESSAGE_UPDATE, oldDescription);
-        journal.recordAction(databaseId, newTaskId,
-                String.format(JOURNAL_MESSAGE_UPDATE, oldDescription)); // TODO
-        return result;
+        if (!dateList.isEmpty()) {
+            task.setDateList(dateList);
+        }
+
+        long newDatabaseId = dbManager.putInstance(task);
+        dbManager.markAsInvalid(oldDatabaseId);
+
+        displayedTasksMap.put(displayedId, newDatabaseId);
+        journal.recordAction(oldDatabaseId, newDatabaseId,
+                String.format(JOURNAL_MESSAGE_UPDATE, oldDescription));
+
+        return String.format(MESSAGE_UPDATE, oldDescription);
     }
 
     /**
@@ -264,10 +266,7 @@ public class Logic {
         for (int i = 0; i < dbManager.getValidIdList().size(); i++) {
             Long databaseId = dbManager.getValidIdList().get(i);
             Task task = dbManager.getInstance(databaseId);
-            if (isCompleted && task.getIsDone()) {
-                displayedTasksMap.put(displayingId, databaseId);
-                displayingId++;
-            } else if (!isCompleted && !task.getIsDone()) {
+            if (isCompleted == task.getIsDone()) {
                 displayedTasksMap.put(displayingId, databaseId);
                 displayingId++;
             }
@@ -297,7 +296,7 @@ public class Logic {
      *
      * @throws IOException
      */
-    public static String delete(long displayedId) throws IOException {
+    public static String deleteTask(long displayedId) throws IOException {
     	 if(!displayedTasksMap.containsKey(displayedId)){
          	return MESSAGE_ERROR_WRONG_TASK_ID;
          }
@@ -359,14 +358,7 @@ public class Logic {
         Long displayingId = (long) 1;
         for (Long databaseId : dbManager.getValidIdList()) {
             Task task = dbManager.getInstance(databaseId);
-            if (isCompleted && task.getIsDone()) {
-                boolean inPeriod = dbManager.getInstance(databaseId)
-                        .isWithinPeriod(dateRange);
-                if (inPeriod) {
-                    displayedTasksMap.put(displayingId, databaseId);
-                    displayingId++;
-                }
-            } else if (!isCompleted && !task.getIsDone()) {
+            if (isCompleted == task.getIsDone()) {
                 boolean inPeriod = dbManager.getInstance(databaseId)
                         .isWithinPeriod(dateRange);
                 if (inPeriod) {
@@ -374,7 +366,6 @@ public class Logic {
                     displayingId++;
                 }
             }
-
         }
 
         String range = "";
