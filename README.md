@@ -8,18 +8,18 @@ system regardless of platform.
 
 Available List of Commands
 ---------------------------
-| Command Type  | Alias                      | Parameters                   |
-| ------------- | -------------------------- | -----------------------------|
-| Add           | `add` `insert` `ins` `new` | `description` `date(s)`      |
-| View          | `view` `display`           | `date range` `all`           |
-| Search        | `find` `lookup` `search`   | `keyword`                    |
-| Delete        | `delete` `remove`          | `ID`                         |
-| Update        | `change` `update` `edit`   | `ID` `description` `date(s)` |
-| Undo          | `undo`                     |                              |
-| Redo          | `redo`                     |                              |
-| Mark          | `mark` `completed` `done`  | `ID`                         |
-| Exit          | `exit` `quit`              |                              |
-| Invalid       | all other alias            |                              |
+| Command Type  | Alias                      | Parameters                    |
+| ------------- | -------------------------- | ------------------------------|
+| Add           | `add` `insert` `ins` `new` | `description` `date(s)`       |
+| View          | `view` `display`           | `date range` `all` `completed`|
+| Search        | `find` `lookup` `search`   | `keyword`                     |
+| Delete        | `delete` `remove`          | `ID`                          |
+| Update        | `change` `update` `edit`   | `ID` `description` `date(s)`  |
+| Undo          | `undo`                     |                               |
+| Redo          | `redo`                     |                               |
+| Mark          | `mark` `completed` `done`  | `ID`                          |
+| Exit          | `exit` `quit`              |                               |
+| Invalid       | all other alias            |                               |
 
 CLI Output Format / Standards
 -------------------------------
