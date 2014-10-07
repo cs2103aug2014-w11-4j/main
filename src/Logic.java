@@ -280,34 +280,49 @@ public class Logic {
      * @return list of tasks and their information in the database
      */
     public static String viewAll() throws IOException {
-        String taskString = "";
+        StringBuilder responseBuilder = new StringBuilder();
+
         Long displayingId = (long) 1;
         displayedTasksMap.clear();
-        taskString += String.format(VIEW_TASK_MESSAGE, dbManager
-                .getValidIdList().size());
-        if (dbManager.getValidIdList().size() == 0) {
-            return taskString;
-        }
-        taskString += System.lineSeparator() + VIEW_TASK_BORDER
-                + System.lineSeparator() + VIEW_TASK_HEADER
-                + System.lineSeparator() + VIEW_TASK_BORDER
-                + System.lineSeparator();
         for (int i = 0; i < dbManager.getValidIdList().size(); i++) {
             Long databaseId = dbManager.getValidIdList().get(i);
             displayedTasksMap.put(displayingId, databaseId);
-            taskString += formatTaskOutput(displayingId)
-                    + System.lineSeparator();
             displayingId++;
         }
 
-        taskString += VIEW_TASK_BORDER;
-        return taskString;
+        responseBuilder.append(String.format(VIEW_TASK_MESSAGE, dbManager
+                .getValidIdList().size()));
+
+        if (!displayedTasksMap.isEmpty()) {
+            responseBuilder.append(System.lineSeparator());
+            responseBuilder.append(formatTaskListOutput());
+        }
+
+        return responseBuilder.toString();
     }
 
     private static String formatTaskOutput(Long displayingId)
             throws IOException {
         Task task = dbManager.getInstance(displayedTasksMap.get(displayingId));
         return task.formatOutput(displayingId);
+    }
+
+    private static String formatTaskListOutput() throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append(VIEW_TASK_BORDER
+                             + System.lineSeparator() + VIEW_TASK_HEADER
+                             + System.lineSeparator() + VIEW_TASK_BORDER
+                             + System.lineSeparator());
+
+        for (long displayingId : displayedTasksMap.keySet()) {
+            stringBuilder.append(formatTaskOutput(displayingId));
+            stringBuilder.append(System.lineSeparator());
+        }
+
+        stringBuilder.append(VIEW_TASK_BORDER);
+
+        return stringBuilder.toString();
     }
 
     /**
@@ -344,8 +359,7 @@ public class Logic {
      */
 
     public static String searchWithKeyword(String keyword) throws IOException {
-        String taskString = "";
-        ArrayList<Task> relatedTasks = new ArrayList<Task>();
+        StringBuilder responseBuilder = new StringBuilder();
 
         displayedTasksMap.clear();
         Long displayingId = (long) 1;
@@ -355,29 +369,19 @@ public class Logic {
             taskInDb = taskInDb.toLowerCase();
             if (taskInDb.contains(keyword.toLowerCase())) {
                 displayedTasksMap.put(displayingId, databaseId);
-                relatedTasks.add(dbManager.getInstance(databaseId));
                 displayingId++;
             }
         }
 
-        taskString += String.format(SEARCH_RESULT_MESSAGE, relatedTasks.size(),
-                keyword);
+        responseBuilder.append(String.format(SEARCH_RESULT_MESSAGE, displayedTasksMap.size(),
+                keyword));
 
-        if (relatedTasks.size() == 0) {
-            return taskString;
+        if (!displayedTasksMap.isEmpty()) {
+            responseBuilder.append(System.lineSeparator());
+            responseBuilder.append(formatTaskListOutput());
         }
 
-        taskString += System.lineSeparator() + VIEW_TASK_BORDER
-                + System.lineSeparator() + VIEW_TASK_HEADER
-                + System.lineSeparator() + VIEW_TASK_BORDER
-                + System.lineSeparator();
-
-        for (long i = 0; i < relatedTasks.size(); i++) {
-            taskString += formatTaskOutput(i + 1) + System.lineSeparator();
-        }
-
-        taskString += VIEW_TASK_BORDER;
-        return taskString;
+        return responseBuilder.toString();
     }
 
     /**
@@ -389,7 +393,7 @@ public class Logic {
      */
 
     public static String viewByPeriod(DatePair dateRange) throws IOException {
-        String taskString = "";
+        StringBuilder responseBuilder = new StringBuilder();
 
         displayedTasksMap.clear();
         Long displayingId = (long) 1;
@@ -398,33 +402,19 @@ public class Logic {
                     .isWithinPeriod(dateRange);
             if (inPeriod) {
                 displayedTasksMap.put(displayingId, databaseId);
-                // result = result +
-                // dbManager.getInstance(databaseId).toString();
                 displayingId++;
             }
         }
 
-        Set<Long> idSet = displayedTasksMap.keySet();
-        Iterator<Long> idSetIterator = idSet.iterator();
-        taskString += String.format(VIEW_TASK_MESSAGE, dbManager
-                .getValidIdList().size());
-        if (dbManager.getValidIdList().size() == 0) {
-            return taskString;
+        responseBuilder.append(String.format(VIEW_TASK_MESSAGE, dbManager
+                .getValidIdList().size()));
+
+        if (!displayedTasksMap.isEmpty()) {
+            responseBuilder.append(System.lineSeparator());
+            responseBuilder.append(formatTaskListOutput());
         }
 
-        taskString += System.lineSeparator() + VIEW_TASK_BORDER
-                + System.lineSeparator() + VIEW_TASK_HEADER
-                + System.lineSeparator() + VIEW_TASK_BORDER
-                + System.lineSeparator();
-
-        while (idSetIterator.hasNext()) {
-            Long key = idSetIterator.next();
-
-            taskString += formatTaskOutput(key) + System.lineSeparator();
-        }
-
-        taskString += VIEW_TASK_BORDER;
-        return taskString;
+        return responseBuilder.toString();
     }
 
     /**
