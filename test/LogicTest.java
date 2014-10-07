@@ -26,13 +26,13 @@ public class LogicTest {
 
     /**
      * Test adding of task with todays date
-     * 
+     *
      * Add a task with todays date and current runtime
      * Call display to display specified task via id
      * Store both actual and expected values
      * Mark recent created task as invalid
      * Execute comparison
-     * 
+     *
      */
     @Test
     public void addTask() throws IOException {
@@ -49,10 +49,10 @@ public class LogicTest {
 
     /**
      * Adding Task without start date / end date
-     * 
+     *
      * Add a task without specifying any date
      * After retrieving the value, mark it as invalid
-     *  
+     *
      */
     @Test
     public void addNoDateTask() throws IOException {
@@ -67,11 +67,11 @@ public class LogicTest {
     }
 
     /**
-     * Adding Task with end date without start date 
-     * 
+     * Adding Task with end date without start date
+     *
      * Adding Task without a start date
      * After retrieving the value, mark it as invalid
-     *  
+     *
      */
     @Test
     public void addNoStartDateTask() throws IOException {
@@ -96,7 +96,7 @@ public class LogicTest {
 
     /**
      * Search for keyword in description
-     * 
+     *
      */
     @Test
     public void searchKeywordTest() throws IOException {
@@ -132,7 +132,7 @@ public class LogicTest {
      * Test redo function on Journal
      * Add in a task, and call undo,
      * Followed by calling redo
-     * 
+     *
      */
     @Test
     public void testJournalRedo() throws IOException {
@@ -149,8 +149,8 @@ public class LogicTest {
 
     /**
      * Delete exist task
-     * @throws IOException 
-     *  
+     * @throws IOException
+     *
      */
     @Test
     public void DeleteExistTask() throws IOException {
@@ -166,10 +166,10 @@ public class LogicTest {
     }
 
     /**
-     * 
+     *
      * update the task description
-     * @throws IOException 
-     *  
+     * @throws IOException
+     *
      */
 
     @Test
@@ -181,16 +181,16 @@ public class LogicTest {
         Logic.viewAll();
         String actual = Logic.updateTask(1, "Lorem ipsum dolor sit amet.",
                 dpList);
-        String expected = 
+        String expected =
         		"\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully updated.";
         assertEquals(expected, actual);
     }
 
     /**
-     * 
+     *
      * mark task as completed
-     * @throws IOException 
-     *  
+     * @throws IOException
+     *
      */
 
     @Test
@@ -206,10 +206,10 @@ public class LogicTest {
     }
 
     /**
-     * 
+     *
      * mark task as completed
-     * @throws IOException 
-     *  
+     * @throws IOException
+     *
      */
     @Test
     public void markTaskUncompleted() throws IOException {

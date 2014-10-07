@@ -1,5 +1,4 @@
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -25,7 +24,7 @@ public class ParserTest {
                 CommandType.ADD);
         assertEquals(Parser.parse("add meeting with boss today")
                 .getDescription(), "meeting with boss");
-        assertEquals(Parser.parse("add meeting with boss today").getDateRange()
+        assertEquals(Parser.parse("add meeting with boss today").getViewRange()
                 .getStartDate().getTime(), getToday());
     }
 
