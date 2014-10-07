@@ -21,6 +21,7 @@ public class LogicTest {
 
     @After
     public void tearDown() throws IOException {
+        Logic.getDB().resetDatabase();
         Logic.getDB().closeFile();
     }
 
@@ -62,7 +63,6 @@ public class LogicTest {
                 dpList);
         String actual = Logic.viewTask(id);
         String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done ";
-        Logic.deleteTask(id);
         assertEquals(expected, actual);
     }
 
@@ -105,9 +105,8 @@ public class LogicTest {
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         String actual = Logic.searchWithKeyword("Lorem");
-        String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done ";
-        Logic.deleteTask(id);
-        assertEquals(expected, actual);
+        String expected = "1 task with \"Lorem\" has been found.";
+        assertTrue(actual.contains(expected));
     }
 
     /**
