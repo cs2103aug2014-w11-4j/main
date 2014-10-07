@@ -110,12 +110,14 @@ public class Parser {
      * @return either a VIEW command or INVALID command
      */
     public static Command parseView(String args) {
+        boolean isCompleted = args.toLowerCase().contains("completed");
+
         /* Create empty DatePair object */
         DatePair date = new DatePair();
 
         /* If user decides to view all uncompleted tasks */
         if (args.contains("all")) {
-            return new Command(CommandType.VIEW, true, date);
+            return new Command(CommandType.VIEW, true, isCompleted, date);
         }
 
         /* Parse all US Date to SG Date Formal Format */
@@ -145,7 +147,7 @@ public class Parser {
         }
 
         /* Return view command with retrieved arguments */
-        return new Command(CommandType.VIEW, false, date);
+        return new Command(CommandType.VIEW, false, isCompleted, date);
     }
 
     /**
@@ -392,7 +394,6 @@ public class Parser {
                             + dateFormat.format(endDate.getTime()));
         }
 
-        System.out.println(input);
         return input;
     }
 

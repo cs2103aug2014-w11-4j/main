@@ -8,6 +8,7 @@
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -34,8 +35,12 @@ public class Logic {
     private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
     private static final String MESSAGE_MARK_UNCOMPLETED = "\"%s\" has been marked to uncompleted.";
     private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
-    private static final String MESSAGE_VIEW_RESULT = "You have %s uncompleted task(s).";
+
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "Wrong task ID!";
+    private static final String MESSAGE_VIEWALL_RESULT = "You have %s uncompleted task(s).";
+    private static final String MESSAGE_VIEWDATE_RESULT = "You have %s uncompleted task(s) %s.";
+    private static final String MESSAGE_VIEWALL_CRESULT = "You have %s completed task(s).";
+    private static final String MESSAGE_VIEWDATE_CRESULT = "You have %s completed task(s) %s.";
 
     private static final int CONSOLE_MAX_WIDTH = 80;
 
@@ -261,7 +266,7 @@ public class Logic {
             displayingId++;
         }
 
-        responseBuilder.append(String.format(MESSAGE_VIEW_RESULT, dbManager
+        responseBuilder.append(String.format(MESSAGE_VIEWALL_RESULT, dbManager
                 .getValidIdList().size()));
 
         if (!displayedTasksMap.isEmpty()) {
@@ -348,8 +353,21 @@ public class Logic {
             }
         }
 
-        responseBuilder.append(String.format(MESSAGE_VIEW_RESULT, dbManager
-                .getValidIdList().size()));
+        String range = "";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM");
+        if (dateRange.hasDateRange()) {
+            range = "from "
+                    + dateFormat.format(dateRange.getStartDate().getTime())
+                    + " to "
+                    + dateFormat.format(dateRange.getEndDate().getTime());
+        } else if (dateRange.hasEndDate()) {
+            range = "on " + dateFormat.format(dateRange.getEndDate().getTime());
+        } else {
+            assert false : "This should not occur as there must be a date.";
+        }
+
+        responseBuilder.append(String.format(MESSAGE_VIEWDATE_RESULT,
+                displayedTasksMap.size(), range));
 
         if (!displayedTasksMap.isEmpty()) {
             responseBuilder.append(System.lineSeparator());
