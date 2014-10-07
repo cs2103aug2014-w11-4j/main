@@ -264,10 +264,7 @@ public class Logic {
         for (int i = 0; i < dbManager.getValidIdList().size(); i++) {
             Long databaseId = dbManager.getValidIdList().get(i);
             Task task = dbManager.getInstance(databaseId);
-            if (isCompleted && task.getIsDone()) {
-                displayedTasksMap.put(displayingId, databaseId);
-                displayingId++;
-            } else if (!isCompleted && !task.getIsDone()) {
+            if (isCompleted == task.getIsDone()) {
                 displayedTasksMap.put(displayingId, databaseId);
                 displayingId++;
             }
@@ -359,14 +356,7 @@ public class Logic {
         Long displayingId = (long) 1;
         for (Long databaseId : dbManager.getValidIdList()) {
             Task task = dbManager.getInstance(databaseId);
-            if (isCompleted && task.getIsDone()) {
-                boolean inPeriod = dbManager.getInstance(databaseId)
-                        .isWithinPeriod(dateRange);
-                if (inPeriod) {
-                    displayedTasksMap.put(displayingId, databaseId);
-                    displayingId++;
-                }
-            } else if (!isCompleted && !task.getIsDone()) {
+            if (isCompleted == task.getIsDone()) {
                 boolean inPeriod = dbManager.getInstance(databaseId)
                         .isWithinPeriod(dateRange);
                 if (inPeriod) {
@@ -374,7 +364,6 @@ public class Logic {
                     displayingId++;
                 }
             }
-
         }
 
         String range = "";
