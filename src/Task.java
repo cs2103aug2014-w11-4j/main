@@ -9,16 +9,21 @@
 
 import java.io.Serializable;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.LinkedList;
+import java.util.UUID;
+
 
 public class Task implements Serializable {
-    private String description = "";
-    private ArrayList<DatePair> dateList = new ArrayList<DatePair>();
-    private boolean isDone = false;
+    private String description;
+    private ArrayList<DatePair> dateList;
+    private boolean isDone;
+    private String uuid;
 
     /**
-     * Creates a task with no fields
+     * Creates a task with no fields. This should only be used by Java Bean.
      */
     public Task() {
 
@@ -31,8 +36,7 @@ public class Task implements Serializable {
      */
 
     public Task(String description) {
-        this.description = description;
-        this.isDone = false;
+        this(description, new ArrayList<DatePair>());
     }
 
     /**
@@ -44,6 +48,8 @@ public class Task implements Serializable {
     public Task(String description, ArrayList<DatePair> dateList) {
         this.description = description;
         this.dateList = dateList;
+        this.isDone = false;
+        this.uuid = UUID.randomUUID().toString();
     }
 
     /**
@@ -129,6 +135,22 @@ public class Task implements Serializable {
     }
 
     /**
+     * Return UUID of the task.
+     * @return
+     */
+    public String getUuid() {
+        return uuid;
+    }
+
+    /**
+     * Set UUID of the task, should only be used by Java Bean.
+     * @param uuid UUID to be set
+     */
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    /**
      * 
      * @return Tasks information:
      * description, status, list of DatePair
@@ -165,17 +187,14 @@ public class Task implements Serializable {
      * @return true if there is overlap with the given DatePair
      * @author Huang Yue
      */
-    public boolean isWithinPeriod(DatePair dateRange) { // TODO: THIS METHOD IS
-                                                        // NOT TESTED! write
-                                                        // tests for this
+    public boolean isWithinPeriod(DatePair dateRange) {
         if (dateList.isEmpty()) {
             return true;
         }
         boolean flag = true; // TODO: temporary fix for null in dataList (WHY?)
         for (DatePair datePair : dateList) {
             if (datePair != null) {
-                if (datePair.isWithinPeriod(dateRange)) { // TODO: why it can be
-                                                          // null?
+                if (datePair.isWithinPeriod(dateRange)) { // TODO: why it can be null?
                     return true;
                 } else {
                     flag = false;
@@ -183,6 +202,68 @@ public class Task implements Serializable {
             }
         }
         return flag;
+    }
+
+    public String formatOutput(long displayingId) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        String description = getDescription();
+        ArrayList<DatePair> dates = getDateList();
+        char isDone = getIsDone() ? 'Y' : 'N';
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa");
+        LinkedList<String> wordWrapList = new LinkedList<String>();
+        LinkedList<String> dateList = new LinkedList<String>();
+
+        while (!description.isEmpty()) {
+            if (description.length() <= 41) {
+                wordWrapList.add(description);
+                description = "";
+            } else {
+                int i = description.lastIndexOf(" ", 41);
+                /* if there's a word with more than 41 characters long */
+                if (i == -1) {
+                    i = 41;
+                }
+                wordWrapList.add(description.substring(0, i));
+                description = description.substring(i + 1);
+            }
+        }
+
+        /* Currently do for one date first */
+        if (!dates.isEmpty()) {
+            DatePair dp = dates.get(0);
+            if (dp.hasDateRange()) {
+                dateList.add(dateFormat.format(dp.getStartDate().getTime()) + " to");
+                dateList.add(dateFormat.format(dp.getEndDate().getTime()));
+            } else if (dp.hasStartDate()) {
+                dateList.add(dateFormat.format(dp.getStartDate().getTime()));
+            } else if (dp.hasEndDate()) {
+                dateList.add(dateFormat.format(dp.getEndDate().getTime()));
+            }
+        }
+
+        while (!wordWrapList.isEmpty() || !dateList.isEmpty()) {
+            String lineTask = "";
+            String lineDate = "";
+            if (!wordWrapList.isEmpty()) {
+                lineTask = wordWrapList.removeFirst();
+            }
+
+            if (!dateList.isEmpty()) {
+                lineDate = dateList.removeFirst();
+            }
+
+            if (stringBuilder.length() == 0) {
+                stringBuilder.append(String.format("%-7s%-6s%-43s%-23s", displayingId,
+                        isDone, lineTask, lineDate));
+            } else {
+                stringBuilder.append(System.lineSeparator());
+                stringBuilder.append(String.format("%-7s%-6s%-43s%-23s", "", "", lineTask,
+                        lineDate));
+            }
+        }
+
+        return stringBuilder.toString();
     }
 
 }
