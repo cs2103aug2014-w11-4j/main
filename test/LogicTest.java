@@ -62,7 +62,7 @@ public class LogicTest {
                 dpList);
         String actual = Logic.viewTask(id);
         String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done ";
-        Logic.delete(id);
+        Logic.deleteTask(id);
         assertEquals(expected, actual);
     }
 
@@ -106,7 +106,7 @@ public class LogicTest {
                 dpList);
         String actual = Logic.searchWithKeyword("Lorem");
         String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done ";
-        Logic.delete(id);
+        Logic.deleteTask(id);
         assertEquals(expected, actual);
     }
 
@@ -158,7 +158,7 @@ public class LogicTest {
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         Logic.viewAll(false);
-        String expected = Logic.delete(1);
+        String expected = Logic.deleteTask(1);
         String actual = (
         		"\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully deleted.");
         assertEquals(actual, expected);

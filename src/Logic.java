@@ -92,7 +92,7 @@ public class Logic {
                     return markTask(command.getTaskId());
 
                 case DELETE:
-                    return delete(command.getTaskId());
+                    return deleteTask(command.getTaskId());
 
                 case UPDATE:
                     return updateTask(command.getTaskId(),
@@ -296,7 +296,7 @@ public class Logic {
      *
      * @throws IOException
      */
-    public static String delete(long displayedId) throws IOException {
+    public static String deleteTask(long displayedId) throws IOException {
     	 if(!displayedTasksMap.containsKey(displayedId)){
          	return MESSAGE_ERROR_WRONG_TASK_ID;
          }
