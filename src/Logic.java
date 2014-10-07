@@ -156,43 +156,6 @@ public class Logic {
         Task oldTask = dbManager.getInstance(databaseId);
         return oldTask.getIsDone();
     }
-    
-    /**
-     * Create and add the completed task to the database
-     *
-     * @param description of the task
-     * @param dateList of possible DatePair
-     *
-     * @return id of the task, if id == 0, task failed to create
-     * @throws IOException 
-     */
-    public static long addCompletedTask(String description,
-            ArrayList<DatePair> dateList) throws IOException {
-        long id = 0;
-        Task task = new Task(description, dateList);
-        task.setIsDone(true);
-        id = dbManager.putInstance(task);
-    
-        return id;
-    }
-    
-    /**
-     * Create and add the uncompleted task to the database
-     *
-     * @param description of the task
-     * @param dateList of possible DatePair
-     *
-     * @return id of the task, if id == 0, task failed to create
-     * @throws IOException 
-     */
-    public static long addUncompletedTask(String description,
-            ArrayList<DatePair> dateList) throws IOException {
-        long id = 0;
-        Task task = new Task(description, dateList);
-        id = dbManager.putInstance(task);
-        return id;
-    }
-
 
     /**
      * Mark a task as completed
@@ -205,9 +168,9 @@ public class Logic {
     public static String markTaskCompleted(long displayedId) throws IOException { 
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
-        String oldDescription = oldTask.getDescription();
-        ArrayList<DatePair> oldDateList = oldTask.getDateList();
-        long newTaskId = addCompletedTask(oldDescription, oldDateList);
+        oldTask.setIsDone(true);
+        long newTaskId = dbManager.putInstance(oldTask);
+        displayedTasksMap.put(displayedId, newTaskId);
         dbManager.markAsInvalid(databaseId);
         journal.recordAction(
                 databaseId,
@@ -228,9 +191,9 @@ public class Logic {
     public static String markTaskUncompleted(long displayedId) throws IOException { 
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
-        String oldDescription = oldTask.getDescription();
-        ArrayList<DatePair> oldDateList = oldTask.getDateList();
-        long newTaskId = addUncompletedTask(oldDescription, oldDateList);
+        oldTask.setIsDone(false);
+        long newTaskId = dbManager.putInstance(oldTask);
+        displayedTasksMap.put(displayedId, newTaskId);
         dbManager.markAsInvalid(databaseId);
         journal.recordAction(
                 databaseId,
