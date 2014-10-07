@@ -282,7 +282,7 @@ public class Parser {
 
     private static String removeFirstWord(String input) {
         String[] splitWord = input.split("\\s+", 2);
-        return splitWord.length == 1 ? splitWord[0] : splitWord[1];
+        return splitWord.length == 1 ? "" : splitWord[1];
     }
 
     private static Calendar dateToCalendar(Date date) {
