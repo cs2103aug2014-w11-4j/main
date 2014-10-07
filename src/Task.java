@@ -20,10 +20,10 @@ public class Task implements Serializable {
     private boolean isDone;
 
     /**
-     * Creates a task with no fields
+     * Creates a task with no fields. This should only be used by Java Bean.
      */
     public Task() {
-        this("");
+
     }
 
     /**
