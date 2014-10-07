@@ -89,11 +89,7 @@ public class Logic {
                     return searchWithKeyword(command.getKeyword());
 
                 case MARK:
-                    if (isCompletedTask(command.getTaskId())) {
-                        return markTaskUncompleted(command.getTaskId());
-                    } else {
-                        return markTaskCompleted(command.getTaskId());
-                    }
+                    return markTask(command.getTaskId());
 
                 case DELETE:
                     return delete(command.getTaskId());
@@ -158,6 +154,23 @@ public class Logic {
     }
 
     /**
+     * Mark a task (completed to uncompleted and vice versa)
+     * @param displayedId displayed id of the task
+     * @return message of mark
+     * @throws IOException
+     */
+    public static String markTask(long displayedId) throws IOException {
+        if(!displayedTasksMap.containsKey(displayedId)){
+            return MESSAGE_ERROR_WRONG_TASK_ID;
+        }
+        if (isCompletedTask(displayedId)) {
+            return markTaskUncompleted(displayedId);
+        } else {
+            return markTaskCompleted(displayedId);
+        }
+    }
+
+    /**
      * Mark a task as completed.
      *
      * @param displayedId displayed id of the task
@@ -166,9 +179,6 @@ public class Logic {
      * @throws IOException
      */
     public static String markTaskCompleted(long displayedId) throws IOException {
-    	if(!displayedTasksMap.containsKey(displayedId)){
-    		return MESSAGE_ERROR_WRONG_TASK_ID;
-        }
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         oldTask.setIsDone(true);
@@ -193,9 +203,6 @@ public class Logic {
      */
     public static String markTaskUncompleted(long displayedId)
             throws IOException {
-    	if(!displayedTasksMap.containsKey(displayedId)){
-    		return MESSAGE_ERROR_WRONG_TASK_ID;
-        }
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         oldTask.setIsDone(false);
