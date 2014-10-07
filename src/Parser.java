@@ -119,6 +119,9 @@ public class Parser {
         /* Parse all US Date to SG Date Formal Format */
         String input = parseUStoSGDate(args);
 
+        /* Pre-process certain terms for Natty parser */
+        input = parseSpecialTerms(input);
+
         /* Use Natty library to parse date specified by user */
         List<DateGroup> groups = dateParser.parse(input);
         /* If no matched dates, return invalid command */
@@ -166,6 +169,9 @@ public class Parser {
         /* Parse all US Date to SG Date Formal Format */
         String input = parseUStoSGDate(args);
 
+        /* Pre-process certain terms for Natty parser */
+        input = parseSpecialTerms(input);
+
         /* Use Natty library to parse date specified by user */
         List<DateGroup> groups = dateParser.parse(input);
         DatePair date = new DatePair();
@@ -185,7 +191,7 @@ public class Parser {
 
         ArrayList<DatePair> datePairs = new ArrayList<DatePair>();
         /* TODO: No support for more than 2 dates at the moment */
-        if (date.hasDateRange()) {
+        if (date.hasStartDate()) {
             datePairs.add(date);
         }
 
@@ -227,6 +233,9 @@ public class Parser {
 
             /* Parse all US Date to SG Date Formal Format */
             String input = parseUStoSGDate(args);
+
+            /* Pre-process certain terms for Natty parser */
+            input = parseSpecialTerms(input);
 
             /* Use Natty library to parse date specified by user */
             List<DateGroup> groups = dateParser.parse(input);
@@ -328,6 +337,30 @@ public class Parser {
             }
         }
 
+        return input;
+    }
+
+    private static String parseSpecialTerms(String input) {
+        /* Check if any usage of until */
+        String untilTerm = "\\b(until)\\b";
+        Pattern textPattern = Pattern.compile(untilTerm);
+        Matcher textMatcher = textPattern.matcher(input);
+
+        while (textMatcher.find()) {
+            input = input.replace(textMatcher.group().trim(), "today to");
+        }
+
+        /* Check if any usage of from */
+        String fromTerm = "\\b(from)\\b";
+        textPattern = Pattern.compile(fromTerm);
+        textMatcher = textPattern.matcher(input);
+
+        /* Remove all from term as not supported by Natty lib */
+        while (textMatcher.find()) {
+            input = input.replace(textMatcher.group().trim(), "");
+        }
+
+        System.out.println(input);
         return input;
     }
 
