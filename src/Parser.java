@@ -1,7 +1,9 @@
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -364,6 +366,33 @@ public class Parser {
             input = input.replace(textMatcher.group().trim(), "");
         }
 
+        /* Check if any usage of next week */
+        String nextTerm = "\\b(next\\s+week)\\b";
+        textPattern = Pattern.compile(nextTerm);
+        textMatcher = textPattern.matcher(input);
+
+        /* Remove all from term as not supported by Natty lib */
+        while (textMatcher.find()) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+            Calendar nextWeekDate = Calendar.getInstance(Locale.UK);
+            nextWeekDate.add(Calendar.DATE, 7);
+            int firstDayOfWeek = nextWeekDate.getFirstDayOfWeek();
+
+            Calendar startDate = Calendar.getInstance(Locale.UK);
+            startDate.setTime(nextWeekDate.getTime());
+            int days = (startDate.get(Calendar.DAY_OF_WEEK) + 7 - firstDayOfWeek) % 7;
+            startDate.add(Calendar.DATE, -days);
+
+            Calendar endDate = Calendar.getInstance(Locale.UK);
+            endDate.setTime(startDate.getTime());
+            endDate.add(Calendar.DATE, 6);
+
+            input = input.replace(textMatcher.group().trim(),
+                    dateFormat.format(startDate.getTime()) + " to "
+                            + dateFormat.format(endDate.getTime()));
+        }
+
+        System.out.println(input);
         return input;
     }
 
