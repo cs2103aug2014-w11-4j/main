@@ -135,18 +135,15 @@ public class Logic {
      * @param description of the task
      * @param dateList of possible DatePair
      *
-     * @return id of the task, if id == 0, task failed to create
+     * @return id of the task
+     *
+     * @throws IOException
      */
-    public static long addTask(String description, ArrayList<DatePair> dateList) {
-        long id = 0;
+    public static long addTask(String description, ArrayList<DatePair> dateList) throws IOException {
         Task task = new Task(description, dateList);
-        try {
-            id = dbManager.putInstance(task);
-            journal.recordAction(null, id,
+        long id = dbManager.putInstance(task);
+        journal.recordAction(null, id,
                     String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
-        } catch (IOException e) {
-            return id;
-        }
         return id;
     }
 
