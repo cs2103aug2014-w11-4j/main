@@ -217,7 +217,6 @@ public class LogicTest {
                 dpList);
         Logic.viewAll();
         Logic.markTaskCompleted(1);
-        Logic.viewAll();
         String actual = Logic.markTaskUncompleted(1);
         String expected = "\'Lorem ipsum dolor sit amet, consectetur adipiscing elit.\' has been marked to uncompleted.";
         assertEquals(actual,expected);
