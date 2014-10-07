@@ -1,7 +1,9 @@
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -109,11 +111,11 @@ public class Parser {
      */
     public static Command parseView(String args) {
         /* Create empty DatePair object */
-        DatePair dateRange = new DatePair();
+        DatePair date = new DatePair();
 
         /* If user decides to view all uncompleted tasks */
         if (args.contains("all")) {
-            return new Command(CommandType.VIEW, true, dateRange);
+            return new Command(CommandType.VIEW, true, date);
         }
 
         /* Parse all US Date to SG Date Formal Format */
@@ -124,6 +126,7 @@ public class Parser {
 
         /* Use Natty library to parse date specified by user */
         List<DateGroup> groups = dateParser.parse(input);
+
         /* If no matched dates, return invalid command */
         if (groups.isEmpty()) {
             return new Command(CommandType.INVALID, VIEW_ERROR_EMPTY);
@@ -134,14 +137,15 @@ public class Parser {
             List<Date> dates = group.getDates();
 
             if (dates.size() == 2) {
-                dateRange.setEndDate(dateToCalendar(dates.get(1)));
+                date.setStartDate(dateToCalendar(dates.get(0)));
+                date.setEndDate(dateToCalendar(dates.get(1)));
+            } else if (dates.size() == 1) {
+                date.setEndDate(dateToCalendar(dates.get(0)));
             }
-
-            dateRange.setStartDate(dateToCalendar(dates.get(0)));
         }
 
         /* Return view command with retrieved arguments */
-        return new Command(CommandType.VIEW, false, dateRange);
+        return new Command(CommandType.VIEW, false, date);
     }
 
     /**
@@ -181,17 +185,18 @@ public class Parser {
             List<Date> dates = group.getDates();
 
             if (dates.size() == 2) {
+                date.setStartDate(dateToCalendar(dates.get(0)));
                 date.setEndDate(dateToCalendar(dates.get(1)));
+            } else if (dates.size() == 1) {
+                date.setEndDate(dateToCalendar(dates.get(0)));
             }
-
-            date.setStartDate(dateToCalendar(dates.get(0)));
 
             input = input.replace(group.getText(), "");
         }
 
         ArrayList<DatePair> datePairs = new ArrayList<DatePair>();
         /* TODO: No support for more than 2 dates at the moment */
-        if (date.hasStartDate()) {
+        if (date.hasEndDate()) {
             datePairs.add(date);
         }
 
@@ -244,10 +249,11 @@ public class Parser {
                 List<Date> dates = group.getDates();
 
                 if (dates.size() == 2) {
+                    date.setStartDate(dateToCalendar(dates.get(0)));
                     date.setEndDate(dateToCalendar(dates.get(1)));
+                } else if (dates.size() == 1) {
+                    date.setEndDate(dateToCalendar(dates.get(0)));
                 }
-
-                date.setStartDate(dateToCalendar(dates.get(0)));
 
                 input = input.replace(group.getText(), "");
             }
@@ -256,11 +262,11 @@ public class Parser {
 
             ArrayList<DatePair> datePairs = new ArrayList<DatePair>();
             /* TODO: No support for more than 2 dates at the moment */
-            if (date.hasStartDate()) {
+            if (date.hasEndDate()) {
                 datePairs.add(date);
             }
 
-            if (!(date.hasStartDate() || !desc.isEmpty())) {
+            if (!(date.hasEndDate() || !desc.isEmpty())) {
                 return new Command(CommandType.INVALID, UPDATE_ERROR_EMPTY);
             }
 
@@ -358,6 +364,32 @@ public class Parser {
         /* Remove all from term as not supported by Natty lib */
         while (textMatcher.find()) {
             input = input.replace(textMatcher.group().trim(), "");
+        }
+
+        /* Check if any usage of next week */
+        String nextTerm = "\\b(next\\s+week)\\b";
+        textPattern = Pattern.compile(nextTerm);
+        textMatcher = textPattern.matcher(input);
+
+        /* Remove all from term as not supported by Natty lib */
+        while (textMatcher.find()) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+            Calendar nextWeekDate = Calendar.getInstance(Locale.UK);
+            nextWeekDate.add(Calendar.DATE, 7);
+            int firstDayOfWeek = nextWeekDate.getFirstDayOfWeek();
+
+            Calendar startDate = Calendar.getInstance(Locale.UK);
+            startDate.setTime(nextWeekDate.getTime());
+            int days = (startDate.get(Calendar.DAY_OF_WEEK) + 7 - firstDayOfWeek) % 7;
+            startDate.add(Calendar.DATE, -days);
+
+            Calendar endDate = Calendar.getInstance(Locale.UK);
+            endDate.setTime(startDate.getTime());
+            endDate.add(Calendar.DATE, 6);
+
+            input = input.replace(textMatcher.group().trim(),
+                    dateFormat.format(startDate.getTime()) + " to "
+                            + dateFormat.format(endDate.getTime()));
         }
 
         System.out.println(input);
