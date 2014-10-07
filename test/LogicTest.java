@@ -63,7 +63,6 @@ public class LogicTest {
                 dpList);
         String actual = Logic.viewTask(id);
         String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done ";
-        Logic.deleteTask(id);
         assertEquals(expected, actual);
     }
 
@@ -107,7 +106,6 @@ public class LogicTest {
                 dpList);
         String actual = Logic.searchWithKeyword("Lorem");
         String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done ";
-        Logic.deleteTask(id);
         assertEquals(expected, actual);
     }
 
