@@ -35,7 +35,7 @@ public class LogicTest {
      * 
      */
     @Test
-    public void addTask() {
+    public void addTask() throws IOException {
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar today = Calendar.getInstance();
         DatePair dp = new DatePair(today);
