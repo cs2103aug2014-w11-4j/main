@@ -105,8 +105,8 @@ public class LogicTest {
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         String actual = Logic.searchWithKeyword("Lorem");
-        String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done ";
-        assertEquals(expected, actual);
+        String expected = "1 task with \"Lorem\" has been found.";
+        assertTrue(actual.contains(expected));
     }
 
     /**
