@@ -81,7 +81,7 @@ public class Logic {
                     if (command.isViewAll()) {
                         return viewAll();
                     } else {
-                        return viewByPeriod(command.getViewRange());
+                        return viewByPeriod(command.getViewRange(), command.isCompleted());
                     }
 
                 case SEARCH:
@@ -339,18 +339,29 @@ public class Logic {
      * @return result of all the tasks that are within the period as queried
      */
 
-    public static String viewByPeriod(DatePair dateRange) throws IOException {
+    public static String viewByPeriod(DatePair dateRange, boolean isCompleted) throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
 
         displayedTasksMap.clear();
         Long displayingId = (long) 1;
         for (Long databaseId : dbManager.getValidIdList()) {
-            boolean inPeriod = dbManager.getInstance(databaseId)
-                    .isWithinPeriod(dateRange);
-            if (inPeriod) {
-                displayedTasksMap.put(displayingId, databaseId);
-                displayingId++;
+            Task task = dbManager.getInstance(databaseId);
+            if(isCompleted && task.getIsDone()){
+                boolean inPeriod = dbManager.getInstance(databaseId)
+                        .isWithinPeriod(dateRange);
+                if (inPeriod) {
+                    displayedTasksMap.put(displayingId, databaseId);
+                    displayingId++;
+                }
+            }else if(!isCompleted && !task.getIsDone()){
+                boolean inPeriod = dbManager.getInstance(databaseId)
+                        .isWithinPeriod(dateRange);
+                if (inPeriod) {
+                    displayedTasksMap.put(displayingId, databaseId);
+                    displayingId++;
+                } 
             }
+
         }
 
         String range = "";
