@@ -254,16 +254,22 @@ public class Logic {
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
-        ArrayList<DatePair> oldDateList = oldTask.getDateList();
         String result = "";
         long newTaskId;
         
         if (description == null && dateList != null) {
-            newTaskId = addTask(oldDescription, dateList);
-        } else if (description == null && dateList != null) {
-            newTaskId = addTask(description, oldDateList);
+        	oldTask.setDateList(dateList);
+        	newTaskId = dbManager.putInstance(oldTask);
+        	displayedTasksMap.put(displayedId, newTaskId);
+        } else if (description != null && dateList == null) {
+        	oldTask.setDescription(description);
+        	newTaskId = dbManager.putInstance(oldTask);
+        	displayedTasksMap.put(displayedId, newTaskId);
         } else {
-            newTaskId = addTask(description, dateList);
+        	oldTask.setDescription(description);
+        	oldTask.setDateList(dateList);
+        	newTaskId = dbManager.putInstance(oldTask);
+        	displayedTasksMap.put(displayedId, newTaskId);
         }
         dbManager.markAsInvalid(databaseId);
         result = String.format(UPDATE_MESSAGE, oldDescription); 
