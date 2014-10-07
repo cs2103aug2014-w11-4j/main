@@ -167,17 +167,14 @@ public class Logic {
      * @param description of the task
      * @param dateList of possible DatePair
      *
-     * @return id of the task, if id == 0, task failed to create
+     * @return id of the task
      * @throws IOException
      */
     public static long addCompletedTask(String description,
             ArrayList<DatePair> dateList) throws IOException {
-        long id = 0;
         Task task = new Task(description, dateList);
         task.setIsDone(true);
-        id = dbManager.putInstance(task);
-
-        return id;
+        return dbManager.putInstance(task);
     }
 
     /**
@@ -186,7 +183,7 @@ public class Logic {
      * @param description of the task
      * @param dateList of possible DatePair
      *
-     * @return id of the task, if id == 0, task failed to create
+     * @return id of the task
      * @throws IOException
      */
     public static long addUncompletedTask(String description,
@@ -200,7 +197,7 @@ public class Logic {
     /**
      * Mark a task as completed
      *
-     * @param displayed id of the task
+     * @param displayedId displayed id of the task
      * @return message of mark task to completed
      *
      * @throws IOException
@@ -223,7 +220,7 @@ public class Logic {
     /**
      * Mark a task as Uncompleted
      *
-     * @param displayed id of the task
+     * @param displayedId displayed id of the task
      * @return message of mark task to uncompleted
      *
      * @throws IOException
