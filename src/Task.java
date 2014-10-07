@@ -245,8 +245,8 @@ public class Task implements Serializable {
                 dateList.add(dateFormat.format(dp.getStartDate().getTime())
                         + " to");
                 dateList.add(dateFormat.format(dp.getEndDate().getTime()));
-            } else if (dp.hasStartDate()) {
-                dateList.add(dateFormat.format(dp.getStartDate().getTime()));
+            } else if (dp.hasEndDate()) {
+                dateList.add(dateFormat.format(dp.getEndDate().getTime()));
             }
         }
 
@@ -259,10 +259,13 @@ public class Task implements Serializable {
 
             if (stringBuilder.length() != 0) {
                 stringBuilder.append(System.lineSeparator());
+                stringBuilder.append(String.format("%-7s%-6s%-43s%-23s",
+                        "", "", desc, date));
+            } else {
+                stringBuilder.append(String.format("%-7s%-6s%-43s%-23s",
+                        displayingId, isDone, desc, date));
             }
 
-            stringBuilder.append(String.format("%-7s%-6s%-43s%-23s",
-                    displayingId, isDone, desc, date));
         }
 
         return stringBuilder.toString();

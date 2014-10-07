@@ -109,11 +109,11 @@ public class Parser {
      */
     public static Command parseView(String args) {
         /* Create empty DatePair object */
-        DatePair dateRange = new DatePair();
+        DatePair date = new DatePair();
 
         /* If user decides to view all uncompleted tasks */
         if (args.contains("all")) {
-            return new Command(CommandType.VIEW, true, dateRange);
+            return new Command(CommandType.VIEW, true, date);
         }
 
         /* Parse all US Date to SG Date Formal Format */
@@ -124,6 +124,7 @@ public class Parser {
 
         /* Use Natty library to parse date specified by user */
         List<DateGroup> groups = dateParser.parse(input);
+
         /* If no matched dates, return invalid command */
         if (groups.isEmpty()) {
             return new Command(CommandType.INVALID, VIEW_ERROR_EMPTY);
@@ -134,14 +135,15 @@ public class Parser {
             List<Date> dates = group.getDates();
 
             if (dates.size() == 2) {
-                dateRange.setEndDate(dateToCalendar(dates.get(1)));
+                date.setStartDate(dateToCalendar(dates.get(0)));
+                date.setEndDate(dateToCalendar(dates.get(1)));
+            } else if (dates.size() == 1) {
+                date.setEndDate(dateToCalendar(dates.get(0)));
             }
-
-            dateRange.setStartDate(dateToCalendar(dates.get(0)));
         }
 
         /* Return view command with retrieved arguments */
-        return new Command(CommandType.VIEW, false, dateRange);
+        return new Command(CommandType.VIEW, false, date);
     }
 
     /**
@@ -181,17 +183,18 @@ public class Parser {
             List<Date> dates = group.getDates();
 
             if (dates.size() == 2) {
+                date.setStartDate(dateToCalendar(dates.get(0)));
                 date.setEndDate(dateToCalendar(dates.get(1)));
+            } else if (dates.size() == 1) {
+                date.setEndDate(dateToCalendar(dates.get(0)));
             }
-
-            date.setStartDate(dateToCalendar(dates.get(0)));
 
             input = input.replace(group.getText(), "");
         }
 
         ArrayList<DatePair> datePairs = new ArrayList<DatePair>();
         /* TODO: No support for more than 2 dates at the moment */
-        if (date.hasStartDate()) {
+        if (date.hasEndDate()) {
             datePairs.add(date);
         }
 
@@ -244,10 +247,11 @@ public class Parser {
                 List<Date> dates = group.getDates();
 
                 if (dates.size() == 2) {
+                    date.setStartDate(dateToCalendar(dates.get(0)));
                     date.setEndDate(dateToCalendar(dates.get(1)));
+                } else if (dates.size() == 1) {
+                    date.setEndDate(dateToCalendar(dates.get(0)));
                 }
-
-                date.setStartDate(dateToCalendar(dates.get(0)));
 
                 input = input.replace(group.getText(), "");
             }
@@ -256,11 +260,11 @@ public class Parser {
 
             ArrayList<DatePair> datePairs = new ArrayList<DatePair>();
             /* TODO: No support for more than 2 dates at the moment */
-            if (date.hasStartDate()) {
+            if (date.hasEndDate()) {
                 datePairs.add(date);
             }
 
-            if (!(date.hasStartDate() || !desc.isEmpty())) {
+            if (!(date.hasEndDate() || !desc.isEmpty())) {
                 return new Command(CommandType.INVALID, UPDATE_ERROR_EMPTY);
             }
 
@@ -360,7 +364,6 @@ public class Parser {
             input = input.replace(textMatcher.group().trim(), "");
         }
 
-        System.out.println(input);
         return input;
     }
 
