@@ -21,6 +21,7 @@ public class LogicTest {
 
     @After
     public void tearDown() throws IOException {
+        Logic.getDB().resetDatabase();
         Logic.getDB().closeFile();
     }
 
