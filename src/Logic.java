@@ -312,7 +312,7 @@ public class Logic {
 
     /**
      * Delete Task of Database
-     * @param displayed id of the task
+     * @param displayedId displayed id of the task
      *
      * @return delete message including the task description
      * @throws IOException
