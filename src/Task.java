@@ -13,11 +13,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
+import java.util.UUID;
+
 
 public class Task implements Serializable {
     private String description;
     private ArrayList<DatePair> dateList;
     private boolean isDone;
+    private String uuid;
 
     /**
      * Creates a task with no fields. This should only be used by Java Bean.
@@ -46,6 +49,7 @@ public class Task implements Serializable {
         this.description = description;
         this.dateList = dateList;
         this.isDone = false;
+        this.uuid = UUID.randomUUID().toString();
     }
 
     /**
@@ -128,6 +132,22 @@ public class Task implements Serializable {
 
     public boolean getIsDone() {
         return isDone;
+    }
+
+    /**
+     * Return UUID of the task.
+     * @return
+     */
+    public String getUuid() {
+        return uuid;
+    }
+
+    /**
+     * Set UUID of the task, should only be used by Java Bean.
+     * @param uuid UUID to be set
+     */
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     /**
