@@ -158,7 +158,7 @@ public class LogicTest {
         Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        Logic.viewAll();
+        Logic.viewAll(true);
         String expected = Logic.delete(1);
         String actual = (
         		"\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully deleted.");
@@ -178,7 +178,7 @@ public class LogicTest {
         Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        Logic.viewAll();
+        Logic.viewAll(true);
         String actual = Logic.updateTask(1, "Lorem ipsum dolor sit amet.",
                 dpList);
         String expected =
@@ -199,7 +199,7 @@ public class LogicTest {
         Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        Logic.viewAll();
+        Logic.viewAll(true);
         String expected = Logic.markTaskCompleted(1);
         String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to completed.";
         assertEquals(actual,expected);
@@ -217,7 +217,7 @@ public class LogicTest {
         Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        Logic.viewAll();
+        Logic.viewAll(true);
         Logic.markTaskCompleted(1);
         String expected = Logic.markTaskUncompleted(1);
         String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to uncompleted.";

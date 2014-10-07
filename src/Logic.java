@@ -79,9 +79,10 @@ public class Logic {
 
                 case VIEW:
                     if (command.isViewAll()) {
-                        return viewAll();
+                        return viewAll(command.isCompleted());
                     } else {
-                        return viewByPeriod(command.getViewRange(), command.isCompleted());
+                        return viewByPeriod(command.getViewRange(),
+                                command.isCompleted());
                     }
 
                 case SEARCH:
@@ -255,19 +256,30 @@ public class Logic {
      *
      * @return list of tasks and their information in the database
      */
-    public static String viewAll() throws IOException {
+    public static String viewAll(boolean isCompleted) throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
 
         Long displayingId = (long) 1;
         displayedTasksMap.clear();
         for (int i = 0; i < dbManager.getValidIdList().size(); i++) {
             Long databaseId = dbManager.getValidIdList().get(i);
-            displayedTasksMap.put(displayingId, databaseId);
-            displayingId++;
+            Task task = dbManager.getInstance(databaseId);
+            if (isCompleted && task.getIsDone()) {
+                displayedTasksMap.put(displayingId, databaseId);
+                displayingId++;
+            } else if (!isCompleted && !task.getIsDone()) {
+                displayedTasksMap.put(displayingId, databaseId);
+                displayingId++;
+            }
         }
 
-        responseBuilder.append(String.format(MESSAGE_VIEWALL_RESULT, dbManager
-                .getValidIdList().size()));
+        if (isCompleted) {
+            responseBuilder.append(String.format(MESSAGE_VIEWALL_CRESULT,
+                    displayedTasksMap.size()));
+        } else {
+            responseBuilder.append(String.format(MESSAGE_VIEWALL_RESULT,
+                    displayedTasksMap.size()));
+        }
 
         if (!displayedTasksMap.isEmpty()) {
             responseBuilder.append(System.lineSeparator());
@@ -339,27 +351,28 @@ public class Logic {
      * @return result of all the tasks that are within the period as queried
      */
 
-    public static String viewByPeriod(DatePair dateRange, boolean isCompleted) throws IOException {
+    public static String viewByPeriod(DatePair dateRange, boolean isCompleted)
+            throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
 
         displayedTasksMap.clear();
         Long displayingId = (long) 1;
         for (Long databaseId : dbManager.getValidIdList()) {
             Task task = dbManager.getInstance(databaseId);
-            if(isCompleted && task.getIsDone()){
+            if (isCompleted && task.getIsDone()) {
                 boolean inPeriod = dbManager.getInstance(databaseId)
                         .isWithinPeriod(dateRange);
                 if (inPeriod) {
                     displayedTasksMap.put(displayingId, databaseId);
                     displayingId++;
                 }
-            }else if(!isCompleted && !task.getIsDone()){
+            } else if (!isCompleted && !task.getIsDone()) {
                 boolean inPeriod = dbManager.getInstance(databaseId)
                         .isWithinPeriod(dateRange);
                 if (inPeriod) {
                     displayedTasksMap.put(displayingId, databaseId);
                     displayingId++;
-                } 
+                }
             }
 
         }
@@ -377,8 +390,13 @@ public class Logic {
             assert false : "This should not occur as there must be a date.";
         }
 
-        responseBuilder.append(String.format(MESSAGE_VIEWDATE_RESULT,
-                displayedTasksMap.size(), range));
+        if (isCompleted) {
+            responseBuilder.append(String.format(MESSAGE_VIEWDATE_CRESULT,
+                    displayedTasksMap.size(), range));
+        } else {
+            responseBuilder.append(String.format(MESSAGE_VIEWDATE_RESULT,
+                    displayedTasksMap.size(), range));
+        }
 
         if (!displayedTasksMap.isEmpty()) {
             responseBuilder.append(System.lineSeparator());
