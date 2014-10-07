@@ -15,15 +15,15 @@ import java.util.GregorianCalendar;
 import java.util.LinkedList;
 
 public class Task implements Serializable {
-    private String description = "";
-    private ArrayList<DatePair> dateList = new ArrayList<DatePair>();
-    private boolean isDone = false;
+    private String description;
+    private ArrayList<DatePair> dateList;
+    private boolean isDone;
 
     /**
      * Creates a task with no fields
      */
     public Task() {
-
+        this("");
     }
 
     /**
@@ -33,8 +33,7 @@ public class Task implements Serializable {
      */
 
     public Task(String description) {
-        this.description = description;
-        this.isDone = false;
+        this(description, new ArrayList<DatePair>());
     }
 
     /**
@@ -46,6 +45,7 @@ public class Task implements Serializable {
     public Task(String description, ArrayList<DatePair> dateList) {
         this.description = description;
         this.dateList = dateList;
+        this.isDone = false;
     }
 
     /**
@@ -167,17 +167,14 @@ public class Task implements Serializable {
      * @return true if there is overlap with the given DatePair
      * @author Huang Yue
      */
-    public boolean isWithinPeriod(DatePair dateRange) { // TODO: THIS METHOD IS
-                                                        // NOT TESTED! write
-                                                        // tests for this
+    public boolean isWithinPeriod(DatePair dateRange) {
         if (dateList.isEmpty()) {
             return true;
         }
         boolean flag = true; // TODO: temporary fix for null in dataList (WHY?)
         for (DatePair datePair : dateList) {
             if (datePair != null) {
-                if (datePair.isWithinPeriod(dateRange)) { // TODO: why it can be
-                                                          // null?
+                if (datePair.isWithinPeriod(dateRange)) { // TODO: why it can be null?
                     return true;
                 } else {
                     flag = false;
