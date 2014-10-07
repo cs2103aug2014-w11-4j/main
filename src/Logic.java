@@ -25,7 +25,7 @@ public class Logic {
     private static final String JOURNAL_MESSAGE_REDONE = "Redone operation \"%s\".";
     private static final String JOURNAL_MESSAGE_ADD = "Added task \"%s\"";
     private static final String JOURNAL_MESSAGE_MARK_AS_COMPLETED = "Mark task \"%s\" as completed";
-    private static final String JOURNAL_MESSAGE_MARK_AS_INCOMPLETE = "Mark task \"%s\" as incomplete";
+    private static final String JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED = "Mark task \"%s\" as uncompleted";
     private static final String JOURNAL_MESSAGE_UPDATE = "Updated task \"%s\"";
     private static final String JOURNAL_MESSAGE_DELETE = "Deleted task \"%s\"";
 
@@ -33,12 +33,12 @@ public class Logic {
     private static final String MESSAGE_DELETE = "\"%s\" has been successfully deleted.";
     private static final String MESSAGE_UPDATE = "\"%s\" has been successfully updated.";
     private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
-    private static final String MESSAGE_MARK_INCOMPLETE = "\"%s\" has been marked to incomplete.";
+    private static final String MESSAGE_MARK_UNCOMPLETED = "\"%s\" has been marked to uncompleted.";
     private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
     private static final String VIEW_TASK_HEADER = String.format(
             "%-7s%-6s%-43s%-23s", "ID", "Done", "Task", "Date");
     private static final String VIEW_TASK_BORDER = "--------------------------------------------------------------------------------";
-    private static final String VIEW_TASK_MESSAGE = "You have %s incomplete task(s).";
+    private static final String VIEW_TASK_MESSAGE = "You have %s uncompleted task(s).";
 
     /**
      * Start the database, if not found new database will be created
@@ -199,9 +199,9 @@ public class Logic {
         journal.recordAction(
                 databaseId,
                 newTaskId,
-                String.format(JOURNAL_MESSAGE_MARK_AS_INCOMPLETE,
+                String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,
                         oldTask.getDescription()));
-        return String.format(MESSAGE_MARK_INCOMPLETE, oldTask.getDescription());
+        return String.format(MESSAGE_MARK_UNCOMPLETED, oldTask.getDescription());
     }
 
     /**
