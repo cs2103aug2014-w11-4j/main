@@ -306,62 +306,8 @@ public class Logic {
 
     private static String formatTaskOutput(Long displayingId)
             throws IOException {
-        String taskOutput = "";
         Task task = dbManager.getInstance(displayedTasksMap.get(displayingId));
-        String description = task.getDescription();
-        ArrayList<DatePair> dates = task.getDateList();
-        char isDone = task.getIsDone() ? 'Y' : 'N';
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa");
-        LinkedList<String> wordWrapList = new LinkedList<String>();
-        LinkedList<String> dateList = new LinkedList<String>();
-        while (!description.isEmpty()) {
-            if (description.length() <= 41) {
-                wordWrapList.add(description);
-                description = "";
-            } else {
-                int i = description.lastIndexOf(" ", 41);
-                /* if there's a word with more than 41 characters long */
-                if (i == -1) {
-                    i = 41;
-                }
-                wordWrapList.add(description.substring(0, i));
-                description = description.substring(i + 1);
-            }
-        }
-
-        /* Currently do for one date first */
-        DatePair dp = dates.get(0);
-        if (dp.hasDateRange()) {
-            dateList.add(dateFormat.format(dp.getStartDate().getTime()) + " to");
-            dateList.add(dateFormat.format(dp.getEndDate().getTime()));
-        } else if (dp.hasStartDate()) {
-            dateList.add(dateFormat.format(dp.getStartDate().getTime()));
-        } else if (dp.hasEndDate()) {
-            dateList.add(dateFormat.format(dp.getEndDate().getTime()));
-        }
-
-        while (!wordWrapList.isEmpty() || !dateList.isEmpty()) {
-            String lineTask = "";
-            String lineDate = "";
-            if (!wordWrapList.isEmpty()) {
-                lineTask = wordWrapList.removeFirst();
-            }
-
-            if (!dateList.isEmpty()) {
-                lineDate = dateList.removeFirst();
-            }
-
-            if (taskOutput.isEmpty()) {
-                taskOutput = String.format("%-7s%-6s%-43s%-23s", displayingId,
-                        isDone, lineTask, lineDate);
-            } else {
-                taskOutput += System.getProperty("line.separator")
-                        + String.format("%-7s%-6s%-43s%-23s", "", "", lineTask,
-                                lineDate);
-            }
-        }
-
-        return taskOutput;
+        return task.formatOutput(displayingId);
     }
 
     /**
