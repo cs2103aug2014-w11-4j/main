@@ -1,7 +1,8 @@
 /**
- * Logic Class: Logic Component
- * Interacts with UI and DatabaseManager:
- * Act as middleman that communicates between userinput and database
+ * The logic center of the task manager which handles
+ * all the logic behind functionalities.
+ *
+ * Interacts with UI and DatabaseManager.
  *
  */
 
@@ -11,9 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Logic {
-
     private static final String DATABASE_NAME = "database.xml";
-    private static final String INVALID_COMMAND_MESSAGE = "Invalid Command";
 
     private static DatabaseManager<Task> dbManager = null;
     private static String currentDirectory = System.getProperty("user.dir");
@@ -35,15 +34,14 @@ public class Logic {
     private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
     private static final String MESSAGE_MARK_UNCOMPLETED = "\"%s\" has been marked to uncompleted.";
     private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
-    private static final String VIEW_TASK_HEADER = String.format(
-            "%-7s%-6s%-43s%-23s", "ID", "Done", "Task", "Date");
-    private static final String VIEW_TASK_BORDER = "--------------------------------------------------------------------------------";
-    private static final String VIEW_TASK_MESSAGE = "You have %s uncompleted task(s).";
+    private static final String MESSAGE_VIEW_RESULT = "You have %s uncompleted task(s).";
+
+    private static final int CONSOLE_MAX_WIDTH = 80;
 
     /**
-     * Start the database, if not found new database will be created
+     * Start the database, if not found new database will be created.
      *
-     * Create a new journal using the database that is created
+     * Create a new journal using the database that is created.
      *
      * @return states if the database has been started successfully
      */
@@ -58,98 +56,92 @@ public class Logic {
             return false;
         }
         return true;
-
     }
 
     /**
-     * Executes command provided by user in the interface
+     * Executes command provided by user in the interface.
      *
      * @param command the command object that holds instruction from user
      * @return result of the command instruction
      */
-
     public static String executeCommand(Command command) {
-        CommandType cmdType = command.getType();
-        String result = "";
         try {
-            if (cmdType.equals(CommandType.ADD)) {
-                ArrayList<DatePair> dateRangeList = new ArrayList<DatePair>();
-                if (command.getDateRange() != null) { // TODO: Temporary fix by
-                                                      // Huang Yue, please
-                                                      // refactor this
-                    dateRangeList.add(command.getDateRange());
-                }
-                addTask(command.getDescription(), dateRangeList);
-                result = String.format(MESSAGE_ADD, command.getDescription());
-            } else if (cmdType.equals(CommandType.VIEW)) {
-                if (command.isViewAll()) {
-                    result = viewAll();
-                } else {
-                    result = viewByPeriod(command.getDateRange());
-                }
-            } else if (cmdType.equals(CommandType.SEARCH)) {
-                result = searchWithKeyword(command.getKeyword());
-            } else if (cmdType.equals(CommandType.MARK)) {
-                if (isCompletedTask(command.getTaskId())) {
-                    result = markTaskUncompleted(command.getTaskId());
-                } else {
-                    result = markTaskCompleted(command.getTaskId());
-                }
-            } else if (cmdType.equals(CommandType.DELETE)) {
-                result = delete(command.getTaskId());
-            } else if (cmdType.equals(CommandType.UPDATE)) {
-                String description = null;
-                description = command.getDescription();
-                ArrayList<DatePair> dateRangeList = new ArrayList<DatePair>();
-                if (command.getDateRange() != null) { // TODO: Temporary fix by
-                                                      // Huang Yue, please
-                                                      // refactor this
-                    dateRangeList.add(command.getDateRange());
-                }
-                updateTask(command.getTaskId(), description, dateRangeList);
-            } else if (cmdType.equals(CommandType.UNDO)) {
-                result = undo();
-            } else if (cmdType.equals(CommandType.REDO)) {
-                result = redo();
-            } else if (cmdType.equals(CommandType.INVALID)) {
-                result = INVALID_COMMAND_MESSAGE;
-            } else if (cmdType.equals(CommandType.EXIT)) {
-                dbManager.closeFile();
-                System.exit(0);
+            switch (command.getType()) {
+                case ADD:
+                    addTask(command.getDescription(), command.getDatePairs());
+                    return String.format(MESSAGE_ADD, command.getDescription());
+
+                case VIEW:
+                    if (command.isViewAll()) {
+                        return viewAll();
+                    } else {
+                        return viewByPeriod(command.getViewRange());
+                    }
+
+                case SEARCH:
+                    return searchWithKeyword(command.getKeyword());
+
+                case MARK:
+                    if (isCompletedTask(command.getTaskId())) {
+                        return markTaskUncompleted(command.getTaskId());
+                    } else {
+                        return markTaskCompleted(command.getTaskId());
+                    }
+
+                case DELETE:
+                    return delete(command.getTaskId());
+
+                case UPDATE:
+                    return updateTask(command.getTaskId(),
+                            command.getDescription(), command.getDatePairs());
+
+                case UNDO:
+                    return undo();
+
+                case REDO:
+                    return redo();
+
+                case INVALID:
+                    return command.getDescription();
+
+                case EXIT:
+                    dbManager.closeFile();
+                    System.exit(0);
+
+                default: /* should never reach default */
+                    throw new AssertionError(command.getType());
             }
         } catch (IOException e) {
             e.printStackTrace();
-            // TODO
+            return e.getMessage();
+            // TODO: Need to discuss proper exception handling & logging
         }
-
-        // TODO: For each function, return output (String) back to interface.
-        return result;
     }
 
     /**
-     * Create and add the task to the database
+     * Create and add the task to the database.
      *
      * @param description of the task
      * @param dateList of possible DatePair
-     *
      * @return id of the task
      *
      * @throws IOException
      */
-    public static long addTask(String description, ArrayList<DatePair> dateList) throws IOException {
+    public static long addTask(String description, ArrayList<DatePair> dateList)
+            throws IOException {
         Task task = new Task(description, dateList);
         long id = dbManager.putInstance(task);
         journal.recordAction(null, id,
-                    String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
+                String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
         return id;
     }
 
     /**
-     * Check whether the task is completed
+     * Check whether the task is completed.
      *
      * @param displayedId of the task
-     *
      * @return true if the task is completed
+     *
      * @throws IOException
      */
     public static boolean isCompletedTask(long displayedId) throws IOException {
@@ -157,8 +149,9 @@ public class Logic {
         Task oldTask = dbManager.getInstance(databaseId);
         return oldTask.getIsDone();
     }
+
     /**
-     * Mark a task as completed
+     * Mark a task as completed.
      *
      * @param displayedId displayed id of the task
      * @return message of mark task to completed
@@ -181,7 +174,7 @@ public class Logic {
     }
 
     /**
-     * Mark a task as Uncompleted
+     * Mark a task as Uncompleted.
      *
      * @param displayedId displayed id of the task
      * @return message of mark task to uncompleted
@@ -201,16 +194,16 @@ public class Logic {
                 newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,
                         oldTask.getDescription()));
-        return String.format(MESSAGE_MARK_UNCOMPLETED, oldTask.getDescription());
+        return String
+                .format(MESSAGE_MARK_UNCOMPLETED, oldTask.getDescription());
     }
 
     /**
-     * Update the task to the database
+     * Update the task to the database.
      *
      * @param displayedId id of the task as displayed in the last view command
      * @param description updated description, if not changed will be null
      * @param dateList updated date list, if not changed will be null
-     *
      * @return updated message with the displayed id
      */
     public static String updateTask(long displayedId, String description,
@@ -221,26 +214,25 @@ public class Logic {
         String result = "";
         long newTaskId;
 
-        if (description == null && dateList != null) {
-        	oldTask.setDateList(dateList);
-        	newTaskId = dbManager.putInstance(oldTask);
-        	displayedTasksMap.put(displayedId, newTaskId);
-        } else if (description != null && dateList == null) {
-        	oldTask.setDescription(description);
-        	newTaskId = dbManager.putInstance(oldTask);
-        	displayedTasksMap.put(displayedId, newTaskId);
+        if (description.isEmpty() && !dateList.isEmpty()) {
+            oldTask.setDateList(dateList);
+            newTaskId = dbManager.putInstance(oldTask);
+            displayedTasksMap.put(displayedId, newTaskId);
+        } else if (!description.isEmpty() && dateList.isEmpty()) {
+            oldTask.setDescription(description);
+            newTaskId = dbManager.putInstance(oldTask);
+            displayedTasksMap.put(displayedId, newTaskId);
         } else {
-        	oldTask.setDescription(description);
-        	oldTask.setDateList(dateList);
-        	newTaskId = dbManager.putInstance(oldTask);
-        	displayedTasksMap.put(displayedId, newTaskId);
+            oldTask.setDescription(description);
+            oldTask.setDateList(dateList);
+            newTaskId = dbManager.putInstance(oldTask);
+            displayedTasksMap.put(displayedId, newTaskId);
         }
         dbManager.markAsInvalid(databaseId);
         result = String.format(MESSAGE_UPDATE, oldDescription);
         journal.recordAction(databaseId, newTaskId,
                 String.format(JOURNAL_MESSAGE_UPDATE, oldDescription)); // TODO
         return result;
-
     }
 
     /**
@@ -259,7 +251,7 @@ public class Logic {
             displayingId++;
         }
 
-        responseBuilder.append(String.format(VIEW_TASK_MESSAGE, dbManager
+        responseBuilder.append(String.format(MESSAGE_VIEW_RESULT, dbManager
                 .getValidIdList().size()));
 
         if (!displayedTasksMap.isEmpty()) {
@@ -270,35 +262,12 @@ public class Logic {
         return responseBuilder.toString();
     }
 
-    private static String formatTaskOutput(Long displayingId)
-            throws IOException {
-        Task task = dbManager.getInstance(displayedTasksMap.get(displayingId));
-        return task.formatOutput(displayingId);
-    }
-
-    private static String formatTaskListOutput() throws IOException {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        stringBuilder.append(VIEW_TASK_BORDER
-                             + System.lineSeparator() + VIEW_TASK_HEADER
-                             + System.lineSeparator() + VIEW_TASK_BORDER
-                             + System.lineSeparator());
-
-        for (long displayingId : displayedTasksMap.keySet()) {
-            stringBuilder.append(formatTaskOutput(displayingId));
-            stringBuilder.append(System.lineSeparator());
-        }
-
-        stringBuilder.append(VIEW_TASK_BORDER);
-
-        return stringBuilder.toString();
-    }
-
     /**
-     * Delete Task of Database
-     * @param displayedId displayed id of the task
+     * Delete Task of Database.
      *
+     * @param displayedId displayed id of the task
      * @return delete message including the task description
+     *
      * @throws IOException
      */
     public static String delete(long displayedId) throws IOException {
@@ -312,17 +281,7 @@ public class Logic {
     }
 
     /**
-     * Non Official Method Added quickly to assist testing
-     * @return details of the task requested
-     * @throws IOException
-     *
-     */
-    public static String viewTask(long id) throws IOException {
-        return dbManager.getInstance(id).toString();
-    }
-
-    /**
-     * Search for task based on description
+     * Search for task based on description.
      *
      * @param keyword the keyword that is used to search for the task
      */
@@ -342,8 +301,8 @@ public class Logic {
             }
         }
 
-        responseBuilder.append(String.format(MESSAGE_SEARCH_RESULT, displayedTasksMap.size(),
-                keyword));
+        responseBuilder.append(String.format(MESSAGE_SEARCH_RESULT,
+                displayedTasksMap.size(), keyword));
 
         if (!displayedTasksMap.isEmpty()) {
             responseBuilder.append(System.lineSeparator());
@@ -355,7 +314,7 @@ public class Logic {
 
     /**
      * Searches the Database for a related task that coincides with the
-     * dateRange requested
+     * dateRange requested.
      *
      * @param dateRange DatePair object containing the start date and end date
      * @return result of all the tasks that are within the period as queried
@@ -375,7 +334,7 @@ public class Logic {
             }
         }
 
-        responseBuilder.append(String.format(VIEW_TASK_MESSAGE, dbManager
+        responseBuilder.append(String.format(MESSAGE_VIEW_RESULT, dbManager
                 .getValidIdList().size()));
 
         if (!displayedTasksMap.isEmpty()) {
@@ -387,7 +346,7 @@ public class Logic {
     }
 
     /**
-     * Undo previous action
+     * Method that undo previous action in the journal.
      *
      */
     public static String undo() throws IOException {
@@ -399,7 +358,7 @@ public class Logic {
     }
 
     /**
-     * Redo previous action
+     * Method that redo previous (undone) action in the journal.
      *
      */
     public static String redo() throws IOException {
@@ -411,8 +370,51 @@ public class Logic {
     }
 
     /**
+     * Helper method that formats the output of tasks.
      *
+     * @param displayingId the id of the task
+     * @return the formatted output of the task
+     *
+     * @throws IOException
      */
+    private static String formatTaskOutput(Long displayingId)
+            throws IOException {
+        Task task = dbManager.getInstance(displayedTasksMap.get(displayingId));
+        return task.formatOutput(displayingId);
+    }
+
+    private static String formatTaskListOutput() throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        String header = String.format("%-7s%-6s%-43s%-23s", "ID", "Done",
+                "Task", "Date");
+        String border = "";
+        for (int i = 0; i < CONSOLE_MAX_WIDTH; i++) {
+            border += "-";
+        }
+
+        stringBuilder.append(border + System.lineSeparator() + header
+                + System.lineSeparator() + border + System.lineSeparator());
+
+        for (long displayingId : displayedTasksMap.keySet()) {
+            stringBuilder.append(formatTaskOutput(displayingId));
+            stringBuilder.append(System.lineSeparator());
+        }
+        stringBuilder.append(border);
+
+        return stringBuilder.toString();
+    }
+
+    /**
+     * Non-official methods added quickly to assist testing.
+     *
+     * @return details of the task requested
+     *
+     * @throws IOException
+     */
+    public static String viewTask(long id) throws IOException {
+        return dbManager.getInstance(id).toString();
+    }
+
     public static DatabaseManager<Task> getDB() {
         return dbManager;
     }
