@@ -160,7 +160,8 @@ public class LogicTest {
                 dpList);
         Logic.viewAll();
         String expected = Logic.delete(1);
-        String actual = ("\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully deleted.");
+        String actual = (
+        		"\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully deleted.");
         assertEquals(actual, expected);
     }
 
@@ -219,7 +220,7 @@ public class LogicTest {
         Logic.viewAll();
         Logic.markTaskCompleted(1);
         String expected = Logic.markTaskUncompleted(1);
-        String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to incomplete.";
+        String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to uncompleted.";
         assertEquals(actual,expected);
     }
 
