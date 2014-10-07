@@ -231,31 +231,26 @@ public class Logic {
         if(!displayedTasksMap.containsKey(displayedId)){
         	return MESSAGE_ERROR_WRONG_TASK_ID;
         }
-    	long databaseId = displayedTasksMap.get(displayedId);
-        Task oldTask = dbManager.getInstance(databaseId);
-        String oldDescription = oldTask.getDescription();
-        String result = "";
-        long newTaskId;
 
-        if (description.isEmpty() && !dateList.isEmpty()) {
-            oldTask.setDateList(dateList);
-            newTaskId = dbManager.putInstance(oldTask);
-            displayedTasksMap.put(displayedId, newTaskId);
-        } else if (!description.isEmpty() && dateList.isEmpty()) {
-            oldTask.setDescription(description);
-            newTaskId = dbManager.putInstance(oldTask);
-            displayedTasksMap.put(displayedId, newTaskId);
-        } else {
-            oldTask.setDescription(description);
-            oldTask.setDateList(dateList);
-            newTaskId = dbManager.putInstance(oldTask);
-            displayedTasksMap.put(displayedId, newTaskId);
+    	long oldDatabaseId = displayedTasksMap.get(displayedId);
+        Task task = dbManager.getInstance(oldDatabaseId);
+        String oldDescription = task.getDescription();
+
+        if (!description.isEmpty()) {
+            task.setDescription(description);
         }
-        dbManager.markAsInvalid(databaseId);
-        result = String.format(MESSAGE_UPDATE, oldDescription);
-        journal.recordAction(databaseId, newTaskId,
-                String.format(JOURNAL_MESSAGE_UPDATE, oldDescription)); // TODO
-        return result;
+        if (!dateList.isEmpty()) {
+            task.setDateList(dateList);
+        }
+
+        long newDatabaseId = dbManager.putInstance(task);
+        dbManager.markAsInvalid(oldDatabaseId);
+
+        displayedTasksMap.put(displayedId, newDatabaseId);
+        journal.recordAction(oldDatabaseId, newDatabaseId,
+                String.format(JOURNAL_MESSAGE_UPDATE, oldDescription));
+
+        return String.format(MESSAGE_UPDATE, oldDescription);
     }
 
     /**
