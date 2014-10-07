@@ -7,12 +7,8 @@
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.LinkedList;
 
 public class Logic {
 
@@ -32,16 +28,17 @@ public class Logic {
     private static final String JOURNAL_MESSAGE_MARK_AS_INCOMPLETE = "Mark task \"%s\" as incomplete";
     private static final String JOURNAL_MESSAGE_UPDATE = "Updated task \"%s\"";
     private static final String JOURNAL_MESSAGE_DELETE = "Deleted task \"%s\"";
-    private static final String ADD_MESSAGE = "\"%s\" has been successfully added.";
-    private static final String DELETE_MESSAGE = "\"%s\" has been successfully deleted.";
-    private static final String UPDATE_MESSAGE = "\"%s\" has been successfully updated.";
-    private static final String MARK_COMPLETED_MESSAGE = "\"%s\" has been marked to completed.";
-    private static final String MARK_INCOMPLETE_MESSAGE = "\'%s\" has been marked to incomplete.";
+
+    private static final String MESSAGE_ADD = "\"%s\" has been successfully added.";
+    private static final String MESSAGE_DELETE = "\"%s\" has been successfully deleted.";
+    private static final String MESSAGE_UPDATE = "\"%s\" has been successfully updated.";
+    private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
+    private static final String MESSAGE_MARK_INCOMPLETE = "\"%s\" has been marked to incomplete.";
+    private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
     private static final String VIEW_TASK_HEADER = String.format(
             "%-7s%-6s%-43s%-23s", "ID", "Done", "Task", "Date");
     private static final String VIEW_TASK_BORDER = "--------------------------------------------------------------------------------";
     private static final String VIEW_TASK_MESSAGE = "You have %s incomplete task(s).";
-    private static final String SEARCH_RESULT_MESSAGE = "%s task with \"%s\" has been found.";
 
     /**
      * Start the database, if not found new database will be created
@@ -83,7 +80,7 @@ public class Logic {
                     dateRangeList.add(command.getDateRange());
                 }
                 addTask(command.getDescription(), dateRangeList);
-                result = String.format(ADD_MESSAGE, command.getDescription());
+                result = String.format(MESSAGE_ADD, command.getDescription());
             } else if (cmdType.equals(CommandType.VIEW)) {
                 if (command.isViewAll()) {
                     result = viewAll();
@@ -180,7 +177,7 @@ public class Logic {
                 newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
                         oldTask.getDescription()));
-        return String.format(MARK_COMPLETED_MESSAGE, oldTask.getDescription());
+        return String.format(MESSAGE_MARK_COMPLETED, oldTask.getDescription());
     }
 
     /**
@@ -204,7 +201,7 @@ public class Logic {
                 newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_INCOMPLETE,
                         oldTask.getDescription()));
-        return String.format(MARK_INCOMPLETE_MESSAGE, oldTask.getDescription());
+        return String.format(MESSAGE_MARK_INCOMPLETE, oldTask.getDescription());
     }
 
     /**
@@ -239,7 +236,7 @@ public class Logic {
         	displayedTasksMap.put(displayedId, newTaskId);
         }
         dbManager.markAsInvalid(databaseId);
-        result = String.format(UPDATE_MESSAGE, oldDescription);
+        result = String.format(MESSAGE_UPDATE, oldDescription);
         journal.recordAction(databaseId, newTaskId,
                 String.format(JOURNAL_MESSAGE_UPDATE, oldDescription)); // TODO
         return result;
@@ -311,7 +308,7 @@ public class Logic {
         dbManager.markAsInvalid(databaseId);
         journal.recordAction(databaseId, null,
                 String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
-        return String.format(DELETE_MESSAGE, oldDescription);
+        return String.format(MESSAGE_DELETE, oldDescription);
     }
 
     /**
@@ -345,7 +342,7 @@ public class Logic {
             }
         }
 
-        responseBuilder.append(String.format(SEARCH_RESULT_MESSAGE, displayedTasksMap.size(),
+        responseBuilder.append(String.format(MESSAGE_SEARCH_RESULT, displayedTasksMap.size(),
                 keyword));
 
         if (!displayedTasksMap.isEmpty()) {
