@@ -63,6 +63,10 @@ public class DatePair implements Serializable {
         return (this.startDate != null && this.endDate != null);
     }
 
+    public boolean isDeadline() {
+        return (!hasStartDate() && hasEndDate());
+    }
+
     public String toString() {
         String formattedStartDate, formattedEndDate;
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");

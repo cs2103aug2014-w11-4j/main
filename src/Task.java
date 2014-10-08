@@ -201,18 +201,12 @@ public class Task implements Serializable, Comparable<Task> {
         if (dateList.isEmpty()) {
             return true;
         }
-        boolean flag = true; // TODO: temporary fix for null in dataList (WHY?)
         for (DatePair datePair : dateList) {
-            if (datePair != null) {
-                if (datePair.isWithinPeriod(dateRange)) { // TODO: why it can be
-                                                          // null?
-                    return true;
-                } else {
-                    flag = false;
-                }
+            if (datePair.isWithinPeriod(dateRange)) {
+                return true;
             }
         }
-        return flag;
+        return false;
     }
 
     /**
@@ -284,10 +278,57 @@ public class Task implements Serializable, Comparable<Task> {
         return stringBuilder.toString();
     }
 
+    public boolean isFloatingTask() {
+        return dateList.isEmpty();
+    }
+
+    public boolean isDeadline() {
+        return (dateList.size() == 1 && dateList.get(0).isDeadline());
+    }
+
+    public Calendar getEarliestDate() {
+        if (isFloatingTask()) {
+            throw new UnsupportedOperationException("No date in a floating task.");
+        }
+
+        Calendar earliestDate;
+        if (isDeadline()) {
+            earliestDate = dateList.get(0).getEndDate();
+        } else {
+            earliestDate = dateList.get(0).getStartDate();
+        }
+
+        for (DatePair dp : dateList) {
+            if (dp.hasStartDate() && dp.getStartDate().before(earliestDate)) {
+                earliestDate = dp.getStartDate();
+            }
+            if (dp.hasEndDate() && dp.getEndDate().before(earliestDate)) {
+                earliestDate = dp.getEndDate();
+            }
+        }
+
+        return earliestDate;
+    }
 
     @Override
-    public int compareTo(Task taskExternal) {                 
-        return dateList.get(0).getEndDate().compareTo(taskExternal.getDateList().get(0).getEndDate());
+    public int compareTo(Task o) {
+        assert (o != null);
+
+        if (this.isDeadline() && !o.isDeadline()) {
+            return -1;
+        } else if (!this.isDeadline() && o.isDeadline()) {
+            return 1;
+        }
+
+        if (this.isFloatingTask() && o.isFloatingTask()) {
+            return 0;
+        } else if (this.isFloatingTask()) {
+            return 1;
+        } else if (o.isFloatingTask()) {
+            return -1;
+        }
+
+        return this.getEarliestDate().compareTo(o.getEarliestDate());
     }
 
 }
