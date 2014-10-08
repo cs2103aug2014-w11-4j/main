@@ -35,7 +35,7 @@ public class Logic {
     private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
     private static final String MESSAGE_MARK_UNCOMPLETED = "\"%s\" has been marked to uncompleted.";
     private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
-    
+
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "Wrong task ID!";
     private static final String MESSAGE_VIEWALL_RESULT = "You have %s uncompleted task(s).";
     private static final String MESSAGE_VIEWDATE_RESULT = "You have %s uncompleted task(s) %s.";
@@ -44,7 +44,7 @@ public class Logic {
 
     private static final int CONSOLE_MAX_WIDTH = 80;
 
-	/**
+    /**
      * Start the database, if not found new database will be created.
      *
      * Create a new journal using the database that is created.
@@ -160,7 +160,7 @@ public class Logic {
      * @throws IOException
      */
     public static String markTask(long displayedId) throws IOException {
-        if(!displayedTasksMap.containsKey(displayedId)){
+        if (!displayedTasksMap.containsKey(displayedId)) {
             return MESSAGE_ERROR_WRONG_TASK_ID;
         }
         if (isCompletedTask(displayedId)) {
@@ -228,11 +228,11 @@ public class Logic {
      */
     public static String updateTask(long displayedId, String description,
             ArrayList<DatePair> dateList) throws IOException {
-        if(!displayedTasksMap.containsKey(displayedId)){
-        	return MESSAGE_ERROR_WRONG_TASK_ID;
+        if (!displayedTasksMap.containsKey(displayedId)) {
+            return MESSAGE_ERROR_WRONG_TASK_ID;
         }
 
-    	long oldDatabaseId = displayedTasksMap.get(displayedId);
+        long oldDatabaseId = displayedTasksMap.get(displayedId);
         Task task = dbManager.getInstance(oldDatabaseId);
         String oldDescription = task.getDescription();
 
@@ -297,9 +297,9 @@ public class Logic {
      * @throws IOException
      */
     public static String deleteTask(long displayedId) throws IOException {
-    	 if(!displayedTasksMap.containsKey(displayedId)){
-         	return MESSAGE_ERROR_WRONG_TASK_ID;
-         }
+        if (!displayedTasksMap.containsKey(displayedId)) {
+            return MESSAGE_ERROR_WRONG_TASK_ID;
+        }
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
@@ -358,7 +358,7 @@ public class Logic {
         Long displayingId = (long) 1;
         for (Long databaseId : dbManager.getValidIdList()) {
             Task task = dbManager.getInstance(databaseId);
-            if (isCompleted == task.isDone()) {
+            if (isCompleted == task.isDone() && task.hasDate()) {
                 boolean inPeriod = dbManager.getInstance(databaseId)
                         .isWithinPeriod(dateRange);
                 if (inPeriod) {

@@ -77,6 +77,19 @@ public class Task implements Serializable {
     }
 
     /**
+     * Check if there is at least a start date or end date
+     * @return if there exist at least a date
+     */
+    public boolean hasDate() {
+        for (DatePair dp : dateList) {
+            if (dp.hasEndDate() || dp.hasStartDate()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns an ArrayList of DatePair
      * @return the dateList of possible DatePair
      */
@@ -259,8 +272,8 @@ public class Task implements Serializable {
 
             if (stringBuilder.length() != 0) {
                 stringBuilder.append(System.lineSeparator());
-                stringBuilder.append(String.format("%-7s%-6s%-43s%-23s",
-                        "", "", desc, date));
+                stringBuilder.append(String.format("%-7s%-6s%-43s%-23s", "",
+                        "", desc, date));
             } else {
                 stringBuilder.append(String.format("%-7s%-6s%-43s%-23s",
                         displayingId, isDone, desc, date));
