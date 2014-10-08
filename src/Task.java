@@ -14,7 +14,7 @@ import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.UUID;
 
-public class Task implements Serializable {
+public class Task implements Serializable, Comparable<Task> {
     private String description;
     private ArrayList<DatePair> dateList;
     private boolean isDone;
@@ -282,6 +282,12 @@ public class Task implements Serializable {
         }
 
         return stringBuilder.toString();
+    }
+
+
+    @Override
+    public int compareTo(Task taskExternal) {                 
+        return dateList.get(0).getEndDate().compareTo(taskExternal.getDateList().get(0).getEndDate());
     }
 
 }

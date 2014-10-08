@@ -10,7 +10,10 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public class Logic {
     private static final String DATABASE_NAME = "database.xml";
@@ -18,7 +21,7 @@ public class Logic {
     private static DatabaseManager<Task> dbManager = null;
     private static String currentDirectory = System.getProperty("user.dir");
 
-    private static HashMap<Long, Long> displayedTasksMap = new HashMap<Long, Long>();
+    private static HashMap<Long, Long> displayedTasksMap = new LinkedHashMap<Long, Long>();
 
     private static JournalController<Task> journal = null;
     private static final String JOURNAL_MESSAGE_UNDONE = "Undone operation \"%s\".";
@@ -352,20 +355,26 @@ public class Logic {
 
     public static String viewByPeriod(DatePair dateRange, boolean isCompleted)
             throws IOException {
-        StringBuilder responseBuilder = new StringBuilder();
-
+        StringBuilder responseBuilder = new StringBuilder();      
+        HashMap<Task, Long> selectedTasks = new HashMap<Task, Long>();
         displayedTasksMap.clear();
-        Long displayingId = (long) 1;
         for (Long databaseId : dbManager.getValidIdList()) {
             Task task = dbManager.getInstance(databaseId);
             if (isCompleted == task.isDone() && task.hasDate()) {
                 boolean inPeriod = dbManager.getInstance(databaseId)
                         .isWithinPeriod(dateRange);
                 if (inPeriod) {
-                    displayedTasksMap.put(displayingId, databaseId);
-                    displayingId++;
+                    selectedTasks.put( task,databaseId);
+                    
                 }
             }
+        }
+        Long displayingId = (long) 1;
+        List<Task> selectedTasksList = new ArrayList<Task>(selectedTasks.keySet());
+        Collections.sort(selectedTasksList);
+        for(int i = 0 ; i <selectedTasksList.size(); i++){            
+            displayedTasksMap.put(displayingId, selectedTasks.get(selectedTasksList.get(i)));
+            displayingId++;
         }
 
         String range = "";
