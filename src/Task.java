@@ -128,7 +128,7 @@ public class Task implements Serializable {
      * @return if the task is completed
      */
 
-    public boolean getIsDone() {
+    public boolean isDone() {
         return isDone;
     }
 
@@ -214,7 +214,7 @@ public class Task implements Serializable {
         StringBuilder stringBuilder = new StringBuilder();
         String description = getDescription();
         ArrayList<DatePair> dates = getDateList();
-        char isDone = getIsDone() ? 'Y' : 'N';
+        char isDone = isDone() ? 'Y' : 'N';
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa");
 
         /* Used to store fragments of description and dates */
