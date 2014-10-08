@@ -201,18 +201,12 @@ public class Task implements Serializable, Comparable<Task> {
         if (dateList.isEmpty()) {
             return true;
         }
-        boolean flag = true; // TODO: temporary fix for null in dataList (WHY?)
         for (DatePair datePair : dateList) {
-            if (datePair != null) {
-                if (datePair.isWithinPeriod(dateRange)) { // TODO: why it can be
-                                                          // null?
-                    return true;
-                } else {
-                    flag = false;
-                }
+            if (datePair.isWithinPeriod(dateRange)) {
+                return true;
             }
         }
-        return flag;
+        return false;
     }
 
     /**
