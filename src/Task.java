@@ -142,7 +142,7 @@ public class Task implements Serializable, Comparable<Task> {
      * @return if the task is completed
      */
 
-    public boolean isDone() {
+    public boolean getIsDone() {
         return isDone;
     }
 
@@ -183,12 +183,7 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     public boolean isDateListEmpty() {
-        if (dateList.size() == 0) {
-            return true;
-        } else {
-            return false;
-        }
-
+        return dateList.isEmpty();
     }
 
     /**
@@ -222,7 +217,7 @@ public class Task implements Serializable, Comparable<Task> {
         StringBuilder stringBuilder = new StringBuilder();
         String description = getDescription();
         ArrayList<DatePair> dates = getDateList();
-        char isDone = isDone() ? 'Y' : 'N';
+        char isDone = getIsDone() ? 'Y' : 'N';
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa");
 
         /* Used to store fragments of description and dates */
