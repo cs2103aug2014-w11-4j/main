@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -25,7 +26,22 @@ import java.util.Iterator;
  *
  * @param <T> The data type, which has to be a Java Bean class.
  */
-public class DatabaseManager<T extends Serializable> implements Iterable<T> {
+public class DatabaseManager<T extends Serializable & Comparable<T>> implements Iterable<T> {
+
+    private class InstanceComparator implements Comparator<Long> {
+        @Override
+        public int compare(Long o1, Long o2) {
+            try {
+                return getInstance(o1).compareTo(getInstance(o2));
+            } catch (IOException e) {
+                throw new UnsupportedOperationException("IOException: " + e.getMessage());
+            }
+        }
+    }
+
+    public Comparator<Long> getInstanceComparator() {
+        return new InstanceComparator();
+    }
 
     private class InstanceIterator implements Iterator<T> {
         private Iterator<Long> offsetIterator = validInstancesMap.keySet().iterator();
