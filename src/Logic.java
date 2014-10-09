@@ -11,9 +11,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 public class Logic {
     private static final String DATABASE_NAME = "database.xml";
@@ -21,7 +18,7 @@ public class Logic {
     private static DatabaseManager<Task> dbManager = null;
     private static String currentDirectory = System.getProperty("user.dir");
 
-    private static HashMap<Long, Long> displayedTasksMap = new LinkedHashMap<Long, Long>();
+    private static ArrayList<Long> displayedTasksList = new ArrayList<Long>();
 
     private static JournalController<Task> journal = null;
     private static final String JOURNAL_MESSAGE_UNDONE = "Undone operation \"%s\".";
@@ -150,8 +147,8 @@ public class Logic {
      *
      * @throws IOException
      */
-    public static boolean isCompletedTask(long displayedId) throws IOException {
-        long databaseId = displayedTasksMap.get(displayedId);
+    public static boolean isCompletedTask(int displayedId) throws IOException {
+        long databaseId = displayedTasksList.get(displayedId - 1);
         Task oldTask = dbManager.getInstance(databaseId);
         return oldTask.getIsDone();
     }
@@ -162,8 +159,8 @@ public class Logic {
      * @return message of mark
      * @throws IOException
      */
-    public static String markTask(long displayedId) throws IOException {
-        if (!displayedTasksMap.containsKey(displayedId)) {
+    public static String markTask(int displayedId) throws IOException {
+        if (displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1) {
             return MESSAGE_ERROR_WRONG_TASK_ID;
         }
         if (isCompletedTask(displayedId)) {
@@ -181,16 +178,14 @@ public class Logic {
      *
      * @throws IOException
      */
-    public static String markTaskCompleted(long displayedId) throws IOException {
-        long databaseId = displayedTasksMap.get(displayedId);
+    public static String markTaskCompleted(int displayedId) throws IOException {
+        long databaseId = displayedTasksList.get(displayedId - 1);
         Task oldTask = dbManager.getInstance(databaseId);
         oldTask.setIsDone(true);
         long newTaskId = dbManager.putInstance(oldTask);
-        displayedTasksMap.put(displayedId, newTaskId);
+        displayedTasksList.set(displayedId - 1, newTaskId);
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(
-                databaseId,
-                newTaskId,
+        journal.recordAction(databaseId, newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
                         oldTask.getDescription()));
         return String.format(MESSAGE_MARK_COMPLETED, oldTask.getDescription());
@@ -204,17 +199,15 @@ public class Logic {
      *
      * @throws IOException
      */
-    public static String markTaskUncompleted(long displayedId)
+    public static String markTaskUncompleted(int displayedId)
             throws IOException {
-        long databaseId = displayedTasksMap.get(displayedId);
+        long databaseId = displayedTasksList.get(displayedId - 1);
         Task oldTask = dbManager.getInstance(databaseId);
         oldTask.setIsDone(false);
         long newTaskId = dbManager.putInstance(oldTask);
-        displayedTasksMap.put(displayedId, newTaskId);
+        displayedTasksList.set(displayedId - 1, newTaskId);
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(
-                databaseId,
-                newTaskId,
+        journal.recordAction(databaseId, newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,
                         oldTask.getDescription()));
         return String
@@ -229,14 +222,14 @@ public class Logic {
      * @param dateList updated date list, if not changed will be null
      * @return updated message with the displayed id
      */
-    public static String updateTask(long displayedId, String description,
+    public static String updateTask(int displayedId, String description,
             ArrayList<DatePair> dateList) throws IOException {
-        if (!displayedTasksMap.containsKey(displayedId)) {
+        long databaseId;
+        if (displayedId > displayedTasksList.size() || displayedId <= 0 || (databaseId = displayedTasksList.get(displayedId - 1)) == -1) {
             return MESSAGE_ERROR_WRONG_TASK_ID;
         }
 
-        long oldDatabaseId = displayedTasksMap.get(displayedId);
-        Task task = dbManager.getInstance(oldDatabaseId);
+        Task task = dbManager.getInstance(databaseId);
         String oldDescription = task.getDescription();
 
         if (!description.isEmpty()) {
@@ -247,10 +240,10 @@ public class Logic {
         }
 
         long newDatabaseId = dbManager.putInstance(task);
-        dbManager.markAsInvalid(oldDatabaseId);
+        dbManager.markAsInvalid(databaseId);
 
-        displayedTasksMap.put(displayedId, newDatabaseId);
-        journal.recordAction(oldDatabaseId, newDatabaseId,
+        displayedTasksList.set(displayedId - 1, newDatabaseId);
+        journal.recordAction(databaseId, newDatabaseId,
                 String.format(JOURNAL_MESSAGE_UPDATE, oldDescription));
 
         return String.format(MESSAGE_UPDATE, oldDescription);
@@ -264,26 +257,24 @@ public class Logic {
     public static String viewAll(boolean isCompleted) throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
 
-        Long displayingId = (long) 1;
-        displayedTasksMap.clear();
+        displayedTasksList.clear();
         for (int i = 0; i < dbManager.getValidIdList().size(); i++) {
             Long databaseId = dbManager.getValidIdList().get(i);
             Task task = dbManager.getInstance(databaseId);
             if (isCompleted == task.getIsDone()) {
-                displayedTasksMap.put(displayingId, databaseId);
-                displayingId++;
+                displayedTasksList.add(databaseId);
             }
         }
 
         if (isCompleted) {
             responseBuilder.append(String.format(MESSAGE_VIEWALL_CRESULT,
-                    displayedTasksMap.size()));
+                    displayedTasksList.size()));
         } else {
             responseBuilder.append(String.format(MESSAGE_VIEWALL_RESULT,
-                    displayedTasksMap.size()));
+                    displayedTasksList.size()));
         }
 
-        if (!displayedTasksMap.isEmpty()) {
+        if (!displayedTasksList.isEmpty()) {
             responseBuilder.append(System.lineSeparator());
             responseBuilder.append(formatTaskListOutput());
         }
@@ -299,15 +290,15 @@ public class Logic {
      *
      * @throws IOException
      */
-    public static String deleteTask(long displayedId) throws IOException {
-        if (!displayedTasksMap.containsKey(displayedId)) {
+    public static String deleteTask(int displayedId) throws IOException {
+        long databaseId;
+        if (displayedId > displayedTasksList.size() || displayedId <= 0 || (databaseId = displayedTasksList.get(displayedId - 1)) == -1) {
             return MESSAGE_ERROR_WRONG_TASK_ID;
         }
-        long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
         dbManager.markAsInvalid(databaseId);
-        displayedTasksMap.remove(displayedId);
+        displayedTasksList.set(displayedId - 1, (long) -1);
         journal.recordAction(databaseId, null,
                 String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
         return String.format(MESSAGE_DELETE, oldDescription);
@@ -322,22 +313,20 @@ public class Logic {
     public static String searchWithKeyword(String keyword) throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
 
-        displayedTasksMap.clear();
-        Long displayingId = (long) 1;
+        displayedTasksList.clear();
         for (Long databaseId : dbManager.getValidIdList()) {
             String taskInDb = dbManager.getInstance(databaseId)
                     .getDescription();
             taskInDb = taskInDb.toLowerCase();
             if (taskInDb.contains(keyword.toLowerCase())) {
-                displayedTasksMap.put(displayingId, databaseId);
-                displayingId++;
+                displayedTasksList.add(databaseId);
             }
         }
 
         responseBuilder.append(String.format(MESSAGE_SEARCH_RESULT,
-                displayedTasksMap.size(), keyword));
+                displayedTasksList.size(), keyword));
 
-        if (!displayedTasksMap.isEmpty()) {
+        if (!displayedTasksList.isEmpty()) {
             responseBuilder.append(System.lineSeparator());
             responseBuilder.append(formatTaskListOutput());
         }
@@ -355,26 +344,15 @@ public class Logic {
 
     public static String viewByPeriod(DatePair dateRange, boolean isCompleted)
             throws IOException {
-        StringBuilder responseBuilder = new StringBuilder();      
-        HashMap<Task, Long> selectedTasks = new HashMap<Task, Long>();
-        displayedTasksMap.clear();
+        StringBuilder responseBuilder = new StringBuilder();
+        displayedTasksList.clear();
         for (Long databaseId : dbManager.getValidIdList()) {
             Task task = dbManager.getInstance(databaseId);
             if (isCompleted == task.getIsDone() && task.hasDate()) {
-                boolean inPeriod = dbManager.getInstance(databaseId)
-                        .isWithinPeriod(dateRange);
-                if (inPeriod) {
-                    selectedTasks.put( task,databaseId);
-                    
+                if (task.isWithinPeriod(dateRange)) {
+                    displayedTasksList.add(databaseId);
                 }
             }
-        }
-        Long displayingId = (long) 1;
-        List<Task> selectedTasksList = new ArrayList<Task>(selectedTasks.keySet());
-        Collections.sort(selectedTasksList);
-        for(int i = 0 ; i <selectedTasksList.size(); i++){            
-            displayedTasksMap.put(displayingId, selectedTasks.get(selectedTasksList.get(i)));
-            displayingId++;
         }
 
         String range = "";
@@ -392,13 +370,13 @@ public class Logic {
 
         if (isCompleted) {
             responseBuilder.append(String.format(MESSAGE_VIEWDATE_CRESULT,
-                    displayedTasksMap.size(), range));
+                    displayedTasksList.size(), range));
         } else {
             responseBuilder.append(String.format(MESSAGE_VIEWDATE_RESULT,
-                    displayedTasksMap.size(), range));
+                    displayedTasksList.size(), range));
         }
 
-        if (!displayedTasksMap.isEmpty()) {
+        if (!displayedTasksList.isEmpty()) {
             responseBuilder.append(System.lineSeparator());
             responseBuilder.append(formatTaskListOutput());
         }
@@ -438,13 +416,15 @@ public class Logic {
      *
      * @throws IOException
      */
-    private static String formatTaskOutput(Long displayingId)
+    private static String formatTaskOutput(int displayingId)
             throws IOException {
-        Task task = dbManager.getInstance(displayedTasksMap.get(displayingId));
-        return task.formatOutput(displayingId);
+        Task task = dbManager.getInstance(displayedTasksList.get(displayingId));
+        return task.formatOutput(displayingId + 1);
     }
 
     private static String formatTaskListOutput() throws IOException {
+        Collections.sort(displayedTasksList, dbManager.getInstanceComparator());
+
         StringBuilder stringBuilder = new StringBuilder();
         String header = String.format("%-7s%-6s%-43s%-23s", "ID", "Done",
                 "Task", "Date");
@@ -456,8 +436,8 @@ public class Logic {
         stringBuilder.append(border + System.lineSeparator() + header
                 + System.lineSeparator() + border + System.lineSeparator());
 
-        for (long displayingId : displayedTasksMap.keySet()) {
-            stringBuilder.append(formatTaskOutput(displayingId));
+        for (int i=0; i<displayedTasksList.size(); i++) {
+            stringBuilder.append(formatTaskOutput(i));
             stringBuilder.append(System.lineSeparator());
         }
         stringBuilder.append(border);
