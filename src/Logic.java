@@ -160,7 +160,7 @@ public class Logic {
      * @throws IOException
      */
     public static String markTask(int displayedId) throws IOException {
-        if (displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1) {
+        if (!isValidDisplayedId(displayedId)) {
             return MESSAGE_ERROR_WRONG_TASK_ID;
         }
         if (isCompletedTask(displayedId)) {
@@ -224,10 +224,10 @@ public class Logic {
      */
     public static String updateTask(int displayedId, String description,
             ArrayList<DatePair> dateList) throws IOException {
-        long databaseId;
-        if (displayedId > displayedTasksList.size() || displayedId <= 0 || (databaseId = displayedTasksList.get(displayedId - 1)) == -1) {
+        if (!isValidDisplayedId(displayedId)) {
             return MESSAGE_ERROR_WRONG_TASK_ID;
         }
+        long databaseId = displayedTasksList.get(displayedId - 1);
 
         Task task = dbManager.getInstance(databaseId);
         String oldDescription = task.getDescription();
@@ -291,10 +291,10 @@ public class Logic {
      * @throws IOException
      */
     public static String deleteTask(int displayedId) throws IOException {
-        long databaseId;
-        if (displayedId > displayedTasksList.size() || displayedId <= 0 || (databaseId = displayedTasksList.get(displayedId - 1)) == -1) {
+        if (!isValidDisplayedId(displayedId)) {
             return MESSAGE_ERROR_WRONG_TASK_ID;
         }
+        long databaseId = displayedTasksList.get(displayedId - 1);
         Task oldTask = dbManager.getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
         dbManager.markAsInvalid(databaseId);
@@ -443,6 +443,10 @@ public class Logic {
         stringBuilder.append(border);
 
         return stringBuilder.toString();
+    }
+
+    private static boolean isValidDisplayedId(int displayedId) {
+        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1);
     }
 
     /**
