@@ -153,7 +153,7 @@ public class Logic {
     public static boolean isCompletedTask(long displayedId) throws IOException {
         long databaseId = displayedTasksMap.get(displayedId);
         Task oldTask = dbManager.getInstance(databaseId);
-        return oldTask.isDone();
+        return oldTask.getIsDone();
     }
 
     /**
@@ -269,7 +269,7 @@ public class Logic {
         for (int i = 0; i < dbManager.getValidIdList().size(); i++) {
             Long databaseId = dbManager.getValidIdList().get(i);
             Task task = dbManager.getInstance(databaseId);
-            if (isCompleted == task.isDone()) {
+            if (isCompleted == task.getIsDone()) {
                 displayedTasksMap.put(displayingId, databaseId);
                 displayingId++;
             }
@@ -360,7 +360,7 @@ public class Logic {
         displayedTasksMap.clear();
         for (Long databaseId : dbManager.getValidIdList()) {
             Task task = dbManager.getInstance(databaseId);
-            if (isCompleted == task.isDone() && task.hasDate()) {
+            if (isCompleted == task.getIsDone() && task.hasDate()) {
                 boolean inPeriod = dbManager.getInstance(databaseId)
                         .isWithinPeriod(dateRange);
                 if (inPeriod) {
