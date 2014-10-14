@@ -9,7 +9,7 @@ import java.util.Scanner;
  *
  */
 public class MenuInterface {
-    private static final String WELCOME_MESSAGE = "Welcome to RubberDuck.";
+    private static final String MESSAGE_WELCOME = "Welcome to RubberDuck.";
 
     /**
      * Method that handles the interface of the program. It prompts from user
@@ -18,7 +18,7 @@ public class MenuInterface {
      */
     public void handleInterface() {
         Scanner sc = new Scanner(System.in);
-        showToUser(WELCOME_MESSAGE);
+        showToUser(MESSAGE_WELCOME);
         while (true) {
             String rawInput = acceptInput(sc);
             Command userCommand = Parser.parse(rawInput);
