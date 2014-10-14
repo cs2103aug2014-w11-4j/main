@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,17 +20,21 @@ import com.joestelmach.natty.DateGroup;
  */
 public class Parser {
     /* Parser specific error messages to return */
-    private static final String SEARCH_ERROR_EMPTY = "Please enter a keyword to search for.";
-    private static final String ADD_ERROR_NO_DESC = "Please enter a task description to add.";
-    private static final String VIEW_ERROR_EMPTY = "Please enter a valid date range to view.";
-    private static final String DELETE_ERROR_INVALID = "Please enter a task id to delete.";
-    private static final String UPDATE_ERROR_INVALID = "Please enter a task id to update.";
-    private static final String MARK_ERROR_INVALID = "Please enter a task id to mark.";
-    private static final String UPDATE_ERROR_EMPTY = "Please enter something to update.";
-    private static final String INVALID_COMMAND = "Please enter a valid command.";
+    private static final String MESSAGE_SEARCH_ERROR_EMPTY = "Please enter a keyword to search for.";
+    private static final String MESSAGE_ADD_ERROR_NO_DESC = "Please enter a task description to add.";
+    private static final String MESSAGE_VIEW_ERROR_EMPTY = "Please enter a valid date range to view.";
+    private static final String MESSAGE_DELETE_ERROR_INVALID = "Please enter a task id to delete.";
+    private static final String MESSAGE_UPDATE_ERROR_INVALID = "Please enter a task id to update.";
+    private static final String MESSAGE_MARK_ERROR_INVALID = "Please enter a task id to mark.";
+    private static final String MESSAGE_UPDATE_ERROR_EMPTY = "Please enter something to update.";
+    private static final String MESSAGE_INVALID_COMMAND = "Please enter a valid command.";
 
     /* Used specifically to parse date from user's input */
     private static com.joestelmach.natty.Parser dateParser = new com.joestelmach.natty.Parser();
+
+    /* Retrieve global logger to log information and exception. */
+    private static final Logger logger = Logger
+            .getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     /**
      * Public method called by interface which accepts a input from the user and
@@ -39,7 +44,9 @@ public class Parser {
      * @return Command object with the correct argument and type
      */
     public static Command parse(String input) {
+        logger.info("Parsing input: " + input);
         CommandType userCommand = determineCommandType(input);
+        logger.info("CommandType requested: " + userCommand.toString());
         String args = removeFirstWord(input);
         return parseCommand(userCommand, args);
     }
@@ -94,12 +101,11 @@ public class Parser {
                 return parseExit(args);
 
             case INVALID:
-                return new Command(userCommand, INVALID_COMMAND);
+                return new Command(userCommand, MESSAGE_INVALID_COMMAND);
 
-            default: // all unrecognized command are invalid commands
+            default: /* all unrecognized command are invalid commands */
                 throw new AssertionError(userCommand);
         }
-
     }
 
     /**
@@ -131,7 +137,7 @@ public class Parser {
 
         /* If no matched dates, return invalid command */
         if (groups.isEmpty()) {
-            return new Command(CommandType.INVALID, VIEW_ERROR_EMPTY);
+            return new Command(CommandType.INVALID, MESSAGE_VIEW_ERROR_EMPTY);
         }
 
         /* Extract up to two dates from user's input */
@@ -158,7 +164,7 @@ public class Parser {
      */
     public static Command parseSearch(String args) {
         if (args.trim().isEmpty()) {
-            return new Command(CommandType.INVALID, SEARCH_ERROR_EMPTY);
+            return new Command(CommandType.INVALID, MESSAGE_SEARCH_ERROR_EMPTY);
         } else {
             return new Command(CommandType.SEARCH, args);
         }
@@ -205,7 +211,7 @@ public class Parser {
         String desc = input.trim();
 
         if (desc.isEmpty()) {
-            return new Command(CommandType.INVALID, ADD_ERROR_NO_DESC);
+            return new Command(CommandType.INVALID, MESSAGE_ADD_ERROR_NO_DESC);
         } else {
             return new Command(CommandType.ADD, desc, datePairs);
         }
@@ -222,7 +228,8 @@ public class Parser {
             int deleteId = Integer.parseInt(args.trim());
             return new Command(CommandType.DELETE, deleteId);
         } catch (NumberFormatException e) {
-            return new Command(CommandType.INVALID, DELETE_ERROR_INVALID);
+
+            return new Command(CommandType.INVALID, MESSAGE_DELETE_ERROR_INVALID);
         }
     }
 
@@ -269,12 +276,12 @@ public class Parser {
             }
 
             if (!(date.hasEndDate() || !desc.isEmpty())) {
-                return new Command(CommandType.INVALID, UPDATE_ERROR_EMPTY);
+                return new Command(CommandType.INVALID, MESSAGE_UPDATE_ERROR_EMPTY);
             }
 
             return new Command(CommandType.UPDATE, deleteId, desc, datePairs);
         } catch (NumberFormatException e) {
-            return new Command(CommandType.INVALID, UPDATE_ERROR_INVALID);
+            return new Command(CommandType.INVALID, MESSAGE_UPDATE_ERROR_INVALID);
         }
 
     }
@@ -312,7 +319,7 @@ public class Parser {
             int markId = Integer.parseInt(args.trim());
             return new Command(CommandType.MARK, markId);
         } catch (NumberFormatException e) {
-            return new Command(CommandType.INVALID, MARK_ERROR_INVALID);
+            return new Command(CommandType.INVALID, MESSAGE_MARK_ERROR_INVALID);
         }
     }
 

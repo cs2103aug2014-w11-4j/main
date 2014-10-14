@@ -1,17 +1,18 @@
-/**
- * The logic center of the task manager which handles
- * all the logic behind functionalities.
- *
- * Interacts with UI and DatabaseManager.
- *
- */
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * The logic center of the task manager which handles all the logic behind
+ * functionalities.
+ *
+ * Interacts with UI and DatabaseManager.
+ *
+ */
 public class Logic {
     private static final String DATABASE_NAME = "database.xml";
 
@@ -36,13 +37,18 @@ public class Logic {
     private static final String MESSAGE_MARK_UNCOMPLETED = "\"%s\" has been marked to uncompleted.";
     private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
 
-    private static final String MESSAGE_ERROR_WRONG_TASK_ID = "Wrong task ID!";
     private static final String MESSAGE_VIEWALL_RESULT = "You have %s uncompleted task(s).";
     private static final String MESSAGE_VIEWDATE_RESULT = "You have %s uncompleted task(s) %s.";
     private static final String MESSAGE_VIEWALL_CRESULT = "You have %s completed task(s).";
     private static final String MESSAGE_VIEWDATE_CRESULT = "You have %s completed task(s) %s.";
 
+    private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
+
     private static final int CONSOLE_MAX_WIDTH = 80;
+
+    private static final Logger logger = Logger
+            .getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     /**
      * Start the database, if not found new database will be created.
@@ -58,7 +64,7 @@ public class Logic {
             journal = new JournalController<Task>(dbManager);
 
         } catch (IOException e) {
-            System.out.println(e.toString());
+            logger.log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
             return false;
         }
         return true;
@@ -72,6 +78,7 @@ public class Logic {
      */
     public static String executeCommand(Command command) {
         try {
+            logger.info("Executing command: " + command.getType().toString());
             switch (command.getType()) {
                 case ADD:
                     addTask(command.getDescription(), command.getDatePairs());
@@ -115,9 +122,8 @@ public class Logic {
                     throw new AssertionError(command.getType());
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            return e.getMessage();
-            // TODO: Need to discuss proper exception handling & logging
+            logger.log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
+            return MESSAGE_ERROR_DATABASE_IOEXCEPTION;
         }
     }
 
@@ -166,7 +172,7 @@ public class Logic {
         if (isCompletedTask(displayedId)) {
             return markTaskUncompleted(displayedId);
         } else {
-        	assert !isCompletedTask(displayedId);
+            assert !isCompletedTask(displayedId);
             return markTaskCompleted(displayedId);
         }
     }
@@ -187,7 +193,9 @@ public class Logic {
         long newTaskId = dbManager.putInstance(oldTask);
         displayedTasksList.set(displayedId - 1, newTaskId);
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(databaseId, newTaskId,
+        journal.recordAction(
+                databaseId,
+                newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
                         oldTask.getDescription()));
         return String.format(MESSAGE_MARK_COMPLETED, oldTask.getDescription());
@@ -210,7 +218,9 @@ public class Logic {
         long newTaskId = dbManager.putInstance(oldTask);
         displayedTasksList.set(displayedId - 1, newTaskId);
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(databaseId, newTaskId,
+        journal.recordAction(
+                databaseId,
+                newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,
                         oldTask.getDescription()));
         return String
@@ -419,8 +429,7 @@ public class Logic {
      *
      * @throws IOException
      */
-    private static String formatTaskOutput(int displayingId)
-            throws IOException {
+    private static String formatTaskOutput(int displayingId) throws IOException {
         Task task = dbManager.getInstance(displayedTasksList.get(displayingId));
         return task.formatOutput(displayingId + 1);
     }
@@ -439,7 +448,7 @@ public class Logic {
         stringBuilder.append(border + System.lineSeparator() + header
                 + System.lineSeparator() + border + System.lineSeparator());
 
-        for (int i=0; i<displayedTasksList.size(); i++) {
+        for (int i = 0; i < displayedTasksList.size(); i++) {
             stringBuilder.append(formatTaskOutput(i));
             stringBuilder.append(System.lineSeparator());
         }
@@ -449,7 +458,8 @@ public class Logic {
     }
 
     private static boolean isValidDisplayedId(int displayedId) {
-        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1);
+        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList
+                .get(displayedId - 1) == -1);
     }
 
     /**

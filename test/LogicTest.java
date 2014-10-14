@@ -28,11 +28,9 @@ public class LogicTest {
     /**
      * Test adding of task with todays date
      *
-     * Add a task with todays date and current runtime
-     * Call display to display specified task via id
-     * Store both actual and expected values
-     * Mark recent created task as invalid
-     * Execute comparison
+     * Add a task with todays date and current runtime Call display to display
+     * specified task via id Store both actual and expected values Mark recent
+     * created task as invalid Execute comparison
      *
      */
     @Test
@@ -51,8 +49,8 @@ public class LogicTest {
     /**
      * Adding Task without start date / end date
      *
-     * Add a task without specifying any date
-     * After retrieving the value, mark it as invalid
+     * Add a task without specifying any date After retrieving the value, mark
+     * it as invalid
      *
      */
     @Test
@@ -69,8 +67,8 @@ public class LogicTest {
     /**
      * Adding Task with end date without start date
      *
-     * Adding Task without a start date
-     * After retrieving the value, mark it as invalid
+     * Adding Task without a start date After retrieving the value, mark it as
+     * invalid
      *
      */
     @Test
@@ -101,7 +99,7 @@ public class LogicTest {
     public void searchKeywordTest() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
-        Long id = Logic.addTask(
+        Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         String actual = Logic.searchWithKeyword("Lorem");
@@ -110,15 +108,14 @@ public class LogicTest {
     }
 
     /**
-     * Test undo function on Journal
-     * Add in a task, and call undo,
-     * Expected: Display all should not have any values
+     * Test undo function on Journal Add in a task, and call undo, Expected:
+     * Display all should not have any values
      */
     @Test
     public void testJournalUndo() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         int originalSize = Logic.getDB().getValidIdList().size();
-        Long id = Logic.addTask(
+        Logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         Logic.undo();
@@ -127,9 +124,8 @@ public class LogicTest {
     }
 
     /**
-     * Test redo function on Journal
-     * Add in a task, and call undo,
-     * Followed by calling redo
+     * Test redo function on Journal Add in a task, and call undo, Followed by
+     * calling redo
      *
      */
     @Test
@@ -158,8 +154,7 @@ public class LogicTest {
                 dpList);
         Logic.viewAll(false);
         String expected = Logic.deleteTask(1);
-        String actual = (
-        		"\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully deleted.");
+        String actual = ("\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully deleted.");
         assertEquals(actual, expected);
     }
 
@@ -179,8 +174,7 @@ public class LogicTest {
         Logic.viewAll(false);
         String actual = Logic.updateTask(1, "Lorem ipsum dolor sit amet.",
                 dpList);
-        String expected =
-        		"\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully updated.";
+        String expected = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully updated.";
         assertEquals(expected, actual);
     }
 
@@ -200,7 +194,7 @@ public class LogicTest {
         Logic.viewAll(false);
         String expected = Logic.markTaskCompleted(1);
         String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to completed.";
-        assertEquals(actual,expected);
+        assertEquals(actual, expected);
     }
 
     /**
@@ -219,7 +213,7 @@ public class LogicTest {
         Logic.markTaskCompleted(1);
         String expected = Logic.markTaskUncompleted(1);
         String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to uncompleted.";
-        assertEquals(actual,expected);
+        assertEquals(actual, expected);
     }
 
 }
