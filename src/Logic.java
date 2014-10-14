@@ -166,6 +166,7 @@ public class Logic {
         if (isCompletedTask(displayedId)) {
             return markTaskUncompleted(displayedId);
         } else {
+        	assert !isCompletedTask(displayedId);
             return markTaskCompleted(displayedId);
         }
     }
@@ -181,6 +182,7 @@ public class Logic {
     public static String markTaskCompleted(int displayedId) throws IOException {
         long databaseId = displayedTasksList.get(displayedId - 1);
         Task oldTask = dbManager.getInstance(databaseId);
+        assert !oldTask.getIsDone();
         oldTask.setIsDone(true);
         long newTaskId = dbManager.putInstance(oldTask);
         displayedTasksList.set(displayedId - 1, newTaskId);
@@ -203,6 +205,7 @@ public class Logic {
             throws IOException {
         long databaseId = displayedTasksList.get(displayedId - 1);
         Task oldTask = dbManager.getInstance(databaseId);
+        assert oldTask.getIsDone();
         oldTask.setIsDone(false);
         long newTaskId = dbManager.putInstance(oldTask);
         displayedTasksList.set(displayedId - 1, newTaskId);
