@@ -18,6 +18,10 @@ hs_err_pid*
 .checkstyle
 .settings/edu.umd.cs.findbugs.core.prefs
 
-# Database File
+# Database File #
 database.xml
+
+# Log Files #
+/logs/
+*.log
 
