@@ -13,17 +13,21 @@ public class JournalController<T extends Serializable & Comparable<T>> {
         private Long previousId;
         private Long newId;
         private String description;
+
         public IDPair(Long previousId, Long newId, String description) {
             this.previousId = previousId;
             this.newId = newId;
             this.description = description;
         }
+
         public Long getPreviousId() {
             return previousId;
         }
+
         public Long getNewId() {
             return newId;
         }
+
         public String getDescription() {
             return description;
         }
@@ -46,8 +50,10 @@ public class JournalController<T extends Serializable & Comparable<T>> {
     /**
      * Record an action taken.
      *
-     * @param previousId the ID of the old instance, can be null if the action is add
-     * @param newId the ID of the new instance, can be null if the action is delete
+     * @param previousId the ID of the old instance, can be null if the action
+     *            is add
+     * @param newId the ID of the new instance, can be null if the action is
+     *            delete
      * @param description the description of the recorded action
      */
     public void recordAction(Long previousId, Long newId, String description) {

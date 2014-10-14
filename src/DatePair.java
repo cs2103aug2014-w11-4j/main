@@ -2,11 +2,9 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-
 /**
- * This DatePair class is used to store a pair of date
- * in the form of Calendar object which represent
- * the possible start date and end date.
+ * This DatePair class is used to store a pair of date in the form of Calendar
+ * object which represent the possible start date and end date.
  *
  * @author Sia Wei Kiat Jason
  */
@@ -27,7 +25,8 @@ public class DatePair implements Serializable {
 
     public DatePair(Calendar startDate, Calendar endDate) {
         if (startDate != null && startDate.after(endDate)) {
-            throw new IllegalArgumentException("Start date later than end date."); // TODO: Refactor this
+            throw new IllegalArgumentException(
+                    "Start date later than end date."); // TODO: Refactor this
         }
         this.startDate = startDate;
         this.endDate = endDate;
@@ -51,11 +50,11 @@ public class DatePair implements Serializable {
         this.endDate = endDate;
     }
 
-    public boolean hasStartDate(){
+    public boolean hasStartDate() {
         return (this.startDate != null);
     }
 
-    public boolean hasEndDate(){
+    public boolean hasEndDate() {
         return (this.endDate != null);
     }
 
@@ -88,18 +87,23 @@ public class DatePair implements Serializable {
     }
 
     /**
-     * Test if there is overlap between two DatePairs. Null values (no start/end date) are considered as infinitely early/late.
+     * Test if there is overlap between two DatePairs. Null values (no start/end
+     * date) are considered as infinitely early/late.
      *
      * @param dateRange another DatePair to be compared with
      * @return true if there is overlap between two DatePairs
      * @author Huang Yue
      */
-    public boolean isWithinPeriod(DatePair dateRange) { // TODO: THIS METHOD IS NOT TESTED! add test for this (V important!)
+    public boolean isWithinPeriod(DatePair dateRange) { // TODO: THIS METHOD IS
+                                                        // NOT TESTED! add test
+                                                        // for this (V
+                                                        // important!)
 
         Calendar startDateCriteria = dateRange.getStartDate();
         Calendar endDateCriteria = dateRange.getEndDate();
 
-        if ((startDate == null && endDate == null) || (startDateCriteria == null && endDateCriteria == null)) {
+        if ((startDate == null && endDate == null)
+                || (startDateCriteria == null && endDateCriteria == null)) {
             return true;
         }
 
@@ -119,7 +123,8 @@ public class DatePair implements Serializable {
             return (!endDate.before(startDateCriteria));
         }
 
-        return !(startDate.after(endDateCriteria) || endDate.before(startDateCriteria));
+        return !(startDate.after(endDateCriteria) || endDate
+                .before(startDateCriteria));
 
     }
 }

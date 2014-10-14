@@ -13,86 +13,93 @@ import org.junit.Test;
  *
  */
 public class ParserTest {
+    public Parser parser;
+
     @Before
     public void setParser() {
-        Parser.initParser();
+        parser = Parser.getInstance();
     }
 
     @Test
     public void parseAdd() {
-        assertEquals(Parser.parse("add meeting with boss today").getType(),
-                CommandType.ADD);
-        assertEquals(Parser.parse("add meeting with boss today")
+        assertEquals(parser.parse("add meeting with boss today").getType(),
+                Command.CommandType.ADD);
+        assertEquals(parser.parse("add meeting with boss today")
                 .getDescription(), "meeting with boss");
-        assertEquals(Parser.parse("add meeting with boss today").getViewRange()
+        assertEquals(parser.parse("add meeting with boss today").getViewRange()
                 .getStartDate().getTime(), getToday());
     }
 
     @Test
     public void parseView() {
-        assertEquals(Parser.parse("view today").getType(), CommandType.VIEW);
+        assertEquals(parser.parse("view today").getType(),
+                Command.CommandType.VIEW);
 
-        assertEquals(Parser.parse("display this week").getType(),
-                CommandType.VIEW);
+        assertEquals(parser.parse("display this week").getType(),
+                Command.CommandType.VIEW);
     }
 
     @Test
     public void parseDelete() {
-        assertEquals(Parser.parse("delete 4").getType(), CommandType.DELETE);
-        assertEquals(Parser.parse("delete 4").getTaskId(), 4);
+        assertEquals(parser.parse("delete 4").getType(),
+                Command.CommandType.DELETE);
+        assertEquals(parser.parse("delete 4").getTaskId(), 4);
 
-        assertEquals(Parser.parse("remove 8").getType(), CommandType.DELETE);
-        assertEquals(Parser.parse("remove 8").getTaskId(), 8);
+        assertEquals(parser.parse("remove 8").getType(),
+                Command.CommandType.DELETE);
+        assertEquals(parser.parse("remove 8").getTaskId(), 8);
     }
 
     @Test
     public void parseUpdate() {
-        assertEquals(Parser.parse("update 3 tommorrow").getType(),
-                CommandType.UPDATE);
+        assertEquals(parser.parse("update 3 tommorrow").getType(),
+                Command.CommandType.UPDATE);
     }
 
     @Test
     public void parseSearch() {
-        assertEquals(Parser.parse("search meeting").getType(),
-                CommandType.SEARCH);
-        assertEquals(Parser.parse("search meeting").getKeyword(), "meeting");
+        assertEquals(parser.parse("search meeting").getType(),
+                Command.CommandType.SEARCH);
+        assertEquals(parser.parse("search meeting").getKeyword(), "meeting");
 
-        assertEquals(Parser.parse("find urgent").getType(), CommandType.SEARCH);
-        assertEquals(Parser.parse("find urgent").getKeyword(), "urgent");
+        assertEquals(parser.parse("find urgent").getType(),
+                Command.CommandType.SEARCH);
+        assertEquals(parser.parse("find urgent").getKeyword(), "urgent");
 
-        assertEquals(Parser.parse("lookup homework").getType(),
-                CommandType.SEARCH);
-        assertEquals(Parser.parse("lookup homework").getKeyword(), "homework");
+        assertEquals(parser.parse("lookup homework").getType(),
+                Command.CommandType.SEARCH);
+        assertEquals(parser.parse("lookup homework").getKeyword(), "homework");
     }
 
     @Test
     public void parseUndo() {
-        assertEquals(Parser.parse("undo").getType(), CommandType.UNDO);
-        assertEquals(Parser.parse("ud").getType(), CommandType.UNDO);
+        assertEquals(parser.parse("undo").getType(), Command.CommandType.UNDO);
+        assertEquals(parser.parse("ud").getType(), Command.CommandType.UNDO);
     }
 
     @Test
     public void parseRedo() {
-        assertEquals(Parser.parse("redo").getType(), CommandType.REDO);
-        assertEquals(Parser.parse("rd").getType(), CommandType.REDO);
+        assertEquals(parser.parse("redo").getType(), Command.CommandType.REDO);
+        assertEquals(parser.parse("rd").getType(), Command.CommandType.REDO);
     }
 
     @Test
     public void parseMark() {
-        assertEquals(Parser.parse("mark 2").getType(), CommandType.MARK);
-        assertEquals(Parser.parse("mark 2").getTaskId(), 2);
+        assertEquals(parser.parse("mark 2").getType(), Command.CommandType.MARK);
+        assertEquals(parser.parse("mark 2").getTaskId(), 2);
 
-        assertEquals(Parser.parse("completed 5").getType(), CommandType.MARK);
-        assertEquals(Parser.parse("completed 5").getTaskId(), 5);
+        assertEquals(parser.parse("completed 5").getType(),
+                Command.CommandType.MARK);
+        assertEquals(parser.parse("completed 5").getTaskId(), 5);
 
-        assertEquals(Parser.parse("done 7").getType(), CommandType.MARK);
-        assertEquals(Parser.parse("done 7").getTaskId(), 7);
+        assertEquals(parser.parse("done 7").getType(), Command.CommandType.MARK);
+        assertEquals(parser.parse("done 7").getTaskId(), 7);
     }
 
     @Test
     public void parseExit() {
-        assertEquals(Parser.parse("exit").getType(), CommandType.EXIT);
-        assertEquals(Parser.parse("quit").getType(), CommandType.EXIT);
+        assertEquals(parser.parse("exit").getType(), Command.CommandType.EXIT);
+        assertEquals(parser.parse("quit").getType(), Command.CommandType.EXIT);
     }
 
     public Date getDate(int day, int month, int year, int hour, int minute) {

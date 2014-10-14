@@ -26,7 +26,8 @@ import java.util.Iterator;
  *
  * @param <T> The data type, which has to be a Java Bean class.
  */
-public class DatabaseManager<T extends Serializable & Comparable<T>> implements Iterable<T> {
+public class DatabaseManager<T extends Serializable & Comparable<T>> implements
+        Iterable<T> {
 
     private class InstanceComparator implements Comparator<Long> {
         @Override
@@ -34,7 +35,8 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements 
             try {
                 return getInstance(o1).compareTo(getInstance(o2));
             } catch (IOException e) {
-                throw new UnsupportedOperationException("IOException: " + e.getMessage());
+                throw new UnsupportedOperationException("IOException: "
+                        + e.getMessage());
             }
         }
     }
@@ -44,7 +46,8 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements 
     }
 
     private class InstanceIterator implements Iterator<T> {
-        private Iterator<Long> offsetIterator = validInstancesMap.keySet().iterator();
+        private Iterator<Long> offsetIterator = validInstancesMap.keySet()
+                .iterator();
 
         public boolean hasNext() {
             return offsetIterator.hasNext();
@@ -54,7 +57,8 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements 
             try {
                 return getInstance(offsetIterator.next());
             } catch (IOException e) {
-                throw new UnsupportedOperationException("IOException: " + e.getMessage());
+                throw new UnsupportedOperationException("IOException: "
+                        + e.getMessage());
             }
         }
 
@@ -99,7 +103,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements 
      * Construct a backend database with the given file path.
      *
      * @param filePath path to the database file. If exists it must be readable
-     *                 and writable.
+     *            and writable.
      * @throws FileNotFoundException if the file cannot be opened (non-writable)
      * @throws IOException
      */
@@ -292,8 +296,8 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements 
      *
      * @param instanceId The ID of instance to be fetched.
      * @return The reconstructed instance. Note that it is not the same object
-     * with the one that was written to the file. If the ID does not
-     * exist, null will be returned.
+     *         with the one that was written to the file. If the ID does not
+     *         exist, null will be returned.
      * @throws IOException
      */
     public T getInstance(long instanceId) throws IOException {
@@ -310,7 +314,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements 
      *
      * @param instanceId the ID of the instance to be marked.
      * @throws IndexOutOfBoundsException if the ID is not found (or it is
-     *                                   already invalid)
+     *             already invalid)
      * @throws IOException
      */
     public void markAsInvalid(long instanceId) throws IOException {
@@ -335,7 +339,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements 
      *
      * @param instanceId the ID of the instance to be marked.
      * @throws IndexOutOfBoundsException if the ID is not found (or it is
-     *                                   already valid)
+     *             already valid)
      * @throws IOException
      */
     public void markAsValid(long instanceId) throws IOException {
@@ -356,7 +360,8 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements 
     }
 
     /**
-     * Check whether an ID exists (either represents a valid or invalid instance).
+     * Check whether an ID exists (either represents a valid or invalid
+     * instance).
      *
      * @param instanceId the ID to be checked
      * @return if the ID exists
