@@ -19,7 +19,7 @@ public class DatePairTest {
 
     @After
     public void tearDown() throws Exception {
-        logic.getDB().closeFile();
+        logic.getDB().resetDatabase();
     }
 
     /**
