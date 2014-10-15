@@ -297,8 +297,12 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements 
      * @throws IOException
      */
     public T getInstance(long instanceId) throws IOException {
-        if (!validInstancesMap.containsKey(instanceId)) {
-            return null;
+        if (!validInstancesMap.containsKey(instanceId)) {  //return null;
+            if (invalidInstancesMap.containsKey(instanceId)) {
+                throw new IndexOutOfBoundsException("Instance is invalid.");
+            } else {
+                throw new IndexOutOfBoundsException("Instance doe not exist.");
+            }
         }
         byte[] byteArray = getBytesContentAtOffset(validInstancesMap
                 .get(instanceId));
