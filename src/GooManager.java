@@ -19,7 +19,9 @@ import java.util.List;
 
 
 public class GooManager {
-    
+
+    private static final String CLIENT_ID = "849841048712-0t9rn1vi1nch19cqsuaaaj19oo7c7pl3.apps.googleusercontent.com";
+    private static final String CLIENT_SECRET = "Zq0v8OByEqQfPMXZis8Iw86D";
     private static final String APPLICATION_NAME = "RubberDuck/0.2";
     private static final String CALENDAR_NAME = "RubberDuck";
 
@@ -35,8 +37,8 @@ public class GooManager {
 
     private static Credential authorize() throws IOException {
         GoogleClientSecrets.Details details = new GoogleClientSecrets.Details();
-        details.setClientId("849841048712-0t9rn1vi1nch19cqsuaaaj19oo7c7pl3.apps.googleusercontent.com");
-        details.setClientSecret("Zq0v8OByEqQfPMXZis8Iw86D");
+        details.setClientId(CLIENT_ID);
+        details.setClientSecret(CLIENT_SECRET);
         GoogleClientSecrets clientSecrets = new GoogleClientSecrets();
         clientSecrets.setInstalled(details);
 
