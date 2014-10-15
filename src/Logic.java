@@ -49,7 +49,6 @@ public class Logic {
     private static Logic logicInstance;
 
     private ArrayList<Long> displayedTasksList;
-    private JournalController<Task> journal;
     private DatabaseManager<Task> dbManager;
 
     private Logic() {
@@ -76,7 +75,6 @@ public class Logic {
         try {
             dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
                     + File.separator + DATABASE_NAME);
-            journal = new JournalController<Task>(dbManager);
 
         } catch (IOException e) {
             logger.log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
@@ -155,7 +153,7 @@ public class Logic {
             throws IOException {
         Task task = new Task(description, dateList);
         long id = dbManager.putInstance(task);
-        journal.recordAction(null, id,
+        dbManager.recordAction(null, id,
                 String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
         return id;
     }
@@ -208,9 +206,7 @@ public class Logic {
         long newTaskId = dbManager.putInstance(oldTask);
         displayedTasksList.set(displayedId - 1, newTaskId);
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(
-                databaseId,
-                newTaskId,
+        dbManager.recordAction(databaseId,newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
                         oldTask.getDescription()));
         return String.format(MESSAGE_MARK_COMPLETED, oldTask.getDescription());
@@ -232,7 +228,7 @@ public class Logic {
         long newTaskId = dbManager.putInstance(oldTask);
         displayedTasksList.set(displayedId - 1, newTaskId);
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(
+        dbManager.recordAction(
                 databaseId,
                 newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,
@@ -270,7 +266,7 @@ public class Logic {
         dbManager.markAsInvalid(databaseId);
 
         displayedTasksList.set(displayedId - 1, newDatabaseId);
-        journal.recordAction(databaseId, newDatabaseId,
+        dbManager.recordAction(databaseId, newDatabaseId,
                 String.format(JOURNAL_MESSAGE_UPDATE, oldDescription));
 
         return String.format(MESSAGE_UPDATE, oldDescription);
@@ -326,7 +322,7 @@ public class Logic {
         String oldDescription = oldTask.getDescription();
         dbManager.markAsInvalid(databaseId);
         displayedTasksList.set(displayedId - 1, (long) -1);
-        journal.recordAction(databaseId, null,
+        dbManager.recordAction(databaseId, null,
                 String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
         return String.format(MESSAGE_DELETE, oldDescription);
     }
@@ -417,7 +413,7 @@ public class Logic {
      */
     public String undo() throws IOException {
         try {
-            return String.format(JOURNAL_MESSAGE_UNDONE, journal.undo());
+            return String.format(JOURNAL_MESSAGE_UNDONE, dbManager.undo());
         } catch (UnsupportedOperationException e) { // Nothing to undo
             return e.getMessage();
         }
@@ -429,7 +425,7 @@ public class Logic {
      */
     public String redo() throws IOException {
         try {
-            return String.format(JOURNAL_MESSAGE_REDONE, journal.redo());
+            return String.format(JOURNAL_MESSAGE_REDONE, dbManager.redo());
         } catch (UnsupportedOperationException e) { // Nothing to redo
             return e.getMessage();
         }
