@@ -11,6 +11,19 @@ import java.util.Scanner;
 public class MenuInterface {
     private static final String MESSAGE_WELCOME = "Welcome to RubberDuck.";
 
+    private static MenuInterface menuInstance;
+
+    private MenuInterface() {
+    }
+
+    public static MenuInterface getInstance() {
+        if (menuInstance == null) {
+            menuInstance = new MenuInterface();
+        }
+
+        return menuInstance;
+    }
+
     /**
      * Method that handles the interface of the program. It prompts from user
      * and calls the parser to determine the command to be executed. It then
@@ -21,8 +34,8 @@ public class MenuInterface {
         showToUser(MESSAGE_WELCOME);
         while (true) {
             String rawInput = acceptInput(sc);
-            Command userCommand = Parser.parse(rawInput);
-            String response = Logic.executeCommand(userCommand);
+            Command userCommand = Parser.getInstance().parse(rawInput);
+            String response = Logic.getInstance().executeCommand(userCommand);
             showToUser(response);
         }
     }

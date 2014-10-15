@@ -14,14 +14,6 @@ import java.util.logging.Logger;
  *
  */
 public class Logic {
-    private static final String DATABASE_NAME = "database.xml";
-
-    private static DatabaseManager<Task> dbManager = null;
-    private static String currentDirectory = System.getProperty("user.dir");
-
-    private static ArrayList<Long> displayedTasksList = new ArrayList<Long>();
-
-    private static JournalController<Task> journal = null;
     private static final String JOURNAL_MESSAGE_UNDONE = "Undone operation \"%s\".";
     private static final String JOURNAL_MESSAGE_REDONE = "Redone operation \"%s\".";
     private static final String JOURNAL_MESSAGE_ADD = "Added task \"%s\"";
@@ -50,19 +42,37 @@ public class Logic {
     private static final Logger logger = Logger
             .getLogger(Logger.GLOBAL_LOGGER_NAME);
 
+    private static final String DATABASE_NAME = "database.xml";
+    private static final String CURRENT_DIRECTORY = System
+            .getProperty("user.dir");
+
+    private static Logic logicInstance;
+
+    private ArrayList<Long> displayedTasksList;
+    private DatabaseManager<Task> dbManager;
+
+    private Logic() {
+        displayedTasksList = new ArrayList<Long>();
+        startDatabase();
+    }
+
+    public static Logic getInstance() {
+        if (logicInstance == null) {
+            logicInstance = new Logic();
+        }
+
+        return logicInstance;
+    }
+
     /**
      * Start the database, if not found new database will be created.
      *
-     * Create a new journal using the database that is created.
-     *
      * @return states if the database has been started successfully
      */
-    public static boolean startDatabase() {
+    public boolean startDatabase() {
         try {
-            dbManager = new DatabaseManager<Task>(currentDirectory
+            dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
                     + File.separator + DATABASE_NAME);
-            journal = new JournalController<Task>(dbManager);
-
         } catch (IOException e) {
             logger.log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
             return false;
@@ -76,7 +86,7 @@ public class Logic {
      * @param command the command object that holds instruction from user
      * @return result of the command instruction
      */
-    public static String executeCommand(Command command) {
+    public String executeCommand(Command command) {
         try {
             logger.info("Executing command: " + command.getType().toString());
             switch (command.getType()) {
@@ -136,11 +146,11 @@ public class Logic {
      *
      * @throws IOException
      */
-    public static long addTask(String description, ArrayList<DatePair> dateList)
+    public long addTask(String description, ArrayList<DatePair> dateList)
             throws IOException {
         Task task = new Task(description, dateList);
         long id = dbManager.putInstance(task);
-        journal.recordAction(null, id,
+        dbManager.recordAction(null, id,
                 String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
         return id;
     }
@@ -153,7 +163,7 @@ public class Logic {
      *
      * @throws IOException
      */
-    public static boolean isCompletedTask(int displayedId) throws IOException {
+    public boolean isCompletedTask(int displayedId) throws IOException {
         long databaseId = displayedTasksList.get(displayedId - 1);
         Task oldTask = dbManager.getInstance(databaseId);
         return oldTask.getIsDone();
@@ -165,7 +175,7 @@ public class Logic {
      * @return message of mark
      * @throws IOException
      */
-    public static String markTask(int displayedId) throws IOException {
+    public String markTask(int displayedId) throws IOException {
         if (!isValidDisplayedId(displayedId)) {
             return MESSAGE_ERROR_WRONG_TASK_ID;
         }
@@ -184,7 +194,7 @@ public class Logic {
      *
      * @throws IOException
      */
-    public static String markTaskCompleted(int displayedId) throws IOException {
+    public String markTaskCompleted(int displayedId) throws IOException {
         long databaseId = displayedTasksList.get(displayedId - 1);
         Task oldTask = dbManager.getInstance(databaseId);
         assert !oldTask.getIsDone();
@@ -192,9 +202,7 @@ public class Logic {
         long newTaskId = dbManager.putInstance(oldTask);
         displayedTasksList.set(displayedId - 1, newTaskId);
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(
-                databaseId,
-                newTaskId,
+        dbManager.recordAction(databaseId,newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
                         oldTask.getDescription()));
         return String.format(MESSAGE_MARK_COMPLETED, oldTask.getDescription());
@@ -208,8 +216,7 @@ public class Logic {
      *
      * @throws IOException
      */
-    public static String markTaskUncompleted(int displayedId)
-            throws IOException {
+    public String markTaskUncompleted(int displayedId) throws IOException {
         long databaseId = displayedTasksList.get(displayedId - 1);
         Task oldTask = dbManager.getInstance(databaseId);
         assert oldTask.getIsDone();
@@ -217,7 +224,7 @@ public class Logic {
         long newTaskId = dbManager.putInstance(oldTask);
         displayedTasksList.set(displayedId - 1, newTaskId);
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(
+        dbManager.recordAction(
                 databaseId,
                 newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,
@@ -234,7 +241,7 @@ public class Logic {
      * @param dateList updated date list, if not changed will be null
      * @return updated message with the displayed id
      */
-    public static String updateTask(int displayedId, String description,
+    public String updateTask(int displayedId, String description,
             ArrayList<DatePair> dateList) throws IOException {
         if (!isValidDisplayedId(displayedId)) {
             return MESSAGE_ERROR_WRONG_TASK_ID;
@@ -255,7 +262,7 @@ public class Logic {
         dbManager.markAsInvalid(databaseId);
 
         displayedTasksList.set(displayedId - 1, newDatabaseId);
-        journal.recordAction(databaseId, newDatabaseId,
+        dbManager.recordAction(databaseId, newDatabaseId,
                 String.format(JOURNAL_MESSAGE_UPDATE, oldDescription));
 
         return String.format(MESSAGE_UPDATE, oldDescription);
@@ -266,7 +273,7 @@ public class Logic {
      *
      * @return list of tasks and their information in the database
      */
-    public static String viewAll(boolean isCompleted) throws IOException {
+    public String viewAll(boolean isCompleted) throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
 
         displayedTasksList.clear();
@@ -302,7 +309,7 @@ public class Logic {
      *
      * @throws IOException
      */
-    public static String deleteTask(int displayedId) throws IOException {
+    public String deleteTask(int displayedId) throws IOException {
         if (!isValidDisplayedId(displayedId)) {
             return MESSAGE_ERROR_WRONG_TASK_ID;
         }
@@ -311,7 +318,7 @@ public class Logic {
         String oldDescription = oldTask.getDescription();
         dbManager.markAsInvalid(databaseId);
         displayedTasksList.set(displayedId - 1, (long) -1);
-        journal.recordAction(databaseId, null,
+        dbManager.recordAction(databaseId, null,
                 String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
         return String.format(MESSAGE_DELETE, oldDescription);
     }
@@ -322,7 +329,7 @@ public class Logic {
      * @param keyword the keyword that is used to search for the task
      */
 
-    public static String searchWithKeyword(String keyword) throws IOException {
+    public String searchWithKeyword(String keyword) throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
 
         displayedTasksList.clear();
@@ -354,7 +361,7 @@ public class Logic {
      * @return result of all the tasks that are within the period as queried
      */
 
-    public static String viewByPeriod(DatePair dateRange, boolean isCompleted)
+    public String viewByPeriod(DatePair dateRange, boolean isCompleted)
             throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
         displayedTasksList.clear();
@@ -400,9 +407,9 @@ public class Logic {
      * Method that undo previous action in the journal.
      *
      */
-    public static String undo() throws IOException {
+    public String undo() throws IOException {
         try {
-            return String.format(JOURNAL_MESSAGE_UNDONE, journal.undo());
+            return String.format(JOURNAL_MESSAGE_UNDONE, dbManager.undo());
         } catch (UnsupportedOperationException e) { // Nothing to undo
             return e.getMessage();
         }
@@ -412,9 +419,9 @@ public class Logic {
      * Method that redo previous (undone) action in the journal.
      *
      */
-    public static String redo() throws IOException {
+    public String redo() throws IOException {
         try {
-            return String.format(JOURNAL_MESSAGE_REDONE, journal.redo());
+            return String.format(JOURNAL_MESSAGE_REDONE, dbManager.redo());
         } catch (UnsupportedOperationException e) { // Nothing to redo
             return e.getMessage();
         }
@@ -428,12 +435,12 @@ public class Logic {
      *
      * @throws IOException
      */
-    private static String formatTaskOutput(int displayingId) throws IOException {
+    private String formatTaskOutput(int displayingId) throws IOException {
         Task task = dbManager.getInstance(displayedTasksList.get(displayingId));
         return task.formatOutput(displayingId + 1);
     }
 
-    private static String formatTaskListOutput() throws IOException {
+    private String formatTaskListOutput() throws IOException {
         Collections.sort(displayedTasksList, dbManager.getInstanceComparator());
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -456,7 +463,7 @@ public class Logic {
         return stringBuilder.toString();
     }
 
-    private static boolean isValidDisplayedId(int displayedId) {
+    private boolean isValidDisplayedId(int displayedId) {
         return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList
                 .get(displayedId - 1) == -1);
     }
@@ -468,11 +475,11 @@ public class Logic {
      *
      * @throws IOException
      */
-    public static String viewTask(long id) throws IOException {
+    public String viewTask(long id) throws IOException {
         return dbManager.getInstance(id).toString();
     }
 
-    public static DatabaseManager<Task> getDB() {
+    public DatabaseManager<Task> getDB() {
         return dbManager;
     }
 

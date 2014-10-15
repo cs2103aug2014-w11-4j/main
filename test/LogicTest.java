@@ -12,17 +12,17 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class LogicTest {
+    public Logic logic;
 
     @Before
     public void setUp() throws IOException {
-        Logic.startDatabase();
-        Logic.getDB().resetDatabase();
+        logic = Logic.getInstance();
+        logic.getDB().resetDatabase();
     }
 
     @After
     public void tearDown() throws IOException {
-        Logic.getDB().resetDatabase();
-        Logic.getDB().closeFile();
+        logic.getDB().resetDatabase();
     }
 
     /**
@@ -39,11 +39,11 @@ public class LogicTest {
         Calendar today = Calendar.getInstance();
         DatePair dp = new DatePair(today);
         datePairList.add(dp);
-        Logic.addTask(
+        logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 datePairList);
 
-        assertEquals(1, Logic.getDB().getValidIdList().size());
+        assertEquals(1, logic.getDB().getValidIdList().size());
     }
 
     /**
@@ -56,10 +56,10 @@ public class LogicTest {
     @Test
     public void addNoDateTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        Long id = Logic.addTask(
+        Long id = logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        String actual = Logic.viewTask(id);
+        String actual = logic.viewTask(id);
         String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done ";
         assertEquals(expected, actual);
     }
@@ -76,10 +76,10 @@ public class LogicTest {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         DatePair dp = new DatePair(null, Calendar.getInstance());
         dpList.add(dp);
-        Long id = Logic.addTask(
+        Long id = logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        String actual = Logic.viewTask(id);
+        String actual = logic.viewTask(id);
 
         // formatting current dateTime
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
@@ -99,10 +99,10 @@ public class LogicTest {
     public void searchKeywordTest() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
-        Logic.addTask(
+        logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        String actual = Logic.searchWithKeyword("Lorem");
+        String actual = logic.searchWithKeyword("Lorem");
         String expected = "1 task with \"Lorem\" has been found.";
         assertTrue(actual.contains(expected));
     }
@@ -114,13 +114,13 @@ public class LogicTest {
     @Test
     public void testJournalUndo() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        int originalSize = Logic.getDB().getValidIdList().size();
-        Logic.addTask(
+        int originalSize = logic.getDB().getValidIdList().size();
+        logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        Logic.undo();
+        logic.undo();
 
-        assertEquals(originalSize, Logic.getDB().getValidIdList().size());
+        assertEquals(originalSize, logic.getDB().getValidIdList().size());
     }
 
     /**
@@ -130,15 +130,15 @@ public class LogicTest {
      */
     @Test
     public void testJournalRedo() throws IOException {
-        int originalSize = Logic.getDB().getValidIdList().size();
+        int originalSize = logic.getDB().getValidIdList().size();
 
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        Logic.addTask("Test 1", dpList);
-        Logic.addTask("Test 2", dpList);
-        Logic.undo();
-        Logic.redo();
+        logic.addTask("Test 1", dpList);
+        logic.addTask("Test 2", dpList);
+        logic.undo();
+        logic.redo();
 
-        assertEquals(originalSize + 2, Logic.getDB().getValidIdList().size());
+        assertEquals(originalSize + 2, logic.getDB().getValidIdList().size());
     }
 
     /**
@@ -149,11 +149,11 @@ public class LogicTest {
     @Test
     public void DeleteExistTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        Logic.addTask(
+        logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        Logic.viewAll(false);
-        String expected = Logic.deleteTask(1);
+        logic.viewAll(false);
+        String expected = logic.deleteTask(1);
         String actual = ("\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully deleted.");
         assertEquals(actual, expected);
     }
@@ -168,11 +168,11 @@ public class LogicTest {
     @Test
     public void updateTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        Logic.addTask(
+        logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        Logic.viewAll(false);
-        String actual = Logic.updateTask(1, "Lorem ipsum dolor sit amet.",
+        logic.viewAll(false);
+        String actual = logic.updateTask(1, "Lorem ipsum dolor sit amet.",
                 dpList);
         String expected = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully updated.";
         assertEquals(expected, actual);
@@ -188,11 +188,11 @@ public class LogicTest {
     @Test
     public void markTaskCompleted() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        Logic.addTask(
+        logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        Logic.viewAll(false);
-        String expected = Logic.markTaskCompleted(1);
+        logic.viewAll(false);
+        String expected = logic.markTaskCompleted(1);
         String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to completed.";
         assertEquals(actual, expected);
     }
@@ -206,12 +206,12 @@ public class LogicTest {
     @Test
     public void markTaskUncompleted() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        Logic.addTask(
+        logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        Logic.viewAll(false);
-        Logic.markTaskCompleted(1);
-        String expected = Logic.markTaskUncompleted(1);
+        logic.viewAll(false);
+        logic.markTaskCompleted(1);
+        String expected = logic.markTaskUncompleted(1);
         String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to uncompleted.";
         assertEquals(actual, expected);
     }

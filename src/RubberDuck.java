@@ -22,10 +22,7 @@ import java.util.logging.SimpleFormatter;
 public class RubberDuck {
     public static void main(String[] args) {
         setupGlobalLogger();
-        MenuInterface menu = new MenuInterface();
-        Logic.startDatabase();
-        Parser.initParser();
-        menu.handleInterface();
+        MenuInterface.getInstance().handleInterface();
     }
 
     public static void setupGlobalLogger() {

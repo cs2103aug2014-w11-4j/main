@@ -284,7 +284,8 @@ public class Task implements Serializable, Comparable<Task> {
 
     public Calendar getEarliestDate() {
         if (isFloatingTask()) {
-            throw new UnsupportedOperationException("No date in a floating task.");
+            throw new UnsupportedOperationException(
+                    "No date in a floating task.");
         }
 
         Calendar earliestDate;

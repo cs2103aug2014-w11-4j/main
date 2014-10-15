@@ -19,6 +19,10 @@ import com.joestelmach.natty.DateGroup;
  *
  */
 public class Parser {
+    /* Retrieve global logger to log information and exception. */
+    private static final Logger logger = Logger
+            .getLogger(Logger.GLOBAL_LOGGER_NAME);
+
     /* Parser specific error messages to return */
     private static final String MESSAGE_SEARCH_ERROR_EMPTY = "Please enter a keyword to search for.";
     private static final String MESSAGE_ADD_ERROR_NO_DESC = "Please enter a task description to add.";
@@ -29,12 +33,28 @@ public class Parser {
     private static final String MESSAGE_UPDATE_ERROR_EMPTY = "Please enter something to update.";
     private static final String MESSAGE_INVALID_COMMAND = "Please enter a valid command.";
 
-    /* Used specifically to parse date from user's input */
-    private static com.joestelmach.natty.Parser dateParser = new com.joestelmach.natty.Parser();
+    /* Static member that holds the single instance */
+    private static Parser parserInstance;
 
-    /* Retrieve global logger to log information and exception. */
-    private static final Logger logger = Logger
-            .getLogger(Logger.GLOBAL_LOGGER_NAME);
+    /* Used specifically to parse date from user's input */
+    private com.joestelmach.natty.Parser dateParser;
+
+    private Parser() {
+        dateParser = new com.joestelmach.natty.Parser();
+        Calendar today = Calendar.getInstance();
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+        CalendarSource.setBaseDate(today.getTime());
+    }
+
+    public static Parser getInstance() {
+        if (parserInstance == null) {
+            parserInstance = new Parser();
+        }
+        return parserInstance;
+    }
 
     /**
      * Public method called by interface which accepts a input from the user and
@@ -43,9 +63,9 @@ public class Parser {
      * @param input the raw input user provides
      * @return Command object with the correct argument and type
      */
-    public static Command parse(String input) {
+    public Command parse(String input) {
         logger.info("Parsing input: " + input);
-        CommandType userCommand = determineCommandType(input);
+        Command.CommandType userCommand = determineCommandType(input);
         logger.info("CommandType requested: " + userCommand.toString());
         String args = removeFirstWord(input);
         return parseCommand(userCommand, args);
@@ -58,9 +78,9 @@ public class Parser {
      * @param input the raw input user provides
      * @return the command type of the input
      */
-    private static CommandType determineCommandType(String input) {
+    private Command.CommandType determineCommandType(String input) {
         String command = getFirstWord(input);
-        return CommandType.getCommandType(command);
+        return Command.CommandType.getCommandType(command);
     }
 
     /**
@@ -71,7 +91,7 @@ public class Parser {
      * @param args arguments that the user input
      * @return the correct command object intended by user
      */
-    private static Command parseCommand(CommandType userCommand, String args) {
+    private Command parseCommand(Command.CommandType userCommand, String args) {
         switch (userCommand) {
             case VIEW:
                 return parseView(args);
@@ -115,7 +135,7 @@ public class Parser {
      * @param args the arguments the user input
      * @return either a VIEW command or INVALID command
      */
-    public static Command parseView(String args) {
+    public Command parseView(String args) {
         boolean isCompleted = args.toLowerCase().contains("completed");
 
         /* Create empty DatePair object */
@@ -123,7 +143,8 @@ public class Parser {
 
         /* If user decides to view all uncompleted tasks */
         if (args.contains("all")) {
-            return new Command(CommandType.VIEW, true, isCompleted, date);
+            return new Command(Command.CommandType.VIEW, true, isCompleted,
+                    date);
         }
 
         /* Parse all US Date to SG Date Formal Format */
@@ -137,7 +158,8 @@ public class Parser {
 
         /* If no matched dates, return invalid command */
         if (groups.isEmpty()) {
-            return new Command(CommandType.INVALID, MESSAGE_VIEW_ERROR_EMPTY);
+            return new Command(Command.CommandType.INVALID,
+                    MESSAGE_VIEW_ERROR_EMPTY);
         }
 
         /* Extract up to two dates from user's input */
@@ -153,7 +175,7 @@ public class Parser {
         }
 
         /* Return view command with retrieved arguments */
-        return new Command(CommandType.VIEW, false, isCompleted, date);
+        return new Command(Command.CommandType.VIEW, false, isCompleted, date);
     }
 
     /**
@@ -162,11 +184,12 @@ public class Parser {
      * @param args user given arguments
      * @return either a SEARCH or INVALID command
      */
-    public static Command parseSearch(String args) {
+    public Command parseSearch(String args) {
         if (args.trim().isEmpty()) {
-            return new Command(CommandType.INVALID, MESSAGE_SEARCH_ERROR_EMPTY);
+            return new Command(Command.CommandType.INVALID,
+                    MESSAGE_SEARCH_ERROR_EMPTY);
         } else {
-            return new Command(CommandType.SEARCH, args);
+            return new Command(Command.CommandType.SEARCH, args);
         }
     }
 
@@ -177,7 +200,7 @@ public class Parser {
      * @param args the arguments the user input
      * @return either a ADD command or INVALID command
      */
-    public static Command parseAdd(String args) {
+    public Command parseAdd(String args) {
         /* Parse all US Date to SG Date Formal Format */
         String input = parseUStoSGDate(args);
 
@@ -211,9 +234,10 @@ public class Parser {
         String desc = input.trim();
 
         if (desc.isEmpty()) {
-            return new Command(CommandType.INVALID, MESSAGE_ADD_ERROR_NO_DESC);
+            return new Command(Command.CommandType.INVALID,
+                    MESSAGE_ADD_ERROR_NO_DESC);
         } else {
-            return new Command(CommandType.ADD, desc, datePairs);
+            return new Command(Command.CommandType.ADD, desc, datePairs);
         }
     }
 
@@ -223,13 +247,14 @@ public class Parser {
      * @param args the arguments the user input
      * @return either a DELETE command or INVALID command
      */
-    public static Command parseDelete(String args) {
+    public Command parseDelete(String args) {
         try {
             int deleteId = Integer.parseInt(args.trim());
-            return new Command(CommandType.DELETE, deleteId);
+            return new Command(Command.CommandType.DELETE, deleteId);
         } catch (NumberFormatException e) {
 
-            return new Command(CommandType.INVALID, MESSAGE_DELETE_ERROR_INVALID);
+            return new Command(Command.CommandType.INVALID,
+                    MESSAGE_DELETE_ERROR_INVALID);
         }
     }
 
@@ -239,7 +264,7 @@ public class Parser {
      * @param args the arguments the user input
      * @return either a UPDATE command or INVALID command
      */
-    public static Command parseUpdate(String args) {
+    public Command parseUpdate(String args) {
         try {
             /* Get Task ID to update */
             int deleteId = Integer.parseInt(getFirstWord(args));
@@ -276,12 +301,15 @@ public class Parser {
             }
 
             if (!(date.hasEndDate() || !desc.isEmpty())) {
-                return new Command(CommandType.INVALID, MESSAGE_UPDATE_ERROR_EMPTY);
+                return new Command(Command.CommandType.INVALID,
+                        MESSAGE_UPDATE_ERROR_EMPTY);
             }
 
-            return new Command(CommandType.UPDATE, deleteId, desc, datePairs);
+            return new Command(Command.CommandType.UPDATE, deleteId, desc,
+                    datePairs);
         } catch (NumberFormatException e) {
-            return new Command(CommandType.INVALID, MESSAGE_UPDATE_ERROR_INVALID);
+            return new Command(Command.CommandType.INVALID,
+                    MESSAGE_UPDATE_ERROR_INVALID);
         }
 
     }
@@ -293,8 +321,8 @@ public class Parser {
      * @param args the arguments the user input
      * @return UNDO command
      */
-    public static Command parseUndo(String args) {
-        return new Command(CommandType.UNDO);
+    public Command parseUndo(String args) {
+        return new Command(Command.CommandType.UNDO);
     }
 
     /**
@@ -304,8 +332,8 @@ public class Parser {
      * @param args the arguments the user input
      * @return REDO command
      */
-    public static Command parseRedo(String args) {
-        return new Command(CommandType.REDO);
+    public Command parseRedo(String args) {
+        return new Command(Command.CommandType.REDO);
     }
 
     /**
@@ -314,12 +342,13 @@ public class Parser {
      * @param args the arguments the user input
      * @return either a MARK or INVALID command
      */
-    public static Command parseMark(String args) {
+    public Command parseMark(String args) {
         try {
             int markId = Integer.parseInt(args.trim());
-            return new Command(CommandType.MARK, markId);
+            return new Command(Command.CommandType.MARK, markId);
         } catch (NumberFormatException e) {
-            return new Command(CommandType.INVALID, MESSAGE_MARK_ERROR_INVALID);
+            return new Command(Command.CommandType.INVALID,
+                    MESSAGE_MARK_ERROR_INVALID);
         }
     }
 
@@ -329,12 +358,12 @@ public class Parser {
      * @param args the arguments the user input
      * @return EXIT command
      */
-    public static Command parseExit(String args) {
-        return new Command(CommandType.EXIT);
+    public Command parseExit(String args) {
+        return new Command(Command.CommandType.EXIT);
     }
 
     /* Helper Methods for Parser */
-    private static String parseUStoSGDate(String input) {
+    private String parseUStoSGDate(String input) {
         /* Extract MMDDYYYY formal date format from user's input */
         String dateRegex = "(0[1-9]|[12][0-9]|3[01])[-\\s\\/.](0[1-9]|1[012])[-\\s\\/.]?((?:19|20)\\d\\d)?";
         Pattern datePattern = Pattern.compile(dateRegex);
@@ -355,7 +384,7 @@ public class Parser {
         return input;
     }
 
-    private static String parseSpecialTerms(String input) {
+    private String parseSpecialTerms(String input) {
         /* Check if any usage of until */
         String untilTerm = "\\b(until)\\b";
         Pattern textPattern = Pattern.compile(untilTerm);
@@ -417,14 +446,5 @@ public class Parser {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         return cal;
-    }
-
-    public static void initParser() {
-        Calendar today = Calendar.getInstance();
-        today.set(Calendar.HOUR_OF_DAY, 0);
-        today.set(Calendar.MINUTE, 0);
-        today.set(Calendar.SECOND, 0);
-        today.set(Calendar.MILLISECOND, 0);
-        CalendarSource.setBaseDate(today.getTime());
     }
 }
