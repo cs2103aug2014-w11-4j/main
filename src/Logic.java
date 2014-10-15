@@ -172,7 +172,6 @@ public class Logic {
         if (isCompletedTask(displayedId)) {
             return markTaskUncompleted(displayedId);
         } else {
-            assert !isCompletedTask(displayedId);
             return markTaskCompleted(displayedId);
         }
     }
