@@ -8,13 +8,16 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.tasks.TasksScopes;
 import com.google.api.services.calendar.model.Calendar;
 import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
+import com.google.api.services.tasks.model.TaskList;
+import com.google.api.services.tasks.model.TaskLists;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -30,9 +33,11 @@ public class GooManager {
 
     private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-    private static com.google.api.services.calendar.Calendar client;
-
+    private static com.google.api.services.calendar.Calendar calendarClient;
     private static String calendarId = null;
+
+    private static com.google.api.services.tasks.Tasks tasksClient;
+    private static String taskListId = null;
 
 
     private static Credential authorize() throws IOException {
@@ -42,10 +47,11 @@ public class GooManager {
         GoogleClientSecrets clientSecrets = new GoogleClientSecrets();
         clientSecrets.setInstalled(details);
 
+        ArrayList<String> scopes = new ArrayList<String>();
+        scopes.add(CalendarScopes.CALENDAR);
+        scopes.add(TasksScopes.TASKS);
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-                httpTransport, JSON_FACTORY, clientSecrets,
-                Collections.singleton(CalendarScopes.CALENDAR)).setDataStoreFactory(memoryDataStoreFactory)
-                .build();
+                httpTransport, JSON_FACTORY, clientSecrets, scopes).setDataStoreFactory(memoryDataStoreFactory).build();
 
         return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
     }
@@ -55,7 +61,10 @@ public class GooManager {
 
         Credential credential = authorize();
 
-        client = new com.google.api.services.calendar.Calendar.Builder(
+        calendarClient = new com.google.api.services.calendar.Calendar.Builder(
+                httpTransport, JSON_FACTORY, credential).setApplicationName(APPLICATION_NAME).build();
+
+        tasksClient = new com.google.api.services.tasks.Tasks.Builder(
                 httpTransport, JSON_FACTORY, credential).setApplicationName(APPLICATION_NAME).build();
     }
 
@@ -64,7 +73,7 @@ public class GooManager {
 
         String pageToken = null;
         do {
-            CalendarList calendarList = client.calendarList().list().setPageToken(pageToken).execute();
+            CalendarList calendarList = calendarClient.calendarList().list().setPageToken(pageToken).execute();
             List<CalendarListEntry> items = calendarList.getItems();
             for (CalendarListEntry calendarListEntry : items) {
                 if (calendarListEntry.getSummary().equals(CALENDAR_NAME)) {
@@ -83,14 +92,39 @@ public class GooManager {
             Calendar calendar = new Calendar();
             calendar.setSummary(CALENDAR_NAME);
             calendar.setTimeZone("Asia/Singapore");
-            Calendar createdCalendar = client.calendars().insert(calendar).execute();
+            Calendar createdCalendar = calendarClient.calendars().insert(calendar).execute();
             calendarId = createdCalendar.getId();
+        }
+
+        pageToken = null;
+        do {
+            TaskLists taskLists = tasksClient.tasklists().list().setPageToken(pageToken).execute();
+            List<TaskList> items = taskLists.getItems();
+            for (TaskList taskList : items) {
+                if (taskList.getTitle().equals(CALENDAR_NAME)) {
+                    taskListId = taskList.getId();
+                    break;
+                }
+            }
+            if (taskListId != null) {
+                break;
+            }
+            pageToken = taskLists.getNextPageToken();
+        } while (pageToken != null);
+
+        if (taskListId == null) {
+            System.out.println("Not found, creating new one");
+            TaskList taskList = new TaskList();
+            taskList.setTitle(CALENDAR_NAME);
+            TaskList createdTaskList = tasksClient.tasklists().insert(taskList).execute();
+            taskListId = createdTaskList.getId();
         }
     }
 
     public static void main(String[] args) throws Exception {
         initialize();
         System.out.println(calendarId);
+        System.out.println(taskListId);
     }
 
 }
