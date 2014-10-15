@@ -67,15 +67,12 @@ public class Logic {
     /**
      * Start the database, if not found new database will be created.
      *
-     * Create a new journal using the database that is created.
-     *
      * @return states if the database has been started successfully
      */
     public boolean startDatabase() {
         try {
             dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
                     + File.separator + DATABASE_NAME);
-
         } catch (IOException e) {
             logger.log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
             return false;
