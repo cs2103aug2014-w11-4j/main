@@ -21,6 +21,7 @@ public class Logic {
     private static final String JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED = "Mark task \"%s\" as uncompleted";
     private static final String JOURNAL_MESSAGE_UPDATE = "Updated task \"%s\"";
     private static final String JOURNAL_MESSAGE_DELETE = "Deleted task \"%s\"";
+    private static final String JOURNAL_MESSAGE_CONFIRM = "Confirm task \"%s\"";
 
     private static final String MESSAGE_ADD = "\"%s\" has been successfully added.";
     private static final String MESSAGE_DELETE = "\"%s\" has been successfully deleted.";
@@ -28,6 +29,7 @@ public class Logic {
     private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
     private static final String MESSAGE_MARK_UNCOMPLETED = "\"%s\" has been marked to uncompleted.";
     private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
+    private static final String MESSAGE_CONFIRM = "\"%s\" has been confirmed.";
 
     private static final String MESSAGE_VIEWALL_RESULT = "You have %s uncompleted task(s).";
     private static final String MESSAGE_VIEWDATE_RESULT = "You have %s uncompleted task(s) %s.";
@@ -36,7 +38,7 @@ public class Logic {
 
     private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
-
+	private static final String MESSAGE_ERROR_WRONG_CONFIRM_DATE = "Confirm date is not in the dateList.";
     private static final int CONSOLE_MAX_WIDTH = 80;
 
     private static final Logger logger = Logger
@@ -45,6 +47,9 @@ public class Logic {
     private static final String DATABASE_NAME = "database.xml";
     private static final String CURRENT_DIRECTORY = System
             .getProperty("user.dir");
+	
+	
+
 
     private static Logic logicInstance;
 
@@ -401,6 +406,42 @@ public class Logic {
         }
 
         return responseBuilder.toString();
+    }
+    
+    /**
+     * Confirm the date of task to the database.
+     *
+     * @param displayedId id of the task as displayed in the last view command
+     * @param date to be confirmed
+     * @return confirm message with the displayed id
+     * 
+     */
+    public String confirmTask(int displayedId, DatePair date) throws IOException {
+        if (!isValidDisplayedId(displayedId)) {
+            return MESSAGE_ERROR_WRONG_TASK_ID;
+        }
+        long databaseId = displayedTasksList.get(displayedId - 1);
+
+        Task task = dbManager.getInstance(databaseId);
+        String oldDescription = task.getDescription();
+
+        ArrayList<DatePair> dateList = task.getDateList();
+        if(!dateList.contains(date)){
+        	return MESSAGE_ERROR_WRONG_CONFIRM_DATE;
+        }
+        
+        ArrayList<DatePair> newDateList = new ArrayList<DatePair>();
+        newDateList.add(date);
+        task.setDateList(newDateList);
+
+        long newDatabaseId = dbManager.putInstance(task);
+        dbManager.markAsInvalid(databaseId);
+
+        displayedTasksList.set(displayedId - 1, newDatabaseId);
+        dbManager.recordAction(databaseId, newDatabaseId,
+                String.format(JOURNAL_MESSAGE_CONFIRM, oldDescription));
+
+        return String.format(MESSAGE_CONFIRM, oldDescription);
     }
 
     /**
