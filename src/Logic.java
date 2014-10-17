@@ -38,7 +38,7 @@ public class Logic {
 
     private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
-	private static final String MESSAGE_ERROR_WRONG_CONFIRM_DATE = "Confirm date is not in the dateList.";
+	private static final String MESSAGE_ERROR_WRONG_DATE_ID = "You have input an invalid date ID.";
     private static final int CONSOLE_MAX_WIDTH = 80;
 
     private static final Logger logger = Logger
@@ -412,11 +412,11 @@ public class Logic {
      * Confirm the date of task to the database.
      *
      * @param displayedId id of the task as displayed in the last view command
-     * @param date to be confirmed
+     * @param date id to be confirmed
      * @return confirm message with the displayed id
      * 
      */
-    public String confirmTask(int displayedId, DatePair date) throws IOException {
+    public String confirmTask(int displayedId, int dateId) throws IOException {
         if (!isValidDisplayedId(displayedId)) {
             return MESSAGE_ERROR_WRONG_TASK_ID;
         }
@@ -426,10 +426,11 @@ public class Logic {
         String oldDescription = task.getDescription();
 
         ArrayList<DatePair> dateList = task.getDateList();
-        if(!dateList.contains(date)){
-        	return MESSAGE_ERROR_WRONG_CONFIRM_DATE;
+        if(dateList.size() < dateId){
+        	return MESSAGE_ERROR_WRONG_DATE_ID;
         }
         
+        DatePair date = dateList.get(dateId - 1);
         ArrayList<DatePair> newDateList = new ArrayList<DatePair>();
         newDateList.add(date);
         task.setDateList(newDateList);
