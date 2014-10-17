@@ -215,5 +215,42 @@ public class LogicTest {
         String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to uncompleted.";
         assertEquals(actual, expected);
     }
+    
+    /**
+     * Test adding of task with todays date
+     *
+     * Add a task with todays date and current runtime Call display to display
+     * specified task via id Store both actual and expected values Mark recent
+     * created task as invalid Execute comparison
+     *
+     */
+    @Test
+    public void confirmTask() throws IOException {
+        ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+        Calendar date = Calendar.getInstance();
+        date.set(2014, Calendar.AUGUST, 18);
+        DatePair dp = new DatePair(date);
+        datePairList.add(dp);
+        
+        Calendar date2 = Calendar.getInstance();
+        date2.set(2014, Calendar.AUGUST, 19);
+        DatePair dp2 = new DatePair(date2);
+        datePairList.add(dp2);
+        
+        Calendar date3 = Calendar.getInstance();
+        date3.set(2014, Calendar.AUGUST, 20);
+        DatePair dp3 = new DatePair(date3);
+        datePairList.add(dp3);
+        
+        logic.addTask(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                datePairList);
+        logic.viewAll(false);
+        String actual = logic.confirmTask(1,2);
+        
+        String expected = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been confirmed.";
+        
+        assertEquals(actual, expected);
+    }
 
 }
