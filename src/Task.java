@@ -168,6 +168,7 @@ public class Task implements Serializable, Comparable<Task> {
      *
      */
 
+    @Override
     public String toString() {
         String status = "Done";
 
@@ -255,8 +256,8 @@ public class Task implements Serializable, Comparable<Task> {
 
         /* Format all fragments in desc and date into multiple lines */
         while (!wordWrapList.isEmpty() || !dateList.isEmpty()) {
-            String desc = wordWrapList.isEmpty() ? "" : wordWrapList
-                    .removeFirst();
+            String desc = wordWrapList.isEmpty() ? ""
+                    : wordWrapList.removeFirst();
 
             String date = dateList.isEmpty() ? "" : dateList.removeFirst();
 

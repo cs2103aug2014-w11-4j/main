@@ -66,6 +66,7 @@ public class DatePair implements Serializable {
         return (!hasStartDate() && hasEndDate());
     }
 
+    @Override
     public String toString() {
         String formattedStartDate, formattedEndDate;
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
@@ -123,8 +124,7 @@ public class DatePair implements Serializable {
             return (!endDate.before(startDateCriteria));
         }
 
-        return !(startDate.after(endDateCriteria) || endDate
-                .before(startDateCriteria));
+        return !(startDate.after(endDateCriteria) || endDate.before(startDateCriteria));
 
     }
 }

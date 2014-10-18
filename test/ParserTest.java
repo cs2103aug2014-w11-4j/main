@@ -26,8 +26,11 @@ public class ParserTest {
                 Command.CommandType.ADD);
         assertEquals(parser.parse("add meeting with boss today")
                 .getDescription(), "meeting with boss");
-        assertEquals(parser.parse("add meeting with boss today").getViewRange()
-                .getStartDate().getTime(), getToday());
+        assertEquals(parser.parse("add meeting with boss today")
+                .getDatePairs()
+                .get(0)
+                .getEndDate()
+                .getTime(), getToday());
     }
 
     @Test

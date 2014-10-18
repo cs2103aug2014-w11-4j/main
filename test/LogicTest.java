@@ -1,9 +1,8 @@
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-
 import java.text.SimpleDateFormat;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -215,7 +214,7 @@ public class LogicTest {
         String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to uncompleted.";
         assertEquals(actual, expected);
     }
-    
+
     /**
      * Test adding of task with todays date
      *
@@ -231,25 +230,25 @@ public class LogicTest {
         date.set(2014, Calendar.AUGUST, 18);
         DatePair dp = new DatePair(date);
         datePairList.add(dp);
-        
+
         Calendar date2 = Calendar.getInstance();
         date2.set(2014, Calendar.AUGUST, 19);
         DatePair dp2 = new DatePair(date2);
         datePairList.add(dp2);
-        
+
         Calendar date3 = Calendar.getInstance();
         date3.set(2014, Calendar.AUGUST, 20);
         DatePair dp3 = new DatePair(date3);
         datePairList.add(dp3);
-        
+
         logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 datePairList);
         logic.viewAll(false);
-        String actual = logic.confirmTask(1,2);
-        
+        String actual = logic.confirmTask(1, 2);
+
         String expected = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been confirmed.";
-        
+
         assertEquals(actual, expected);
     }
 
