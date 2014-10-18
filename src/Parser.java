@@ -20,8 +20,7 @@ import com.joestelmach.natty.DateGroup;
  */
 public class Parser {
     /* Retrieve global logger to log information and exception. */
-    private static final Logger logger = Logger
-            .getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     /* Parser specific error messages to return */
     private static final String MESSAGE_SEARCH_ERROR_EMPTY = "Please enter a keyword to search for.";

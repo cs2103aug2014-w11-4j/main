@@ -1,11 +1,11 @@
 //@author A0119416H
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
 public class JournalControllerTest {
 
@@ -14,7 +14,8 @@ public class JournalControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        dbManager = new DatabaseManager<String>(File.createTempFile("JournalControllerTest", ".tmp").getPath());
+        dbManager = new DatabaseManager<String>(File.createTempFile(
+                "JournalControllerTest", ".tmp").getPath());
         journalController = new JournalController<String>(dbManager);
     }
 

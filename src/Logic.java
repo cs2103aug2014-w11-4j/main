@@ -38,18 +38,13 @@ public class Logic {
 
     private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
-	private static final String MESSAGE_ERROR_WRONG_DATE_ID = "You have input an invalid date ID.";
+    private static final String MESSAGE_ERROR_WRONG_DATE_ID = "You have input an invalid date ID.";
     private static final int CONSOLE_MAX_WIDTH = 80;
 
-    private static final Logger logger = Logger
-            .getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private static final String DATABASE_NAME = "database.xml";
-    private static final String CURRENT_DIRECTORY = System
-            .getProperty("user.dir");
-	
-	
-
+    private static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
 
     private static Logic logicInstance;
 
@@ -207,7 +202,9 @@ public class Logic {
         long newTaskId = dbManager.putInstance(oldTask);
         displayedTasksList.set(displayedId - 1, newTaskId);
         dbManager.markAsInvalid(databaseId);
-        dbManager.recordAction(databaseId,newTaskId,
+        dbManager.recordAction(
+                databaseId,
+                newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
                         oldTask.getDescription()));
         return String.format(MESSAGE_MARK_COMPLETED, oldTask.getDescription());
@@ -234,8 +231,7 @@ public class Logic {
                 newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,
                         oldTask.getDescription()));
-        return String
-                .format(MESSAGE_MARK_UNCOMPLETED, oldTask.getDescription());
+        return String.format(MESSAGE_MARK_UNCOMPLETED, oldTask.getDescription());
     }
 
     /**
@@ -407,14 +403,14 @@ public class Logic {
 
         return responseBuilder.toString();
     }
-    
+
     /**
      * Confirm the date of task to the database.
      *
      * @param displayedId id of the task as displayed in the last view command
      * @param date id to be confirmed
      * @return confirm message with the displayed id
-     * 
+     *
      */
     public String confirmTask(int displayedId, int dateId) throws IOException {
         if (!isValidDisplayedId(displayedId)) {
@@ -426,10 +422,10 @@ public class Logic {
         String oldDescription = task.getDescription();
 
         ArrayList<DatePair> dateList = task.getDateList();
-        if(dateList.size() < dateId){
-        	return MESSAGE_ERROR_WRONG_DATE_ID;
+        if (dateList.size() < dateId) {
+            return MESSAGE_ERROR_WRONG_DATE_ID;
         }
-        
+
         DatePair date = dateList.get(dateId - 1);
         ArrayList<DatePair> newDateList = new ArrayList<DatePair>();
         newDateList.add(date);
@@ -506,8 +502,7 @@ public class Logic {
     }
 
     private boolean isValidDisplayedId(int displayedId) {
-        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList
-                .get(displayedId - 1) == -1);
+        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1);
     }
 
     /**

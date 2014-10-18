@@ -16,6 +16,11 @@ public class MenuInterface {
     private MenuInterface() {
     }
 
+    /**
+     * Get the working instance of MenuInterface.
+     *
+     * @return singleton instance of MenuInterface.
+     */
     public static MenuInterface getInstance() {
         if (menuInstance == null) {
             menuInstance = new MenuInterface();
@@ -50,7 +55,10 @@ public class MenuInterface {
         return sc.nextLine();
     }
 
-    /* Helper Methods for Parser */
+    /**
+     * Method that outputs a string object to the CLI.
+     * @param s String object
+     */
     private void showToUser(String s) {
         System.out.println(s);
     }

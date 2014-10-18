@@ -49,10 +49,12 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
         private Iterator<Long> offsetIterator = validInstancesMap.keySet()
                 .iterator();
 
+        @Override
         public boolean hasNext() {
             return offsetIterator.hasNext();
         }
 
+        @Override
         public T next() {
             try {
                 return getInstance(offsetIterator.next());
@@ -62,6 +64,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
             }
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException("Cannot remove instance.");
         }
@@ -74,6 +77,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      *
      * @return an Iterator over valid instances in the database.
      */
+    @Override
     public Iterator<T> iterator() {
         return new InstanceIterator();
     }
@@ -308,15 +312,14 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      * @throws IOException
      */
     public T getInstance(long instanceId) throws IOException {
-        if (!validInstancesMap.containsKey(instanceId)) {  //return null;
+        if (!validInstancesMap.containsKey(instanceId)) { // return null;
             if (invalidInstancesMap.containsKey(instanceId)) {
                 throw new IndexOutOfBoundsException("Instance is invalid.");
             } else {
                 throw new IndexOutOfBoundsException("Instance doe not exist.");
             }
         }
-        byte[] byteArray = getBytesContentAtOffset(validInstancesMap
-                .get(instanceId));
+        byte[] byteArray = getBytesContentAtOffset(validInstancesMap.get(instanceId));
         return xmlToInstance(byteArray);
     }
 
@@ -400,7 +403,6 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
     public boolean isInvalidId(long instanceId) {
         return invalidInstancesMap.containsKey(instanceId);
     }
-
 
     public void recordAction(Long previousId, Long newId, String description) {
         journal.recordAction(previousId, newId, description);
