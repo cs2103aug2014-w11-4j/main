@@ -21,6 +21,7 @@ public class Logic {
     private static final String JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED = "Mark task \"%s\" as uncompleted";
     private static final String JOURNAL_MESSAGE_UPDATE = "Updated task \"%s\"";
     private static final String JOURNAL_MESSAGE_DELETE = "Deleted task \"%s\"";
+    private static final String JOURNAL_MESSAGE_CONFIRM = "Confirm task \"%s\"";
 
     private static final String MESSAGE_ADD = "\"%s\" has been successfully added.";
     private static final String MESSAGE_DELETE = "\"%s\" has been successfully deleted.";
@@ -28,6 +29,7 @@ public class Logic {
     private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
     private static final String MESSAGE_MARK_UNCOMPLETED = "\"%s\" has been marked to uncompleted.";
     private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
+    private static final String MESSAGE_CONFIRM = "\"%s\" has been confirmed.";
 
     private static final String MESSAGE_VIEWALL_RESULT = "You have %s uncompleted task(s).";
     private static final String MESSAGE_VIEWDATE_RESULT = "You have %s uncompleted task(s) %s.";
@@ -36,7 +38,7 @@ public class Logic {
 
     private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
-
+	private static final String MESSAGE_ERROR_WRONG_DATE_ID = "You have input an invalid date ID.";
     private static final int CONSOLE_MAX_WIDTH = 80;
 
     private static final Logger logger = Logger
@@ -45,11 +47,13 @@ public class Logic {
     private static final String DATABASE_NAME = "database.xml";
     private static final String CURRENT_DIRECTORY = System
             .getProperty("user.dir");
+	
+	
+
 
     private static Logic logicInstance;
 
     private ArrayList<Long> displayedTasksList;
-    private JournalController<Task> journal;
     private DatabaseManager<Task> dbManager;
 
     private Logic() {
@@ -68,16 +72,12 @@ public class Logic {
     /**
      * Start the database, if not found new database will be created.
      *
-     * Create a new journal using the database that is created.
-     *
      * @return states if the database has been started successfully
      */
     public boolean startDatabase() {
         try {
             dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
                     + File.separator + DATABASE_NAME);
-            journal = new JournalController<Task>(dbManager);
-
         } catch (IOException e) {
             logger.log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
             return false;
@@ -155,7 +155,7 @@ public class Logic {
             throws IOException {
         Task task = new Task(description, dateList);
         long id = dbManager.putInstance(task);
-        journal.recordAction(null, id,
+        dbManager.recordAction(null, id,
                 String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
         return id;
     }
@@ -187,7 +187,6 @@ public class Logic {
         if (isCompletedTask(displayedId)) {
             return markTaskUncompleted(displayedId);
         } else {
-            assert !isCompletedTask(displayedId);
             return markTaskCompleted(displayedId);
         }
     }
@@ -208,9 +207,7 @@ public class Logic {
         long newTaskId = dbManager.putInstance(oldTask);
         displayedTasksList.set(displayedId - 1, newTaskId);
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(
-                databaseId,
-                newTaskId,
+        dbManager.recordAction(databaseId,newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
                         oldTask.getDescription()));
         return String.format(MESSAGE_MARK_COMPLETED, oldTask.getDescription());
@@ -232,7 +229,7 @@ public class Logic {
         long newTaskId = dbManager.putInstance(oldTask);
         displayedTasksList.set(displayedId - 1, newTaskId);
         dbManager.markAsInvalid(databaseId);
-        journal.recordAction(
+        dbManager.recordAction(
                 databaseId,
                 newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,
@@ -270,7 +267,7 @@ public class Logic {
         dbManager.markAsInvalid(databaseId);
 
         displayedTasksList.set(displayedId - 1, newDatabaseId);
-        journal.recordAction(databaseId, newDatabaseId,
+        dbManager.recordAction(databaseId, newDatabaseId,
                 String.format(JOURNAL_MESSAGE_UPDATE, oldDescription));
 
         return String.format(MESSAGE_UPDATE, oldDescription);
@@ -326,7 +323,7 @@ public class Logic {
         String oldDescription = oldTask.getDescription();
         dbManager.markAsInvalid(databaseId);
         displayedTasksList.set(displayedId - 1, (long) -1);
-        journal.recordAction(databaseId, null,
+        dbManager.recordAction(databaseId, null,
                 String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
         return String.format(MESSAGE_DELETE, oldDescription);
     }
@@ -410,6 +407,43 @@ public class Logic {
 
         return responseBuilder.toString();
     }
+    
+    /**
+     * Confirm the date of task to the database.
+     *
+     * @param displayedId id of the task as displayed in the last view command
+     * @param date id to be confirmed
+     * @return confirm message with the displayed id
+     * 
+     */
+    public String confirmTask(int displayedId, int dateId) throws IOException {
+        if (!isValidDisplayedId(displayedId)) {
+            return MESSAGE_ERROR_WRONG_TASK_ID;
+        }
+        long databaseId = displayedTasksList.get(displayedId - 1);
+
+        Task task = dbManager.getInstance(databaseId);
+        String oldDescription = task.getDescription();
+
+        ArrayList<DatePair> dateList = task.getDateList();
+        if(dateList.size() < dateId){
+        	return MESSAGE_ERROR_WRONG_DATE_ID;
+        }
+        
+        DatePair date = dateList.get(dateId - 1);
+        ArrayList<DatePair> newDateList = new ArrayList<DatePair>();
+        newDateList.add(date);
+        task.setDateList(newDateList);
+
+        long newDatabaseId = dbManager.putInstance(task);
+        dbManager.markAsInvalid(databaseId);
+
+        displayedTasksList.set(displayedId - 1, newDatabaseId);
+        dbManager.recordAction(databaseId, newDatabaseId,
+                String.format(JOURNAL_MESSAGE_CONFIRM, oldDescription));
+
+        return String.format(MESSAGE_CONFIRM, oldDescription);
+    }
 
     /**
      * Method that undo previous action in the journal.
@@ -417,7 +451,7 @@ public class Logic {
      */
     public String undo() throws IOException {
         try {
-            return String.format(JOURNAL_MESSAGE_UNDONE, journal.undo());
+            return String.format(JOURNAL_MESSAGE_UNDONE, dbManager.undo());
         } catch (UnsupportedOperationException e) { // Nothing to undo
             return e.getMessage();
         }
@@ -429,7 +463,7 @@ public class Logic {
      */
     public String redo() throws IOException {
         try {
-            return String.format(JOURNAL_MESSAGE_REDONE, journal.redo());
+            return String.format(JOURNAL_MESSAGE_REDONE, dbManager.redo());
         } catch (UnsupportedOperationException e) { // Nothing to redo
             return e.getMessage();
         }

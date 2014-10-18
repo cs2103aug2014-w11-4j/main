@@ -99,6 +99,8 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
     private HashMap<Long, Long> invalidInstancesMap = null;
     private long currentId;
 
+    private JournalController<T> journal;
+
     /**
      * Construct a backend database with the given file path.
      *
@@ -122,6 +124,10 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
         currentId = 0;
     }
 
+    private void resetJournal() {
+        journal = new JournalController<T>(this);
+    }
+
     /**
      * Attempt to open the file for r/w
      *
@@ -138,6 +144,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      */
     private void scanFile() throws IOException {
         resetId();
+        resetJournal();
         validInstancesMap = new HashMap<Long, Long>();
         invalidInstancesMap = new HashMap<Long, Long>();
         randomAccessFile.seek(0);
@@ -301,8 +308,12 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      * @throws IOException
      */
     public T getInstance(long instanceId) throws IOException {
-        if (!validInstancesMap.containsKey(instanceId)) {
-            return null;
+        if (!validInstancesMap.containsKey(instanceId)) {  //return null;
+            if (invalidInstancesMap.containsKey(instanceId)) {
+                throw new IndexOutOfBoundsException("Instance is invalid.");
+            } else {
+                throw new IndexOutOfBoundsException("Instance doe not exist.");
+            }
         }
         byte[] byteArray = getBytesContentAtOffset(validInstancesMap
                 .get(instanceId));
@@ -388,6 +399,19 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      */
     public boolean isInvalidId(long instanceId) {
         return invalidInstancesMap.containsKey(instanceId);
+    }
+
+
+    public void recordAction(Long previousId, Long newId, String description) {
+        journal.recordAction(previousId, newId, description);
+    }
+
+    public String undo() throws IOException, UnsupportedOperationException {
+        return journal.undo();
+    }
+
+    public String redo() throws IOException, UnsupportedOperationException {
+        return journal.redo();
     }
 
 }
