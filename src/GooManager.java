@@ -119,6 +119,38 @@ public class GooManager {
         }
     }
 
+    public static boolean isPushed(Task task) {
+        return !(task.getUuid().contains("-"));
+    }
+
+    public static boolean isInRemote(Task task) throws IOException {
+        if (!isPushed(task)) {
+            return false;
+        }
+        if (task.isFloatingTask() || task.isDeadline()) {
+            try {
+                com.google.api.services.tasks.model.Task remoteTask = tasksClient.tasks().get(taskListId, task.getUuid()).execute();
+                return true;
+            } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
+                if (e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value")) {
+                    return false;
+                } else {
+                    throw e;
+                }
+            }
+        } else {
+            try {
+                Event remoteTask = calendarClient.events().get(calendarId, task.getUuid()).execute();
+                return true;
+            } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
+                if (e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value")) {
+                    return false;
+                } else {
+                    throw e;
+                }
+            }
+        }
+    }
 
     public static Task pushNewTask(Task originalTask) throws IOException {
         if (originalTask.isFloatingTask() || originalTask.isDeadline()) {
