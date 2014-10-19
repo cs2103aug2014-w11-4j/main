@@ -164,7 +164,6 @@ public class Parser {
         /* Extract up to two dates from user's input */
         for (DateGroup group : groups) {
             List<Date> dates = group.getDates();
-
             if (dates.size() == 2) {
                 date.setStartDate(dateToCalendar(dates.get(0)));
                 date.setEndDate(dateToCalendar(dates.get(1)));
@@ -206,31 +205,41 @@ public class Parser {
         /* Pre-process certain terms for Natty parser */
         input = parseSpecialTerms(input);
 
-        /* Use Natty library to parse date specified by user */
-        List<DateGroup> groups = dateParser.parse(input);
-        DatePair date = new DatePair();
+        /* Support tentative task by splitting with 'or' */
+        String[] tentatives = input.split("\\bor\\b");
 
-        /* Extract up to 2 dates from user's input */
-        for (DateGroup group : groups) {
-            List<Date> dates = group.getDates();
+        /* ArrayList to store all possible DatePair from input */
+        ArrayList<DatePair> datePairs = new ArrayList<DatePair>();
 
-            if (dates.size() == 2) {
-                date.setStartDate(dateToCalendar(dates.get(0)));
-                date.setEndDate(dateToCalendar(dates.get(1)));
-            } else if (dates.size() == 1) {
-                date.setEndDate(dateToCalendar(dates.get(0)));
+        String desc = "";
+
+        /* For each possible tentative date */
+        for(String tentative : tentatives) {
+            /* Use Natty library to parse date specified by user */
+            List<DateGroup> groups = dateParser.parse(tentative);
+            DatePair date = new DatePair();
+
+            /* Extract up to 2 dates from user's input */
+            for (DateGroup group : groups) {
+                List<Date> dates = group.getDates();
+
+                if (dates.size() == 2) {
+                    date.setStartDate(dateToCalendar(dates.get(0)));
+                    date.setEndDate(dateToCalendar(dates.get(1)));
+                } else if (dates.size() == 1) {
+                    date.setEndDate(dateToCalendar(dates.get(0)));
+                }
+
+                desc += tentative.replace(group.getText(), "");
             }
 
-            input = input.replace(group.getText(), "");
+            if (date.hasEndDate()) {
+                datePairs.add(date);
+            }
         }
 
-        ArrayList<DatePair> datePairs = new ArrayList<DatePair>();
-        /* TODO: No support for more than 2 dates at the moment */
-        if (date.hasEndDate()) {
-            datePairs.add(date);
-        }
 
-        String desc = input.trim();
+
 
         if (desc.isEmpty()) {
             return new Command(Command.CommandType.INVALID,
