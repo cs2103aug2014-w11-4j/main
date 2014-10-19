@@ -7,13 +7,11 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.MemoryDataStoreFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.*;
 import com.google.api.services.tasks.TasksScopes;
-import com.google.api.services.calendar.model.Calendar;
-import com.google.api.services.calendar.model.CalendarList;
-import com.google.api.services.calendar.model.CalendarListEntry;
-import com.google.api.services.tasks.model.TaskList;
-import com.google.api.services.tasks.model.TaskLists;
+import com.google.api.services.tasks.model.*;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -121,6 +119,35 @@ public class GooManager {
         }
     }
 
+
+    public static Task pushNewTask(Task originalTask) throws IOException {
+        if (originalTask.isFloatingTask() || originalTask.isDeadline()) {
+            com.google.api.services.tasks.model.Task task = new com.google.api.services.tasks.model.Task();
+            task.setTitle(originalTask.getDescription());
+            if (!originalTask.isFloatingTask()) {
+                task.setDue(new DateTime(originalTask.getEarliestDate().getTime(), originalTask.getEarliestDate().getTimeZone()));
+            }
+            if (originalTask.getIsDone()) {
+                task.setStatus("completed");
+            }
+            task = tasksClient.tasks().insert(taskListId, task).execute();
+            originalTask.setUuid(task.getId());
+        } else {
+            DatePair datePair = originalTask.getDateList().get(0);
+            com.google.api.services.calendar.model.Event event = new com.google.api.services.calendar.model.Event();
+            event.setSummary(originalTask.getDescription());
+            EventDateTime startTime = new EventDateTime();
+            startTime.setDateTime(new DateTime(datePair.getStartDate().getTime(), datePair.getStartDate().getTimeZone()));
+            event.setStart(startTime);
+            EventDateTime endTime = new EventDateTime();
+            endTime.setDateTime(new DateTime(datePair.getEndDate().getTime(), datePair.getEndDate().getTimeZone()));
+            event.setEnd(endTime);
+            event.setId(originalTask.getUuid().replace("-", ""));
+            event = calendarClient.events().insert(calendarId, event).execute();
+            originalTask.setUuid(event.getId());
+        }
+        return originalTask;
+    }
     public static void main(String[] args) throws Exception {
         initialize();
         System.out.println(calendarId);
