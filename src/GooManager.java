@@ -127,27 +127,18 @@ public class GooManager {
         if (!isPushed(task)) {
             return false;
         }
-        if (task.isFloatingTask() || task.isDeadline()) {
-            try {
-                com.google.api.services.tasks.model.Task remoteTask = tasksClient.tasks().get(taskListId, task.getUuid()).execute();
-                return true;
-            } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
-                if (e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value")) {
-                    return false;
-                } else {
-                    throw e;
-                }
+        try {
+            if (task.isFloatingTask() || task.isDeadline()) {
+                com.google.api.services.tasks.model.Task remoteTask = getRemoteTask(task.getUuid());
+            } else {
+                com.google.api.services.calendar.model.Event remoteTask = getRemoteEvent(task.getUuid());
             }
-        } else {
-            try {
-                Event remoteTask = calendarClient.events().get(calendarId, task.getUuid()).execute();
-                return true;
-            } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
-                if (e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value")) {
-                    return false;
-                } else {
-                    throw e;
-                }
+            return true;
+        } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
+            if (e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value")) {
+                return false;
+            } else {
+                throw e;
             }
         }
     }
@@ -180,6 +171,15 @@ public class GooManager {
         }
         return originalTask;
     }
+
+    public static com.google.api.services.tasks.model.Task getRemoteTask(String id) throws IOException {
+        return tasksClient.tasks().get(taskListId, id).execute();
+    }
+
+    public static com.google.api.services.calendar.model.Event getRemoteEvent(String id) throws IOException {
+        return calendarClient.events().get(calendarId, id).execute();
+    }
+
     public static void main(String[] args) throws Exception {
         initialize();
         System.out.println(calendarId);
