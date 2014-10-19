@@ -135,21 +135,32 @@ public class GooManager {
     }
 
     public static Task pushTask(Task originalTask) throws IOException {
+        boolean shouldUpdate = true;
         if (originalTask.isFloatingTask() || originalTask.isDeadline()) {
             com.google.api.services.tasks.model.Task task = getRemoteTask(originalTask.getUuid());
             if (task == null) {
                 task = new com.google.api.services.tasks.model.Task();
+                shouldUpdate = false;
             }
             prepareTask(task, originalTask);
-            task = tasksClient.tasks().insert(taskListId, task).execute();
+            if (shouldUpdate) {
+                task = tasksClient.tasks().update(taskListId, task.getId(), task).execute();
+            } else {
+                task = tasksClient.tasks().insert(taskListId, task).execute();
+            }
             originalTask.setUuid(task.getId());
         } else {
             com.google.api.services.calendar.model.Event event = getRemoteEvent(originalTask.getUuid());
             if (event == null) {
                 event = new com.google.api.services.calendar.model.Event();
+                shouldUpdate = false;
             }
             prepareEvent(event, originalTask);
-            event = calendarClient.events().insert(calendarId, event).execute();
+            if (shouldUpdate) {
+                event = calendarClient.events().update(calendarId, event.getId(), event).execute();
+            } else {
+                event = calendarClient.events().insert(calendarId, event).execute();
+            }
             originalTask.setUuid(event.getId());
         }
         return originalTask;
