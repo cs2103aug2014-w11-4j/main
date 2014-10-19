@@ -10,13 +10,13 @@ import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.*;
+import com.google.api.services.calendar.model.Calendar;
 import com.google.api.services.tasks.TasksScopes;
 import com.google.api.services.tasks.model.*;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 public class GooManager {
@@ -146,26 +146,12 @@ public class GooManager {
     public static Task pushNewTask(Task originalTask) throws IOException {
         if (originalTask.isFloatingTask() || originalTask.isDeadline()) {
             com.google.api.services.tasks.model.Task task = new com.google.api.services.tasks.model.Task();
-            task.setTitle(originalTask.getDescription());
-            if (!originalTask.isFloatingTask()) {
-                task.setDue(new DateTime(originalTask.getEarliestDate().getTime(), originalTask.getEarliestDate().getTimeZone()));
-            }
-            if (originalTask.getIsDone()) {
-                task.setStatus("completed");
-            }
+            prepareTask(task, originalTask);
             task = tasksClient.tasks().insert(taskListId, task).execute();
             originalTask.setUuid(task.getId());
         } else {
-            DatePair datePair = originalTask.getDateList().get(0);
             com.google.api.services.calendar.model.Event event = new com.google.api.services.calendar.model.Event();
-            event.setSummary(originalTask.getDescription());
-            EventDateTime startTime = new EventDateTime();
-            startTime.setDateTime(new DateTime(datePair.getStartDate().getTime(), datePair.getStartDate().getTimeZone()));
-            event.setStart(startTime);
-            EventDateTime endTime = new EventDateTime();
-            endTime.setDateTime(new DateTime(datePair.getEndDate().getTime(), datePair.getEndDate().getTimeZone()));
-            event.setEnd(endTime);
-            event.setId(originalTask.getUuid().replace("-", ""));
+            prepareEvent(event, originalTask);
             event = calendarClient.events().insert(calendarId, event).execute();
             originalTask.setUuid(event.getId());
         }
@@ -178,6 +164,34 @@ public class GooManager {
 
     public static com.google.api.services.calendar.model.Event getRemoteEvent(String id) throws IOException {
         return calendarClient.events().get(calendarId, id).execute();
+    }
+
+    private static DateTime calendarToDateTime(java.util.Calendar calendar) {
+        return new DateTime(calendar.getTime(), calendar.getTimeZone());
+    }
+
+    private static EventDateTime calendarToEventDateTime(java.util.Calendar calendar) {
+        EventDateTime eventDateTime = new EventDateTime();
+        eventDateTime.setDateTime(calendarToDateTime(calendar));
+        return eventDateTime;
+    }
+
+    private static void prepareTask(com.google.api.services.tasks.model.Task task, Task originalTask) {
+        task.setTitle(originalTask.getDescription());
+        if (!originalTask.isFloatingTask()) {
+            task.setDue(calendarToDateTime(originalTask.getEarliestDate()));
+        }
+        if (originalTask.getIsDone()) {
+            task.setStatus("completed");
+        }
+    }
+
+    private static void prepareEvent(com.google.api.services.calendar.model.Event event, Task originalTask) {
+        event.setSummary(originalTask.getDescription());
+        DatePair datePair = originalTask.getDateList().get(0);
+        event.setStart(calendarToEventDateTime(datePair.getStartDate()));
+        event.setEnd(calendarToEventDateTime(datePair.getEndDate()));
+        event.setId(originalTask.getUuid().replace("-", ""));
     }
 
     public static void main(String[] args) throws Exception {
