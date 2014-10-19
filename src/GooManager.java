@@ -127,30 +127,27 @@ public class GooManager {
         if (!isPushed(task)) {
             return false;
         }
-        try {
-            if (task.isFloatingTask() || task.isDeadline()) {
-                com.google.api.services.tasks.model.Task remoteTask = getRemoteTask(task.getUuid());
-            } else {
-                com.google.api.services.calendar.model.Event remoteTask = getRemoteEvent(task.getUuid());
-            }
-            return true;
-        } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
-            if (e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value")) {
-                return false;
-            } else {
-                throw e;
-            }
+        if (task.isFloatingTask() || task.isDeadline()) {
+            return (getRemoteTask(task.getUuid()) != null);
+        } else {
+            return (getRemoteEvent(task.getUuid()) != null);
         }
     }
 
-    public static Task pushNewTask(Task originalTask) throws IOException {
+    public static Task pushTask(Task originalTask) throws IOException {
         if (originalTask.isFloatingTask() || originalTask.isDeadline()) {
-            com.google.api.services.tasks.model.Task task = new com.google.api.services.tasks.model.Task();
+            com.google.api.services.tasks.model.Task task = getRemoteTask(originalTask.getUuid());
+            if (task == null) {
+                task = new com.google.api.services.tasks.model.Task();
+            }
             prepareTask(task, originalTask);
             task = tasksClient.tasks().insert(taskListId, task).execute();
             originalTask.setUuid(task.getId());
         } else {
-            com.google.api.services.calendar.model.Event event = new com.google.api.services.calendar.model.Event();
+            com.google.api.services.calendar.model.Event event = getRemoteEvent(originalTask.getUuid());
+            if (event == null) {
+                event = new com.google.api.services.calendar.model.Event();
+            }
             prepareEvent(event, originalTask);
             event = calendarClient.events().insert(calendarId, event).execute();
             originalTask.setUuid(event.getId());
@@ -159,11 +156,27 @@ public class GooManager {
     }
 
     public static com.google.api.services.tasks.model.Task getRemoteTask(String id) throws IOException {
-        return tasksClient.tasks().get(taskListId, id).execute();
+        try {
+            return tasksClient.tasks().get(taskListId, id).execute();
+        } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
+            if (e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value")) {
+                return null;
+            } else {
+                throw e;
+            }
+        }
     }
 
     public static com.google.api.services.calendar.model.Event getRemoteEvent(String id) throws IOException {
-        return calendarClient.events().get(calendarId, id).execute();
+        try {
+            return calendarClient.events().get(calendarId, id).execute();
+        } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
+            if (e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value")) {
+                return null;
+            } else {
+                throw e;
+            }
+        }
     }
 
     private static DateTime calendarToDateTime(java.util.Calendar calendar) {
