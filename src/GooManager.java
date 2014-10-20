@@ -182,7 +182,7 @@ public class GooManager {
         try {
             return calendarClient.events().get(calendarId, id).execute();
         } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
-            if (e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value")) {
+            if ((e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value")) || (e.getDetails().getCode() == 404 && e.getDetails().getMessage().equals("Not Found"))) {
                 return null;
             } else {
                 throw e;
