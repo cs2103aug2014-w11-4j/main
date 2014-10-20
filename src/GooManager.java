@@ -200,6 +200,16 @@ public class GooManager {
         return eventDateTime;
     }
 
+    private static java.util.Calendar dateTimeToCalendar(DateTime dateTime) {
+        java.util.Calendar calendar = java.util.Calendar.getInstance();
+        calendar.setTimeInMillis(dateTime.getValue());
+        return calendar;
+    }
+
+    private static java.util.Calendar eventDateTimeToCalendar(EventDateTime eventDateTime) {
+        return dateTimeToCalendar(eventDateTime.getDateTime());
+    }
+
     private static void prepareTask(com.google.api.services.tasks.model.Task task, Task originalTask) {
         task.setTitle(originalTask.getDescription());
         if (!originalTask.isFloatingTask()) {
@@ -216,6 +226,37 @@ public class GooManager {
         event.setStart(calendarToEventDateTime(datePair.getStartDate()));
         event.setEnd(calendarToEventDateTime(datePair.getEndDate()));
         event.setId(originalTask.getUuid().replace("-", ""));
+    }
+
+    private static boolean isIdTask(String id) {
+        return id.contains(taskListId);
+    }
+
+    public static Task pullTask(String id) throws IOException {
+        Task task = new Task();
+        task.setUuid(id);
+        if (isIdTask(id)) {
+            com.google.api.services.tasks.model.Task remoteTask = getRemoteTask(id);
+            task.setDescription(remoteTask.getTitle());
+            if (remoteTask.getStatus().equals("completed")) {
+                task.setIsDone(true);
+            } else {
+                task.setIsDone(false);
+            }
+            if (remoteTask.getDue() != null) {
+                ArrayList<DatePair> dateList = new ArrayList<DatePair>();
+                dateList.add(new DatePair(dateTimeToCalendar(remoteTask.getDue())));
+                task.setDateList(dateList);
+            }
+        } else {
+            com.google.api.services.calendar.model.Event remoteEvent = getRemoteEvent(id);
+            task.setDescription(remoteEvent.getSummary());
+            // TODO: what should we do with completed here?
+            ArrayList<DatePair> dateList = new ArrayList<DatePair>();
+            dateList.add(new DatePair(eventDateTimeToCalendar(remoteEvent.getStart()), eventDateTimeToCalendar(remoteEvent.getEnd())));
+            task.setDateList(dateList);
+        }
+        return task;
     }
 
     public static void main(String[] args) throws Exception {
