@@ -243,8 +243,21 @@ public class Parser {
                     }
 
                     if (dates.size() == 2) {
-                        date.setStartDate(dateToCalendar(dates.get(0)));
-                        date.setEndDate(dateToCalendar(dates.get(1)));
+                        Calendar startDate = dateToCalendar(dates.get(0));
+                        Calendar endDate = dateToCalendar(dates.get(1));
+
+                        if (group.isTimeInferred()) {
+                            startDate.set(Calendar.HOUR_OF_DAY, 0);
+                            startDate.set(Calendar.MINUTE, 0);
+                            startDate.set(Calendar.SECOND, 0);
+
+                            endDate.set(Calendar.HOUR_OF_DAY, 23);
+                            endDate.set(Calendar.MINUTE, 59);
+                            endDate.set(Calendar.SECOND, 0);
+                        }
+
+                        date.setStartDate(startDate);
+                        date.setEndDate(endDate);
                     } else if (dates.size() == 1) {
                         date.setEndDate(dateToCalendar(dates.get(0)));
                     }
@@ -336,8 +349,21 @@ public class Parser {
                         }
 
                         if (dates.size() == 2) {
-                            date.setStartDate(dateToCalendar(dates.get(0)));
-                            date.setEndDate(dateToCalendar(dates.get(1)));
+                            Calendar startDate = dateToCalendar(dates.get(0));
+                            Calendar endDate = dateToCalendar(dates.get(1));
+
+                            if (group.isTimeInferred()) {
+                                startDate.set(Calendar.HOUR_OF_DAY, 0);
+                                startDate.set(Calendar.MINUTE, 0);
+                                startDate.set(Calendar.SECOND, 0);
+
+                                endDate.set(Calendar.HOUR_OF_DAY, 23);
+                                endDate.set(Calendar.MINUTE, 59);
+                                endDate.set(Calendar.SECOND, 0);
+                            }
+
+                            date.setStartDate(startDate);
+                            date.setEndDate(endDate);
                         } else if (dates.size() == 1) {
                             date.setEndDate(dateToCalendar(dates.get(0)));
                         }
@@ -487,8 +513,8 @@ public class Parser {
         }
 
         /* Check if any usage of next week */
-        String nextTerm = "\\b(next\\s+week)\\b";
-        textPattern = Pattern.compile(nextTerm);
+        String weekTerm = "\\b(next\\s+week)\\b";
+        textPattern = Pattern.compile(weekTerm);
         textMatcher = textPattern.matcher(input);
 
         /* Expand next week to a DatePair with the range of next week */
@@ -508,8 +534,49 @@ public class Parser {
             endDate.add(Calendar.DATE, 6);
 
             input = input.replace(textMatcher.group().trim(),
-                    dateFormat.format(startDate.getTime()) + " to "
-                            + dateFormat.format(endDate.getTime()));
+                    dateFormat.format(startDate.getTime()) + " 00:00 to "
+                            + dateFormat.format(endDate.getTime()) + " 23:59");
+        }
+
+        /* Check if any usage of next month */
+        String monthTerm = "\\b(next\\s+month)\\b";
+        textPattern = Pattern.compile(monthTerm);
+        textMatcher = textPattern.matcher(input);
+
+        /* Expand next month to a DatePair with the range of next month */
+        while (textMatcher.find()) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+
+            Calendar startDate = Calendar.getInstance(Locale.UK);
+            startDate.add(Calendar.MONTH, 1);
+            startDate.set(Calendar.DAY_OF_MONTH,
+                    startDate.getActualMinimum(Calendar.DAY_OF_MONTH));
+
+            Calendar endDate = Calendar.getInstance(Locale.UK);
+            endDate.add(Calendar.MONTH, 1);
+            endDate.set(Calendar.DAY_OF_MONTH,
+                    endDate.getActualMaximum(Calendar.DAY_OF_MONTH));
+
+            input = input.replace(textMatcher.group().trim(),
+                    dateFormat.format(startDate.getTime()) + " 00:00 to "
+                            + dateFormat.format(endDate.getTime()) + " 23:59");
+        }
+
+        /* Check if any usage of next year */
+        String yearTerm = "\\b(next\\s+year)\\b";
+        textPattern = Pattern.compile(yearTerm);
+        textMatcher = textPattern.matcher(input);
+
+        /* Expand next year to a DatePair with the range of next year */
+        while (textMatcher.find()) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy");
+            Calendar yearCalendar = Calendar.getInstance(Locale.UK);
+            yearCalendar.add(Calendar.YEAR, 1);
+
+            String year = dateFormat.format(yearCalendar.getTime());
+
+            input = input.replace(textMatcher.group().trim(), "1 Jan " + year
+                    + " 00:00 to " + "31 Dec " + year + " 23:59");
         }
 
         return input;
