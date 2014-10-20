@@ -79,6 +79,34 @@ public class DatePairTest {
         assertEquals(true, actual);
 
     }
+    
+    /**
+     * Test for view of task overlap date range Task : 1 aug 2014 - 20 aug 2014
+     * View Scope : 1 july 2014 - 15 aug 2014 Expected: true
+     */
+
+    @Test
+    public void taskOverlapPeriod2() throws IOException {
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Calendar startDate = Calendar.getInstance();
+        startDate.set(2014, Calendar.AUGUST, 1);
+        Calendar endDate = Calendar.getInstance();
+        endDate.set(2014, Calendar.AUGUST, 20);
+        DatePair dp = new DatePair(startDate, endDate);
+        dpList.add(dp);
+        Task task = new Task("Test Date", dpList);
+
+        Calendar viewStartDate = Calendar.getInstance();
+        viewStartDate.set(2014, Calendar.JULY, 1);
+        Calendar viewEndDate = Calendar.getInstance();
+        viewEndDate.set(2014, Calendar.AUGUST, 15);
+
+        DatePair viewDp = new DatePair(viewStartDate, viewEndDate);
+        boolean actual = task.isWithinPeriod(viewDp);
+
+        assertEquals(true, actual);
+
+    }
 
     /**
      * Test for view of task overlap date range Task : 20 aug 2014 View Scope :
