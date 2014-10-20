@@ -133,6 +133,179 @@ public class DatePairTest {
         assertEquals(true, actual);
 
     }
+    
+    /**
+     * Task Boundary test : 20 aug 2014
+     * View Scope :19 aug 2014 - 30 aug 2014 Expected: true
+     * 
+     * Range = 19 - 30
+     * Test Value 20
+     */
+
+    @Test
+    public void endDateStartBoundary() throws IOException {
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Calendar endDate = Calendar.getInstance();
+        endDate.set(2014, Calendar.AUGUST, 20);
+        DatePair dp = new DatePair(endDate);
+        dpList.add(dp);
+        Task task = new Task("Test Date", dpList);
+
+        Calendar viewStartDate = Calendar.getInstance();
+        viewStartDate.set(2014, Calendar.AUGUST, 19);
+        Calendar viewEndDate = Calendar.getInstance();
+        viewEndDate.set(2014, Calendar.AUGUST, 30);
+
+        DatePair viewDp = new DatePair(viewStartDate, viewEndDate);
+        boolean actual = task.isWithinPeriod(viewDp);
+
+        assertEquals(true, actual);
+
+    }
+    
+    /**
+     * Task Boundary Test: 19 aug 2014 
+     * View Scope :19 aug 2014 - 30 aug 2014 Expected: true
+     * 
+     * Range = 19 - 30
+     * Test Value 19
+     */
+
+    @Test
+    public void endDateStartBoundary2() throws IOException {
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Calendar endDate = Calendar.getInstance();
+        endDate.set(2014, Calendar.AUGUST, 19);
+        DatePair dp = new DatePair(endDate);
+        dpList.add(dp);
+        Task task = new Task("Test Date", dpList);
+
+        Calendar viewStartDate = Calendar.getInstance();
+        viewStartDate.set(2014, Calendar.AUGUST, 19);
+        Calendar viewEndDate = Calendar.getInstance();
+        viewEndDate.set(2014, Calendar.AUGUST, 30);
+
+        DatePair viewDp = new DatePair(viewStartDate, viewEndDate);
+        boolean actual = task.isWithinPeriod(viewDp);
+
+        assertEquals(true, actual);
+
+    }
+    /**
+     * Task Boundary Test : 18 aug 2014 
+     * View Scope :19 aug 2014 - 30 aug 2014 Expected: false
+     * 
+     * Range = 19 - 30
+     * Test Value 18
+     */
+
+    @Test
+    public void endDateStartBoundary3() throws IOException {
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Calendar endDate = Calendar.getInstance();
+        endDate.set(2014, Calendar.AUGUST, 18);
+        DatePair dp = new DatePair(endDate);
+        dpList.add(dp);
+        Task task = new Task("Test Date", dpList);
+
+        Calendar viewStartDate = Calendar.getInstance();
+        viewStartDate.set(2014, Calendar.AUGUST, 19);
+        Calendar viewEndDate = Calendar.getInstance();
+        viewEndDate.set(2014, Calendar.AUGUST, 30);
+
+        DatePair viewDp = new DatePair(viewStartDate, viewEndDate);
+        boolean actual = task.isWithinPeriod(viewDp);
+        assertEquals(false, actual);
+
+    }
+    
+    /**
+     * Task Boundary Test : 24 aug 2014
+     * View Scope :19 aug 2014 - 25 aug 2014 Expected: true
+     * 
+     * Range = 19 - 25
+     * Test Value 24
+     */
+
+    @Test
+    public void endDateEndBoundary() throws IOException {
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Calendar endDate = Calendar.getInstance();
+        endDate.set(2014, Calendar.AUGUST, 24);
+        DatePair dp = new DatePair(endDate);
+        dpList.add(dp);
+        Task task = new Task("Test Date", dpList);
+
+        Calendar viewStartDate = Calendar.getInstance();
+        viewStartDate.set(2014, Calendar.AUGUST, 19);
+        Calendar viewEndDate = Calendar.getInstance();
+        viewEndDate.set(2014, Calendar.AUGUST, 25);
+
+        DatePair viewDp = new DatePair(viewStartDate, viewEndDate);
+        boolean actual = task.isWithinPeriod(viewDp);
+        assertEquals(true, actual);
+
+    }
+    
+    /**
+     * Task Boundary Test: 24 aug 2014 
+     * View Scope :19 aug 2014 - 25 aug 2014 Expected: true
+     * 
+     * Range = 19 - 25
+     * Test Value 24
+     */
+
+    @Test
+    public void endDateEndBoundary2() throws IOException {
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Calendar endDate = Calendar.getInstance();
+        endDate.set(2014, Calendar.AUGUST, 25);
+        DatePair dp = new DatePair(endDate);
+        dpList.add(dp);
+        Task task = new Task("Test Date", dpList);
+
+        Calendar viewStartDate = Calendar.getInstance();
+        viewStartDate.set(2014, Calendar.AUGUST, 19);
+        Calendar viewEndDate = Calendar.getInstance();
+        viewEndDate.set(2014, Calendar.AUGUST, 25);
+
+        DatePair viewDp = new DatePair(viewStartDate, viewEndDate);
+        boolean actual = task.isWithinPeriod(viewDp);
+        assertEquals(true, actual);
+
+    }
+    
+    /**
+     * Task Boundary Test : 26 aug 2014 27 aug 2014
+     * View Scope : 19 aug 2014 - 25 aug 2014 Expected: false
+     * 
+     * Range = 19 - 25
+     * Test Value 26 start, 27 end; need to have 2 dates, as those with no start date = infinite early
+     */
+
+    @Test
+    public void endDateEndBoundary3() throws IOException {
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        Calendar endDate = Calendar.getInstance();
+        Calendar startDate = Calendar.getInstance();
+        startDate.set(2014, Calendar.AUGUST, 26);
+        endDate.set(2014, Calendar.AUGUST, 27);
+        DatePair dp = new DatePair(startDate, endDate);
+        dpList.add(dp);
+        Task task = new Task("Test Date", dpList);
+
+        Calendar viewStartDate = Calendar.getInstance();
+        viewStartDate.set(2014, Calendar.AUGUST, 19);
+        Calendar viewEndDate = Calendar.getInstance();
+        viewEndDate.set(2014, Calendar.AUGUST, 25);
+
+        DatePair viewDp = new DatePair(viewStartDate, viewEndDate);
+        boolean actual = task.isWithinPeriod(viewDp);
+        assertEquals(false, actual);
+
+    }
+   
+    
 
     /**
      * Test: null startDate / endDate Expected: true
