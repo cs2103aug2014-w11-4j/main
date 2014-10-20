@@ -48,7 +48,7 @@ public class Task implements Serializable, Comparable<Task> {
         this.description = description;
         this.dateList = dateList;
         this.isDone = false;
-        this.uuid = UUID.randomUUID().toString();
+        generateUuid();
     }
 
     /**
@@ -204,6 +204,13 @@ public class Task implements Serializable, Comparable<Task> {
             }
         }
         return false;
+    }
+
+    /**
+     * Generate a new random UUID for the task.
+     */
+    public void generateUuid() {
+        this.uuid = UUID.randomUUID().toString();
     }
 
     /**
