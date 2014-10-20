@@ -226,30 +226,41 @@ public class Parser {
 
         /* For each possible tentative date */
         for (String tentative : tentatives) {
-            /* Use Natty library to parse date specified by user */
-            List<DateGroup> groups = dateParser.parse(tentative);
-            DatePair date = new DatePair();
+            String tokens = tentative;
+            /* Continue parsing tokens until retrieved valid date */
+            while (true) {
+                /* Use Natty library to parse date specified by user */
+                List<DateGroup> groups = dateParser.parse(tokens);
+                DatePair date = new DatePair();
 
-            /* Extract up to 2 dates from user's input */
-            for (DateGroup group : groups) {
-                List<Date> dates = group.getDates();
+                for (DateGroup group : groups) {
+                    List<Date> dates = group.getDates();
 
-                if (dates.size() == 2) {
-                    date.setStartDate(dateToCalendar(dates.get(0)));
-                    date.setEndDate(dateToCalendar(dates.get(1)));
-                } else if (dates.size() == 1) {
-                    date.setEndDate(dateToCalendar(dates.get(0)));
+                    if (group.getText().length() <= 2) {
+                        /* remove parsed token from tokens */
+                        tokens = tokens.replace(group.getText(), "");
+                        continue;
+                    }
+
+                    if (dates.size() == 2) {
+                        date.setStartDate(dateToCalendar(dates.get(0)));
+                        date.setEndDate(dateToCalendar(dates.get(1)));
+                    } else if (dates.size() == 1) {
+                        date.setEndDate(dateToCalendar(dates.get(0)));
+                    }
+
+                    desc += tentative.replace(group.getText(), "");
                 }
 
-                desc += tentative.replace(group.getText(), "");
-            }
+                if (groups.isEmpty()) {
+                    desc += tentative;
+                }
 
-            if (groups.isEmpty()) {
-                desc += tentative;
-            }
+                if (date.hasEndDate()) {
+                    datePairs.add(date);
+                }
 
-            if (date.hasEndDate()) {
-                datePairs.add(date);
+                break;
             }
         }
 
@@ -308,29 +319,41 @@ public class Parser {
 
             /* For each possible tentative date */
             for (String tentative : tentatives) {
-                /* Use Natty library to parse date specified by user */
-                List<DateGroup> groups = dateParser.parse(tentative);
-                DatePair date = new DatePair();
+                String tokens = tentative;
+                /* Continue parsing tokens until retrieved valid date */
+                while (true) {
+                    /* Use Natty library to parse date specified by user */
+                    List<DateGroup> groups = dateParser.parse(tokens);
+                    DatePair date = new DatePair();
 
-                for (DateGroup group : groups) {
-                    List<Date> dates = group.getDates();
+                    for (DateGroup group : groups) {
+                        List<Date> dates = group.getDates();
 
-                    if (dates.size() == 2) {
-                        date.setStartDate(dateToCalendar(dates.get(0)));
-                        date.setEndDate(dateToCalendar(dates.get(1)));
-                    } else if (dates.size() == 1) {
-                        date.setEndDate(dateToCalendar(dates.get(0)));
+                        if (group.getText().length() <= 2) {
+                            /* remove parsed token from tokens */
+                            tokens = tokens.replace(group.getText(), "");
+                            continue;
+                        }
+
+                        if (dates.size() == 2) {
+                            date.setStartDate(dateToCalendar(dates.get(0)));
+                            date.setEndDate(dateToCalendar(dates.get(1)));
+                        } else if (dates.size() == 1) {
+                            date.setEndDate(dateToCalendar(dates.get(0)));
+                        }
+
+                        desc += tentative.replace(group.getText(), "");
                     }
 
-                    desc += tentative.replace(group.getText(), "");
-                }
+                    if (groups.isEmpty()) {
+                        desc += tentative;
+                    }
 
-                if (groups.isEmpty()) {
-                    desc += tentative;
-                }
+                    if (date.hasEndDate()) {
+                        datePairs.add(date);
+                    }
 
-                if (date.hasEndDate()) {
-                    datePairs.add(date);
+                    break;
                 }
             }
 
@@ -468,7 +491,7 @@ public class Parser {
         textPattern = Pattern.compile(nextTerm);
         textMatcher = textPattern.matcher(input);
 
-        /* Remove all from term as not supported by Natty lib */
+        /* Expand next week to a DatePair with the range of next week */
         while (textMatcher.find()) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
             Calendar nextWeekDate = Calendar.getInstance(Locale.UK);
