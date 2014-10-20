@@ -28,6 +28,7 @@ public class Parser {
     private static final String MESSAGE_VIEW_ERROR_EMPTY = "Please enter a valid date range to view.";
     private static final String MESSAGE_DELETE_ERROR_INVALID = "Please enter a task id to delete.";
     private static final String MESSAGE_UPDATE_ERROR_INVALID = "Please enter a task id to update.";
+    private static final String MESSAGE_CONFIRM_ERROR_INVALID = "Please enter a task and date id to confirm task.";
     private static final String MESSAGE_MARK_ERROR_INVALID = "Please enter a task id to mark.";
     private static final String MESSAGE_UPDATE_ERROR_EMPTY = "Please enter something to update.";
     private static final String MESSAGE_INVALID_COMMAND = "Please enter a valid command.";
@@ -41,13 +42,20 @@ public class Parser {
     private Parser() {
         dateParser = new com.joestelmach.natty.Parser();
         Calendar today = Calendar.getInstance();
-        today.set(Calendar.HOUR_OF_DAY, 0);
-        today.set(Calendar.MINUTE, 0);
+
+        /* Default time of all Dates are 2359 of that day */
+        today.set(Calendar.HOUR_OF_DAY, 23);
+        today.set(Calendar.MINUTE, 59);
         today.set(Calendar.SECOND, 0);
         today.set(Calendar.MILLISECOND, 0);
         CalendarSource.setBaseDate(today.getTime());
     }
 
+    /**
+     * Method that retrieves the singleton instance of the Parser
+     *
+     * @return instance of Parser
+     */
     public static Parser getInstance() {
         if (parserInstance == null) {
             parserInstance = new Parser();
@@ -115,6 +123,9 @@ public class Parser {
 
             case MARK:
                 return parseMark(args);
+
+            case CONFIRM:
+                return parseConfirm(args);
 
             case EXIT:
                 return parseExit(args);
@@ -214,7 +225,7 @@ public class Parser {
         String desc = "";
 
         /* For each possible tentative date */
-        for(String tentative : tentatives) {
+        for (String tentative : tentatives) {
             /* Use Natty library to parse date specified by user */
             List<DateGroup> groups = dateParser.parse(tentative);
             DatePair date = new DatePair();
@@ -233,13 +244,16 @@ public class Parser {
                 desc += tentative.replace(group.getText(), "");
             }
 
+            if (groups.isEmpty()) {
+                desc += tentative;
+            }
+
             if (date.hasEndDate()) {
                 datePairs.add(date);
             }
         }
 
-
-
+        desc = desc.trim();
 
         if (desc.isEmpty()) {
             return new Command(Command.CommandType.INVALID,
@@ -284,31 +298,45 @@ public class Parser {
             /* Pre-process certain terms for Natty parser */
             input = parseSpecialTerms(input);
 
-            /* Use Natty library to parse date specified by user */
-            List<DateGroup> groups = dateParser.parse(input);
-            DatePair date = new DatePair();
-            for (DateGroup group : groups) {
-                List<Date> dates = group.getDates();
+            /* Support tentative task by splitting with 'or' */
+            String[] tentatives = input.split("\\bor\\b");
 
-                if (dates.size() == 2) {
-                    date.setStartDate(dateToCalendar(dates.get(0)));
-                    date.setEndDate(dateToCalendar(dates.get(1)));
-                } else if (dates.size() == 1) {
-                    date.setEndDate(dateToCalendar(dates.get(0)));
+            /* ArrayList to store all possible DatePair from input */
+            ArrayList<DatePair> datePairs = new ArrayList<DatePair>();
+
+            String desc = "";
+
+            /* For each possible tentative date */
+            for (String tentative : tentatives) {
+                /* Use Natty library to parse date specified by user */
+                List<DateGroup> groups = dateParser.parse(tentative);
+                DatePair date = new DatePair();
+
+                for (DateGroup group : groups) {
+                    List<Date> dates = group.getDates();
+
+                    if (dates.size() == 2) {
+                        date.setStartDate(dateToCalendar(dates.get(0)));
+                        date.setEndDate(dateToCalendar(dates.get(1)));
+                    } else if (dates.size() == 1) {
+                        date.setEndDate(dateToCalendar(dates.get(0)));
+                    }
+
+                    desc += tentative.replace(group.getText(), "");
                 }
 
-                input = input.replace(group.getText(), "");
+                if (groups.isEmpty()) {
+                    desc += tentative;
+                }
+
+                if (date.hasEndDate()) {
+                    datePairs.add(date);
+                }
             }
 
-            String desc = input.trim();
+            desc = desc.trim();
 
-            ArrayList<DatePair> datePairs = new ArrayList<DatePair>();
-            /* TODO: No support for more than 2 dates at the moment */
-            if (date.hasEndDate()) {
-                datePairs.add(date);
-            }
-
-            if (!(date.hasEndDate() || !desc.isEmpty())) {
+            if (!(!datePairs.isEmpty() || !desc.isEmpty())) {
                 return new Command(Command.CommandType.INVALID,
                         MESSAGE_UPDATE_ERROR_EMPTY);
             }
@@ -357,6 +385,29 @@ public class Parser {
         } catch (NumberFormatException e) {
             return new Command(Command.CommandType.INVALID,
                     MESSAGE_MARK_ERROR_INVALID);
+        }
+    }
+
+    /**
+     * Parse confirm command from user by getting taskId and dateId.
+     *
+     * @param args the arguments the user input
+     * @return either a CONFIRM command or INVALID command
+     */
+    private Command parseConfirm(String args) {
+        try {
+            String[] substrings = args.split("\\s+");
+            if (substrings.length != 2) {
+                return new Command(Command.CommandType.INVALID,
+                        MESSAGE_CONFIRM_ERROR_INVALID);
+            }
+
+            int confirmId = Integer.parseInt(substrings[0]);
+            int dateId = Integer.parseInt(substrings[1]);
+            return new Command(Command.CommandType.CONFIRM, confirmId, dateId);
+        } catch (NumberFormatException e) {
+            return new Command(Command.CommandType.INVALID,
+                    MESSAGE_CONFIRM_ERROR_INVALID);
         }
     }
 
