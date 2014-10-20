@@ -17,9 +17,9 @@ public class MenuInterface {
     }
 
     /**
-     * Get the working instance of MenuInterface.
+     * Method that retrieves the singleton instance of the MenuInterface
      *
-     * @return singleton instance of MenuInterface.
+     * @return instance of Parser
      */
     public static MenuInterface getInstance() {
         if (menuInstance == null) {
@@ -40,6 +40,8 @@ public class MenuInterface {
         while (true) {
             String rawInput = acceptInput(sc);
             Command userCommand = Parser.getInstance().parse(rawInput);
+            System.out.println(userCommand.getDescription());
+            System.out.println(userCommand.getDatePairs().size());
             String response = Logic.getInstance().executeCommand(userCommand);
             showToUser(response);
         }
