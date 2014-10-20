@@ -56,6 +56,11 @@ public class Logic {
         startDatabase();
     }
 
+    /**
+     * Method that retrieves the singleton instance of the Logic
+     *
+     * @return instance of Parser
+     */
     public static Logic getInstance() {
         if (logicInstance == null) {
             logicInstance = new Logic();

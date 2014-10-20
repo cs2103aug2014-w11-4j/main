@@ -21,7 +21,8 @@ public class Command {
         VIEW("view", "display"), SEARCH("find", "lookup", "search"), ADD("add",
                 "insert", "ins", "new"), DELETE("delete", "remove"), UPDATE(
                 "change", "update", "edit"), UNDO("undo", "ud"), REDO("redo",
-                "rd"), MARK("mark", "completed", "done"), EXIT("exit", "quit"), INVALID;
+                "rd"), MARK("mark", "completed", "done"), EXIT("exit", "quit"), CONFIRM(
+                "confirm"), INVALID;
 
         private List<String> tags;
         private static final Map<String, CommandType> tagMap = new HashMap<String, CommandType>();
@@ -83,6 +84,9 @@ public class Command {
     /* Information required for search */
     private String keyword;
 
+    /* Information required for confirm */
+    private int dateId;
+
     /* Constructor for view command */
     public Command(CommandType type, boolean viewAll, boolean completed,
             DatePair viewRange) {
@@ -90,6 +94,29 @@ public class Command {
         this.viewAll = viewAll;
         this.viewRange = viewRange;
         this.completed = completed;
+    }
+
+    /* Constructor for add command */
+    public Command(CommandType type, String desc, ArrayList<DatePair> datePairs) {
+        this.type = type;
+        this.description = desc;
+        this.datePairs = datePairs;
+    }
+
+    /* Constructor for update command */
+    public Command(CommandType type, int taskId, String desc,
+            ArrayList<DatePair> datePairs) {
+        this.type = type;
+        this.taskId = taskId;
+        this.description = desc;
+        this.datePairs = datePairs;
+    }
+
+    /* Constructor for confirm command */
+    public Command(CommandType type, int taskId, int dateId) {
+        this.type = type;
+        this.taskId = taskId;
+        this.dateId = dateId;
     }
 
     /* Constructor for search & invalid command */
@@ -101,26 +128,10 @@ public class Command {
             this.description = desc;
     }
 
-    /* Constructor for add command */
-    public Command(CommandType type, String desc, ArrayList<DatePair> datePairs) {
-        this.type = type;
-        this.description = desc;
-        this.datePairs = datePairs;
-    }
-
     /* Constructor for delete, mark command */
     public Command(CommandType type, int taskId) {
         this.type = type;
         this.taskId = taskId;
-    }
-
-    /* Constructor for update command */
-    public Command(CommandType type, int taskId, String desc,
-            ArrayList<DatePair> datePairs) {
-        this.type = type;
-        this.taskId = taskId;
-        this.description = desc;
-        this.datePairs = datePairs;
     }
 
     /* Constructor for exit, undo, redo command */
