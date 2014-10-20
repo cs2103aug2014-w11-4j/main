@@ -40,8 +40,6 @@ public class MenuInterface {
         while (true) {
             String rawInput = acceptInput(sc);
             Command userCommand = Parser.getInstance().parse(rawInput);
-            System.out.println(userCommand.getDescription());
-            System.out.println(userCommand.getDatePairs().size());
             String response = Logic.getInstance().executeCommand(userCommand);
             showToUser(response);
         }
