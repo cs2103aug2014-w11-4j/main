@@ -19,7 +19,7 @@ import com.joestelmach.natty.DateGroup;
  *
  */
 public class Parser {
-    /* Retrieve global logger to log information and exception. */
+    /* Global logger to log information and exception. */
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     /* Parser specific error messages to return */
@@ -39,11 +39,14 @@ public class Parser {
     /* Used specifically to parse date from user's input */
     private com.joestelmach.natty.Parser dateParser;
 
+    /**
+     * Private Constructor for Singleton Implementation.
+     */
     private Parser() {
         dateParser = new com.joestelmach.natty.Parser();
         Calendar today = Calendar.getInstance();
 
-        /* Default time of all Dates are 2359 of that day */
+        /* Default time of all dates parsed are 2359 of that day */
         today.set(Calendar.HOUR_OF_DAY, 23);
         today.set(Calendar.MINUTE, 59);
         today.set(Calendar.SECOND, 0);
@@ -52,7 +55,7 @@ public class Parser {
     }
 
     /**
-     * Method that retrieves the singleton instance of the Parser
+     * Retrieves the singleton instance of the Parser.
      *
      * @return instance of Parser
      */
@@ -64,8 +67,7 @@ public class Parser {
     }
 
     /**
-     * Public method called by interface which accepts a input from the user and
-     * return the command after parsing.
+     * Accepts a input from the user and return the command after parsing.
      *
      * @param input the raw input user provides
      * @return Command object with the correct argument and type
@@ -79,7 +81,7 @@ public class Parser {
     }
 
     /**
-     * Retrieve the command (from the first word) and return the command type
+     * Retrieves the command (from the first word) and return the command type
      * the user specifies.
      *
      * @param input the raw input user provides
@@ -91,7 +93,7 @@ public class Parser {
     }
 
     /**
-     * Parse command arguments from user input and return the correct command
+     * Parses command arguments from user input and return the correct command
      * object with its valid arguments.
      *
      * @param userCommand the type of command the user initiated
@@ -139,7 +141,7 @@ public class Parser {
     }
 
     /**
-     * Parse view command from user with natural language support. Current
+     * Parses view command from user with natural language support. Current
      * limitation is restricted to only one DatePair.
      *
      * @param args the arguments the user input
@@ -188,7 +190,7 @@ public class Parser {
     }
 
     /**
-     * Support parsing for search on basis of keywords.
+     * Parses search command from user on the basis of keywords.
      *
      * @param args user given arguments
      * @return either a SEARCH or INVALID command
@@ -203,8 +205,7 @@ public class Parser {
     }
 
     /**
-     * Parse add command from user with natural language support. Current
-     * limitation is restricted to only one DatePair.
+     * Parses add command from user with natural language support.
      *
      * @param args the arguments the user input
      * @return either a ADD command or INVALID command
@@ -288,7 +289,7 @@ public class Parser {
     }
 
     /**
-     * Parse delete command from user by getting the deleteId.
+     * Parses delete command from user by getting the deleteId.
      *
      * @param args the arguments the user input
      * @return either a DELETE command or INVALID command
@@ -305,7 +306,7 @@ public class Parser {
     }
 
     /**
-     * Parse update command from user with natural language support.
+     * Parses update command from user with natural language support.
      *
      * @param args the arguments the user input
      * @return either a UPDATE command or INVALID command
@@ -400,8 +401,8 @@ public class Parser {
     }
 
     /**
-     * Parse undo command from user. Arguments are ignored and not considered as
-     * error.
+     * Parses undo command from user. Arguments are ignored and not considered
+     * as error.
      *
      * @param args the arguments the user input
      * @return UNDO command
@@ -411,8 +412,8 @@ public class Parser {
     }
 
     /**
-     * Parse redo command from user. Arguments are ignored and not considered as
-     * error.
+     * Parses redo command from user. Arguments are ignored and not considered
+     * as error.
      *
      * @param args the arguments the user input
      * @return REDO command
@@ -422,7 +423,7 @@ public class Parser {
     }
 
     /**
-     * Parse mark command from user by getting markId.
+     * Parses mark command from user by getting markId from input.
      *
      * @param args the arguments the user input
      * @return either a MARK or INVALID command
@@ -438,7 +439,7 @@ public class Parser {
     }
 
     /**
-     * Parse confirm command from user by getting taskId and dateId.
+     * Parses confirm command from user by getting taskId and dateId from input.
      *
      * @param args the arguments the user input
      * @return either a CONFIRM command or INVALID command
@@ -461,7 +462,7 @@ public class Parser {
     }
 
     /**
-     * Parse exit command from user.
+     * Parses exit command from user.
      *
      * @param args the arguments the user input
      * @return EXIT command
@@ -471,13 +472,21 @@ public class Parser {
     }
 
     /* Helper Methods for Parser */
+
+    /**
+     * Parses any form of valid US date of mmddyyyy to the UK/SG standard of
+     * ddmmyyyy for convention and locale purposes.
+     *
+     * @param input the input from the user
+     * @return a modified string if there is a US date in the string
+     */
     private String parseUStoSGDate(String input) {
-        /* Extract MMDDYYYY formal date format from user's input */
+        /* Extract mmddyyyy formal date format from user's input */
         String dateRegex = "(0[1-9]|[12][0-9]|3[01])[-\\s\\/.](0[1-9]|1[012])[-\\s\\/.]?((?:19|20)\\d\\d)?";
         Pattern datePattern = Pattern.compile(dateRegex);
         Matcher dateMatcher = datePattern.matcher(input);
 
-        /* Swap to SG Format of DDMMYYYY */
+        /* Swap to SG Format of ddmmyyyy */
         while (dateMatcher.find()) {
             if (dateMatcher.group(3) != null) {
                 input = input.replace(dateMatcher.group().trim(),
@@ -492,6 +501,13 @@ public class Parser {
         return input;
     }
 
+    /**
+     * Parses special occurrences of terms from the user input so that the
+     * resulting output parsed into Natty lib will be more accurate and correct.
+     *
+     * @param input the input from the user
+     * @return a modified string if there is any occurrence of identified terms.
+     */
     private String parseSpecialTerms(String input) {
         /* Check if any usage of until */
         String untilTerm = "\\b(until)\\b";
@@ -582,15 +598,32 @@ public class Parser {
         return input;
     }
 
+    /**
+     * Gets the first word from a given String object.
+     * @param input String object
+     * @return a String object containing the first word
+     */
     private static String getFirstWord(String input) {
         return input.split("\\s+", 2)[0];
     }
 
+    /**
+     * Removes the first word from a given String object.
+     *
+     * @param input String object
+     * @return a String object without the first word
+     */
     private static String removeFirstWord(String input) {
         String[] splitWord = input.split("\\s+", 2);
         return splitWord.length == 1 ? "" : splitWord[1];
     }
 
+    /**
+     * Converts a Date object passed in and returns a Calendar object.
+     *
+     * @param date the date object to convert
+     * @return the calendar object after conversion
+     */
     private static Calendar dateToCalendar(Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);

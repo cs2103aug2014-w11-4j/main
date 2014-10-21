@@ -51,6 +51,9 @@ public class Logic {
     private ArrayList<Long> displayedTasksList;
     private DatabaseManager<Task> dbManager;
 
+    /**
+     * Private Constructor for Singleton Implementation.
+     */
     private Logic() {
         displayedTasksList = new ArrayList<Long>();
         startDatabase();
