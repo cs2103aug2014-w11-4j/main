@@ -9,7 +9,7 @@ import java.util.Scanner;
  *
  */
 public class MenuInterface {
-    private static final String MESSAGE_WELCOME = "Welcome to RubberDuck.";
+    private static final String MESSAGE_WELCOME = "Welcome to RubberDuck. Here's your agenda for today.";
 
     private static MenuInterface menuInstance;
 
@@ -39,13 +39,24 @@ public class MenuInterface {
      */
     public void handleInterface() {
         Scanner sc = new Scanner(System.in);
-        showToUser(MESSAGE_WELCOME);
+        showWelcome();
         while (true) {
             String rawInput = acceptInput(sc);
             Command userCommand = Parser.getInstance().parse(rawInput);
             String response = Logic.getInstance().executeCommand(userCommand);
             showToUser(response);
         }
+    }
+
+    /**
+     * Method that is used to show the welcome screen and information when user
+     * first run.
+     */
+    private void showWelcome() {
+        showToUser(MESSAGE_WELCOME);
+        Command userCommand = Parser.getInstance().parse("view today");
+        String response = Logic.getInstance().executeCommand(userCommand);
+        showToUser(response);
     }
 
     /**
