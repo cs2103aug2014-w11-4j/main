@@ -10,7 +10,7 @@ import java.util.Scanner;
  */
 public class MenuInterface {
     private static final String MESSAGE_WELCOME = "Welcome to RubberDuck. Here's your agenda for today.";
-
+    private static final String MESSAGE_HELP = "If you need a list of commands, type ? or help.";
     private static MenuInterface menuInstance;
 
     /**
@@ -57,6 +57,7 @@ public class MenuInterface {
         Command userCommand = Parser.getInstance().parse("view today");
         String response = Logic.getInstance().executeCommand(userCommand);
         showToUser(response);
+        showToUser(MESSAGE_HELP);
     }
 
     /**
