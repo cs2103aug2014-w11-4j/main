@@ -62,6 +62,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Returns the description of the class
+     *
      * @return the description of the class
      */
     public String getDescription() {
@@ -70,6 +71,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Set a new dateList
+     *
      * @param dateList of possible DatePair
      */
 
@@ -79,6 +81,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Check if there is at least a start date or end date
+     *
      * @return if there exist at least a date
      */
     public boolean hasDate() {
@@ -92,6 +95,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Returns an ArrayList of DatePair
+     *
      * @return the dateList of possible DatePair
      */
 
@@ -101,6 +105,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Add a start date to the task without end date
+     *
      * @param startDate the starting date of the task
      */
 
@@ -111,6 +116,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Add an end date to the task without a start date
+     *
      * @param endDate the dateline of the task
      */
 
@@ -121,6 +127,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Shortcut to adding another DatePair into DatePairList
+     *
      * @param datePair
      */
     public void addDatePair(DatePair datePair) {
@@ -129,6 +136,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Update the task to set it to complete
+     *
      * @param isDone whether the task is completed
      */
 
@@ -148,6 +156,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Return UUID of the task.
+     *
      * @return
      */
     public String getUuid() {
@@ -156,6 +165,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Set UUID of the task, should only be used by Java Bean.
+     *
      * @param uuid UUID to be set
      */
     public void setUuid(String uuid) {
@@ -163,11 +173,11 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     /**
+     * A String representation of the Task object.
      *
      * @return Tasks information: description, status, list of DatePair
-     *
+     * @deprecated Currently outdated and should not be used
      */
-
     @Override
     public String toString() {
         String status = "Done";
@@ -178,9 +188,9 @@ public class Task implements Serializable, Comparable<Task> {
         }
 
         if (!isDone) {
-            status = "Not Done"; // TODO
+            status = "Not Done";
         }
-        return description + " " + status + " " + datePair; // TODO
+        return description + " " + status + " " + datePair;
     }
 
     public boolean isDateListEmpty() {
@@ -218,7 +228,7 @@ public class Task implements Serializable, Comparable<Task> {
      *
      * @param displayingId the id of the task
      * @return the formatted string of the task
-     * @author hooitong
+     * @author Hooi Tong
      */
     public String formatOutput(long displayingId) {
         final int MAX_DESC_LENGTH = 41;
@@ -227,6 +237,11 @@ public class Task implements Serializable, Comparable<Task> {
         ArrayList<DatePair> dates = getDateList();
         char isDone = getIsDone() ? 'Y' : 'N';
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa");
+        boolean isTentative = dates.size() > 1;
+
+        if (isTentative) {
+            description += " (tentative)";
+        }
 
         /* Used to store fragments of description and dates */
         LinkedList<String> wordWrapList = new LinkedList<String>();
@@ -248,10 +263,9 @@ public class Task implements Serializable, Comparable<Task> {
             }
         }
 
-        /* Currently supported for one date in v0.1 */
-        /* TODO: Support for multiple dates for tentative tasks */
-        if (!dates.isEmpty()) {
-            DatePair dp = dates.get(0);
+        /* Support for multiple dates for tentative tasks */
+        for (int i = 0; i < dates.size(); i++) {
+            DatePair dp = dates.get(i);
             if (dp.hasDateRange()) {
                 dateList.add(dateFormat.format(dp.getStartDate().getTime())
                         + " to");
@@ -262,21 +276,34 @@ public class Task implements Serializable, Comparable<Task> {
         }
 
         /* Format all fragments in desc and date into multiple lines */
+
+        int dateId = 1;
         while (!wordWrapList.isEmpty() || !dateList.isEmpty()) {
             String desc = wordWrapList.isEmpty() ? ""
                     : wordWrapList.removeFirst();
 
             String date = dateList.isEmpty() ? "" : dateList.removeFirst();
-
-            if (stringBuilder.length() != 0) {
-                stringBuilder.append(System.lineSeparator());
-                stringBuilder.append(String.format("%-7s%-6s%-43s%-23s", "",
-                        "", desc, date));
+            if (isTentative) {
+                if (stringBuilder.length() != 0) {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(String.format(
+                            "%-7s%-6s%-43s%-19s%-5s", "", "", desc, date, "["
+                                    + dateId++ + "]"));
+                } else {
+                    stringBuilder.append(String.format(
+                            "%-7s%-6s%-43s%-19s%-5s", displayingId, isDone,
+                            desc, date, "[" + dateId++ + "]"));
+                }
             } else {
-                stringBuilder.append(String.format("%-7s%-6s%-43s%-23s",
-                        displayingId, isDone, desc, date));
+                if (stringBuilder.length() != 0) {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(String.format("%-7s%-6s%-43s%-24s",
+                            "", "", desc, date));
+                } else {
+                    stringBuilder.append(String.format("%-7s%-6s%-43s%-24s",
+                            displayingId, isDone, desc, date));
+                }
             }
-
         }
 
         return stringBuilder.toString();
@@ -296,18 +323,17 @@ public class Task implements Serializable, Comparable<Task> {
                     "No date in a floating task.");
         }
 
-        Calendar earliestDate;
-        if (isDeadline()) {
-            earliestDate = dateList.get(0).getEndDate();
-        } else {
-            earliestDate = dateList.get(0).getStartDate();
-        }
+        Calendar earliestDate = null;
 
         for (DatePair dp : dateList) {
-            if (dp.hasStartDate() && dp.getStartDate().before(earliestDate)) {
+            if (dp.hasStartDate()
+                    && (earliestDate == null || dp.getStartDate().before(
+                            earliestDate))) {
                 earliestDate = dp.getStartDate();
             }
-            if (dp.hasEndDate() && dp.getEndDate().before(earliestDate)) {
+            if (dp.hasEndDate()
+                    && (earliestDate == null || dp.getEndDate().before(
+                            earliestDate))) {
                 earliestDate = dp.getEndDate();
             }
         }
