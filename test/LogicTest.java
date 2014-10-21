@@ -54,12 +54,21 @@ public class LogicTest {
      */
     @Test
     public void addNoDateTask() throws IOException {
+        String keyword = "Lorem ipsum dolor sit amet, consectetur adipiscing elit";
+        String actual= "";
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        Long id = logic.addTask(
+        boolean task = logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        String actual = logic.viewTask(id);
-        String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done ";
+        for (Long databaseId : logic.getDB().getValidIdList()) {
+            String taskInDb = logic.getDB().getInstance(databaseId)
+                    .getDescription();
+            taskInDb = taskInDb.toLowerCase();
+            if (taskInDb.contains(keyword.toLowerCase())) {
+               actual = taskInDb;
+            }
+        }
+        String expected = "lorem ipsum dolor sit amet, consectetur adipiscing elit.";
         assertEquals(expected, actual);
     }
 
@@ -73,20 +82,24 @@ public class LogicTest {
     @Test
     public void addNoStartDateTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        String actual = "";
         DatePair dp = new DatePair(null, Calendar.getInstance());
         dpList.add(dp);
-        Long id = logic.addTask(
+        String keyword = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+        boolean hasConflict = logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
-        String actual = logic.viewTask(id);
 
-        // formatting current dateTime
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss");
-        dateFormat.setCalendar(dp.getEndDate());
-        String endDate = dateFormat.format(dp.getEndDate().getTime());
+        for (Long databaseId : logic.getDB().getValidIdList()) {
+            String taskInDb = logic.getDB().getInstance(databaseId)
+                    .getDescription();
+            taskInDb = taskInDb.toLowerCase();
+            if (taskInDb.contains(keyword.toLowerCase())) {
+               actual = taskInDb;
+            }
+        }
 
-        String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Not Done \n[No Start Date] "
-                + endDate;
+        String expected = "lorem ipsum dolor sit amet, consectetur adipiscing elit.";
         assertEquals(expected, actual);
     }
 
