@@ -24,6 +24,7 @@ public class Logic {
     private static final String JOURNAL_MESSAGE_CONFIRM = "Confirm task \"%s\"";
 
     private static final String MESSAGE_ADD = "\"%s\" has been successfully added.";
+    private static final String MESSAGE_ADD_CONFLICT = "\"%s\" has been successfully added.\nPlease note that there are conflicting task";
     private static final String MESSAGE_DELETE = "\"%s\" has been successfully deleted.";
     private static final String MESSAGE_UPDATE = "\"%s\" has been successfully updated.";
     private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
@@ -99,8 +100,12 @@ public class Logic {
             logger.info("Executing command: " + command.getType().toString());
             switch (command.getType()) {
                 case ADD:
-                    addTask(command.getDescription(), command.getDatePairs());
-                    return String.format(MESSAGE_ADD, command.getDescription());
+                    boolean hasConflict = addTask(command.getDescription(), command.getDatePairs());
+                    if(hasConflict){
+                        return String.format(MESSAGE_ADD_CONFLICT, command.getDescription());
+                    }else{
+                        return String.format(MESSAGE_ADD, command.getDescription());
+                    }
 
                 case VIEW:
                     if (command.isViewAll()) {
@@ -150,17 +155,18 @@ public class Logic {
      *
      * @param description of the task
      * @param dateList of possible DatePair
-     * @return id of the task
+     * @return if there is conflicting task
      *
      * @throws IOException
      */
-    public long addTask(String description, ArrayList<DatePair> dateList)
+    public boolean addTask(String description, ArrayList<DatePair> dateList)
             throws IOException {
         Task task = new Task(description, dateList);
+        boolean hasConflict = checkConflictWithDB(task);
         long id = dbManager.putInstance(task);
         dbManager.recordAction(null, id,
                 String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
-        return id;
+        return hasConflict;
     }
 
     /**
@@ -536,6 +542,22 @@ public class Logic {
 
     public DatabaseManager<Task> getDB() {
         return dbManager;
+    }
+    
+    public boolean checkConflictWithDB(Task t) throws IOException {
+        boolean isConflict = false;
+        ArrayList<Long> validIDList = dbManager.getValidIdList();
+        for (int i = 0; i < validIDList.size(); i++) {
+            Task storedTask = dbManager.getInstance(validIDList.get(i));
+            ArrayList<DatePair> dp = storedTask.getDateList();
+            for (int j = 0; j < dp.size(); j++) {
+                if (t.isWithinPeriod(dp.get(j))) {
+                    isConflict = true;
+                }
+            }
+        }
+
+        return isConflict;
     }
 
 }
