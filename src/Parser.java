@@ -296,7 +296,7 @@ public class Parser {
      */
     public Command parseDelete(String args) {
         try {
-            int deleteId = Integer.parseInt(args.trim());
+            int deleteId = Integer.parseInt(getFirstWord(args).trim());
             return new Command(Command.CommandType.DELETE, deleteId);
         } catch (NumberFormatException e) {
 
@@ -430,7 +430,7 @@ public class Parser {
      */
     public Command parseMark(String args) {
         try {
-            int markId = Integer.parseInt(args.trim());
+            int markId = Integer.parseInt(getFirstWord(args).trim());
             return new Command(Command.CommandType.MARK, markId);
         } catch (NumberFormatException e) {
             return new Command(Command.CommandType.INVALID,
@@ -447,7 +447,7 @@ public class Parser {
     private Command parseConfirm(String args) {
         try {
             String[] substrings = args.split("\\s+");
-            if (substrings.length != 2) {
+            if (substrings.length < 2) {
                 return new Command(Command.CommandType.INVALID,
                         MESSAGE_CONFIRM_ERROR_INVALID);
             }
