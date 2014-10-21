@@ -172,4 +172,8 @@ public class Command {
     public String getKeyword() {
         return keyword;
     }
+
+    public int getDateId() {
+        return dateId;
+    }
 }
