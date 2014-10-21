@@ -129,6 +129,12 @@ public class Parser {
             case CONFIRM:
                 return parseConfirm(args);
 
+            case HELP:
+                return parseHelp(args);
+
+            case CLEAR:
+                return parseClear(args);
+
             case EXIT:
                 return parseExit(args);
 
@@ -459,6 +465,26 @@ public class Parser {
             return new Command(Command.CommandType.INVALID,
                     MESSAGE_CONFIRM_ERROR_INVALID);
         }
+    }
+
+    /**
+     * Parses help command from user.
+     *
+     * @param args the arguments the user input
+     * @return HELP command
+     */
+    public Command parseHelp(String args) {
+        return new Command(Command.CommandType.HELP);
+    }
+
+    /**
+     * Parses clear command from user.
+     *
+     * @param args the arguments the user input
+     * @return CLEAR command
+     */
+    public Command parseClear(String args) {
+        return new Command(Command.CommandType.CLEAR);
     }
 
     /**

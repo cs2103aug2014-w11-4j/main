@@ -21,8 +21,8 @@ public class Command {
         VIEW("view", "display"), SEARCH("find", "lookup", "search"), ADD("add",
                 "insert", "ins", "new"), DELETE("delete", "remove"), UPDATE(
                 "change", "update", "edit"), UNDO("undo", "ud"), REDO("redo",
-                "rd"), MARK("mark", "completed", "done"), EXIT("exit", "quit"), CONFIRM(
-                "confirm"), INVALID;
+                "rd"), MARK("mark", "completed", "done"), CONFIRM("confirm"), HELP(
+                "?", "help"), CLEAR("cls", "clear"), EXIT("exit", "quit"), INVALID;
 
         private List<String> tags;
         private static final Map<String, CommandType> tagMap = new HashMap<String, CommandType>();
@@ -134,7 +134,7 @@ public class Command {
         this.taskId = taskId;
     }
 
-    /* Constructor for exit, undo, redo command */
+    /* Constructor for exit, undo, redo, help command */
     public Command(CommandType type) {
         this.type = type;
     }
