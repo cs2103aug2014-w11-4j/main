@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +26,7 @@ public class Logic {
 
     private static final String MESSAGE_ADD = "\"%s\" has been successfully added.";
     private static final String MESSAGE_ADD_CONFLICT = "\"%s\" has been successfully added.\nPlease note that there are conflicting task";
+    private static final String MESSAGE_ADD_PAST = "\"%s\" cannot be added, as it has passed.";
     private static final String MESSAGE_DELETE = "\"%s\" has been successfully deleted.";
     private static final String MESSAGE_UPDATE = "\"%s\" has been successfully updated.";
     private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
@@ -40,7 +42,13 @@ public class Logic {
     private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
     private static final String MESSAGE_ERROR_WRONG_DATE_ID = "You have input an invalid date ID.";
+
     private static final String MESSAGE_ERROR_NOT_TENTATIVE = "\"%s\" is not tentative and does not need confirmation.";
+
+    
+    private static final int ADD_OK = 0;
+    private static final int ADD_CONFLICT = 1;
+    private static final int ADD_PASSED = 2;
 
     private static final int CONSOLE_MAX_WIDTH = 80;
 
@@ -102,11 +110,17 @@ public class Logic {
             logger.info("Executing command: " + command.getType().toString());
             switch (command.getType()) {
                 case ADD:
-                    boolean hasConflict = addTask(command.getDescription(), command.getDatePairs());
-                    if(hasConflict){
-                        return String.format(MESSAGE_ADD_CONFLICT, command.getDescription());
-                    }else{
-                        return String.format(MESSAGE_ADD, command.getDescription());
+                    int result = addTask(command.getDescription(),
+                            command.getDatePairs());
+                    if (result == ADD_CONFLICT) {
+                        return String.format(MESSAGE_ADD_CONFLICT,
+                                command.getDescription());
+                    } else if (result == ADD_OK) {
+                        return String.format(MESSAGE_ADD,
+                                command.getDescription());
+                    } else if (result == ADD_PASSED) {
+                        return String.format(MESSAGE_ADD_PAST,
+                                command.getDescription());
                     }
 
                 case VIEW:
@@ -142,9 +156,6 @@ public class Logic {
                 case INVALID:
                     return command.getDescription();
 
-                case CONFIRM:
-                    return confirmTask(command.getTaskId(), command.getDateId());
-
                 case HELP:
                     return showHelp();
 
@@ -169,18 +180,28 @@ public class Logic {
      *
      * @param description of the task
      * @param dateList of possible DatePair
-     * @return if there is conflicting task
+     * @return status of adding 0:successful 1:exist conflicts 2:cannot be beyond today
      *
      * @throws IOException
      */
-    public boolean addTask(String description, ArrayList<DatePair> dateList)
+    public int addTask(String description, ArrayList<DatePair> dateList)
             throws IOException {
+        
+        if(dateList.size() >0 && dateList.get(0).getEndDate().before(Calendar.getInstance())){
+            return ADD_PASSED;            
+        }
+        
         Task task = new Task(description, dateList);
         boolean hasConflict = checkConflictWithDB(task);
         long id = dbManager.putInstance(task);
         dbManager.recordAction(null, id,
                 String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
-        return hasConflict;
+       if(hasConflict){
+           return ADD_CONFLICT;
+       }else{
+           return ADD_OK;
+       }
+       
     }
 
     /**
