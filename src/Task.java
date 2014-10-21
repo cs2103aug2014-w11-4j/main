@@ -237,6 +237,11 @@ public class Task implements Serializable, Comparable<Task> {
         ArrayList<DatePair> dates = getDateList();
         char isDone = getIsDone() ? 'Y' : 'N';
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa");
+        boolean isTentative = dates.size() > 1;
+
+        if (isTentative) {
+            description += " (tentative)";
+        }
 
         /* Used to store fragments of description and dates */
         LinkedList<String> wordWrapList = new LinkedList<String>();
@@ -271,7 +276,7 @@ public class Task implements Serializable, Comparable<Task> {
         }
 
         /* Format all fragments in desc and date into multiple lines */
-        boolean isTentative = dates.size() > 1;
+
         int dateId = 1;
         while (!wordWrapList.isEmpty() || !dateList.isEmpty()) {
             String desc = wordWrapList.isEmpty() ? ""
@@ -321,10 +326,14 @@ public class Task implements Serializable, Comparable<Task> {
         Calendar earliestDate = null;
 
         for (DatePair dp : dateList) {
-            if (dp.hasStartDate() && (earliestDate == null || dp.getStartDate().before(earliestDate))) {
+            if (dp.hasStartDate()
+                    && (earliestDate == null || dp.getStartDate().before(
+                            earliestDate))) {
                 earliestDate = dp.getStartDate();
             }
-            if (dp.hasEndDate() && (earliestDate == null || dp.getEndDate().before(earliestDate))) {
+            if (dp.hasEndDate()
+                    && (earliestDate == null || dp.getEndDate().before(
+                            earliestDate))) {
                 earliestDate = dp.getEndDate();
             }
         }
