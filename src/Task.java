@@ -318,18 +318,13 @@ public class Task implements Serializable, Comparable<Task> {
                     "No date in a floating task.");
         }
 
-        Calendar earliestDate;
-        if (isDeadline()) {
-            earliestDate = dateList.get(0).getEndDate();
-        } else {
-            earliestDate = dateList.get(0).getStartDate();
-        }
+        Calendar earliestDate = null;
 
         for (DatePair dp : dateList) {
-            if (dp.hasStartDate() && dp.getStartDate().before(earliestDate)) {
+            if (dp.hasStartDate() && (earliestDate == null || dp.getStartDate().before(earliestDate))) {
                 earliestDate = dp.getStartDate();
             }
-            if (dp.hasEndDate() && dp.getEndDate().before(earliestDate)) {
+            if (dp.hasEndDate() && (earliestDate == null || dp.getEndDate().before(earliestDate))) {
                 earliestDate = dp.getEndDate();
             }
         }
