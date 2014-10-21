@@ -57,7 +57,7 @@ public class LogicTest {
         String keyword = "Lorem ipsum dolor sit amet, consectetur adipiscing elit";
         String actual= "";
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        boolean task = logic.addTask(
+        logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         for (Long databaseId : logic.getDB().getValidIdList()) {
@@ -86,7 +86,7 @@ public class LogicTest {
         DatePair dp = new DatePair(null, Calendar.getInstance());
         dpList.add(dp);
         String keyword = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
-        boolean hasConflict = logic.addTask(
+        logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
 
