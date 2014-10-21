@@ -39,6 +39,8 @@ public class Logic {
     private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
     private static final String MESSAGE_ERROR_WRONG_DATE_ID = "You have input an invalid date ID.";
+    private static final String MESSAGE_ERROR_NOT_TENTATIVE = "\"%s\" is not tentative and does not need confirmation.";
+
     private static final int CONSOLE_MAX_WIDTH = 80;
 
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -128,6 +130,9 @@ public class Logic {
 
                 case REDO:
                     return redo();
+
+                case CONFIRM:
+                    return confirmTask(command.getTaskId(), command.getDateId());
 
                 case INVALID:
                     return command.getDescription();
@@ -264,17 +269,17 @@ public class Logic {
             task.setDescription(description);
         }
         if (!dateList.isEmpty()) {
-        	if(task.isFloatingTask()||task.isDeadline()){
+            if (task.isFloatingTask() || task.isDeadline()) {
                 task.setDateList(dateList);
-                if(!task.isFloatingTask() && !task.isDeadline()){
-                	task.generateUuid();
+                if (!task.isFloatingTask() && !task.isDeadline()) {
+                    task.generateUuid();
                 }
-        	} else {
-        		task.setDateList(dateList);
-                if(task.isFloatingTask() || task.isDeadline()){
-                	task.generateUuid();
+            } else {
+                task.setDateList(dateList);
+                if (task.isFloatingTask() || task.isDeadline()) {
+                    task.generateUuid();
                 }
-        	}
+            }
         }
 
         long newDatabaseId = dbManager.putInstance(task);
@@ -440,6 +445,11 @@ public class Logic {
         String oldDescription = task.getDescription();
 
         ArrayList<DatePair> dateList = task.getDateList();
+
+        if (dateList.size() <= 1) {
+            return String.format(MESSAGE_ERROR_NOT_TENTATIVE, oldDescription);
+        }
+
         if (dateList.size() < dateId) {
             return MESSAGE_ERROR_WRONG_DATE_ID;
         }
@@ -500,7 +510,7 @@ public class Logic {
         Collections.sort(displayedTasksList, dbManager.getInstanceComparator());
 
         StringBuilder stringBuilder = new StringBuilder();
-        String header = String.format("%-7s%-6s%-43s%-23s", "ID", "Done",
+        String header = String.format("%-7s%-6s%-43s%-24s", "ID", "Done",
                 "Task", "Date");
         String border = "";
         for (int i = 0; i < CONSOLE_MAX_WIDTH; i++) {
