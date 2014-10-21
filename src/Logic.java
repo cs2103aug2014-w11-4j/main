@@ -51,6 +51,9 @@ public class Logic {
     private ArrayList<Long> displayedTasksList;
     private DatabaseManager<Task> dbManager;
 
+    /**
+     * Private Constructor for Singleton Implementation.
+     */
     private Logic() {
         displayedTasksList = new ArrayList<Long>();
         startDatabase();
@@ -261,7 +264,17 @@ public class Logic {
             task.setDescription(description);
         }
         if (!dateList.isEmpty()) {
-            task.setDateList(dateList);
+        	if(task.isFloatingTask()||task.isDeadline()){
+                task.setDateList(dateList);
+                if(!task.isFloatingTask() && !task.isDeadline()){
+                	task.generateUuid();
+                }
+        	} else {
+        		task.setDateList(dateList);
+                if(task.isFloatingTask() || task.isDeadline()){
+                	task.generateUuid();
+                }
+        	}
         }
 
         long newDatabaseId = dbManager.putInstance(task);

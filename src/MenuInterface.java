@@ -13,6 +13,9 @@ public class MenuInterface {
 
     private static MenuInterface menuInstance;
 
+    /**
+     * Private Constructor for Singleton Implementation.
+     */
     private MenuInterface() {
     }
 
@@ -57,6 +60,7 @@ public class MenuInterface {
 
     /**
      * Method that outputs a string object to the CLI.
+     *
      * @param s String object
      */
     private void showToUser(String s) {
