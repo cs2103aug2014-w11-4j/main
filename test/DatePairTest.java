@@ -180,8 +180,7 @@ public class DatePairTest {
         dpList.add(dp);
         Task task = new Task("Test Date", dpList);
 
-        Calendar viewStartDate = Calendar.getInstance();
-        viewStartDate.set(2014, Calendar.AUGUST, 19);
+        Calendar viewStartDate = (Calendar) endDate.clone();
         Calendar viewEndDate = Calendar.getInstance();
         viewEndDate.set(2014, Calendar.AUGUST, 30);
 
