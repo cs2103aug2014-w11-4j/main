@@ -43,19 +43,22 @@ public class Logic {
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
     private static final String MESSAGE_ERROR_WRONG_DATE_ID = "You have input an invalid date ID.";
 
+
     private static final String MESSAGE_ERROR_NOT_TENTATIVE = "\"%s\" is not tentative and does not need confirmation.";
 
-    
+
     private static final int ADD_OK = 0;
     private static final int ADD_CONFLICT = 1;
     private static final int ADD_PASSED = 2;
 
     private static final int CONSOLE_MAX_WIDTH = 80;
 
-    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final Logger logger = Logger
+            .getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private static final String DATABASE_NAME = "database.xml";
-    private static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
+    private static final String CURRENT_DIRECTORY = System
+            .getProperty("user.dir");
 
     private static Logic logicInstance;
 
@@ -180,28 +183,39 @@ public class Logic {
      *
      * @param description of the task
      * @param dateList of possible DatePair
-     * @return status of adding 0:successful 1:exist conflicts 2:cannot be beyond today
+     * @return status of adding ADD_OK:successful ADD_CONFLICT:exist conflicts ADD_PASSED:cannot be beyond today
      *
      * @throws IOException
      */
     public int addTask(String description, ArrayList<DatePair> dateList)
             throws IOException {
-        
-        if(dateList.size() >0 && dateList.get(0).getEndDate().before(Calendar.getInstance())){
-            return ADD_PASSED;            
+
+        assert dateList != null;
+        assert dateList.size() >= 0;
+
+        if (dateList.size() > 0
+                && dateList.get(0).getEndDate().before(Calendar.getInstance())) {
+            return ADD_PASSED;
         }
-        
+
+        assert description != null;
+        assert description != "";
+
         Task task = new Task(description, dateList);
+        
+        assert task != null;
         boolean hasConflict = checkConflictWithDB(task);
         long id = dbManager.putInstance(task);
         dbManager.recordAction(null, id,
                 String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
-       if(hasConflict){
-           return ADD_CONFLICT;
-       }else{
-           return ADD_OK;
-       }
-       
+        assert id >= 0;
+
+        if (hasConflict) {
+            return ADD_CONFLICT;
+        } else {
+            return ADD_OK;
+        }
+
     }
 
     /**
@@ -280,7 +294,8 @@ public class Logic {
                 newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,
                         oldTask.getDescription()));
-        return String.format(MESSAGE_MARK_UNCOMPLETED, oldTask.getDescription());
+        return String
+                .format(MESSAGE_MARK_UNCOMPLETED, oldTask.getDescription());
     }
 
     /**
@@ -566,7 +581,8 @@ public class Logic {
     }
 
     private boolean isValidDisplayedId(int displayedId) {
-        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1);
+        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList
+                .get(displayedId - 1) == -1);
     }
 
     /**
@@ -641,7 +657,7 @@ public class Logic {
     public DatabaseManager<Task> getDB() {
         return dbManager;
     }
-    
+
     public boolean checkConflictWithDB(Task t) throws IOException {
         boolean isConflict = false;
         ArrayList<Long> validIDList = dbManager.getValidIdList();
