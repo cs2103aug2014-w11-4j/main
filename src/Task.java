@@ -278,12 +278,13 @@ public class Task implements Serializable, Comparable<Task> {
         /* Format all fragments in desc and date into multiple lines */
 
         int dateId = 1;
+        boolean rangeTicker = true;
         while (!wordWrapList.isEmpty() || !dateList.isEmpty()) {
             String desc = wordWrapList.isEmpty() ? ""
                     : wordWrapList.removeFirst();
 
             String date = dateList.isEmpty() ? "" : dateList.removeFirst();
-            if (isTentative) {
+            if (isTentative && rangeTicker) {
                 if (stringBuilder.length() != 0) {
                     stringBuilder.append(System.lineSeparator());
                     stringBuilder.append(String.format(
@@ -294,6 +295,10 @@ public class Task implements Serializable, Comparable<Task> {
                             "%-7s%-6s%-43s%-19s%-5s", displayingId, isDone,
                             desc, date, "[" + dateId++ + "]"));
                 }
+
+                if(date.contains("to")) {
+                    rangeTicker = false;
+                }
             } else {
                 if (stringBuilder.length() != 0) {
                     stringBuilder.append(System.lineSeparator());
@@ -303,6 +308,8 @@ public class Task implements Serializable, Comparable<Task> {
                     stringBuilder.append(String.format("%-7s%-6s%-43s%-24s",
                             displayingId, isDone, desc, date));
                 }
+
+                rangeTicker = true;
             }
         }
 
