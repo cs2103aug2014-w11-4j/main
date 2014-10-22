@@ -217,6 +217,29 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     /**
+     * Test whether current Task object has conflict with given Task object
+     *
+     * @param t another Task object to compare
+     * @return true if conflict else false
+     */
+    public boolean hasConflictWith(Task t) {
+        ArrayList<DatePair> dp = t.getDateList();
+        for (int j = 0; j < dp.size(); j++) {
+            if (!isDeadline()) {
+                if (!t.isDeadline() && isWithinPeriod(dp.get(j))) {
+                    return true;
+                }
+            } else {
+                if (getEarliestDate().compareTo(dp.get(j).getEndDate()) == 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Generate a new random UUID for the task.
      */
     public void generateUuid() {
@@ -296,7 +319,7 @@ public class Task implements Serializable, Comparable<Task> {
                             desc, date, "[" + dateId++ + "]"));
                 }
 
-                if(date.contains("to")) {
+                if (date.contains("to")) {
                     rangeTicker = false;
                 }
             } else {

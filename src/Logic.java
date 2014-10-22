@@ -642,19 +642,14 @@ public class Logic {
      */
     public boolean checkConflictWithDB(Task t) throws IOException {
         boolean isConflict = false;
-        if(t.getDateList().size()<=0){
+        if (t.isFloatingTask()) {
             return isConflict;
         }
         ArrayList<Long> validIDList = dbManager.getValidIdList();
         for (int i = 0; i < validIDList.size(); i++) {
             Task storedTask = dbManager.getInstance(validIDList.get(i));
-            if (!storedTask.getIsDone() && storedTask.getDateList().size()>0) {
-                ArrayList<DatePair> dp = storedTask.getDateList();
-                for (int j = 0; j < dp.size(); j++) {
-                    if (t.isWithinPeriod(dp.get(j))) {
-                        isConflict = true;
-                    }
-                }
+            if (!storedTask.getIsDone() && !storedTask.isFloatingTask()) {
+                isConflict = t.hasConflictWith(storedTask);
             }
         }
 
