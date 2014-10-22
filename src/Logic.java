@@ -645,10 +645,12 @@ public class Logic {
         ArrayList<Long> validIDList = dbManager.getValidIdList();
         for (int i = 0; i < validIDList.size(); i++) {
             Task storedTask = dbManager.getInstance(validIDList.get(i));
-            ArrayList<DatePair> dp = storedTask.getDateList();
-            for (int j = 0; j < dp.size(); j++) {
-                if (t.isWithinPeriod(dp.get(j))) {
-                    isConflict = true;
+            if (!storedTask.getIsDone() && storedTask.getDateList().size()>0) {
+                ArrayList<DatePair> dp = storedTask.getDateList();
+                for (int j = 0; j < dp.size(); j++) {
+                    if (t.isWithinPeriod(dp.get(j))) {
+                        isConflict = true;
+                    }
                 }
             }
         }
