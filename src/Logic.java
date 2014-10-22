@@ -107,14 +107,8 @@ public class Logic {
                 case ADD:
                     return addTask(command.getDescription(),
                             command.getDatePairs());
-
                 case VIEW:
-                    if (command.isViewAll()) {
-                        return viewAll(command.isCompleted());
-                    } else {
-                        return viewByPeriod(command.getViewRange(),
-                                command.isCompleted());
-                    }
+                    return view(command);
 
                 case SEARCH:
                     return searchWithKeyword(command.getKeyword());
@@ -128,7 +122,6 @@ public class Logic {
                 case UPDATE:
                     return updateTask(command.getTaskId(),
                             command.getDescription(), command.getDatePairs());
-
                 case UNDO:
                     return undo();
 
@@ -335,7 +328,6 @@ public class Logic {
      */
     public String viewAll(boolean isCompleted) throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
-
         displayedTasksList.clear();
         for (int i = 0; i < dbManager.getValidIdList().size(); i++) {
             Long databaseId = dbManager.getValidIdList().get(i);
@@ -359,6 +351,23 @@ public class Logic {
         }
 
         return responseBuilder.toString();
+    }
+
+    /**
+     * Check the type of view requested by Command
+     *
+     * @param command object
+     * @return the result of the view option
+     *
+     * @throws IOException
+     *
+     */
+    public String view(Command cmd) throws IOException {
+        if (cmd.isViewAll()) {
+            return viewAll(cmd.isCompleted());
+        } else {
+            return viewByPeriod(cmd.getViewRange(), cmd.isCompleted());
+        }
     }
 
     /**
