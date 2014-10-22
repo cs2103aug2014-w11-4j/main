@@ -165,10 +165,8 @@ public class Logic {
     public String addTask(String description, ArrayList<DatePair> dateList)
             throws IOException {
         assert dateList != null;
-        assert dateList.size() >= 0;
-
         assert description != null;
-        assert description.equals("");
+        assert !description.equals("");
 
         if (isDateBeforeNow(dateList)) {
             return String.format(MESSAGE_ADD_PAST, description);

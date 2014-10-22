@@ -54,17 +54,18 @@ public class LogicTest {
     @Test
     public void addNoDateTask() throws IOException {
         String keyword = "Lorem ipsum dolor sit amet, consectetur adipiscing elit";
-        String actual= "";
+        String actual = "";
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         logic.addTask(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         for (Long databaseId : logic.getDB().getValidIdList()) {
-            String taskInDb = logic.getDB().getInstance(databaseId)
+            String taskInDb = logic.getDB()
+                    .getInstance(databaseId)
                     .getDescription();
             taskInDb = taskInDb.toLowerCase();
             if (taskInDb.contains(keyword.toLowerCase())) {
-               actual = taskInDb;
+                actual = taskInDb;
             }
         }
         String expected = "lorem ipsum dolor sit amet, consectetur adipiscing elit.";
@@ -90,11 +91,12 @@ public class LogicTest {
                 dpList);
 
         for (Long databaseId : logic.getDB().getValidIdList()) {
-            String taskInDb = logic.getDB().getInstance(databaseId)
+            String taskInDb = logic.getDB()
+                    .getInstance(databaseId)
                     .getDescription();
             taskInDb = taskInDb.toLowerCase();
             if (taskInDb.contains(keyword.toLowerCase())) {
-               actual = taskInDb;
+                actual = taskInDb;
             }
         }
 
@@ -239,17 +241,17 @@ public class LogicTest {
     public void confirmTask() throws IOException {
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
-        date.set(2014, Calendar.AUGUST, 18);
+        date.add(Calendar.DAY_OF_YEAR, 1);
         DatePair dp = new DatePair(date);
         datePairList.add(dp);
 
         Calendar date2 = Calendar.getInstance();
-        date2.set(2014, Calendar.AUGUST, 19);
+        date.add(Calendar.DAY_OF_YEAR, 2);
         DatePair dp2 = new DatePair(date2);
         datePairList.add(dp2);
 
         Calendar date3 = Calendar.getInstance();
-        date3.set(2014, Calendar.AUGUST, 20);
+        date.add(Calendar.DAY_OF_YEAR, 3);
         DatePair dp3 = new DatePair(date3);
         datePairList.add(dp3);
 
@@ -261,7 +263,7 @@ public class LogicTest {
 
         String expected = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been confirmed.";
 
-        assertEquals(actual, expected);
+        assertEquals(expected, actual);
     }
 
 }
