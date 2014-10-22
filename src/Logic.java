@@ -43,9 +43,7 @@ public class Logic {
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
     private static final String MESSAGE_ERROR_WRONG_DATE_ID = "You have input an invalid date ID.";
 
-
     private static final String MESSAGE_ERROR_NOT_TENTATIVE = "\"%s\" is not tentative and does not need confirmation.";
-
 
     private static final int ADD_OK = 0;
     private static final int ADD_CONFLICT = 1;
@@ -114,14 +112,9 @@ public class Logic {
             switch (command.getType()) {
                 case ADD:
                     return addTask(command.getDescription(),
-                            command.getDatePairs());                    
+                            command.getDatePairs());
                 case VIEW:
-                    if (command.isViewAll()) {
-                        return viewAll(command.isCompleted());
-                    } else {
-                        return viewByPeriod(command.getViewRange(),
-                                command.isCompleted());
-                    }
+                    return view(command);
                 case SEARCH:
                     return searchWithKeyword(command.getKeyword());
 
@@ -134,7 +127,6 @@ public class Logic {
                 case UPDATE:
                     return updateTask(command.getTaskId(),
                             command.getDescription(), command.getDatePairs());
-
                 case UNDO:
                     return undo();
 
@@ -182,15 +174,14 @@ public class Logic {
 
         if (dateList.size() > 0
                 && dateList.get(0).getEndDate().before(Calendar.getInstance())) {
-            return String.format(MESSAGE_ADD_PAST,
-                   description);
+            return String.format(MESSAGE_ADD_PAST, description);
         }
 
         assert description != null;
         assert description != "";
 
         Task task = new Task(description, dateList);
-        
+
         assert task != null;
         boolean hasConflict = checkConflictWithDB(task);
         long id = dbManager.putInstance(task);
@@ -199,11 +190,9 @@ public class Logic {
         assert id >= 0;
 
         if (hasConflict) {
-            return String.format(MESSAGE_ADD_CONFLICT,
-                    description);
+            return String.format(MESSAGE_ADD_CONFLICT, description);
         } else {
-            return String.format(MESSAGE_ADD,
-                    description);
+            return String.format(MESSAGE_ADD, description);
         }
 
     }
@@ -340,7 +329,6 @@ public class Logic {
      */
     public String viewAll(boolean isCompleted) throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
-
         displayedTasksList.clear();
         for (int i = 0; i < dbManager.getValidIdList().size(); i++) {
             Long databaseId = dbManager.getValidIdList().get(i);
@@ -364,6 +352,23 @@ public class Logic {
         }
 
         return responseBuilder.toString();
+    }
+
+    /**
+     * Check the type of view requested by Command
+     * 
+     * @param command object
+     * @return the result of the view option
+     * 
+     * @throws IOException
+     * 
+     */
+    public String view(Command cmd) throws IOException {
+        if (cmd.isViewAll()) {
+            return viewAll(cmd.isCompleted());
+        } else {
+            return viewByPeriod(cmd.getViewRange(), cmd.isCompleted());
+        }
     }
 
     /**
