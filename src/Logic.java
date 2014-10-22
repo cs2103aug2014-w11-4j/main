@@ -25,10 +25,11 @@ public class Logic {
     private static final String JOURNAL_MESSAGE_CONFIRM = "Confirm task \"%s\"";
 
     private static final String MESSAGE_ADD = "\"%s\" has been successfully added.";
-    private static final String MESSAGE_ADD_CONFLICT = "\"%s\" has been successfully added.\nPlease note that there are conflicting task";
-    private static final String MESSAGE_ADD_PAST = "\"%s\" cannot be added, as it has passed.";
+    private static final String MESSAGE_ADD_CONFLICT = "\"%s\" has been successfully added.\nPlease note that there are conflicting task(s).";
+    private static final String MESSAGE_ADD_PAST = "\"%s\" cannot be added as the end date has already passed.";
     private static final String MESSAGE_DELETE = "\"%s\" has been successfully deleted.";
     private static final String MESSAGE_UPDATE = "\"%s\" has been successfully updated.";
+    private static final String MESSAGE_UPDATE_PAST = "You cannot update the end date thats already passed.";
     private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
     private static final String MESSAGE_MARK_UNCOMPLETED = "\"%s\" has been marked to uncompleted.";
     private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
@@ -42,23 +43,14 @@ public class Logic {
     private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
     private static final String MESSAGE_ERROR_WRONG_DATE_ID = "You have input an invalid date ID.";
-
-
     private static final String MESSAGE_ERROR_NOT_TENTATIVE = "\"%s\" is not tentative and does not need confirmation.";
-
-
-    private static final int ADD_OK = 0;
-    private static final int ADD_CONFLICT = 1;
-    private static final int ADD_PASSED = 2;
 
     private static final int CONSOLE_MAX_WIDTH = 80;
 
-    private static final Logger logger = Logger
-            .getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private static final String DATABASE_NAME = "database.xml";
-    private static final String CURRENT_DIRECTORY = System
-            .getProperty("user.dir");
+    private static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
 
     private static Logic logicInstance;
 
@@ -113,19 +105,8 @@ public class Logic {
             logger.info("Executing command: " + command.getType().toString());
             switch (command.getType()) {
                 case ADD:
-                    int result = addTask(command.getDescription(),
+                    return addTask(command.getDescription(),
                             command.getDatePairs());
-                    if (result == ADD_CONFLICT) {
-                        return String.format(MESSAGE_ADD_CONFLICT,
-                                command.getDescription());
-                    } else if (result == ADD_OK) {
-                        return String.format(MESSAGE_ADD,
-                                command.getDescription());
-                    } else if (result == ADD_PASSED) {
-                        return String.format(MESSAGE_ADD_PAST,
-                                command.getDescription());
-                    }
-
                 case VIEW:
                     if (command.isViewAll()) {
                         return viewAll(command.isCompleted());
@@ -133,7 +114,6 @@ public class Logic {
                         return viewByPeriod(command.getViewRange(),
                                 command.isCompleted());
                     }
-
                 case SEARCH:
                     return searchWithKeyword(command.getKeyword());
 
@@ -183,26 +163,24 @@ public class Logic {
      *
      * @param description of the task
      * @param dateList of possible DatePair
-     * @return status of adding ADD_OK:successful ADD_CONFLICT:exist conflicts ADD_PASSED:cannot be beyond today
+     * @return the correct response back to the user
      *
      * @throws IOException
      */
-    public int addTask(String description, ArrayList<DatePair> dateList)
+    public String addTask(String description, ArrayList<DatePair> dateList)
             throws IOException {
-
         assert dateList != null;
         assert dateList.size() >= 0;
 
-        if (dateList.size() > 0
-                && dateList.get(0).getEndDate().before(Calendar.getInstance())) {
-            return ADD_PASSED;
+        assert description != null;
+        assert description.equals("");
+
+        if (isDateBeforeNow(dateList)) {
+            return String.format(MESSAGE_ADD_PAST, description);
         }
 
-        assert description != null;
-        assert description != "";
-
         Task task = new Task(description, dateList);
-        
+
         assert task != null;
         boolean hasConflict = checkConflictWithDB(task);
         long id = dbManager.putInstance(task);
@@ -211,11 +189,10 @@ public class Logic {
         assert id >= 0;
 
         if (hasConflict) {
-            return ADD_CONFLICT;
+            return String.format(MESSAGE_ADD_CONFLICT, description);
         } else {
-            return ADD_OK;
+            return String.format(MESSAGE_ADD, description);
         }
-
     }
 
     /**
@@ -236,6 +213,7 @@ public class Logic {
      * Mark a task (completed to uncompleted and vice versa)
      * @param displayedId displayed id of the task
      * @return message of mark
+     *
      * @throws IOException
      */
     public String markTask(int displayedId) throws IOException {
@@ -294,8 +272,7 @@ public class Logic {
                 newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,
                         oldTask.getDescription()));
-        return String
-                .format(MESSAGE_MARK_UNCOMPLETED, oldTask.getDescription());
+        return String.format(MESSAGE_MARK_UNCOMPLETED, oldTask.getDescription());
     }
 
     /**
@@ -311,6 +288,11 @@ public class Logic {
         if (!isValidDisplayedId(displayedId)) {
             return MESSAGE_ERROR_WRONG_TASK_ID;
         }
+
+        if (isDateBeforeNow(dateList)) {
+            return MESSAGE_UPDATE_PAST;
+        }
+
         long databaseId = displayedTasksList.get(displayedId - 1);
 
         Task task = dbManager.getInstance(databaseId);
@@ -319,6 +301,7 @@ public class Logic {
         if (!description.isEmpty()) {
             task.setDescription(description);
         }
+
         if (!dateList.isEmpty()) {
             if (task.isFloatingTask() || task.isDeadline()) {
                 task.setDateList(dateList);
@@ -484,7 +467,6 @@ public class Logic {
      * @param displayedId id of the task as displayed in the last view command
      * @param date id to be confirmed
      * @return confirm message with the displayed id
-     *
      */
     public String confirmTask(int displayedId, int dateId) throws IOException {
         if (!isValidDisplayedId(displayedId)) {
@@ -522,7 +504,6 @@ public class Logic {
 
     /**
      * Method that undo previous action in the journal.
-     *
      */
     public String undo() throws IOException {
         try {
@@ -534,7 +515,6 @@ public class Logic {
 
     /**
      * Method that redo previous (undone) action in the journal.
-     *
      */
     public String redo() throws IOException {
         try {
@@ -581,8 +561,7 @@ public class Logic {
     }
 
     private boolean isValidDisplayedId(int displayedId) {
-        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList
-                .get(displayedId - 1) == -1);
+        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1);
     }
 
     /**
@@ -644,20 +623,14 @@ public class Logic {
     }
 
     /**
-     * Non-official methods added quickly to assist testing.
+     * Method used to check whether a task has any potential conflict in current
+     * database.
      *
-     * @return details of the task requested
+     * @param t the Task object
+     * @return true if there is a conflict else false
      *
      * @throws IOException
      */
-    public String viewTask(long id) throws IOException {
-        return dbManager.getInstance(id).toString();
-    }
-
-    public DatabaseManager<Task> getDB() {
-        return dbManager;
-    }
-
     public boolean checkConflictWithDB(Task t) throws IOException {
         boolean isConflict = false;
         ArrayList<Long> validIDList = dbManager.getValidIdList();
@@ -672,6 +645,40 @@ public class Logic {
         }
 
         return isConflict;
+    }
+
+    /**
+     * Check if any end date in the DateList has already past the current date
+     * and time during execution.
+     *
+     * @param dateList the ArrayList of DatePair
+     * @return true if there is a date that has already past else false
+     */
+    public boolean isDateBeforeNow(ArrayList<DatePair> dateList) {
+        if (dateList.size() > 0) {
+            for (DatePair dp : dateList) {
+                if (dp.getEndDate().before(Calendar.getInstance())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * Non-official methods added quickly to assist testing.
+     *
+     * @return details of the task requested
+     *
+     * @throws IOException
+     */
+    public String viewTask(long id) throws IOException {
+        return dbManager.getInstance(id).toString();
+    }
+
+    public DatabaseManager<Task> getDB() {
+        return dbManager;
     }
 
 }
