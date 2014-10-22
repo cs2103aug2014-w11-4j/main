@@ -113,19 +113,8 @@ public class Logic {
             logger.info("Executing command: " + command.getType().toString());
             switch (command.getType()) {
                 case ADD:
-                    int result = addTask(command.getDescription(),
-                            command.getDatePairs());
-                    if (result == ADD_CONFLICT) {
-                        return String.format(MESSAGE_ADD_CONFLICT,
-                                command.getDescription());
-                    } else if (result == ADD_OK) {
-                        return String.format(MESSAGE_ADD,
-                                command.getDescription());
-                    } else if (result == ADD_PASSED) {
-                        return String.format(MESSAGE_ADD_PAST,
-                                command.getDescription());
-                    }
-
+                    return addTask(command.getDescription(),
+                            command.getDatePairs());                    
                 case VIEW:
                     if (command.isViewAll()) {
                         return viewAll(command.isCompleted());
@@ -133,7 +122,6 @@ public class Logic {
                         return viewByPeriod(command.getViewRange(),
                                 command.isCompleted());
                     }
-
                 case SEARCH:
                     return searchWithKeyword(command.getKeyword());
 
@@ -187,15 +175,15 @@ public class Logic {
      *
      * @throws IOException
      */
-    public int addTask(String description, ArrayList<DatePair> dateList)
+    public String addTask(String description, ArrayList<DatePair> dateList)
             throws IOException {
-
         assert dateList != null;
         assert dateList.size() >= 0;
 
         if (dateList.size() > 0
                 && dateList.get(0).getEndDate().before(Calendar.getInstance())) {
-            return ADD_PASSED;
+            return String.format(MESSAGE_ADD_PAST,
+                   description);
         }
 
         assert description != null;
@@ -211,9 +199,11 @@ public class Logic {
         assert id >= 0;
 
         if (hasConflict) {
-            return ADD_CONFLICT;
+            return String.format(MESSAGE_ADD_CONFLICT,
+                    description);
         } else {
-            return ADD_OK;
+            return String.format(MESSAGE_ADD,
+                    description);
         }
 
     }
