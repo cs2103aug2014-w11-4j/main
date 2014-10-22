@@ -107,6 +107,7 @@ public class Logic {
                 case ADD:
                     return addTask(command.getDescription(),
                             command.getDatePairs());
+
                 case VIEW:
                     if (command.isViewAll()) {
                         return viewAll(command.isCompleted());
@@ -114,6 +115,7 @@ public class Logic {
                         return viewByPeriod(command.getViewRange(),
                                 command.isCompleted());
                     }
+
                 case SEARCH:
                     return searchWithKeyword(command.getKeyword());
 
