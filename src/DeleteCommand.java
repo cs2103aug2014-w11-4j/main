@@ -10,6 +10,7 @@ public class DeleteCommand extends Command {
 	 * @param taskId displayed id of the task
 	 */
 	public DeleteCommand(int taskId) {
+        this.type = CommandType.DELETE;
 		this.taskId = taskId;
 	}
 
