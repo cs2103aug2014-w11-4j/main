@@ -4,11 +4,10 @@ public class RedoCommand extends Command {
 	private static final String JOURNAL_MESSAGE_REDONE = "Redone operation \"%s\".";
 
 	/**
-	 * 
-	 * @param type
+	 *
 	 */
-	public RedoCommand(CommandType type) {
-		this.type = type;
+	public RedoCommand() {
+		this.type = CommandType.REDO;
 	}
 	
 	 /**

@@ -6,12 +6,10 @@ public class DeleteCommand extends Command {
 	private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
 
 	/**
-	 * 
-	 * @param type
-	 * @param displayedId displayed id of the task
+	 *
+	 * @param taskId displayed id of the task
 	 */
-	public DeleteCommand(CommandType type, int taskId) {
-		this.type = type;
+	public DeleteCommand(int taskId) {
 		this.taskId = taskId;
 	}
 

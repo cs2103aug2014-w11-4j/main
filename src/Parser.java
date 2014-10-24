@@ -139,7 +139,7 @@ public class Parser {
                 return parseExit(args);
 
             case INVALID:
-                return new InvalidCommand(userCommand, MESSAGE_INVALID_COMMAND);
+                return new InvalidCommand(MESSAGE_INVALID_COMMAND);
 
             default: /* all unrecognized command are invalid commands */
                 throw new AssertionError(userCommand);
@@ -161,8 +161,7 @@ public class Parser {
 
         /* If user decides to view all uncompleted tasks */
         if (args.contains("all")) {
-            return new ViewCommand(Command.CommandType.VIEW, true, isCompleted,
-                    date);
+            return new ViewCommand(true, isCompleted, date);
         }
 
         /* Parse all US Date to SG Date Formal Format */
@@ -176,8 +175,7 @@ public class Parser {
 
         /* If no matched dates, return invalid command */
         if (groups.isEmpty()) {
-            return new InvalidCommand(Command.CommandType.INVALID,
-                    MESSAGE_VIEW_ERROR_EMPTY);
+            return new InvalidCommand(MESSAGE_VIEW_ERROR_EMPTY);
         }
 
         /* Extract up to two dates from user's input */
@@ -192,7 +190,7 @@ public class Parser {
         }
 
         /* Return view command with retrieved arguments */
-        return new ViewCommand(Command.CommandType.VIEW, false, isCompleted, date);
+        return new ViewCommand(false, isCompleted, date);
     }
 
     /**
@@ -203,10 +201,9 @@ public class Parser {
      */
     public Command parseSearch(String args) {
         if (args.trim().isEmpty()) {
-            return new InvalidCommand(Command.CommandType.INVALID,
-                    MESSAGE_SEARCH_ERROR_EMPTY);
+            return new InvalidCommand(MESSAGE_SEARCH_ERROR_EMPTY);
         } else {
-            return new SearchCommand(Command.CommandType.SEARCH, args);
+            return new SearchCommand(args);
         }
     }
 
@@ -287,10 +284,9 @@ public class Parser {
         desc = desc.trim();
 
         if (desc.isEmpty()) {
-            return new InvalidCommand(Command.CommandType.INVALID,
-                    MESSAGE_ADD_ERROR_NO_DESC);
+            return new InvalidCommand(MESSAGE_ADD_ERROR_NO_DESC);
         } else {
-            return new AddCommand(Command.CommandType.ADD, desc, datePairs);
+            return new AddCommand(desc, datePairs);
         }
     }
 
@@ -303,11 +299,10 @@ public class Parser {
     public Command parseDelete(String args) {
         try {
             int deleteId = Integer.parseInt(getFirstWord(args).trim());
-            return new DeleteCommand(Command.CommandType.DELETE, deleteId);
+            return new DeleteCommand(deleteId);
         } catch (NumberFormatException e) {
 
-            return new InvalidCommand(Command.CommandType.INVALID,
-                    MESSAGE_DELETE_ERROR_INVALID);
+            return new InvalidCommand(MESSAGE_DELETE_ERROR_INVALID);
         }
     }
 
@@ -393,15 +388,12 @@ public class Parser {
             desc = desc.trim();
 
             if (!(!datePairs.isEmpty() || !desc.isEmpty())) {
-                return new InvalidCommand(Command.CommandType.INVALID,
-                        MESSAGE_UPDATE_ERROR_EMPTY);
+                return new InvalidCommand(MESSAGE_UPDATE_ERROR_EMPTY);
             }
 
-            return new UpdateCommand(Command.CommandType.UPDATE, deleteId, desc,
-                    datePairs);
+            return new UpdateCommand(deleteId, desc, datePairs);
         } catch (NumberFormatException e) {
-            return new InvalidCommand(Command.CommandType.INVALID,
-                    MESSAGE_UPDATE_ERROR_INVALID);
+            return new InvalidCommand(MESSAGE_UPDATE_ERROR_INVALID);
         }
 
     }
@@ -414,7 +406,7 @@ public class Parser {
      * @return UNDO command
      */
     public Command parseUndo(String args) {
-        return new UndoCommand(Command.CommandType.UNDO);
+        return new UndoCommand();
     }
 
     /**
@@ -425,7 +417,7 @@ public class Parser {
      * @return REDO command
      */
     public Command parseRedo(String args) {
-        return new RedoCommand(Command.CommandType.REDO);
+        return new RedoCommand();
     }
 
     /**
@@ -437,10 +429,9 @@ public class Parser {
     public Command parseMark(String args) {
         try {
             int markId = Integer.parseInt(getFirstWord(args).trim());
-            return new MarkCommand(Command.CommandType.MARK, markId);
+            return new MarkCommand(markId);
         } catch (NumberFormatException e) {
-            return new InvalidCommand(Command.CommandType.INVALID,
-                    MESSAGE_MARK_ERROR_INVALID);
+            return new InvalidCommand(MESSAGE_MARK_ERROR_INVALID);
         }
     }
 
@@ -454,16 +445,14 @@ public class Parser {
         try {
             String[] substrings = args.split("\\s+");
             if (substrings.length < 2) {
-                return new InvalidCommand(Command.CommandType.INVALID,
-                        MESSAGE_CONFIRM_ERROR_INVALID);
+                return new InvalidCommand(MESSAGE_CONFIRM_ERROR_INVALID);
             }
 
             int confirmId = Integer.parseInt(substrings[0]);
             int dateId = Integer.parseInt(substrings[1]);
-            return new ConfirmCommand(Command.CommandType.CONFIRM, confirmId, dateId);
+            return new ConfirmCommand(confirmId, dateId);
         } catch (NumberFormatException e) {
-            return new InvalidCommand(Command.CommandType.INVALID,
-                    MESSAGE_CONFIRM_ERROR_INVALID);
+            return new InvalidCommand(MESSAGE_CONFIRM_ERROR_INVALID);
         }
     }
 
@@ -474,7 +463,7 @@ public class Parser {
      * @return HELP command
      */
     public Command parseHelp(String args) {
-        return new HelpCommand(Command.CommandType.HELP);
+        return new HelpCommand();
     }
 
     /**
@@ -484,7 +473,7 @@ public class Parser {
      * @return CLEAR command
      */
     public Command parseClear(String args) {
-        return new ClearCommand(Command.CommandType.CLEAR);
+        return new ClearCommand();
     }
 
     /**
@@ -494,7 +483,7 @@ public class Parser {
      * @return EXIT command
      */
     public Command parseExit(String args) {
-        return new ExitCommand(Command.CommandType.EXIT);
+        return new ExitCommand();
     }
 
     /* Helper Methods for Parser */

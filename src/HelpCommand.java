@@ -4,11 +4,10 @@ import java.io.IOException;
 public class HelpCommand extends Command{
 
 	/**
-	 * 
-	 * @param type
+	 *
 	 */
-	public HelpCommand(CommandType type) {
-		this.type = type;
+	public HelpCommand() {
+		this.type = CommandType.HELP;
 	}
 	
     /**

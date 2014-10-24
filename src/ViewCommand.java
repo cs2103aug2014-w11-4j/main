@@ -8,15 +8,14 @@ public class ViewCommand extends Command {
 	private static final String MESSAGE_VIEWDATE_CRESULT = "You have %s completed task(s) %s.";
 
 	/**
-	 * 
-	 * @param type
+	 *
 	 * @param viewAll
 	 * @param completed
 	 * @param viewRange
 	 */
-	public ViewCommand(CommandType type, boolean viewAll, boolean completed,
+	public ViewCommand(boolean viewAll, boolean completed,
 			DatePair viewRange) {
-		this.type = type;
+		this.type = CommandType.VIEW;
 		this.viewAll = viewAll;
 		this.viewRange = viewRange;
 		this.completed = completed;

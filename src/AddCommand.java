@@ -9,18 +9,15 @@ public class AddCommand extends Command{
 	private static final String JOURNAL_MESSAGE_ADD = "Added task \"%s\"";
 	
 	/**
-	 * 
-	 * @param type
-	 * @param description
-	 *            of the task
-	 * @param dateList
-	 *            of possible DatePair
+	 *
+	 * @param description of the task
+	 * @param datePairs of possible DatePair
 	 * 
 	 */
-	public AddCommand(CommandType type, String desc,
+	public AddCommand(String description,
 			ArrayList<DatePair> datePairs) {
-		this.type = type;
-		this.description = desc;
+		this.type = CommandType.ADD;
+		this.description = description;
 		this.datePairs = datePairs;
 	}
     

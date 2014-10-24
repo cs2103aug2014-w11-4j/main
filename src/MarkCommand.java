@@ -8,12 +8,11 @@ public class MarkCommand extends Command{
 	private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
 	private static final String MESSAGE_MARK_UNCOMPLETED = "\"%s\" has been marked to uncompleted.";
 	/**
-	 * 
-	 * @param type
-	 * @param displayedId displayed id of the task
+	 *
+	 * @param taskId displayed id of the task
 	 */
-	public MarkCommand(CommandType type, int taskId) {
-        this.type = type;
+	public MarkCommand(int taskId) {
+        this.type = CommandType.MARK;
         this.taskId = taskId;
     }
 	

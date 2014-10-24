@@ -4,11 +4,10 @@ public class UndoCommand extends Command {
 	private static final String JOURNAL_MESSAGE_UNDONE = "Undone operation \"%s\".";
 
 	/**
-	 * 
-	 * @param type
+	 *
 	 */
-	public UndoCommand(CommandType type) {
-		this.type = type;
+	public UndoCommand() {
+		this.type = CommandType.UNDO;
 	}
 	
 	/**

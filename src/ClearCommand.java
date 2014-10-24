@@ -3,11 +3,10 @@ import java.io.IOException;
 public class ClearCommand extends Command{
 
 	/**
-	 * 
-	 * @param type
+	 *
 	 */
-	public ClearCommand(CommandType type) {
-        this.type = type;
+	public ClearCommand() {
+        this.type = CommandType.CLEAR;
     }
 	
     /**

@@ -10,12 +10,11 @@ public class ConfirmCommand extends Command{
 	private static final String MESSAGE_ERROR_WRONG_DATE_ID = "You have input an invalid date ID.";
 	
 	/**
-	 * @param displayedId id of the task as displayed in the last view command
-     * @param date id to be confirmed
-	 *
+	 * @param taskId id of the task as displayed in the last view command
+     * @param dateId id to be confirmed
 	 */
-    public ConfirmCommand(CommandType type, int taskId, int dateId) {
-        this.type = type;
+    public ConfirmCommand(int taskId, int dateId) {
+        this.type = CommandType.CONFIRM;
         this.taskId = taskId;
         this.dateId = dateId;
     }

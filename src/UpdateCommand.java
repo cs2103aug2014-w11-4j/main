@@ -8,17 +8,16 @@ public class UpdateCommand extends Command {
 	private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
 
 	/**
-	 * 
-	 * @param type
-     * @param displayedId id of the task as displayed in the last view command
+	 *
+     * @param taskId id of the task as displayed in the last view command
      * @param description updated description, if not changed will be null
-     * @param dateList updated date list, if not changed will be null
+     * @param datePairs updated date list, if not changed will be null
 	 */
-	public UpdateCommand(CommandType type, int taskId, String desc,
+	public UpdateCommand(int taskId, String description,
 			ArrayList<DatePair> datePairs) {
-		this.type = type;
+		this.type = CommandType.UPDATE;
 		this.taskId = taskId;
-		this.description = desc;
+		this.description = description;
 		this.datePairs = datePairs;
 	}
 	
