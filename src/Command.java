@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -204,6 +205,86 @@ public abstract class Command {
         return dateId;
     }
     
+    /**
+     * Helper method that formats the output of tasks.
+     *
+     * @param displayingId the id of the task
+     * @return the formatted output of the task
+     *
+     * @throws IOException
+     */
+    protected String formatTaskOutput(int displayingId) throws IOException {
+        Task task = dbManager.getInstance(displayedTasksList.get(displayingId));
+        return task.formatOutput(displayingId + 1);
+    }
+
+    protected String formatTaskListOutput() throws IOException {
+        Collections.sort(displayedTasksList, dbManager.getInstanceComparator());
+
+        StringBuilder stringBuilder = new StringBuilder();
+        String header = String.format("%-7s%-6s%-43s%-24s", "ID", "Done",
+                "Task", "Date");
+        String border = "";
+        for (int i = 0; i < CONSOLE_MAX_WIDTH; i++) {
+            border += "-";
+        }
+
+        stringBuilder.append(border + System.lineSeparator() + header
+                + System.lineSeparator() + border + System.lineSeparator());
+
+        for (int i = 0; i < displayedTasksList.size(); i++) {
+            stringBuilder.append(formatTaskOutput(i));
+            stringBuilder.append(System.lineSeparator());
+        }
+        stringBuilder.append(border);
+
+        return stringBuilder.toString();
+    }
+
+    protected boolean isValidDisplayedId(int displayedId) {
+        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1);
+    }
+
+    /**
+     * Shows the available command for the end user in the system. TODO: May
+     * need refactoring as currently it is hardcoded.
+     *
+     * @return a String object containing all the commands available
+     */
+    protected String showHelp() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Here are for the available commands in RubberDuck.");
+        sb.append(System.lineSeparator());
+        sb.append(String.format("%-15s%-65s", "view",
+                "View your agenda given a date range or \"all\"."));
+        sb.append(System.lineSeparator());
+        sb.append(String.format("%-15s%-65s", "search",
+                "Search for tasks related to the given keyword."));
+        sb.append(System.lineSeparator());
+        sb.append(String.format("%-15s%-65s", "add",
+                "Add a new task of provided description with optional date."));
+        sb.append(System.lineSeparator());
+        sb.append(String.format("%-15s%-65s", "delete",
+                "Delete a task from the system given task ID."));
+        sb.append(System.lineSeparator());
+        sb.append(String.format("%-15s%-65s", "update",
+                "Update task given task ID and new information."));
+        sb.append(System.lineSeparator());
+        sb.append(String.format("%-15s%-65s", "undo",
+                "Undo your previous action."));
+        sb.append(System.lineSeparator());
+        sb.append(String.format("%-15s%-65s", "redo",
+                "Redo your undone action."));
+        sb.append(System.lineSeparator());
+        sb.append(String.format("%-15s%-65s", "mark",
+                "Mark any task to complete/incomplete given task ID."));
+        sb.append(System.lineSeparator());
+        sb.append(String.format("%-15s%-65s", "confirm",
+                "Confirm any tentative task given task ID and date ID."));
+        sb.append(System.lineSeparator());
+        sb.append(String.format("%-15s%-65s", "exit", "Exit from RubberDuck."));
+        return sb.toString();
+    }
     /**
      * Clear the screen of the current interface.
      *
