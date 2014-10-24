@@ -34,7 +34,7 @@ public class ParserTest {
         Command dateCommand = parser.parse(dateArgument);
         assertEquals("must be VIEW command", Command.CommandType.VIEW,
                 dateCommand.getType());
-        assertEquals("must have a view date", true, dateCommand.getViewRange()
+        assertEquals("must have a view date", true, ((ViewCommand) dateCommand).getViewRange()
                 .hasEndDate());
 
         /* Boundary case for date range partition */
@@ -43,7 +43,7 @@ public class ParserTest {
         assertEquals("must be VIEW command", Command.CommandType.VIEW,
                 rangeCommand.getType());
         assertEquals("must have a view range", true,
-                rangeCommand.getViewRange().hasDateRange());
+                ((ViewCommand) rangeCommand).getViewRange().hasDateRange());
 
         /* Boundary case for 'all' partition */
         String allArgument = "view all";
@@ -51,7 +51,7 @@ public class ParserTest {
         assertEquals("must be VIEW command", Command.CommandType.VIEW,
                 allCommand.getType());
         assertEquals("boolean for viewAll should be true", true,
-                allCommand.isViewAll());
+                ((ViewCommand) allCommand).isViewAll());
 
         /* Boundary case for other String input partition */
         String otherArgument = "view randomstring";
@@ -81,7 +81,7 @@ public class ParserTest {
         assertEquals("must be SEARCH command", Command.CommandType.SEARCH,
                 stringCommand.getType());
         assertEquals("keyword must be properly stored", "meeting with boss",
-                stringCommand.getKeyword());
+                ((SearchCommand) stringCommand).getKeyword());
 
         /* Testing for different alias with valid input */
         assertEquals(Command.CommandType.SEARCH, parser.parse("search meeting")
@@ -289,7 +289,7 @@ public class ParserTest {
         assertEquals("Will only accept first two arguments", 1,
                 threeCommand.getTaskId());
         assertEquals("Will only accept first two arguments", 2,
-                threeCommand.getDateId());
+                ((ConfirmCommand) threeCommand).getDateId());
 
         /* Boundary case for 2 arguments partition */
         String twoArgument = "confirm 1 2";
@@ -299,7 +299,7 @@ public class ParserTest {
         assertEquals("Task ID should be the first argument",
                 twoCommand.getTaskId(), 1);
         assertEquals("Date ID should be the second argument",
-                twoCommand.getDateId(), 2);
+                ((ConfirmCommand) twoCommand).getDateId(), 2);
 
         /* Testing for invalid arguments in input */
         String notInteger = "mark asamplestring";

@@ -43,7 +43,7 @@ public class MenuInterface {
         while (true) {
             String rawInput = acceptInput(sc);
             Command userCommand = Parser.getInstance().parse(rawInput);
-            String response = Logic.getInstance().executeCommand(userCommand);
+            String response = userCommand.safeExecute();
             showToUser(response);
         }
     }
@@ -55,7 +55,7 @@ public class MenuInterface {
     private void showWelcome() {
         showToUser(MESSAGE_WELCOME);
         Command userCommand = Parser.getInstance().parse("view today");
-        String response = Logic.getInstance().executeCommand(userCommand);
+        String response = userCommand.safeExecute();
         showToUser(response);
         showToUser(MESSAGE_HELP);
     }

@@ -1,17 +1,22 @@
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class that represents a command object where it stores the type of command it
  * is and all its arguments.
  *
  * @author hooitong
- *
  */
-public class Command {
+public abstract class Command {
     /* Enum type to store all types of command and their possible variations */
     enum CommandType {
         /*
@@ -65,80 +70,46 @@ public class Command {
     }
 
     /* Must-have var for all types of command */
-    private CommandType type;
+    protected CommandType type;
 
     /* Information required for add, update */
-    private String description;
+    protected String description;
 
     /* Information required for add, update */
-    private ArrayList<DatePair> datePairs;
-
-    /* Information required for view */
-    private DatePair viewRange;
-    private boolean viewAll;
-    private boolean completed;
+    protected ArrayList<DatePair> datePairs;
 
     /* Information required for delete & update */
-    private int taskId;
+    protected int taskId;
 
-    /* Information required for search */
-    private String keyword;
+    protected static final int CONSOLE_MAX_WIDTH = 80;
 
-    /* Information required for confirm */
-    private int dateId;
+    protected static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    /* Constructor for view command */
-    public Command(CommandType type, boolean viewAll, boolean completed,
-            DatePair viewRange) {
-        this.type = type;
-        this.viewAll = viewAll;
-        this.viewRange = viewRange;
-        this.completed = completed;
+    protected static final String DATABASE_NAME = "database.xml";
+    protected static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
+    protected static ArrayList<Long> displayedTasksList = new ArrayList<Long>();
+    protected static DatabaseManager<Task> dbManager;
+    private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
+
+    public Command() {
+
     }
 
-    /* Constructor for add command */
-    public Command(CommandType type, String desc, ArrayList<DatePair> datePairs) {
-        this.type = type;
-        this.description = desc;
-        this.datePairs = datePairs;
+    /**
+     * Start the database, if not found new database will be created.
+     *
+     * @return states if the database has been started successfully
+     */
+    public static boolean startDatabase() {
+        try {
+            dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
+                    + File.separator + DATABASE_NAME);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
+            return false;
+        }
+        return true;
     }
-
-    /* Constructor for update command */
-    public Command(CommandType type, int taskId, String desc,
-            ArrayList<DatePair> datePairs) {
-        this.type = type;
-        this.taskId = taskId;
-        this.description = desc;
-        this.datePairs = datePairs;
-    }
-
-    /* Constructor for confirm command */
-    public Command(CommandType type, int taskId, int dateId) {
-        this.type = type;
-        this.taskId = taskId;
-        this.dateId = dateId;
-    }
-
-    /* Constructor for search & invalid command */
-    public Command(CommandType type, String desc) {
-        this.type = type;
-        if (type == CommandType.SEARCH)
-            this.keyword = desc;
-        else if (type == CommandType.INVALID)
-            this.description = desc;
-    }
-
-    /* Constructor for delete, mark command */
-    public Command(CommandType type, int taskId) {
-        this.type = type;
-        this.taskId = taskId;
-    }
-
-    /* Constructor for exit, undo, redo, help command */
-    public Command(CommandType type) {
-        this.type = type;
-    }
-
     /* Getters methods for variables in the class */
 
     public CommandType getType() {
@@ -149,31 +120,120 @@ public class Command {
         return description;
     }
 
-    public DatePair getViewRange() {
-        return viewRange;
-    }
-
     public ArrayList<DatePair> getDatePairs() {
         return datePairs;
-    }
-
-    public boolean isViewAll() {
-        return viewAll;
-    }
-
-    public boolean isCompleted() {
-        return completed;
     }
 
     public int getTaskId() {
         return taskId;
     }
 
-    public String getKeyword() {
-        return keyword;
+    /**
+     * Helper method that formats the output of tasks.
+     *
+     * @param displayingId the id of the task
+     * @return the formatted output of the task
+     * @throws IOException
+     */
+    protected String formatTaskOutput(int displayingId) throws IOException {
+        Task task = dbManager.getInstance(displayedTasksList.get(displayingId));
+        return task.formatOutput(displayingId + 1);
     }
 
-    public int getDateId() {
-        return dateId;
+    protected String formatTaskListOutput() throws IOException {
+        Collections.sort(displayedTasksList, dbManager.getInstanceComparator());
+
+        StringBuilder stringBuilder = new StringBuilder();
+        String header = String.format("%-7s%-6s%-43s%-24s", "ID", "Done",
+                "Task", "Date");
+        String border = "";
+        for (int i = 0; i < CONSOLE_MAX_WIDTH; i++) {
+            border += "-";
+        }
+
+        stringBuilder.append(border + System.lineSeparator() + header
+                + System.lineSeparator() + border + System.lineSeparator());
+
+        for (int i = 0; i < displayedTasksList.size(); i++) {
+            stringBuilder.append(formatTaskOutput(i));
+            stringBuilder.append(System.lineSeparator());
+        }
+        stringBuilder.append(border);
+
+        return stringBuilder.toString();
     }
+
+    protected boolean isValidDisplayedId(int displayedId) {
+        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1);
+    }
+
+
+    /**
+     * Method used to check whether a task has any potential conflict in current
+     * database.
+     *
+     * @param t the Task object
+     * @return true if there is a conflict else false
+     * @throws IOException
+     */
+    public boolean checkConflictWithDB(Task t) throws IOException {
+        boolean isConflict = false;
+        if (t.isFloatingTask()) {
+            return isConflict;
+        }
+        ArrayList<Long> validIDList = dbManager.getValidIdList();
+        for (int i = 0; i < validIDList.size(); i++) {
+            Task storedTask = dbManager.getInstance(validIDList.get(i));
+            if (!storedTask.getIsDone() && !storedTask.isFloatingTask()) {
+                isConflict = t.hasConflictWith(storedTask);
+            }
+        }
+
+        return isConflict;
+    }
+
+    /**
+     * Check if any end date in the DateList has already past the current date
+     * and time during execution.
+     *
+     * @param dateList the ArrayList of DatePair
+     * @return true if there is a date that has already past else false
+     */
+    public boolean isDateBeforeNow(ArrayList<DatePair> dateList) {
+        if (dateList.size() > 0) {
+            for (DatePair dp : dateList) {
+                if (dp.getEndDate().before(Calendar.getInstance())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * Non-official methods added quickly to assist testing.
+     *
+     * @return details of the task requested
+     * @throws IOException
+     */
+    public String viewTask(long id) throws IOException {
+        return dbManager.getInstance(id).toString();
+    }
+
+    public static DatabaseManager<Task> getDB() {
+        return dbManager;
+    }
+
+    public abstract String execute() throws IOException;
+
+    public String safeExecute() {
+        try {
+            return execute();
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
+            return MESSAGE_ERROR_DATABASE_IOEXCEPTION;
+        }
+    }
+
 }
