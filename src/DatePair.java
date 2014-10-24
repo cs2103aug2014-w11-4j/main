@@ -95,11 +95,7 @@ public class DatePair implements Serializable {
      * @return true if there is overlap between two DatePairs
      * @author Huang Yue
      */
-    public boolean isWithinPeriod(DatePair dateRange) { // TODO: THIS METHOD IS
-                                                        // NOT TESTED! add test
-                                                        // for this (V
-                                                        // important!)
-
+    public boolean isWithinPeriod(DatePair dateRange) {
         Calendar startDateCriteria = dateRange.getStartDate();
         Calendar endDateCriteria = dateRange.getEndDate();
 
@@ -125,6 +121,5 @@ public class DatePair implements Serializable {
         }
 
         return !(startDate.after(endDateCriteria) || endDate.before(startDateCriteria));
-
     }
 }
