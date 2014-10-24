@@ -103,34 +103,6 @@ public abstract class Command {
 	protected DatabaseManager<Task> dbManager;
 	private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
 	
-    /* Constructor for view command */
-    public Command(CommandType type, boolean viewAll, boolean completed,
-            DatePair viewRange) {
-        this.type = type;
-        this.viewAll = viewAll;
-        this.viewRange = viewRange;
-        this.completed = completed;
-    }
-
-
- 
-
-    /* Constructor for search & invalid command */
-    public Command(CommandType type, String desc) {
-        this.type = type;
-        if (type == CommandType.SEARCH)
-            this.keyword = desc;
-        else if (type == CommandType.INVALID)
-            this.description = desc;
-    }
-
-
-
-    /* Constructor for exit, undo, redo, help command */
-    public Command(CommandType type) {
-        this.type = type;
-    }
-    
     public Command() {
     	
     }
