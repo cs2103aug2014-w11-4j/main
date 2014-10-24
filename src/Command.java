@@ -79,19 +79,8 @@ public abstract class Command {
     /* Information required for add, update */
     protected ArrayList<DatePair> datePairs;
 
-    /* Information required for view */
-    protected DatePair viewRange;
-    protected boolean viewAll;
-    protected boolean completed;
-
     /* Information required for delete & update */
     protected int taskId;
-
-    /* Information required for search */
-    protected String keyword;
-
-    /* Information required for confirm */
-    protected int dateId;
     
 	protected static final int CONSOLE_MAX_WIDTH = 80;
 
@@ -132,32 +121,12 @@ public abstract class Command {
         return description;
     }
 
-    public DatePair getViewRange() {
-        return viewRange;
-    }
-
     public ArrayList<DatePair> getDatePairs() {
         return datePairs;
     }
 
-    public boolean isViewAll() {
-        return viewAll;
-    }
-
-    public boolean isCompleted() {
-        return completed;
-    }
-
     public int getTaskId() {
         return taskId;
-    }
-
-    public String getKeyword() {
-        return keyword;
-    }
-
-    public int getDateId() {
-        return dateId;
     }
     
     /**

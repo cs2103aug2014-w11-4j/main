@@ -7,6 +7,21 @@ public class ViewCommand extends Command {
 	private static final String MESSAGE_VIEWALL_CRESULT = "You have %s completed task(s).";
 	private static final String MESSAGE_VIEWDATE_CRESULT = "You have %s completed task(s) %s.";
 
+    /* Information required for view */
+    private DatePair viewRange;
+    private boolean viewAll;
+    private boolean completed;
+
+    public DatePair getViewRange() {
+        return viewRange;
+    }
+    public boolean isViewAll() {
+        return viewAll;
+    }
+    public boolean isCompleted() {
+        return completed;
+    }
+
 	/**
 	 *
 	 * @param viewAll

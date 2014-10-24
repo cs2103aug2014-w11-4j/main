@@ -8,7 +8,14 @@ public class ConfirmCommand extends Command{
 	private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
 	private static final String MESSAGE_ERROR_NOT_TENTATIVE = "\"%s\" is not tentative and does not need confirmation.";
 	private static final String MESSAGE_ERROR_WRONG_DATE_ID = "You have input an invalid date ID.";
-	
+
+    /* Information required for confirm */
+    private int dateId;
+
+    public int getDateId() {
+        return dateId;
+    }
+
 	/**
 	 * @param taskId id of the task as displayed in the last view command
      * @param dateId id to be confirmed

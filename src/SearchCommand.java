@@ -4,6 +4,13 @@ import java.io.IOException;
 public class SearchCommand extends Command {
 	private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
 
+    /* Information required for search */
+    private String keyword;
+
+    public String getKeyword() {
+        return keyword;
+    }
+
 	/**
 	 *
 	 * @param keyword that is used to search for the task
