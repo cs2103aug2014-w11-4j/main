@@ -7,11 +7,22 @@ public class MarkCommand extends Command{
 	private static final String JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED = "Mark task \"%s\" as uncompleted";
 	private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
 	private static final String MESSAGE_MARK_UNCOMPLETED = "\"%s\" has been marked to uncompleted.";
+	/**
+	 * 
+	 * @param type
+	 * @param displayedId displayed id of the task
+	 */
 	public MarkCommand(CommandType type, int taskId) {
         this.type = type;
         this.taskId = taskId;
     }
-
+	
+	/**
+     * Mark a task (completed to uncompleted and vice versa)
+     * @return message of mark
+     *
+     * @throws IOException
+     */
 	@Override
 	public String execute() throws IOException {
 		if (!isValidDisplayedId(taskId)) {

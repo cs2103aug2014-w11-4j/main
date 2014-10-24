@@ -1,14 +1,19 @@
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
-
-
 public class ViewCommand extends Command {
 	private static final String MESSAGE_VIEWALL_RESULT = "You have %s uncompleted task(s).";
 	private static final String MESSAGE_VIEWDATE_RESULT = "You have %s uncompleted task(s) %s.";
 	private static final String MESSAGE_VIEWALL_CRESULT = "You have %s completed task(s).";
 	private static final String MESSAGE_VIEWDATE_CRESULT = "You have %s completed task(s) %s.";
 
+	/**
+	 * 
+	 * @param type
+	 * @param viewAll
+	 * @param completed
+	 * @param viewRange
+	 */
 	public ViewCommand(CommandType type, boolean viewAll, boolean completed,
 			DatePair viewRange) {
 		this.type = type;
@@ -16,7 +21,15 @@ public class ViewCommand extends Command {
 		this.viewRange = viewRange;
 		this.completed = completed;
 	}
-
+	
+	/**
+     * Check the type of view requested by Command
+     *
+     * @return the result of the view option
+     *
+     * @throws IOException
+     *
+     */
 	@Override
 	public String execute() throws IOException {
 		if (isViewAll()) {

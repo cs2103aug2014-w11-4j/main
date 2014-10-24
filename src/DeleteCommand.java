@@ -5,11 +5,23 @@ public class DeleteCommand extends Command {
 	private static final String MESSAGE_DELETE = "\"%s\" has been successfully deleted.";
 	private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
 
+	/**
+	 * 
+	 * @param type
+	 * @param displayedId displayed id of the task
+	 */
 	public DeleteCommand(CommandType type, int taskId) {
 		this.type = type;
 		this.taskId = taskId;
 	}
 
+    /**
+     * Delete Task of Database.
+     *
+     * @return delete message including the task description
+     *
+     * @throws IOException
+     */
 	@Override
 	public String execute() throws IOException {
 		if (!isValidDisplayedId(taskId)) {

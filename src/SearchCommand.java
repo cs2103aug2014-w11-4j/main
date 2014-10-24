@@ -4,6 +4,11 @@ import java.io.IOException;
 public class SearchCommand extends Command {
 	private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
 
+	/**
+	 * 
+	 * @param type
+	 * @param keyword the keyword that is used to search for the task
+	 */
 	public SearchCommand(CommandType type, String desc) {
 		this.type = type;
 		if (type == CommandType.SEARCH)
@@ -11,7 +16,12 @@ public class SearchCommand extends Command {
 		else if (type == CommandType.INVALID)
 			this.description = desc;
 	}
-
+	
+	/**
+     * Search for task based on description.
+     *
+     * 
+     */
 	@Override
 	public String execute() throws IOException {
 		StringBuilder responseBuilder = new StringBuilder();

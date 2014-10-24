@@ -2,6 +2,10 @@ import java.io.IOException;
 
 public class ClearCommand extends Command{
 
+	/**
+	 * 
+	 * @param type
+	 */
 	public ClearCommand(CommandType type) {
         this.type = type;
     }
@@ -11,6 +15,7 @@ public class ClearCommand extends Command{
      *
      * @throws IOException
      */
+	@Override
     public String execute() throws IOException {
         final String os = System.getProperty("os.name");
 

@@ -3,10 +3,20 @@ import java.io.IOException;
 
 public class HelpCommand extends Command{
 
+	/**
+	 * 
+	 * @param type
+	 */
 	public HelpCommand(CommandType type) {
 		this.type = type;
 	}
-
+	
+    /**
+     * Shows the available command for the end user in the system. TODO: May
+     * need refactoring as currently it is hardcoded.
+     *
+     * @return a String object containing all the commands available
+     */
 	@Override
 	public String execute() throws IOException {
 

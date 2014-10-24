@@ -1,6 +1,11 @@
 import java.io.IOException;
 
 public class InvalidCommand extends Command{
+	/**
+	 * 
+	 * @param type
+	 * @param desc
+	 */
     public InvalidCommand(CommandType type, String desc) {
         this.type = type;
         if (type == CommandType.SEARCH)

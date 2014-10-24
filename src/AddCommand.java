@@ -8,12 +8,29 @@ public class AddCommand extends Command{
 	private static final String MESSAGE_ADD_PAST = "\"%s\" cannot be added as the end date has already passed.";
 	private static final String JOURNAL_MESSAGE_ADD = "Added task \"%s\"";
 	
-    public AddCommand(CommandType type, String desc, ArrayList<DatePair> datePairs) {
-        this.type = type;
-        this.description = desc;
-        this.datePairs = datePairs;
-    }
-
+	/**
+	 * 
+	 * @param type
+	 * @param description
+	 *            of the task
+	 * @param dateList
+	 *            of possible DatePair
+	 * 
+	 */
+	public AddCommand(CommandType type, String desc,
+			ArrayList<DatePair> datePairs) {
+		this.type = type;
+		this.description = desc;
+		this.datePairs = datePairs;
+	}
+    
+    /**
+     * Create and add the task to the database.
+     *
+     * @return the correct response back to the user
+     *
+     * @throws IOException
+     */
 	@Override
 	public String execute() throws IOException {
 		assert datePairs != null;

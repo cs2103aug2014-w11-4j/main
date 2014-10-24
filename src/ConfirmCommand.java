@@ -9,12 +9,22 @@ public class ConfirmCommand extends Command{
 	private static final String MESSAGE_ERROR_NOT_TENTATIVE = "\"%s\" is not tentative and does not need confirmation.";
 	private static final String MESSAGE_ERROR_WRONG_DATE_ID = "You have input an invalid date ID.";
 	
+	/**
+	 * @param displayedId id of the task as displayed in the last view command
+     * @param date id to be confirmed
+	 *
+	 */
     public ConfirmCommand(CommandType type, int taskId, int dateId) {
         this.type = type;
         this.taskId = taskId;
         this.dateId = dateId;
     }
 
+    /**
+     * Confirm the date of task to the database.
+     *
+     * @return confirm message with the displayed id
+     */
 	@Override
 	public String execute() throws IOException {
 		 if (!isValidDisplayedId(taskId)) {
