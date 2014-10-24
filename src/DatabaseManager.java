@@ -229,6 +229,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements 
             StringBuilder xmlString = new StringBuilder();
             while ((line = randomAccessFile.readLine()) != null
                     && !(line.equals(VALID_FLAG) || line.equals(INVALID_FLAG))) {
+                xmlString.append("\n");
                 xmlString.append(line);
             }
             return xmlString.toString();
@@ -238,10 +239,9 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements 
     }
 
     private void writeStringAtEnd(String string) throws IOException {
-        byte[] byteArray = string.getBytes();
         randomAccessFile.seek(eofOffset);
         randomAccessFile.writeBytes(VALID_FLAG + "\n");
-        randomAccessFile.write(byteArray);
+        randomAccessFile.writeBytes(string);
         randomAccessFile.writeByte('\n');
         eofOffset = randomAccessFile.getFilePointer();
     }
