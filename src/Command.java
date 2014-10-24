@@ -1,8 +1,13 @@
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class that represents a command object where it stores the type of command it
@@ -86,7 +91,17 @@ public abstract class Command {
 
     /* Information required for confirm */
     protected int dateId;
+    
+	protected static final int CONSOLE_MAX_WIDTH = 80;
 
+	protected static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
+	protected static final String DATABASE_NAME = "database.xml";
+	protected static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
+	protected ArrayList<Long> displayedTasksList = new ArrayList<Long>();
+	protected DatabaseManager<Task> dbManager;
+	private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
+	
     /* Constructor for view command */
     public Command(CommandType type, boolean viewAll, boolean completed,
             DatePair viewRange) {
@@ -94,13 +109,6 @@ public abstract class Command {
         this.viewAll = viewAll;
         this.viewRange = viewRange;
         this.completed = completed;
-    }
-
-    /* Constructor for add command */
-    public Command(CommandType type, String desc, ArrayList<DatePair> datePairs) {
-        this.type = type;
-        this.description = desc;
-        this.datePairs = datePairs;
     }
 
     /* Constructor for update command */
@@ -138,7 +146,26 @@ public abstract class Command {
     public Command(CommandType type) {
         this.type = type;
     }
+    
+    public Command() {
+    	
+    }
 
+    /**
+     * Start the database, if not found new database will be created.
+     *
+     * @return states if the database has been started successfully
+     */
+    public boolean startDatabase() {
+        try {
+            dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
+                    + File.separator + DATABASE_NAME);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
+            return false;
+        }
+        return true;
+    }
     /* Getters methods for variables in the class */
 
     public CommandType getType() {
@@ -177,6 +204,84 @@ public abstract class Command {
         return dateId;
     }
     
-    public abstract void execute();
+    /**
+     * Clear the screen of the current interface.
+     *
+     * @throws IOException
+     */
+    protected String clearScreen() throws IOException {
+        final String os = System.getProperty("os.name");
+
+        if (os.contains("Windows")) {
+            Runtime.getRuntime().exec("cls");
+        } else {
+            Runtime.getRuntime().exec("clear");
+        }
+
+        return "";
+    }
+
+    /**
+     * Method used to check whether a task has any potential conflict in current
+     * database.
+     *
+     * @param t the Task object
+     * @return true if there is a conflict else false
+     *
+     * @throws IOException
+     */
+    public boolean checkConflictWithDB(Task t) throws IOException {
+        boolean isConflict = false;
+        if (t.isFloatingTask()) {
+            return isConflict;
+        }
+        ArrayList<Long> validIDList = dbManager.getValidIdList();
+        for (int i = 0; i < validIDList.size(); i++) {
+            Task storedTask = dbManager.getInstance(validIDList.get(i));
+            if (!storedTask.getIsDone() && !storedTask.isFloatingTask()) {
+                isConflict = t.hasConflictWith(storedTask);
+            }
+        }
+
+        return isConflict;
+    }
+
+    /**
+     * Check if any end date in the DateList has already past the current date
+     * and time during execution.
+     *
+     * @param dateList the ArrayList of DatePair
+     * @return true if there is a date that has already past else false
+     */
+    public boolean isDateBeforeNow(ArrayList<DatePair> dateList) {
+        if (dateList.size() > 0) {
+            for (DatePair dp : dateList) {
+                if (dp.getEndDate().before(Calendar.getInstance())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * Non-official methods added quickly to assist testing.
+     *
+     * @return details of the task requested
+     *
+     * @throws IOException
+     */
+    public String viewTask(long id) throws IOException {
+        return dbManager.getInstance(id).toString();
+    }
+
+    public DatabaseManager<Task> getDB() {
+        return dbManager;
+    }
+
+    public abstract String execute() throws IOException;
+    
+    
     
 }
