@@ -214,7 +214,7 @@ public class CommandTest {
      *
      */
 
-/*    @Test
+    @Test
     public void markTaskCompleted() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         AddCommand addCommand = new AddCommand("Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -223,10 +223,11 @@ public class CommandTest {
         ViewCommand viewCommand = new ViewCommand(true, false, null);
         viewCommand.execute();
 
-        String expected = logic.markTaskCompleted(1);
+        MarkCommand markCommand = new MarkCommand(1);
+        String expected = markCommand.execute();
         String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to completed.";
         assertEquals(actual, expected);
-    }*/
+    }
 
     /**
      *
@@ -234,18 +235,23 @@ public class CommandTest {
      * @throws IOException
      *
      */
-/*    @Test
-    public void markTaskUncompleted() throws IOException {
-        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        logic.addTask(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                dpList);
-        logic.viewAll(false);
-        logic.markTaskCompleted(1);
-        String expected = logic.markTaskUncompleted(1);
-        String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to uncompleted.";
-        assertEquals(actual, expected);
-    }*/
+    @Test
+	public void markTaskUncompleted() throws IOException {
+		ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+		AddCommand addCommand = new AddCommand(
+				"Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+				dpList);
+		addCommand.execute();
+		ViewCommand viewCommand = new ViewCommand(true, false, null);
+		viewCommand.execute();
+		
+		MarkCommand markCommand = new MarkCommand(1);
+		markCommand.execute();
+		
+		String expected = markCommand.execute();
+		String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to uncompleted.";
+		assertEquals(actual, expected);
+	}
 
     /**
      * Test adding of task with todays date
