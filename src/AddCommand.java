@@ -7,7 +7,7 @@ public class AddCommand extends Command{
 	private static final String MESSAGE_ADD_CONFLICT = "\"%s\" has been successfully added.\nPlease note that there are conflicting task(s).";
 	private static final String MESSAGE_ADD_PAST = "\"%s\" cannot be added as the end date has already passed.";
 	private static final String JOURNAL_MESSAGE_ADD = "Added task \"%s\"";
-	   
+	
     public AddCommand(CommandType type, String desc, ArrayList<DatePair> datePairs) {
         this.type = type;
         this.description = desc;
