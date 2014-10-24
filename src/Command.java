@@ -112,21 +112,8 @@ public abstract class Command {
         this.completed = completed;
     }
 
-    /* Constructor for update command */
-    public Command(CommandType type, int taskId, String desc,
-            ArrayList<DatePair> datePairs) {
-        this.type = type;
-        this.taskId = taskId;
-        this.description = desc;
-        this.datePairs = datePairs;
-    }
 
-    /* Constructor for confirm command */
-    public Command(CommandType type, int taskId, int dateId) {
-        this.type = type;
-        this.taskId = taskId;
-        this.dateId = dateId;
-    }
+ 
 
     /* Constructor for search & invalid command */
     public Command(CommandType type, String desc) {
@@ -137,11 +124,7 @@ public abstract class Command {
             this.description = desc;
     }
 
-    /* Constructor for delete, mark command */
-    public Command(CommandType type, int taskId) {
-        this.type = type;
-        this.taskId = taskId;
-    }
+
 
     /* Constructor for exit, undo, redo, help command */
     public Command(CommandType type) {
@@ -245,46 +228,6 @@ public abstract class Command {
         return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1);
     }
 
-    /**
-     * Shows the available command for the end user in the system. TODO: May
-     * need refactoring as currently it is hardcoded.
-     *
-     * @return a String object containing all the commands available
-     */
-    protected String showHelp() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Here are for the available commands in RubberDuck.");
-        sb.append(System.lineSeparator());
-        sb.append(String.format("%-15s%-65s", "view",
-                "View your agenda given a date range or \"all\"."));
-        sb.append(System.lineSeparator());
-        sb.append(String.format("%-15s%-65s", "search",
-                "Search for tasks related to the given keyword."));
-        sb.append(System.lineSeparator());
-        sb.append(String.format("%-15s%-65s", "add",
-                "Add a new task of provided description with optional date."));
-        sb.append(System.lineSeparator());
-        sb.append(String.format("%-15s%-65s", "delete",
-                "Delete a task from the system given task ID."));
-        sb.append(System.lineSeparator());
-        sb.append(String.format("%-15s%-65s", "update",
-                "Update task given task ID and new information."));
-        sb.append(System.lineSeparator());
-        sb.append(String.format("%-15s%-65s", "undo",
-                "Undo your previous action."));
-        sb.append(System.lineSeparator());
-        sb.append(String.format("%-15s%-65s", "redo",
-                "Redo your undone action."));
-        sb.append(System.lineSeparator());
-        sb.append(String.format("%-15s%-65s", "mark",
-                "Mark any task to complete/incomplete given task ID."));
-        sb.append(System.lineSeparator());
-        sb.append(String.format("%-15s%-65s", "confirm",
-                "Confirm any tentative task given task ID and date ID."));
-        sb.append(System.lineSeparator());
-        sb.append(String.format("%-15s%-65s", "exit", "Exit from RubberDuck."));
-        return sb.toString();
-    }
     /**
      * Clear the screen of the current interface.
      *
