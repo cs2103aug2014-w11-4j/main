@@ -262,6 +262,13 @@ public abstract class Command {
 
     public abstract String execute() throws IOException;
     
-    
+    public String safeExecute() {
+    	try {
+    		return execute();
+    	} catch (IOException e) {
+            logger.log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
+            return MESSAGE_ERROR_DATABASE_IOEXCEPTION;
+        }
+    }
     
 }
