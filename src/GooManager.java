@@ -26,6 +26,9 @@ public class GooManager {
     private static final String APPLICATION_NAME = "RubberDuck/0.2";
     private static final String CALENDAR_NAME = "RubberDuck";
 
+    private static final String LOCAL_UUID_TASK = "_RD_T_";
+    private static final String LOCAL_UUID_EVENT = "_RD_E_";
+
     private static HttpTransport httpTransport;
     private static MemoryDataStoreFactory memoryDataStoreFactory = MemoryDataStoreFactory.getDefaultInstance();
 
@@ -54,7 +57,7 @@ public class GooManager {
         return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
     }
 
-    public static void setupConnection() throws IOException, GeneralSecurityException {
+    private static void setupConnection() throws IOException, GeneralSecurityException {
         httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 
         Credential credential = authorize();
@@ -119,25 +122,71 @@ public class GooManager {
         }
     }
 
+    private static boolean isPushedAsTask(Task task) {
+        return isLocalTaskUuid(task.getUuid());
+    }
+
+    private static boolean isPushedAsEvent(Task task) {
+        return isLocalEventUuid(task.getUuid());
+    }
+
+    private static boolean isLocalTaskUuid(String localUuid) {
+        return localUuid.startsWith(LOCAL_UUID_TASK);
+    }
+
+    private static boolean isLocalEventUuid(String localUuid) {
+        return localUuid.startsWith(LOCAL_UUID_EVENT);
+    }
+
+    private static String constructLocalTaskUuid(String remoteUuid) {
+        return LOCAL_UUID_TASK + remoteUuid;
+    }
+
+    private static String constructLocalEventUuid(String remoteUuid) {
+        return LOCAL_UUID_EVENT + remoteUuid;
+    }
+
+    private static String constructRemoteTaskId(String localUuid) {
+        assert isLocalTaskUuid(localUuid);
+        return localUuid.replaceFirst(LOCAL_UUID_TASK, "");
+    }
+
+    private static String constructRemoteEventId(String localUuid) {
+        assert isLocalEventUuid(localUuid);
+        return localUuid.replaceFirst(LOCAL_UUID_EVENT, "");
+    }
+
     public static boolean isPushed(Task task) {
-        return !(task.getUuid().contains("-"));
+        return isPushedAsTask(task) || isPushedAsEvent(task);
+    }
+
+    private static String getRemoteUuid(Task task) {
+        if (isPushedAsTask(task)) {
+            return constructRemoteTaskId(task.getUuid());
+        } else if (isPushedAsEvent(task)) {
+            return constructRemoteEventId(task.getUuid());
+        } else {
+            throw new UnsupportedOperationException(); // TODO
+        }
     }
 
     public static boolean isInRemote(Task task) throws IOException {
-        if (!isPushed(task)) {
-            return false;
-        }
-        if (task.isFloatingTask() || task.isDeadline()) {
-            return (getRemoteTask(task.getUuid()) != null);
+        if (isPushedAsTask(task)) {
+            return (getRemoteTask(getRemoteUuid(task)) != null);
+        } else if (isPushedAsEvent(task)) {
+            return (getRemoteEvent(getRemoteUuid(task)) != null);
         } else {
-            return (getRemoteEvent(task.getUuid()) != null);
+            return false;
         }
     }
 
     public static Task pushTask(Task originalTask) throws IOException {
         boolean shouldUpdate = true;
         if (originalTask.isFloatingTask() || originalTask.isDeadline()) {
-            com.google.api.services.tasks.model.Task task = getRemoteTask(originalTask.getUuid());
+            com.google.api.services.tasks.model.Task task = null;
+            if (isPushedAsTask(originalTask)) {
+                task = getRemoteTask(getRemoteUuid(originalTask));
+            }
             if (task == null) {
                 task = new com.google.api.services.tasks.model.Task();
                 shouldUpdate = false;
@@ -148,9 +197,12 @@ public class GooManager {
             } else {
                 task = tasksClient.tasks().insert(taskListId, task).execute();
             }
-            originalTask.setUuid(task.getId());
+            originalTask.setUuid(constructLocalTaskUuid(task.getId()));
         } else {
-            com.google.api.services.calendar.model.Event event = getRemoteEvent(originalTask.getUuid());
+            com.google.api.services.calendar.model.Event event = null;
+            if (isPushedAsEvent(originalTask)) {
+                event = getRemoteEvent(originalTask.getUuid());
+            }
             if (event == null) {
                 event = new com.google.api.services.calendar.model.Event();
                 shouldUpdate = false;
@@ -161,14 +213,14 @@ public class GooManager {
             } else {
                 event = calendarClient.events().insert(calendarId, event).execute();
             }
-            originalTask.setUuid(event.getId());
+            originalTask.setUuid(constructLocalEventUuid(event.getId()));
         }
         return originalTask;
     }
 
-    public static com.google.api.services.tasks.model.Task getRemoteTask(String id) throws IOException {
+    public static com.google.api.services.tasks.model.Task getRemoteTask(String remoteId) throws IOException {
         try {
-            return tasksClient.tasks().get(taskListId, id).execute();
+            return tasksClient.tasks().get(taskListId, remoteId).execute();
         } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
             if (e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value")) {
                 return null;
@@ -178,9 +230,9 @@ public class GooManager {
         }
     }
 
-    public static com.google.api.services.calendar.model.Event getRemoteEvent(String id) throws IOException {
+    public static com.google.api.services.calendar.model.Event getRemoteEvent(String remoteId) throws IOException {
         try {
-            return calendarClient.events().get(calendarId, id).execute();
+            return calendarClient.events().get(calendarId, remoteId).execute();
         } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
             if ((e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value")) || (e.getDetails().getCode() == 404 && e.getDetails().getMessage().equals("Not Found"))) {
                 return null;
@@ -225,18 +277,13 @@ public class GooManager {
         DatePair datePair = originalTask.getDateList().get(0);
         event.setStart(calendarToEventDateTime(datePair.getStartDate()));
         event.setEnd(calendarToEventDateTime(datePair.getEndDate()));
-        event.setId(originalTask.getUuid().replace("-", ""));
     }
 
-    private static boolean isIdTask(String id) {
-        return id.contains(taskListId);
-    }
-
-    public static Task pullTask(String id) throws IOException {
+    public static Task pullTask(String localId) throws IOException {
         Task task = new Task();
-        task.setUuid(id);
-        if (isIdTask(id)) {
-            com.google.api.services.tasks.model.Task remoteTask = getRemoteTask(id);
+        task.setUuid(localId);
+        if (isLocalTaskUuid(localId)) {
+            com.google.api.services.tasks.model.Task remoteTask = getRemoteTask(constructRemoteTaskId(localId));
             task.setDescription(remoteTask.getTitle());
             if (remoteTask.getStatus().equals("completed")) {
                 task.setIsDone(true);
@@ -248,13 +295,15 @@ public class GooManager {
                 dateList.add(new DatePair(dateTimeToCalendar(remoteTask.getDue())));
                 task.setDateList(dateList);
             }
-        } else {
-            com.google.api.services.calendar.model.Event remoteEvent = getRemoteEvent(id);
+        } else if (isLocalEventUuid(localId)) {
+            com.google.api.services.calendar.model.Event remoteEvent = getRemoteEvent(constructRemoteEventId(localId));
             task.setDescription(remoteEvent.getSummary());
             // TODO: what should we do with completed here?
             ArrayList<DatePair> dateList = new ArrayList<DatePair>();
             dateList.add(new DatePair(eventDateTimeToCalendar(remoteEvent.getStart()), eventDateTimeToCalendar(remoteEvent.getEnd())));
             task.setDateList(dateList);
+        } else {
+            throw new UnsupportedOperationException(); // TODO
         }
         return task;
     }
