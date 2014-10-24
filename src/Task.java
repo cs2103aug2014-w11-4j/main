@@ -346,7 +346,23 @@ public class Task implements Serializable, Comparable<Task> {
     public boolean isDeadline() {
         return (dateList.size() == 1 && dateList.get(0).isDeadline());
     }
-
+    
+    public boolean isTimedTask() {
+    	if(dateList.size()>0){
+        	for(DatePair dp : dateList){
+        		if(!dp.hasDateRange()){
+        			return false;
+        		}
+        	}
+        	return true;
+    	}
+    	return false;
+    }
+    
+    public boolean checkValidity(){
+    	return isFloatingTask() || isDeadline() || isTimedTask();
+    }
+    
     public Calendar getEarliestDate() {
         if (isFloatingTask()) {
             throw new UnsupportedOperationException(
