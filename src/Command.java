@@ -141,7 +141,7 @@ public abstract class Command {
     }
 
     protected String formatTaskListOutput() throws IOException {
-        Collections.sort(displayedTasksList, dbManager.getInstanceComparator());
+        Collections.sort(displayedTasksList, dbManager.getInstanceIdComparator());
 
         StringBuilder stringBuilder = new StringBuilder();
         String header = String.format("%-7s%-6s%-43s%-24s", "ID", "Done",
