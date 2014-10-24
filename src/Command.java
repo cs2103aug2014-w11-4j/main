@@ -65,27 +65,27 @@ public abstract class Command {
     }
 
     /* Must-have var for all types of command */
-    private CommandType type;
+    protected CommandType type;
 
     /* Information required for add, update */
-    private String description;
+    protected String description;
 
     /* Information required for add, update */
-    private ArrayList<DatePair> datePairs;
+    protected ArrayList<DatePair> datePairs;
 
     /* Information required for view */
-    private DatePair viewRange;
-    private boolean viewAll;
-    private boolean completed;
+    protected DatePair viewRange;
+    protected boolean viewAll;
+    protected boolean completed;
 
     /* Information required for delete & update */
-    private int taskId;
+    protected int taskId;
 
     /* Information required for search */
-    private String keyword;
+    protected String keyword;
 
     /* Information required for confirm */
-    private int dateId;
+    protected int dateId;
 
     /* Constructor for view command */
     public Command(CommandType type, boolean viewAll, boolean completed,
