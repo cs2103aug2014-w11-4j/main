@@ -1,20 +1,20 @@
 import java.io.IOException;
 
-public class ClearCommand extends Command{
+public class ClearCommand extends Command {
 
-	/**
-	 *
-	 */
-	public ClearCommand() {
+    /**
+     *
+     */
+    public ClearCommand() {
         this.type = CommandType.CLEAR;
     }
-	
+
     /**
      * Clear the screen of the current interface.
      *
      * @throws IOException
      */
-	@Override
+    @Override
     public String execute() throws IOException {
         final String os = System.getProperty("os.name");
 

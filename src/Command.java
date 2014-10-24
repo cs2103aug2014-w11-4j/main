@@ -15,7 +15,6 @@ import java.util.logging.Logger;
  * is and all its arguments.
  *
  * @author hooitong
- *
  */
 public abstract class Command {
     /* Enum type to store all types of command and their possible variations */
@@ -79,32 +78,21 @@ public abstract class Command {
     /* Information required for add, update */
     protected ArrayList<DatePair> datePairs;
 
-    /* Information required for view */
-    protected DatePair viewRange;
-    protected boolean viewAll;
-    protected boolean completed;
-
     /* Information required for delete & update */
     protected int taskId;
 
-    /* Information required for search */
-    protected String keyword;
+    protected static final int CONSOLE_MAX_WIDTH = 80;
 
-    /* Information required for confirm */
-    protected int dateId;
-    
-	protected static final int CONSOLE_MAX_WIDTH = 80;
+    protected static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-	protected static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    protected static final String DATABASE_NAME = "database.xml";
+    protected static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
+    protected static ArrayList<Long> displayedTasksList = new ArrayList<Long>();
+    protected static DatabaseManager<Task> dbManager;
+    private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
 
-	protected static final String DATABASE_NAME = "database.xml";
-	protected static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
-	protected static ArrayList<Long> displayedTasksList = new ArrayList<Long>();
-	protected static DatabaseManager<Task> dbManager;
-	private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
-	
     public Command() {
-    	
+
     }
 
     /**
@@ -132,40 +120,19 @@ public abstract class Command {
         return description;
     }
 
-    public DatePair getViewRange() {
-        return viewRange;
-    }
-
     public ArrayList<DatePair> getDatePairs() {
         return datePairs;
-    }
-
-    public boolean isViewAll() {
-        return viewAll;
-    }
-
-    public boolean isCompleted() {
-        return completed;
     }
 
     public int getTaskId() {
         return taskId;
     }
 
-    public String getKeyword() {
-        return keyword;
-    }
-
-    public int getDateId() {
-        return dateId;
-    }
-    
     /**
      * Helper method that formats the output of tasks.
      *
      * @param displayingId the id of the task
      * @return the formatted output of the task
-     *
      * @throws IOException
      */
     protected String formatTaskOutput(int displayingId) throws IOException {
@@ -207,7 +174,6 @@ public abstract class Command {
      *
      * @param t the Task object
      * @return true if there is a conflict else false
-     *
      * @throws IOException
      */
     public boolean checkConflictWithDB(Task t) throws IOException {
@@ -249,7 +215,6 @@ public abstract class Command {
      * Non-official methods added quickly to assist testing.
      *
      * @return details of the task requested
-     *
      * @throws IOException
      */
     public String viewTask(long id) throws IOException {
@@ -261,11 +226,11 @@ public abstract class Command {
     }
 
     public abstract String execute() throws IOException;
-    
+
     public String safeExecute() {
-    	try {
-    		return execute();
-    	} catch (IOException e) {
+        try {
+            return execute();
+        } catch (IOException e) {
             logger.log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
             return MESSAGE_ERROR_DATABASE_IOEXCEPTION;
         }
