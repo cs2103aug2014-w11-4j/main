@@ -25,7 +25,7 @@ import java.util.Iterator;
  */
 public class DatabaseManager<T extends Serializable & Comparable<T>> implements Iterable<T> {
 
-    private class InstanceComparator implements Comparator<Long> {
+    private class InstanceIdComparator implements Comparator<Long> {
         @Override
         public int compare(Long o1, Long o2) {
             try {
@@ -37,8 +37,8 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements 
         }
     }
 
-    public Comparator<Long> getInstanceComparator() {
-        return new InstanceComparator();
+    public Comparator<Long> getInstanceIdComparator() {
+        return new InstanceIdComparator();
     }
 
     private class InstanceIterator implements Iterator<T> {
