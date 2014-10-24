@@ -11,7 +11,7 @@ import java.util.Map;
  * @author hooitong
  *
  */
-public abstract class Command {
+public class Command {
     /* Enum type to store all types of command and their possible variations */
     enum CommandType {
         /*
@@ -176,7 +176,4 @@ public abstract class Command {
     public int getDateId() {
         return dateId;
     }
-    
-    public abstract void execute();
-    
 }
