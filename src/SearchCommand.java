@@ -2,7 +2,7 @@ import java.io.IOException;
 
 
 public class SearchCommand extends Command {
-	private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
+    private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
 
     /* Information required for search */
     private String keyword;
@@ -11,44 +11,41 @@ public class SearchCommand extends Command {
         return keyword;
     }
 
-	/**
-	 *
-	 * @param keyword that is used to search for the task
-	 */
-	public SearchCommand(String keyword) {
-		this.type = CommandType.SEARCH;
-		this.keyword = keyword;
-	}
-	
-	/**
-     * Search for task based on description.
-     *
-     * 
+    /**
+     * @param keyword that is used to search for the task
      */
-	@Override
-	public String execute() throws IOException {
-		StringBuilder responseBuilder = new StringBuilder();
+    public SearchCommand(String keyword) {
+        this.type = CommandType.SEARCH;
+        this.keyword = keyword;
+    }
 
-		displayedTasksList.clear();
-		for (Long databaseId : dbManager.getValidIdList()) {
-			String taskInDb = dbManager.getInstance(databaseId)
-					.getDescription();
-			taskInDb = taskInDb.toLowerCase();
-			if (taskInDb.contains(keyword.toLowerCase())) {
-				displayedTasksList.add(databaseId);
-			}
-		}
+    /**
+     * Search for task based on description.
+     */
+    @Override
+    public String execute() throws IOException {
+        StringBuilder responseBuilder = new StringBuilder();
 
-		responseBuilder.append(String.format(MESSAGE_SEARCH_RESULT,
-				displayedTasksList.size(), keyword));
+        displayedTasksList.clear();
+        for (Long databaseId : dbManager.getValidIdList()) {
+            String taskInDb = dbManager.getInstance(databaseId)
+                    .getDescription();
+            taskInDb = taskInDb.toLowerCase();
+            if (taskInDb.contains(keyword.toLowerCase())) {
+                displayedTasksList.add(databaseId);
+            }
+        }
 
-		if (!displayedTasksList.isEmpty()) {
-			responseBuilder.append(System.lineSeparator());
-			responseBuilder.append(formatTaskListOutput());
-		}
+        responseBuilder.append(String.format(MESSAGE_SEARCH_RESULT,
+                displayedTasksList.size(), keyword));
 
-		return responseBuilder.toString();
+        if (!displayedTasksList.isEmpty()) {
+            responseBuilder.append(System.lineSeparator());
+            responseBuilder.append(formatTaskListOutput());
+        }
 
-	}
+        return responseBuilder.toString();
+
+    }
 
 }
