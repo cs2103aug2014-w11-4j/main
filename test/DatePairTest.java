@@ -6,23 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 public class DatePairTest {
-    private Logic logic;
-
-    @Before
-    public void setUp() throws Exception {
-        logic = Logic.getInstance();
-        logic.getDB().resetDatabase();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        logic.getDB().resetDatabase();
-    }
 
     /**
      * Test for view of task that are within date range Task : 1 aug 2014 - 20

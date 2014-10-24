@@ -4,7 +4,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ DatePairTest.class, JournalControllerTest.class,
-        LogicTest.class, ParserTest.class })
+        CommandTest.class, ParserTest.class })
 public class AllTests {
 
 }

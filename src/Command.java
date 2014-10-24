@@ -256,7 +256,7 @@ public abstract class Command {
         return dbManager.getInstance(id).toString();
     }
 
-    public DatabaseManager<Task> getDB() {
+    public static DatabaseManager<Task> getDB() {
         return dbManager;
     }
 
