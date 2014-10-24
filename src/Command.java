@@ -99,8 +99,8 @@ public abstract class Command {
 
 	protected static final String DATABASE_NAME = "database.xml";
 	protected static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
-	protected ArrayList<Long> displayedTasksList = new ArrayList<Long>();
-	protected DatabaseManager<Task> dbManager;
+	protected static ArrayList<Long> displayedTasksList = new ArrayList<Long>();
+	protected static DatabaseManager<Task> dbManager;
 	private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
 	
     public Command() {
@@ -112,7 +112,7 @@ public abstract class Command {
      *
      * @return states if the database has been started successfully
      */
-    public boolean startDatabase() {
+    public static boolean startDatabase() {
         try {
             dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
                     + File.separator + DATABASE_NAME);
