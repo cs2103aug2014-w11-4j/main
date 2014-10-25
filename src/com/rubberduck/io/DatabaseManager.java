@@ -218,7 +218,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
             }
             if (willCopy) {
                 bufferedWriter.write(line);
-                bufferedWriter.write('\n');
+                bufferedWriter.write(System.getProperty("line.separator"));
             }
         }
         bufferedWriter.close();
@@ -233,7 +233,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
             StringBuilder xmlString = new StringBuilder();
             while ((line = randomAccessFile.readLine()) != null
                     && !(line.equals(VALID_FLAG) || line.equals(INVALID_FLAG))) {
-                xmlString.append("\n");
+                xmlString.append(System.getProperty("line.separator"));
                 xmlString.append(line);
             }
             return xmlString.toString();
@@ -244,9 +244,9 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
 
     private void writeStringAtEnd(String string) throws IOException {
         randomAccessFile.seek(eofOffset);
-        randomAccessFile.writeBytes(VALID_FLAG + "\n");
+        randomAccessFile.writeBytes(VALID_FLAG + System.getProperty("line.separator"));
         randomAccessFile.writeBytes(string);
-        randomAccessFile.writeByte('\n');
+        randomAccessFile.writeBytes(System.getProperty("line.separator"));
         eofOffset = randomAccessFile.getFilePointer();
     }
 
