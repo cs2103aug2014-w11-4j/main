@@ -1,8 +1,9 @@
 import java.io.IOException;
-
+import java.util.Collections;
 
 public class SearchCommand extends Command {
     private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
+    protected static final int CONSOLE_MAX_WIDTH = 80;
 
     /* Information required for search */
     private String keyword;
@@ -15,7 +16,6 @@ public class SearchCommand extends Command {
      * @param keyword that is used to search for the task
      */
     public SearchCommand(String keyword) {
-        this.type = CommandType.SEARCH;
         this.keyword = keyword;
     }
 
@@ -26,26 +26,63 @@ public class SearchCommand extends Command {
     public String execute() throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
 
-        displayedTasksList.clear();
-        for (Long databaseId : dbManager.getValidIdList()) {
-            String taskInDb = dbManager.getInstance(databaseId)
+        getDisplayedTasksList().clear();
+        for (Long databaseId : getDbManager().getValidIdList()) {
+            String taskInDb = getDbManager().getInstance(databaseId)
                     .getDescription();
             taskInDb = taskInDb.toLowerCase();
             if (taskInDb.contains(keyword.toLowerCase())) {
-                displayedTasksList.add(databaseId);
+                getDisplayedTasksList().add(databaseId);
             }
         }
 
         responseBuilder.append(String.format(MESSAGE_SEARCH_RESULT,
-                displayedTasksList.size(), keyword));
+                getDisplayedTasksList().size(), keyword));
 
-        if (!displayedTasksList.isEmpty()) {
+        if (!getDisplayedTasksList().isEmpty()) {
             responseBuilder.append(System.lineSeparator());
             responseBuilder.append(formatTaskListOutput());
         }
 
         return responseBuilder.toString();
 
+    }
+
+    private String formatTaskListOutput() throws IOException {
+        Collections.sort(getDisplayedTasksList(),
+                getDbManager().getInstanceIdComparator());
+
+        StringBuilder stringBuilder = new StringBuilder();
+        String header = String.format("%-7s%-6s%-43s%-24s", "ID", "Done",
+                "Task", "Date");
+        String border = "";
+        for (int i = 0; i < CONSOLE_MAX_WIDTH; i++) {
+            border += "-";
+        }
+
+        stringBuilder.append(border + System.lineSeparator() + header
+                + System.lineSeparator() + border + System.lineSeparator());
+
+        for (int i = 0; i < getDisplayedTasksList().size(); i++) {
+            stringBuilder.append(formatTaskOutput(i));
+            stringBuilder.append(System.lineSeparator());
+        }
+        stringBuilder.append(border);
+
+        return stringBuilder.toString();
+    }
+
+    /**
+     * Helper method that formats the output of tasks.
+     *
+     * @param displayingId the id of the task
+     * @return the formatted output of the task
+     * @throws IOException
+     */
+    protected String formatTaskOutput(int displayingId) throws IOException {
+        Task task = getDbManager().getInstance(
+                getDisplayedTasksList().get(displayingId));
+        return task.formatOutput(displayingId + 1);
     }
 
 }

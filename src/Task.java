@@ -7,6 +7,7 @@
  * @author Sia Wei Kiat Jason
  */
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -346,23 +347,23 @@ public class Task implements Serializable, Comparable<Task> {
     public boolean isDeadline() {
         return (dateList.size() == 1 && dateList.get(0).isDeadline());
     }
-    
+
     public boolean isTimedTask() {
-    	if(dateList.size()>0){
-        	for(DatePair dp : dateList){
-        		if(!dp.hasDateRange()){
-        			return false;
-        		}
-        	}
-        	return true;
-    	}
-    	return false;
+        if (dateList.size() > 0) {
+            for (DatePair dp : dateList) {
+                if (!dp.hasDateRange()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
-    
-    public boolean checkValidity(){
-    	return isFloatingTask() || isDeadline() || isTimedTask();
+
+    public boolean checkValidity() {
+        return isFloatingTask() || isDeadline() || isTimedTask();
     }
-    
+
     public Calendar getEarliestDate() {
         if (isFloatingTask()) {
             throw new UnsupportedOperationException(
@@ -408,4 +409,28 @@ public class Task implements Serializable, Comparable<Task> {
         return this.getEarliestDate().compareTo(o.getEarliestDate());
     }
 
+    /**
+     * Method used to check whether a task has any potential conflict in current
+     * database.
+     *
+     * @param t the Task object
+     * @return true if there is a conflict else false
+     * @throws IOException
+     */
+    public boolean checkConflictWithDB(DatabaseManager<Task> dbManager)
+            throws IOException {
+        boolean isConflict = false;
+        if (isFloatingTask()) {
+            return isConflict;
+        }
+        ArrayList<Long> validIDList = dbManager.getValidIdList();
+        for (int i = 0; i < validIDList.size(); i++) {
+            Task storedTask = dbManager.getInstance(validIDList.get(i));
+            if (!storedTask.getIsDone() && !storedTask.isFloatingTask()) {
+                isConflict = hasConflictWith(storedTask);
+            }
+        }
+
+        return isConflict;
+    }
 }

@@ -69,31 +69,14 @@ public abstract class Command {
 
     }
 
-    /* Must-have var for all types of command */
-    protected CommandType type;
-
-    /* Information required for add, update */
-    protected String description;
-
-    /* Information required for add, update */
-    protected ArrayList<DatePair> datePairs;
-
-    /* Information required for delete & update */
-    protected int taskId;
-
-    protected static final int CONSOLE_MAX_WIDTH = 80;
-
-    protected static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-
-    protected static final String DATABASE_NAME = "database.xml";
-    protected static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
-    protected static ArrayList<Long> displayedTasksList = new ArrayList<Long>();
-    protected static DatabaseManager<Task> dbManager;
+    /* Details about the DataStore/DatabaseManager */
     private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
+    private static final String DATABASE_NAME = "database.xml";
+    private static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
 
-    public Command() {
-
-    }
+    private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static ArrayList<Long> displayedTasksList = new ArrayList<Long>();
+    private static DatabaseManager<Task> dbManager;
 
     /**
      * Start the database, if not found new database will be created.
@@ -105,135 +88,37 @@ public abstract class Command {
             dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
                     + File.separator + DATABASE_NAME);
         } catch (IOException e) {
-            logger.log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
+            getLogger().log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
             return false;
         }
         return true;
     }
-    /* Getters methods for variables in the class */
 
-    public CommandType getType() {
-        return type;
+    public static Logger getLogger() {
+        return LOGGER;
     }
 
-    public String getDescription() {
-        return description;
+    public static ArrayList<Long> getDisplayedTasksList() {
+        return displayedTasksList;
     }
 
-    public ArrayList<DatePair> getDatePairs() {
-        return datePairs;
-    }
-
-    public int getTaskId() {
-        return taskId;
-    }
-
-    /**
-     * Helper method that formats the output of tasks.
-     *
-     * @param displayingId the id of the task
-     * @return the formatted output of the task
-     * @throws IOException
-     */
-    protected String formatTaskOutput(int displayingId) throws IOException {
-        Task task = dbManager.getInstance(displayedTasksList.get(displayingId));
-        return task.formatOutput(displayingId + 1);
-    }
-
-    protected String formatTaskListOutput() throws IOException {
-        Collections.sort(displayedTasksList, dbManager.getInstanceIdComparator());
-
-        StringBuilder stringBuilder = new StringBuilder();
-        String header = String.format("%-7s%-6s%-43s%-24s", "ID", "Done",
-                "Task", "Date");
-        String border = "";
-        for (int i = 0; i < CONSOLE_MAX_WIDTH; i++) {
-            border += "-";
-        }
-
-        stringBuilder.append(border + System.lineSeparator() + header
-                + System.lineSeparator() + border + System.lineSeparator());
-
-        for (int i = 0; i < displayedTasksList.size(); i++) {
-            stringBuilder.append(formatTaskOutput(i));
-            stringBuilder.append(System.lineSeparator());
-        }
-        stringBuilder.append(border);
-
-        return stringBuilder.toString();
-    }
-
-    protected boolean isValidDisplayedId(int displayedId) {
+    public static boolean isValidDisplayedId(int displayedId) {
         return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1);
     }
 
-
-    /**
-     * Method used to check whether a task has any potential conflict in current
-     * database.
-     *
-     * @param t the Task object
-     * @return true if there is a conflict else false
-     * @throws IOException
-     */
-    public boolean checkConflictWithDB(Task t) throws IOException {
-        boolean isConflict = false;
-        if (t.isFloatingTask()) {
-            return isConflict;
-        }
-        ArrayList<Long> validIDList = dbManager.getValidIdList();
-        for (int i = 0; i < validIDList.size(); i++) {
-            Task storedTask = dbManager.getInstance(validIDList.get(i));
-            if (!storedTask.getIsDone() && !storedTask.isFloatingTask()) {
-                isConflict = t.hasConflictWith(storedTask);
-            }
-        }
-
-        return isConflict;
-    }
-
-    /**
-     * Check if any end date in the DateList has already past the current date
-     * and time during execution.
-     *
-     * @param dateList the ArrayList of DatePair
-     * @return true if there is a date that has already past else false
-     */
-    public boolean isDateBeforeNow(ArrayList<DatePair> dateList) {
-        if (dateList.size() > 0) {
-            for (DatePair dp : dateList) {
-                if (dp.getEndDate().before(Calendar.getInstance())) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        return false;
-    }
-
-    /**
-     * Non-official methods added quickly to assist testing.
-     *
-     * @return details of the task requested
-     * @throws IOException
-     */
-    public String viewTask(long id) throws IOException {
-        return dbManager.getInstance(id).toString();
-    }
-
-    public static DatabaseManager<Task> getDB() {
+    public static DatabaseManager<Task> getDbManager() {
         return dbManager;
     }
-
-    public abstract String execute() throws IOException;
 
     public String safeExecute() {
         try {
             return execute();
         } catch (IOException e) {
-            logger.log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
+            getLogger().log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
             return MESSAGE_ERROR_DATABASE_IOEXCEPTION;
         }
     }
+
+    protected abstract String execute() throws IOException;
 
 }
