@@ -1,5 +1,8 @@
+package com.rubberduck.command;
+
 import java.io.IOException;
 
+import com.rubberduck.logic.Task;
 
 public class MarkCommand extends Command {
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
@@ -8,11 +11,16 @@ public class MarkCommand extends Command {
     private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
     private static final String MESSAGE_MARK_UNCOMPLETED = "\"%s\" has been marked to uncompleted.";
 
+    private int taskId;
+
+    public int getTaskId() {
+        return taskId;
+    }
+
     /**
      * @param taskId displayed id of the task
      */
     public MarkCommand(int taskId) {
-        this.type = CommandType.MARK;
         this.taskId = taskId;
     }
 
@@ -41,9 +49,9 @@ public class MarkCommand extends Command {
      * @return true if the task is completed
      * @throws IOException
      */
-    public boolean isCompletedTask(int displayedId) throws IOException {
-        long databaseId = displayedTasksList.get(displayedId - 1);
-        Task oldTask = dbManager.getInstance(databaseId);
+    private boolean isCompletedTask(int displayedId) throws IOException {
+        long databaseId = getDisplayedTasksList().get(displayedId - 1);
+        Task oldTask = getDbManager().getInstance(databaseId);
         return oldTask.getIsDone();
     }
 
@@ -55,14 +63,14 @@ public class MarkCommand extends Command {
      * @throws IOException
      */
     public String markTaskCompleted(int displayedId) throws IOException {
-        long databaseId = displayedTasksList.get(displayedId - 1);
-        Task oldTask = dbManager.getInstance(databaseId);
+        long databaseId = getDisplayedTasksList().get(displayedId - 1);
+        Task oldTask = getDbManager().getInstance(databaseId);
         assert !oldTask.getIsDone();
         oldTask.setIsDone(true);
-        long newTaskId = dbManager.putInstance(oldTask);
-        displayedTasksList.set(displayedId - 1, newTaskId);
-        dbManager.markAsInvalid(databaseId);
-        dbManager.recordAction(
+        long newTaskId = getDbManager().putInstance(oldTask);
+        getDisplayedTasksList().set(displayedId - 1, newTaskId);
+        getDbManager().markAsInvalid(databaseId);
+        getDbManager().recordAction(
                 databaseId,
                 newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
@@ -78,14 +86,14 @@ public class MarkCommand extends Command {
      * @throws IOException
      */
     public String markTaskUncompleted(int displayedId) throws IOException {
-        long databaseId = displayedTasksList.get(displayedId - 1);
-        Task oldTask = dbManager.getInstance(databaseId);
+        long databaseId = getDisplayedTasksList().get(displayedId - 1);
+        Task oldTask = getDbManager().getInstance(databaseId);
         assert oldTask.getIsDone();
         oldTask.setIsDone(false);
-        long newTaskId = dbManager.putInstance(oldTask);
-        displayedTasksList.set(displayedId - 1, newTaskId);
-        dbManager.markAsInvalid(databaseId);
-        dbManager.recordAction(
+        long newTaskId = getDbManager().putInstance(oldTask);
+        getDisplayedTasksList().set(displayedId - 1, newTaskId);
+        getDbManager().markAsInvalid(databaseId);
+        getDbManager().recordAction(
                 databaseId,
                 newTaskId,
                 String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,
