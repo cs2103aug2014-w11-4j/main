@@ -14,12 +14,12 @@ public class CommandTest {
     @Before
     public void setUp() throws IOException {
         Command.startDatabase();
-        Command.getDB().resetDatabase();
+        Command.getDbManager().resetDatabase();
     }
 
     @After
     public void tearDown() throws IOException {
-        Command.getDB().closeFile();
+        Command.getDbManager().closeFile();
     }
 
     /**
@@ -36,10 +36,11 @@ public class CommandTest {
         Calendar today = Calendar.getInstance();
         DatePair dp = new DatePair(today);
         datePairList.add(dp);
-        AddCommand command = new AddCommand("Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        AddCommand command = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 datePairList);
         command.execute();
-        assertEquals(1, Command.getDB().getValidIdList().size());
+        assertEquals(1, Command.getDbManager().getValidIdList().size());
     }
 
     /**
@@ -55,12 +56,13 @@ public class CommandTest {
         String actual = "";
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
-        AddCommand command = new AddCommand("Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        AddCommand command = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         command.execute();
 
-        for (Long databaseId : Command.getDB().getValidIdList()) {
-            String taskInDb = Command.getDB()
+        for (Long databaseId : Command.getDbManager().getValidIdList()) {
+            String taskInDb = Command.getDbManager()
                     .getInstance(databaseId)
                     .getDescription();
             taskInDb = taskInDb.toLowerCase();
@@ -86,12 +88,13 @@ public class CommandTest {
         DatePair dp = new DatePair(null, Calendar.getInstance());
         dpList.add(dp);
         String keyword = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
-        AddCommand command = new AddCommand("Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        AddCommand command = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         command.execute();
 
-        for (Long databaseId : Command.getDB().getValidIdList()) {
-            String taskInDb = Command.getDB()
+        for (Long databaseId : Command.getDbManager().getValidIdList()) {
+            String taskInDb = Command.getDbManager()
                     .getInstance(databaseId)
                     .getDescription();
             taskInDb = taskInDb.toLowerCase();
@@ -112,7 +115,8 @@ public class CommandTest {
     public void searchKeywordTest() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
-        AddCommand addCommand = new AddCommand("Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         addCommand.execute();
 
@@ -129,16 +133,19 @@ public class CommandTest {
     @Test
     public void testJournalUndo() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        int originalSize = Command.getDB().getValidIdList().size();
+        int originalSize = Command.getDbManager().getValidIdList().size();
 
-        AddCommand addCommand = new AddCommand("Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         addCommand.execute();
 
         UndoCommand undoCommand = new UndoCommand();
         undoCommand.execute();
 
-        assertEquals(originalSize, Command.getDB().getValidIdList().size());
+        assertEquals(originalSize, Command.getDbManager()
+                .getValidIdList()
+                .size());
     }
 
     /**
@@ -148,7 +155,7 @@ public class CommandTest {
      */
     @Test
     public void testJournalRedo() throws IOException {
-        int originalSize = Command.getDB().getValidIdList().size();
+        int originalSize = Command.getDbManager().getValidIdList().size();
 
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
@@ -163,7 +170,9 @@ public class CommandTest {
         RedoCommand redoCommand = new RedoCommand();
         redoCommand.execute();
 
-        assertEquals(originalSize + 2, Command.getDB().getValidIdList().size());
+        assertEquals(originalSize + 2, Command.getDbManager()
+                .getValidIdList()
+                .size());
     }
 
     /**
@@ -174,7 +183,8 @@ public class CommandTest {
     @Test
     public void DeleteExistTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        AddCommand addCommand = new AddCommand("Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         addCommand.execute();
         ViewCommand viewCommand = new ViewCommand(true, false, null);
@@ -195,13 +205,14 @@ public class CommandTest {
     @Test
     public void updateTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        AddCommand addCommand = new AddCommand("Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         addCommand.execute();
         ViewCommand viewCommand = new ViewCommand(true, false, null);
         viewCommand.execute();
-        UpdateCommand updateCommand = new UpdateCommand(1, "Lorem ipsum dolor sit amet.",
-                dpList);
+        UpdateCommand updateCommand = new UpdateCommand(1,
+                "Lorem ipsum dolor sit amet.", dpList);
         String actual = updateCommand.execute();
         String expected = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully updated.";
         assertEquals(expected, actual);
@@ -217,7 +228,8 @@ public class CommandTest {
     @Test
     public void markTaskCompleted() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        AddCommand addCommand = new AddCommand("Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         addCommand.execute();
         ViewCommand viewCommand = new ViewCommand(true, false, null);
@@ -236,22 +248,22 @@ public class CommandTest {
      *
      */
     @Test
-	public void markTaskUncompleted() throws IOException {
-		ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-		AddCommand addCommand = new AddCommand(
-				"Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-				dpList);
-		addCommand.execute();
-		ViewCommand viewCommand = new ViewCommand(true, false, null);
-		viewCommand.execute();
-		
-		MarkCommand markCommand = new MarkCommand(1);
-		markCommand.execute();
-		
-		String expected = markCommand.execute();
-		String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to uncompleted.";
-		assertEquals(actual, expected);
-	}
+    public void markTaskUncompleted() throws IOException {
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                dpList);
+        addCommand.execute();
+        ViewCommand viewCommand = new ViewCommand(true, false, null);
+        viewCommand.execute();
+
+        MarkCommand markCommand = new MarkCommand(1);
+        markCommand.execute();
+
+        String expected = markCommand.execute();
+        String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to uncompleted.";
+        assertEquals(actual, expected);
+    }
 
     /**
      * Test adding of task with todays date
@@ -279,7 +291,8 @@ public class CommandTest {
         DatePair dp3 = new DatePair(date3);
         datePairList.add(dp3);
 
-        AddCommand addCommand = new AddCommand("Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 datePairList);
         addCommand.execute();
         ViewCommand viewCommand = new ViewCommand(true, false, null);
