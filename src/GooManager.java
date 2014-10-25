@@ -308,6 +308,32 @@ public class GooManager {
         return task;
     }
 
+    public static ArrayList<com.google.api.services.tasks.model.Task> getRemoteTaskList() throws IOException {
+        ArrayList<com.google.api.services.tasks.model.Task> remoteTaskList = new ArrayList<com.google.api.services.tasks.model.Task>();
+
+        String pageToken = null;
+        do {
+            Tasks tasks = tasksClient.tasks().list(taskListId).setPageToken(pageToken).execute();
+            remoteTaskList.addAll(tasks.getItems());
+            pageToken = tasks.getNextPageToken();
+        } while (pageToken != null);
+
+        return remoteTaskList;
+    }
+
+    public static ArrayList<com.google.api.services.calendar.model.Event> getRemoteEventList() throws IOException {
+        ArrayList<com.google.api.services.calendar.model.Event> remoteEventList = new ArrayList<com.google.api.services.calendar.model.Event>();
+
+        String pageToken = null;
+        do {
+            Events events = calendarClient.events().list(calendarId).setPageToken(pageToken).execute();
+            remoteEventList.addAll(events.getItems());
+            pageToken = events.getNextPageToken();
+        } while (pageToken != null);
+
+        return remoteEventList;
+    }
+
     public static void main(String[] args) throws Exception {
         initialize();
         System.out.println(calendarId);
