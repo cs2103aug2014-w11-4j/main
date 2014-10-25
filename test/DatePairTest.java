@@ -8,6 +8,9 @@ import java.util.Calendar;
 
 import org.junit.Test;
 
+import com.rubberduck.DatePair;
+import com.rubberduck.Task;
+
 public class DatePairTest {
 
     /**
@@ -65,7 +68,7 @@ public class DatePairTest {
         assertEquals(true, actual);
 
     }
-    
+
     /**
      * Test for view of task overlap date range Task : 1 aug 2014 - 20 aug 2014
      * View Scope : 1 july 2014 - 15 aug 2014 Expected: true
@@ -119,13 +122,12 @@ public class DatePairTest {
         assertEquals(true, actual);
 
     }
-    
+
     /**
-     * Task Boundary test : 20 aug 2014
-     * View Scope :19 aug 2014 - 30 aug 2014 Expected: true
+     * Task Boundary test : 20 aug 2014 View Scope :19 aug 2014 - 30 aug 2014
+     * Expected: true
      * 
-     * Range = 19 - 30
-     * Test Value 20
+     * Range = 19 - 30 Test Value 20
      */
 
     @Test
@@ -148,13 +150,12 @@ public class DatePairTest {
         assertEquals(true, actual);
 
     }
-    
+
     /**
-     * Task Boundary Test: 19 aug 2014 
-     * View Scope :19 aug 2014 - 30 aug 2014 Expected: true
+     * Task Boundary Test: 19 aug 2014 View Scope :19 aug 2014 - 30 aug 2014
+     * Expected: true
      * 
-     * Range = 19 - 30
-     * Test Value 19
+     * Range = 19 - 30 Test Value 19
      */
 
     @Test
@@ -176,12 +177,12 @@ public class DatePairTest {
         assertEquals(true, actual);
 
     }
+
     /**
-     * Task Boundary Test : 18 aug 2014 
-     * View Scope :19 aug 2014 - 30 aug 2014 Expected: false
+     * Task Boundary Test : 18 aug 2014 View Scope :19 aug 2014 - 30 aug 2014
+     * Expected: false
      * 
-     * Range = 19 - 30
-     * Test Value 18
+     * Range = 19 - 30 Test Value 18
      */
 
     @Test
@@ -203,13 +204,12 @@ public class DatePairTest {
         assertEquals(false, actual);
 
     }
-    
+
     /**
-     * Task Boundary Test : 24 aug 2014
-     * View Scope :19 aug 2014 - 25 aug 2014 Expected: true
+     * Task Boundary Test : 24 aug 2014 View Scope :19 aug 2014 - 25 aug 2014
+     * Expected: true
      * 
-     * Range = 19 - 25
-     * Test Value 24
+     * Range = 19 - 25 Test Value 24
      */
 
     @Test
@@ -231,13 +231,12 @@ public class DatePairTest {
         assertEquals(true, actual);
 
     }
-    
+
     /**
-     * Task Boundary Test: 24 aug 2014 
-     * View Scope :19 aug 2014 - 25 aug 2014 Expected: true
+     * Task Boundary Test: 24 aug 2014 View Scope :19 aug 2014 - 25 aug 2014
+     * Expected: true
      * 
-     * Range = 19 - 25
-     * Test Value 24
+     * Range = 19 - 25 Test Value 24
      */
 
     @Test
@@ -259,13 +258,13 @@ public class DatePairTest {
         assertEquals(true, actual);
 
     }
-    
+
     /**
-     * Task Boundary Test : 26 aug 2014 27 aug 2014
-     * View Scope : 19 aug 2014 - 25 aug 2014 Expected: false
+     * Task Boundary Test : 26 aug 2014 27 aug 2014 View Scope : 19 aug 2014 -
+     * 25 aug 2014 Expected: false
      * 
-     * Range = 19 - 25
-     * Test Value 26 start, 27 end; need to have 2 dates, as those with no start date = infinite early
+     * Range = 19 - 25 Test Value 26 start, 27 end; need to have 2 dates, as
+     * those with no start date = infinite early
      */
 
     @Test
@@ -289,8 +288,6 @@ public class DatePairTest {
         assertEquals(false, actual);
 
     }
-   
-    
 
     /**
      * Test: null startDate / endDate Expected: true

@@ -1,3 +1,5 @@
+package com.rubberduck.command;
+
 import java.io.IOException;
 
 public class UndoCommand extends Command {

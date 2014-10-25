@@ -1,3 +1,5 @@
+package com.rubberduck.command;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,6 +10,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.rubberduck.DatabaseManager;
+import com.rubberduck.Task;
+
 /**
  * Class that represents a command object where it stores the type of command it
  * is and all its arguments.
@@ -16,7 +21,7 @@ import java.util.logging.Logger;
  */
 public abstract class Command {
     /* Enum type to store all types of command and their possible variations */
-    enum CommandType {
+    public enum CommandType {
         /*
          * use var args to populate all possible variations for each command
          * type

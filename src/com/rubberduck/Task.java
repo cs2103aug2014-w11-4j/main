@@ -1,3 +1,5 @@
+package com.rubberduck;
+
 /**
  * This task class is used to represent a single task object
  * which stores all relevant information about the task and

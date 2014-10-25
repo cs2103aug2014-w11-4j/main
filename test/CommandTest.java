@@ -9,6 +9,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.rubberduck.DatePair;
+import com.rubberduck.command.*;
+
 public class CommandTest {
 
     @Before

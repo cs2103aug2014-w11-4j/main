@@ -1,3 +1,5 @@
+package com.rubberduck;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -10,6 +12,20 @@ import java.util.regex.Pattern;
 
 import com.joestelmach.natty.CalendarSource;
 import com.joestelmach.natty.DateGroup;
+import com.rubberduck.command.AddCommand;
+import com.rubberduck.command.ClearCommand;
+import com.rubberduck.command.Command;
+import com.rubberduck.command.ConfirmCommand;
+import com.rubberduck.command.DeleteCommand;
+import com.rubberduck.command.ExitCommand;
+import com.rubberduck.command.HelpCommand;
+import com.rubberduck.command.InvalidCommand;
+import com.rubberduck.command.MarkCommand;
+import com.rubberduck.command.RedoCommand;
+import com.rubberduck.command.SearchCommand;
+import com.rubberduck.command.UndoCommand;
+import com.rubberduck.command.UpdateCommand;
+import com.rubberduck.command.ViewCommand;
 
 /**
  * Parser that reads in raw user input and provides instruction on how the UI

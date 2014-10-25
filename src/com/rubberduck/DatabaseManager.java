@@ -1,6 +1,7 @@
+package com.rubberduck;
+
 //@author A0119416H
 
-import com.thoughtworks.xstream.XStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,6 +14,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import com.thoughtworks.xstream.XStream;
+
 /**
  * A synchronized database backend to read/write instances to a file using XML
  * <p/>
@@ -23,7 +26,8 @@ import java.util.Iterator;
  *
  * @param <T> The data type, which has to be a Java Bean class.
  */
-public class DatabaseManager<T extends Serializable & Comparable<T>> implements Iterable<T> {
+public class DatabaseManager<T extends Serializable & Comparable<T>> implements
+        Iterable<T> {
 
     private class InstanceIdComparator implements Comparator<Long> {
         @Override

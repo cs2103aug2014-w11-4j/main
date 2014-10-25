@@ -1,5 +1,10 @@
+package com.rubberduck.command;
+
 import java.io.IOException;
 import java.util.ArrayList;
+
+import com.rubberduck.DatePair;
+import com.rubberduck.Task;
 
 public class AddCommand extends Command {
     private static final String MESSAGE_ADD = "\"%s\" has been successfully added.";

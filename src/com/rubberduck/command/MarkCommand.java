@@ -1,4 +1,8 @@
+package com.rubberduck.command;
+
 import java.io.IOException;
+
+import com.rubberduck.Task;
 
 public class MarkCommand extends Command {
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";

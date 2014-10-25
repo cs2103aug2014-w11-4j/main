@@ -7,6 +7,9 @@ import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.rubberduck.DatabaseManager;
+import com.rubberduck.JournalController;
+
 public class JournalControllerTest {
 
     DatabaseManager<String> dbManager;

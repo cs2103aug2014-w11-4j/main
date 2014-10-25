@@ -1,4 +1,8 @@
+package com.rubberduck;
+
 import java.util.Scanner;
+
+import com.rubberduck.command.Command;
 
 /**
  * This class focuses on handling the user interface of the entire application

@@ -1,5 +1,9 @@
+package com.rubberduck.command;
+
 import java.io.IOException;
 import java.util.Collections;
+
+import com.rubberduck.Task;
 
 public class SearchCommand extends Command {
     private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";

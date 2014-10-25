@@ -1,5 +1,10 @@
+package com.rubberduck.command;
+
 import java.io.IOException;
 import java.util.ArrayList;
+
+import com.rubberduck.DatePair;
+import com.rubberduck.Task;
 
 public class ConfirmCommand extends Command {
     private static final String JOURNAL_MESSAGE_CONFIRM = "Confirm task \"%s\"";
