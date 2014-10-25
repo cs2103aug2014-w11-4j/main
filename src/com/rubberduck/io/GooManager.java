@@ -1,4 +1,4 @@
-package com.rubberduck;
+package com.rubberduck.io;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -23,6 +23,8 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.tasks.TasksScopes;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.api.services.tasks.model.TaskLists;
+import com.rubberduck.logic.DatePair;
+import com.rubberduck.logic.Task;
 
 public class GooManager {
 

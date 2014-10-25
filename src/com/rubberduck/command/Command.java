@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.rubberduck.DatabaseManager;
-import com.rubberduck.Task;
+import com.rubberduck.io.DatabaseManager;
+import com.rubberduck.logic.Task;
 
 /**
  * Class that represents a command object where it stores the type of command it

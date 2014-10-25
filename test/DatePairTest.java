@@ -8,8 +8,8 @@ import java.util.Calendar;
 
 import org.junit.Test;
 
-import com.rubberduck.DatePair;
-import com.rubberduck.Task;
+import com.rubberduck.logic.DatePair;
+import com.rubberduck.logic.Task;
 
 public class DatePairTest {
 

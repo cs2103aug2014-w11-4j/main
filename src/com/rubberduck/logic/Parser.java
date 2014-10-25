@@ -1,4 +1,4 @@
-package com.rubberduck;
+package com.rubberduck.logic;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.rubberduck;
+package com.rubberduck.logic;
 
 /**
  * This task class is used to represent a single task object
@@ -17,6 +17,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.UUID;
+
+import com.rubberduck.io.DatabaseManager;
 
 public class Task implements Serializable, Comparable<Task> {
     private String description;

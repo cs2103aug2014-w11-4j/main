@@ -1,4 +1,4 @@
-package com.rubberduck;
+package com.rubberduck.logic;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
