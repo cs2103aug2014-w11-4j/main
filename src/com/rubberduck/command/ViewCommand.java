@@ -1,11 +1,18 @@
+package com.rubberduck.command;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
+
+import com.rubberduck.DatePair;
+import com.rubberduck.Task;
 
 public class ViewCommand extends Command {
     private static final String MESSAGE_VIEWALL_RESULT = "You have %s uncompleted task(s).";
     private static final String MESSAGE_VIEWDATE_RESULT = "You have %s uncompleted task(s) %s.";
     private static final String MESSAGE_VIEWALL_CRESULT = "You have %s completed task(s).";
     private static final String MESSAGE_VIEWDATE_CRESULT = "You have %s completed task(s) %s.";
+    protected static final int CONSOLE_MAX_WIDTH = 80;
 
     /* Information required for view */
     private DatePair viewRange;
@@ -29,9 +36,7 @@ public class ViewCommand extends Command {
      * @param completed
      * @param viewRange
      */
-    public ViewCommand(boolean viewAll, boolean completed,
-                       DatePair viewRange) {
-        this.type = CommandType.VIEW;
+    public ViewCommand(boolean viewAll, boolean completed, DatePair viewRange) {
         this.viewAll = viewAll;
         this.viewRange = viewRange;
         this.completed = completed;
@@ -60,24 +65,24 @@ public class ViewCommand extends Command {
      */
     public String viewAll(boolean isCompleted) throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
-        displayedTasksList.clear();
-        for (int i = 0; i < dbManager.getValidIdList().size(); i++) {
-            Long databaseId = dbManager.getValidIdList().get(i);
-            Task task = dbManager.getInstance(databaseId);
+        getDisplayedTasksList().clear();
+        for (int i = 0; i < getDbManager().getValidIdList().size(); i++) {
+            Long databaseId = getDbManager().getValidIdList().get(i);
+            Task task = getDbManager().getInstance(databaseId);
             if (isCompleted == task.getIsDone()) {
-                displayedTasksList.add(databaseId);
+                getDisplayedTasksList().add(databaseId);
             }
         }
 
         if (isCompleted) {
             responseBuilder.append(String.format(MESSAGE_VIEWALL_CRESULT,
-                    displayedTasksList.size()));
+                    getDisplayedTasksList().size()));
         } else {
             responseBuilder.append(String.format(MESSAGE_VIEWALL_RESULT,
-                    displayedTasksList.size()));
+                    getDisplayedTasksList().size()));
         }
 
-        if (!displayedTasksList.isEmpty()) {
+        if (!getDisplayedTasksList().isEmpty()) {
             responseBuilder.append(System.lineSeparator());
             responseBuilder.append(formatTaskListOutput());
         }
@@ -96,12 +101,12 @@ public class ViewCommand extends Command {
     public String viewByPeriod(DatePair dateRange, boolean isCompleted)
             throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
-        displayedTasksList.clear();
-        for (Long databaseId : dbManager.getValidIdList()) {
-            Task task = dbManager.getInstance(databaseId);
+        getDisplayedTasksList().clear();
+        for (Long databaseId : getDbManager().getValidIdList()) {
+            Task task = getDbManager().getInstance(databaseId);
             if (isCompleted == task.getIsDone() && task.hasDate()) {
                 if (task.isWithinPeriod(dateRange)) {
-                    displayedTasksList.add(databaseId);
+                    getDisplayedTasksList().add(databaseId);
                 }
             }
         }
@@ -121,18 +126,55 @@ public class ViewCommand extends Command {
 
         if (isCompleted) {
             responseBuilder.append(String.format(MESSAGE_VIEWDATE_CRESULT,
-                    displayedTasksList.size(), range));
+                    getDisplayedTasksList().size(), range));
         } else {
             responseBuilder.append(String.format(MESSAGE_VIEWDATE_RESULT,
-                    displayedTasksList.size(), range));
+                    getDisplayedTasksList().size(), range));
         }
 
-        if (!displayedTasksList.isEmpty()) {
+        if (!getDisplayedTasksList().isEmpty()) {
             responseBuilder.append(System.lineSeparator());
             responseBuilder.append(formatTaskListOutput());
         }
 
         return responseBuilder.toString();
+    }
+
+    private String formatTaskListOutput() throws IOException {
+        Collections.sort(getDisplayedTasksList(),
+                getDbManager().getInstanceIdComparator());
+
+        StringBuilder stringBuilder = new StringBuilder();
+        String header = String.format("%-7s%-6s%-43s%-24s", "ID", "Done",
+                "Task", "Date");
+        String border = "";
+        for (int i = 0; i < CONSOLE_MAX_WIDTH; i++) {
+            border += "-";
+        }
+
+        stringBuilder.append(border + System.lineSeparator() + header
+                + System.lineSeparator() + border + System.lineSeparator());
+
+        for (int i = 0; i < getDisplayedTasksList().size(); i++) {
+            stringBuilder.append(formatTaskOutput(i));
+            stringBuilder.append(System.lineSeparator());
+        }
+        stringBuilder.append(border);
+
+        return stringBuilder.toString();
+    }
+
+    /**
+     * Helper method that formats the output of tasks.
+     *
+     * @param displayingId the id of the task
+     * @return the formatted output of the task
+     * @throws IOException
+     */
+    protected String formatTaskOutput(int displayingId) throws IOException {
+        Task task = getDbManager().getInstance(
+                getDisplayedTasksList().get(displayingId));
+        return task.formatOutput(displayingId + 1);
     }
 
 }

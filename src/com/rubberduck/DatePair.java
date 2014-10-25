@@ -1,5 +1,8 @@
+package com.rubberduck;
+
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
@@ -122,4 +125,24 @@ public class DatePair implements Serializable {
 
         return !(startDate.after(endDateCriteria) || endDate.before(startDateCriteria));
     }
+
+    /**
+     * Check if any end date in the DateList has already past the current date
+     * and time during execution.
+     *
+     * @param dateList the ArrayList of DatePair
+     * @return true if there is a date that has already past else false
+     */
+    public static boolean isDateBeforeNow(ArrayList<DatePair> dateList) {
+        if (dateList.size() > 0) {
+            for (DatePair dp : dateList) {
+                if (dp.getEndDate().before(Calendar.getInstance())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
 }

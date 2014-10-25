@@ -1,13 +1,8 @@
+package com.rubberduck.command;
+
 import java.io.IOException;
 
 public class ClearCommand extends Command {
-
-    /**
-     *
-     */
-    public ClearCommand() {
-        this.type = CommandType.CLEAR;
-    }
 
     /**
      * Clear the screen of the current interface.

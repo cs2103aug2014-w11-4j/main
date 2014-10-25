@@ -1,6 +1,10 @@
+package com.rubberduck.command;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.rubberduck.DatePair;
+import com.rubberduck.Task;
 
 public class AddCommand extends Command {
     private static final String MESSAGE_ADD = "\"%s\" has been successfully added.";
@@ -8,13 +12,22 @@ public class AddCommand extends Command {
     private static final String MESSAGE_ADD_PAST = "\"%s\" cannot be added as the end date has already passed.";
     private static final String JOURNAL_MESSAGE_ADD = "Added task \"%s\"";
 
+    private String description;
+    private ArrayList<DatePair> datePairs;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public ArrayList<DatePair> getDatePairs() {
+        return datePairs;
+    }
+
     /**
      * @param description of the task
-     * @param datePairs   of possible DatePair
+     * @param datePairs of possible DatePair
      */
-    public AddCommand(String description,
-                      ArrayList<DatePair> datePairs) {
-        this.type = CommandType.ADD;
+    public AddCommand(String description, ArrayList<DatePair> datePairs) {
         this.description = description;
         this.datePairs = datePairs;
     }
@@ -31,18 +44,17 @@ public class AddCommand extends Command {
         assert description != null;
         assert !description.equals("");
 
-        if (isDateBeforeNow(datePairs)) {
+        if (DatePair.isDateBeforeNow(datePairs)) {
             return String.format(MESSAGE_ADD_PAST, description);
         }
 
         Task task = new Task(description, datePairs);
 
-        assert task != null;
-        boolean hasConflict = checkConflictWithDB(task);
-        long id = dbManager.putInstance(task);
-        dbManager.recordAction(null, id,
+        boolean hasConflict = task.checkConflictWithDB(getDbManager());
+        long id = getDbManager().putInstance(task);
+        assert id >= 0 : "ID should never be a negative number.";
+        getDbManager().recordAction(null, id,
                 String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
-        assert id >= 0;
 
         if (hasConflict) {
             return String.format(MESSAGE_ADD_CONFLICT, description);

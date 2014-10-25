@@ -1,3 +1,10 @@
+package com.rubberduck;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -6,18 +13,16 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.api.client.util.DateTime;
+import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.*;
 import com.google.api.services.calendar.model.Calendar;
+import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.CalendarListEntry;
+import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.tasks.TasksScopes;
-import com.google.api.services.tasks.model.*;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.*;
-
+import com.google.api.services.tasks.model.TaskList;
+import com.google.api.services.tasks.model.TaskLists;
 
 public class GooManager {
 
@@ -37,7 +42,6 @@ public class GooManager {
     private static com.google.api.services.tasks.Tasks tasksClient;
     private static String taskListId = null;
 
-
     private static Credential authorize() throws IOException {
         GoogleClientSecrets.Details details = new GoogleClientSecrets.Details();
         details.setClientId(CLIENT_ID);
@@ -49,29 +53,39 @@ public class GooManager {
         scopes.add(CalendarScopes.CALENDAR);
         scopes.add(TasksScopes.TASKS);
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-                httpTransport, JSON_FACTORY, clientSecrets, scopes).setDataStoreFactory(memoryDataStoreFactory).build();
+                httpTransport, JSON_FACTORY, clientSecrets, scopes).setDataStoreFactory(
+                memoryDataStoreFactory)
+                .build();
 
-        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+        return new AuthorizationCodeInstalledApp(flow,
+                new LocalServerReceiver()).authorize("user");
     }
 
-    public static void setupConnection() throws IOException, GeneralSecurityException {
+    public static void setupConnection() throws IOException,
+            GeneralSecurityException {
         httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 
         Credential credential = authorize();
 
         calendarClient = new com.google.api.services.calendar.Calendar.Builder(
-                httpTransport, JSON_FACTORY, credential).setApplicationName(APPLICATION_NAME).build();
+                httpTransport, JSON_FACTORY, credential).setApplicationName(
+                APPLICATION_NAME).build();
 
         tasksClient = new com.google.api.services.tasks.Tasks.Builder(
-                httpTransport, JSON_FACTORY, credential).setApplicationName(APPLICATION_NAME).build();
+                httpTransport, JSON_FACTORY, credential).setApplicationName(
+                APPLICATION_NAME).build();
     }
 
-    public static void initialize() throws IOException, GeneralSecurityException {
+    public static void initialize() throws IOException,
+            GeneralSecurityException {
         setupConnection();
 
         String pageToken = null;
         do {
-            CalendarList calendarList = calendarClient.calendarList().list().setPageToken(pageToken).execute();
+            CalendarList calendarList = calendarClient.calendarList()
+                    .list()
+                    .setPageToken(pageToken)
+                    .execute();
             List<CalendarListEntry> items = calendarList.getItems();
             for (CalendarListEntry calendarListEntry : items) {
                 if (calendarListEntry.getSummary().equals(CALENDAR_NAME)) {
@@ -90,13 +104,18 @@ public class GooManager {
             Calendar calendar = new Calendar();
             calendar.setSummary(CALENDAR_NAME);
             calendar.setTimeZone("Asia/Singapore");
-            Calendar createdCalendar = calendarClient.calendars().insert(calendar).execute();
+            Calendar createdCalendar = calendarClient.calendars()
+                    .insert(calendar)
+                    .execute();
             calendarId = createdCalendar.getId();
         }
 
         pageToken = null;
         do {
-            TaskLists taskLists = tasksClient.tasklists().list().setPageToken(pageToken).execute();
+            TaskLists taskLists = tasksClient.tasklists()
+                    .list()
+                    .setPageToken(pageToken)
+                    .execute();
             List<TaskList> items = taskLists.getItems();
             for (TaskList taskList : items) {
                 if (taskList.getTitle().equals(CALENDAR_NAME)) {
@@ -114,7 +133,9 @@ public class GooManager {
             System.out.println("Not found, creating new one");
             TaskList taskList = new TaskList();
             taskList.setTitle(CALENDAR_NAME);
-            TaskList createdTaskList = tasksClient.tasklists().insert(taskList).execute();
+            TaskList createdTaskList = tasksClient.tasklists()
+                    .insert(taskList)
+                    .execute();
             taskListId = createdTaskList.getId();
         }
     }
@@ -144,7 +165,9 @@ public class GooManager {
             }
             prepareTask(task, originalTask);
             if (shouldUpdate) {
-                task = tasksClient.tasks().update(taskListId, task.getId(), task).execute();
+                task = tasksClient.tasks()
+                        .update(taskListId, task.getId(), task)
+                        .execute();
             } else {
                 task = tasksClient.tasks().insert(taskListId, task).execute();
             }
@@ -157,20 +180,26 @@ public class GooManager {
             }
             prepareEvent(event, originalTask);
             if (shouldUpdate) {
-                event = calendarClient.events().update(calendarId, event.getId(), event).execute();
+                event = calendarClient.events()
+                        .update(calendarId, event.getId(), event)
+                        .execute();
             } else {
-                event = calendarClient.events().insert(calendarId, event).execute();
+                event = calendarClient.events()
+                        .insert(calendarId, event)
+                        .execute();
             }
             originalTask.setUuid(event.getId());
         }
         return originalTask;
     }
 
-    public static com.google.api.services.tasks.model.Task getRemoteTask(String id) throws IOException {
+    public static com.google.api.services.tasks.model.Task getRemoteTask(
+            String id) throws IOException {
         try {
             return tasksClient.tasks().get(taskListId, id).execute();
         } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
-            if (e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value")) {
+            if (e.getDetails().getCode() == 400
+                    && e.getDetails().getMessage().equals("Invalid Value")) {
                 return null;
             } else {
                 throw e;
@@ -178,11 +207,17 @@ public class GooManager {
         }
     }
 
-    public static com.google.api.services.calendar.model.Event getRemoteEvent(String id) throws IOException {
+    public static com.google.api.services.calendar.model.Event getRemoteEvent(
+            String id) throws IOException {
         try {
             return calendarClient.events().get(calendarId, id).execute();
         } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
-            if ((e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value")) || (e.getDetails().getCode() == 404 && e.getDetails().getMessage().equals("Not Found"))) {
+            if ((e.getDetails().getCode() == 400 && e.getDetails()
+                    .getMessage()
+                    .equals("Invalid Value"))
+                    || (e.getDetails().getCode() == 404 && e.getDetails()
+                            .getMessage()
+                            .equals("Not Found"))) {
                 return null;
             } else {
                 throw e;
@@ -194,7 +229,8 @@ public class GooManager {
         return new DateTime(calendar.getTime(), calendar.getTimeZone());
     }
 
-    private static EventDateTime calendarToEventDateTime(java.util.Calendar calendar) {
+    private static EventDateTime calendarToEventDateTime(
+            java.util.Calendar calendar) {
         EventDateTime eventDateTime = new EventDateTime();
         eventDateTime.setDateTime(calendarToDateTime(calendar));
         return eventDateTime;
@@ -206,11 +242,13 @@ public class GooManager {
         return calendar;
     }
 
-    private static java.util.Calendar eventDateTimeToCalendar(EventDateTime eventDateTime) {
+    private static java.util.Calendar eventDateTimeToCalendar(
+            EventDateTime eventDateTime) {
         return dateTimeToCalendar(eventDateTime.getDateTime());
     }
 
-    private static void prepareTask(com.google.api.services.tasks.model.Task task, Task originalTask) {
+    private static void prepareTask(
+            com.google.api.services.tasks.model.Task task, Task originalTask) {
         task.setTitle(originalTask.getDescription());
         if (!originalTask.isFloatingTask()) {
             task.setDue(calendarToDateTime(originalTask.getEarliestDate()));
@@ -220,7 +258,9 @@ public class GooManager {
         }
     }
 
-    private static void prepareEvent(com.google.api.services.calendar.model.Event event, Task originalTask) {
+    private static void prepareEvent(
+            com.google.api.services.calendar.model.Event event,
+            Task originalTask) {
         event.setSummary(originalTask.getDescription());
         DatePair datePair = originalTask.getDateList().get(0);
         event.setStart(calendarToEventDateTime(datePair.getStartDate()));
@@ -245,7 +285,8 @@ public class GooManager {
             }
             if (remoteTask.getDue() != null) {
                 ArrayList<DatePair> dateList = new ArrayList<DatePair>();
-                dateList.add(new DatePair(dateTimeToCalendar(remoteTask.getDue())));
+                dateList.add(new DatePair(
+                        dateTimeToCalendar(remoteTask.getDue())));
                 task.setDateList(dateList);
             }
         } else {
@@ -253,7 +294,9 @@ public class GooManager {
             task.setDescription(remoteEvent.getSummary());
             // TODO: what should we do with completed here?
             ArrayList<DatePair> dateList = new ArrayList<DatePair>();
-            dateList.add(new DatePair(eventDateTimeToCalendar(remoteEvent.getStart()), eventDateTimeToCalendar(remoteEvent.getEnd())));
+            dateList.add(new DatePair(
+                    eventDateTimeToCalendar(remoteEvent.getStart()),
+                    eventDateTimeToCalendar(remoteEvent.getEnd())));
             task.setDateList(dateList);
         }
         return task;

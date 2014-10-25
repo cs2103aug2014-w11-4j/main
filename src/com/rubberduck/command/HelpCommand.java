@@ -1,14 +1,8 @@
+package com.rubberduck.command;
+
 import java.io.IOException;
 
-
 public class HelpCommand extends Command {
-
-    /**
-     *
-     */
-    public HelpCommand() {
-        this.type = CommandType.HELP;
-    }
 
     /**
      * Shows the available command for the end user in the system. TODO: May
@@ -18,7 +12,6 @@ public class HelpCommand extends Command {
      */
     @Override
     public String execute() throws IOException {
-
         StringBuilder sb = new StringBuilder();
         sb.append("Here are for the available commands in RubberDuck.");
         sb.append(System.lineSeparator());
