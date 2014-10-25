@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import com.rubberduck.command.Command;
+import com.rubberduck.menu.MenuInterface;
 
 /**
  * RubberDuck is a CLI Task Manager that stores user's task into a text file and

@@ -1,4 +1,4 @@
-package com.rubberduck;
+package com.rubberduck.io;
 
 //@author A0119416H
 

@@ -7,8 +7,8 @@ import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.rubberduck.DatabaseManager;
-import com.rubberduck.JournalController;
+import com.rubberduck.io.DatabaseManager;
+import com.rubberduck.io.JournalController;
 
 public class JournalControllerTest {
 

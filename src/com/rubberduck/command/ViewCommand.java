@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 
-import com.rubberduck.DatePair;
-import com.rubberduck.Task;
+import com.rubberduck.logic.DatePair;
+import com.rubberduck.logic.Task;
 
 public class ViewCommand extends Command {
     private static final String MESSAGE_VIEWALL_RESULT = "You have %s uncompleted task(s).";

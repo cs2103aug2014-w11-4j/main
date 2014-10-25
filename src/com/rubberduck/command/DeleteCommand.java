@@ -2,7 +2,7 @@ package com.rubberduck.command;
 
 import java.io.IOException;
 
-import com.rubberduck.Task;
+import com.rubberduck.logic.Task;
 
 public class DeleteCommand extends Command {
     private static final String JOURNAL_MESSAGE_DELETE = "Deleted task \"%s\"";
