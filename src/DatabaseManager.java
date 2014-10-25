@@ -1,10 +1,7 @@
 //@author A0119416H
 
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
+import com.thoughtworks.xstream.XStream;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -26,10 +23,9 @@ import java.util.Iterator;
  *
  * @param <T> The data type, which has to be a Java Bean class.
  */
-public class DatabaseManager<T extends Serializable & Comparable<T>> implements
-        Iterable<T> {
+public class DatabaseManager<T extends Serializable & Comparable<T>> implements Iterable<T> {
 
-    private class InstanceComparator implements Comparator<Long> {
+    private class InstanceIdComparator implements Comparator<Long> {
         @Override
         public int compare(Long o1, Long o2) {
             try {
@@ -41,8 +37,8 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
         }
     }
 
-    public Comparator<Long> getInstanceComparator() {
-        return new InstanceComparator();
+    public Comparator<Long> getInstanceIdComparator() {
+        return new InstanceIdComparator();
     }
 
     private class InstanceIterator implements Iterator<T> {
@@ -104,6 +100,8 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
     private long currentId;
 
     private JournalController<T> journal;
+
+    private static XStream xstream = new XStream();
 
     /**
      * Construct a backend database with the given file path.
@@ -224,50 +222,38 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
         tempFile.renameTo(new File(filePath));
     }
 
-    private byte[] getBytesContentAtOffset(long offset) throws IOException {
+    private String getStringAtOffset(long offset) throws IOException {
         randomAccessFile.seek(offset);
         String line = randomAccessFile.readLine();
         if (line.equals(VALID_FLAG)) {
             StringBuilder xmlString = new StringBuilder();
             while ((line = randomAccessFile.readLine()) != null
                     && !(line.equals(VALID_FLAG) || line.equals(INVALID_FLAG))) {
+                xmlString.append("\n");
                 xmlString.append(line);
             }
-            return xmlString.toString().getBytes();
+            return xmlString.toString();
         } else {
             return null;
         }
     }
 
-    private void writeBytesContentAtEnd(byte[] byteArray) throws IOException {
+    private void writeStringAtEnd(String string) throws IOException {
         randomAccessFile.seek(eofOffset);
         randomAccessFile.writeBytes(VALID_FLAG + "\n");
-        randomAccessFile.write(byteArray);
+        randomAccessFile.writeBytes(string);
         randomAccessFile.writeByte('\n');
         eofOffset = randomAccessFile.getFilePointer();
     }
 
-    private T xmlToInstance(byte[] xmlByteArray) {
-        XMLDecoder d = new XMLDecoder(new ByteArrayInputStream(xmlByteArray));
+    private T xmlToInstance(String xmlString) {
         @SuppressWarnings("unchecked")
-        T instance = (T) d.readObject();
-        d.close();
+        T instance = (T) xstream.fromXML(xmlString);
         return instance;
     }
 
-    private byte[] instanceToXml(T instance) throws IOException {
-        ByteArrayOutputStream byteArrayOutputStream = null;
-        try {
-            byteArrayOutputStream = new ByteArrayOutputStream();
-            XMLEncoder e = new XMLEncoder(byteArrayOutputStream);
-            e.writeObject(instance);
-            e.close();
-            return byteArrayOutputStream.toByteArray();
-        } finally {
-            if (byteArrayOutputStream != null) {
-                byteArrayOutputStream.close();
-            }
-        }
+    private String instanceToXml(T instance) throws IOException {
+        return xstream.toXML(instance);
     }
 
     /**
@@ -298,7 +284,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
     public long putInstance(T instance) throws IOException {
         long instanceId = createNewId();
         validInstancesMap.put(instanceId, eofOffset);
-        writeBytesContentAtEnd(instanceToXml(instance));
+        writeStringAtEnd(instanceToXml(instance));
         return instanceId;
     }
 
@@ -312,15 +298,14 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      * @throws IOException
      */
     public T getInstance(long instanceId) throws IOException {
-        if (!validInstancesMap.containsKey(instanceId)) { // return null;
+        if (!validInstancesMap.containsKey(instanceId)) {
             if (invalidInstancesMap.containsKey(instanceId)) {
                 throw new IndexOutOfBoundsException("Instance is invalid.");
             } else {
                 throw new IndexOutOfBoundsException("Instance doe not exist.");
             }
         }
-        byte[] byteArray = getBytesContentAtOffset(validInstancesMap.get(instanceId));
-        return xmlToInstance(byteArray);
+        return xmlToInstance(getStringAtOffset(validInstancesMap.get(instanceId)));
     }
 
     /**
