@@ -53,6 +53,7 @@ public class MenuInterface {
         //author: JasonSia
         ConsoleReader cr = new ConsoleReader();
         cr.setPrompt(">");
+        cr.isPaginationEnabled();
         List<Completer> completors = new LinkedList<Completer>();
         completors.add(new StringsCompleter("view", "display", "find",
                 "lookup", "search", "add", "insert", "ins", "new", "delete",
@@ -64,7 +65,7 @@ public class MenuInterface {
             cr.addCompleter(c);
         }
         PrintWriter out = new PrintWriter(cr.getOutput());
-        showWelcome();
+        showWelcome(out);
         while (true) {
             String line = cr.readLine(">");
             Command userCommand = Parser.getInstance().parse(line);
@@ -79,24 +80,22 @@ public class MenuInterface {
      * Method that is used to show the welcome screen and information when user
      * first run.
      */
-    private void showWelcome() {
-        showToUser(MESSAGE_WELCOME);
+    private void showWelcome(PrintWriter out) {
+        showToUser(MESSAGE_WELCOME,out);
         Command userCommand = Parser.getInstance().parse("view today");
         String response = userCommand.safeExecute();
-        showToUser(response);
-        showToUser(MESSAGE_HELP);
+        showToUser(response,out);
+        showToUser(MESSAGE_HELP,out);
     }
 
 
     /**
      * Method that outputs a string object to the CLI.
      *
+     * 
      * @param s String object
+     * @param out PrintWriter object
      */
-    private void showToUser(String s) {
-        System.out.println(s);
-        
-    }
     private void showToUser(String s,PrintWriter out) {
         out.println(s);                 
     }
