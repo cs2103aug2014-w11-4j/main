@@ -21,9 +21,9 @@ import com.rubberduck.io.DatabaseManager;
 
 public class Task implements Serializable, Comparable<Task> {
 
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_GREEN = "\u001B[32m";
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_RED = "\u001B[31m";
+    private static final String ANSI_GREEN = "\u001B[32m";
 
     private String description;
     private ArrayList<DatePair> dateList;
@@ -316,8 +316,8 @@ public class Task implements Serializable, Comparable<Task> {
         int dateId = 1;
         boolean rangeTicker = true;
         while (!wordWrapList.isEmpty() || !dateList.isEmpty()) {
-            String desc = wordWrapList.isEmpty() ? "" : wordWrapList
-                    .removeFirst();
+            String desc = wordWrapList.isEmpty() ? ""
+                    : wordWrapList.removeFirst();
 
             String date = dateList.isEmpty() ? "" : dateList.removeFirst();
             if (isTentative && rangeTicker) {
