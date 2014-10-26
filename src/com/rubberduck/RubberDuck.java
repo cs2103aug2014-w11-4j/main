@@ -25,7 +25,7 @@ import com.rubberduck.menu.MenuInterface;
  *
  */
 public class RubberDuck {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         setupGlobalLogger();
         Command.startDatabase();
         MenuInterface.getInstance().handleInterface();
