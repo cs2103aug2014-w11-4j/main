@@ -11,6 +11,7 @@ public class AddCommand extends Command {
     private static final String MESSAGE_ADD_CONFLICT = "\"%s\" has been successfully added.\nPlease note that there are conflicting task(s).";
     private static final String MESSAGE_ADD_PAST = "\"%s\" cannot be added as the end date has already passed.";
     private static final String JOURNAL_MESSAGE_ADD = "Added task \"%s\"";
+    private static final String MESSAGE_ERROR_WRONG_TASK_TYPE = "You have input an invalid task type.";
 
     private String description;
     private ArrayList<DatePair> datePairs;
@@ -49,6 +50,9 @@ public class AddCommand extends Command {
         }
 
         Task task = new Task(description, datePairs);
+        if (!task.checkValidity()){
+        	return MESSAGE_ERROR_WRONG_TASK_TYPE;
+        }
 
         boolean hasConflict = task.checkConflictWithDB(getDbManager());
 
