@@ -11,6 +11,7 @@ public class UpdateCommand extends Command {
     private static final String MESSAGE_UPDATE = "\"%s\" has been successfully updated.";
     private static final String MESSAGE_UPDATE_PAST = "You cannot update the end date thats already passed.";
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_TYPE = "You have input an invalid task type.";
 
     private int taskId;
     private String description;
@@ -68,22 +69,25 @@ public class UpdateCommand extends Command {
             if (task.isFloatingTask() || task.isDeadline()) {
                 task.setDateList(datePairs);
                 if (!task.isFloatingTask() && !task.isDeadline()) {
-                    task.generateUuid();
+                    task.resetUuid();
                 }
             } else {
                 task.setDateList(datePairs);
                 if (task.isFloatingTask() || task.isDeadline()) {
-                    task.generateUuid();
+                    task.resetUuid();
                 }
             }
         }
+        
+        if (!task.checkValidity()){
+        	return MESSAGE_ERROR_WRONG_TASK_TYPE;
+        }
 
-        long newDatabaseId = getDbManager().putInstance(task);
-        getDbManager().markAsInvalid(databaseId);
+        long newDatabaseId = getDbManager().modify(databaseId, task,
+                String.format(JOURNAL_MESSAGE_UPDATE, oldDescription));
 
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
-        getDbManager().recordAction(databaseId, newDatabaseId,
-                String.format(JOURNAL_MESSAGE_UPDATE, oldDescription));
+
 
         return String.format(MESSAGE_UPDATE, oldDescription);
     }

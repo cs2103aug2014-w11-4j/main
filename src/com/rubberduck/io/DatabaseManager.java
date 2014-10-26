@@ -218,7 +218,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
             }
             if (willCopy) {
                 bufferedWriter.write(line);
-                bufferedWriter.write('\n');
+                bufferedWriter.write(System.getProperty("line.separator"));
             }
         }
         bufferedWriter.close();
@@ -233,7 +233,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
             StringBuilder xmlString = new StringBuilder();
             while ((line = randomAccessFile.readLine()) != null
                     && !(line.equals(VALID_FLAG) || line.equals(INVALID_FLAG))) {
-                xmlString.append("\n");
+                xmlString.append(System.getProperty("line.separator"));
                 xmlString.append(line);
             }
             return xmlString.toString();
@@ -244,9 +244,9 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
 
     private void writeStringAtEnd(String string) throws IOException {
         randomAccessFile.seek(eofOffset);
-        randomAccessFile.writeBytes(VALID_FLAG + "\n");
+        randomAccessFile.writeBytes(VALID_FLAG + System.getProperty("line.separator"));
         randomAccessFile.writeBytes(string);
-        randomAccessFile.writeByte('\n');
+        randomAccessFile.writeBytes(System.getProperty("line.separator"));
         eofOffset = randomAccessFile.getFilePointer();
     }
 
@@ -285,7 +285,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      * @return ID of the inserted instance
      * @throws IOException
      */
-    public long putInstance(T instance) throws IOException {
+    private long putInstance(T instance) throws IOException {
         long instanceId = createNewId();
         validInstancesMap.put(instanceId, eofOffset);
         writeStringAtEnd(instanceToXml(instance));
@@ -320,7 +320,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      *             already invalid)
      * @throws IOException
      */
-    public void markAsInvalid(long instanceId) throws IOException {
+    protected void markAsInvalid(long instanceId) throws IOException {
         if (!validInstancesMap.containsKey(instanceId)) {
             throw new IndexOutOfBoundsException();
         }
@@ -345,7 +345,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      *             already valid)
      * @throws IOException
      */
-    public void markAsValid(long instanceId) throws IOException {
+    protected void markAsValid(long instanceId) throws IOException {
         if (!invalidInstancesMap.containsKey(instanceId)) {
             throw new IndexOutOfBoundsException();
         }
@@ -393,16 +393,51 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
         return invalidInstancesMap.containsKey(instanceId);
     }
 
-    public void recordAction(Long previousId, Long newId, String description) {
+    /**
+     * Make modification to the database.
+     *
+     * @param previousId the ID of instance to be removed, or null if no removal is needed.
+     * @param newInstance the new instance to be put into the database, or null if no inserting is needed.
+     * @param description the description of the action, which will be returned when undo/redo.
+     * @return the ID of the new instance, or null if no new instance is created.
+     * @throws IOException
+     */
+    public Long modify(Long previousId, T newInstance, String description) throws IOException {
+        Long newId = null;
+        if (newInstance != null) {
+            newId = putInstance(newInstance);
+        }
+        if (previousId != null) {
+            markAsInvalid(previousId);
+        }
         journal.recordAction(previousId, newId, description);
+        return newId;
     }
 
+    /**
+     * Undo the last action.
+     *
+     * @return the description of the undone action as in modify().
+     * @throws IOException
+     * @throws UnsupportedOperationException if there is nothing to undo.
+     */
     public String undo() throws IOException, UnsupportedOperationException {
         return journal.undo();
     }
 
+    /**
+     * Redo the last undo action.
+     *
+     * @return the description of the redone action as in modify().
+     * @throws IOException
+     * @throws UnsupportedOperationException if there is nothing to redo.
+     */
     public String redo() throws IOException, UnsupportedOperationException {
         return journal.redo();
+    }
+
+    public JournalController<T> getJournal() {
+        return journal;
     }
 
 }
