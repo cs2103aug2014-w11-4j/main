@@ -64,12 +64,9 @@ public class ConfirmCommand extends Command {
         newDateList.add(date);
         task.setDateList(newDateList);
 
-        long newDatabaseId = getDbManager().putInstance(task);
-        getDbManager().markAsInvalid(databaseId);
+        long newDatabaseId = getDbManager().modify(databaseId, task, String.format(JOURNAL_MESSAGE_CONFIRM, oldDescription));
 
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
-        getDbManager().recordAction(databaseId, newDatabaseId,
-                String.format(JOURNAL_MESSAGE_CONFIRM, oldDescription));
 
         return String.format(MESSAGE_CONFIRM, oldDescription);
 
