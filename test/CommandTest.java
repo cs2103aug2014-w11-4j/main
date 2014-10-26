@@ -88,7 +88,7 @@ public class CommandTest {
     public void addNoStartDateTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         String actual = "";
-        DatePair dp = new DatePair(null, Calendar.getInstance());
+        DatePair dp = new DatePair( Calendar.getInstance());
         dpList.add(dp);
         String keyword = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
         AddCommand command = new AddCommand(
@@ -280,18 +280,25 @@ public class CommandTest {
     public void confirmTask() throws IOException {
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
+        Calendar date2 = Calendar.getInstance();
+
         date.add(Calendar.DAY_OF_YEAR, 1);
-        DatePair dp = new DatePair(date);
+        date2.add(Calendar.DAY_OF_YEAR, 2);
+        DatePair dp = new DatePair(date, date2);
         datePairList.add(dp);
 
-        Calendar date2 = Calendar.getInstance();
-        date.add(Calendar.DAY_OF_YEAR, 2);
-        DatePair dp2 = new DatePair(date2);
+        Calendar date3 = Calendar.getInstance();
+        Calendar date4 = Calendar.getInstance();
+        date3.add(Calendar.DAY_OF_YEAR, 2);
+        date4.add(Calendar.DAY_OF_YEAR, 3);
+        DatePair dp2 = new DatePair(date3, date4);
         datePairList.add(dp2);
 
-        Calendar date3 = Calendar.getInstance();
-        date.add(Calendar.DAY_OF_YEAR, 3);
-        DatePair dp3 = new DatePair(date3);
+        Calendar date5 = Calendar.getInstance();
+        Calendar date6 = Calendar.getInstance();
+        date5.add(Calendar.DAY_OF_YEAR, 3);
+        date6.add(Calendar.DAY_OF_YEAR, 4);
+        DatePair dp3 = new DatePair(date5, date6);
         datePairList.add(dp3);
 
         AddCommand addCommand = new AddCommand(

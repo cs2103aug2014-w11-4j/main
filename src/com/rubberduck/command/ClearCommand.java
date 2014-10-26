@@ -2,7 +2,11 @@ package com.rubberduck.command;
 
 import java.io.IOException;
 
+import com.rubberduck.menu.MenuInterface;
+
 public class ClearCommand extends Command {
+
+    private static final String MESSAGE_CLEAR = "\u001B[33mScreen cleared.\u001B[0m";
 
     /**
      * Clear the screen of the current interface.
@@ -11,14 +15,7 @@ public class ClearCommand extends Command {
      */
     @Override
     public String execute() throws IOException {
-        final String os = System.getProperty("os.name");
-
-        if (os.contains("Windows")) {
-            Runtime.getRuntime().exec("cls");
-        } else {
-            Runtime.getRuntime().exec("clear");
-        }
-
-        return "";
+        MenuInterface.getInstance().getConsoleInstance().clearScreen();
+        return MESSAGE_CLEAR;
     }
 }

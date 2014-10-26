@@ -16,11 +16,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
-import java.util.UUID;
 
 import com.rubberduck.io.DatabaseManager;
 
 public class Task implements Serializable, Comparable<Task> {
+
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_RED = "\u001B[31m";
+    private static final String ANSI_GREEN = "\u001B[32m";
+
     private String description;
     private ArrayList<DatePair> dateList;
     private boolean isDone;
@@ -53,7 +57,7 @@ public class Task implements Serializable, Comparable<Task> {
         this.description = description;
         this.dateList = dateList;
         this.isDone = false;
-        generateUuid();
+        resetUuid();
     }
 
     /**
@@ -169,7 +173,7 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     /**
-     * Set UUID of the task, should only be used by Java Bean.
+     * Set UUID of the task.
      *
      * @param uuid UUID to be set
      */
@@ -245,10 +249,10 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     /**
-     * Generate a new random UUID for the task.
+     * Reset the UUID to an empty string.
      */
-    public void generateUuid() {
-        this.uuid = UUID.randomUUID().toString();
+    public void resetUuid() {
+        this.uuid = "";
     }
 
     /**
@@ -259,6 +263,7 @@ public class Task implements Serializable, Comparable<Task> {
      * @author Hooi Tong
      */
     public String formatOutput(long displayingId) {
+        boolean overdue = false;
         final int MAX_DESC_LENGTH = 41;
         StringBuilder stringBuilder = new StringBuilder();
         String description = getDescription();
@@ -301,6 +306,9 @@ public class Task implements Serializable, Comparable<Task> {
             } else if (dp.hasEndDate()) {
                 dateList.add(dateFormat.format(dp.getEndDate().getTime()));
             }
+            if (dp.getEndDate().before(Calendar.getInstance())) {
+                overdue = true;
+            }
         }
 
         /* Format all fragments in desc and date into multiple lines */
@@ -341,7 +349,14 @@ public class Task implements Serializable, Comparable<Task> {
             }
         }
 
-        return stringBuilder.toString();
+        String output = stringBuilder.toString();
+        if (overdue) {
+            output = ANSI_RED + output + ANSI_RESET;
+        } else {
+            output = ANSI_GREEN + output + ANSI_RESET;
+        }
+
+        return output;
     }
 
     public boolean isFloatingTask() {
