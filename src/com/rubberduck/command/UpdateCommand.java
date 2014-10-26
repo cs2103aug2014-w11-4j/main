@@ -68,12 +68,12 @@ public class UpdateCommand extends Command {
             if (task.isFloatingTask() || task.isDeadline()) {
                 task.setDateList(datePairs);
                 if (!task.isFloatingTask() && !task.isDeadline()) {
-                    task.generateUuid();
+                    task.resetUuid();
                 }
             } else {
                 task.setDateList(datePairs);
                 if (task.isFloatingTask() || task.isDeadline()) {
-                    task.generateUuid();
+                    task.resetUuid();
                 }
             }
         }

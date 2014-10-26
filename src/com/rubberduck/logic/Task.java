@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
-import java.util.UUID;
 
 import com.rubberduck.io.DatabaseManager;
 
@@ -58,7 +57,7 @@ public class Task implements Serializable, Comparable<Task> {
         this.description = description;
         this.dateList = dateList;
         this.isDone = false;
-        generateUuid();
+        resetUuid();
     }
 
     /**
@@ -174,7 +173,7 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     /**
-     * Set UUID of the task, should only be used by Java Bean.
+     * Set UUID of the task.
      *
      * @param uuid UUID to be set
      */
@@ -250,10 +249,10 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     /**
-     * Generate a new random UUID for the task.
+     * Reset the UUID to an empty string.
      */
-    public void generateUuid() {
-        this.uuid = UUID.randomUUID().toString();
+    public void resetUuid() {
+        this.uuid = "";
     }
 
     /**
