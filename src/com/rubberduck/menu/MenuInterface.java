@@ -1,11 +1,10 @@
 package com.rubberduck.menu;
 
-import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
 import jline.console.ConsoleReader;
-
 import jline.console.completer.Completer;
 import jline.console.completer.StringsCompleter;
 
@@ -54,7 +53,6 @@ public class MenuInterface {
         //author: JasonSia
         ConsoleReader cr = new ConsoleReader();
         cr.setPrompt(">");
-
         List<Completer> completors = new LinkedList<Completer>();
         completors.add(new StringsCompleter("view", "display", "find",
                 "lookup", "search", "add", "insert", "ins", "new", "delete",
@@ -65,12 +63,14 @@ public class MenuInterface {
         for (Completer c : completors) {
             cr.addCompleter(c);
         }
+        PrintWriter out = new PrintWriter(cr.getOutput());
         showWelcome();
         while (true) {
             String line = cr.readLine(">");
             Command userCommand = Parser.getInstance().parse(line);
             String response = userCommand.safeExecute();
-            showToUser(response);
+            
+            showToUser(response,out);
 
         }
     }
@@ -95,5 +95,9 @@ public class MenuInterface {
      */
     private void showToUser(String s) {
         System.out.println(s);
+        
+    }
+    private void showToUser(String s,PrintWriter out) {
+        out.println(s);                 
     }
 }
