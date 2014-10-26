@@ -1,8 +1,11 @@
 package com.rubberduck.menu;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import jline.console.ConsoleReader;
 import jline.console.completer.Completer;
@@ -22,7 +25,12 @@ import com.rubberduck.logic.Parser;
 public class MenuInterface {
     private static final String MESSAGE_WELCOME = "Welcome to RubberDuck. Here's your agenda for today.";
     private static final String MESSAGE_HELP = "If you need a list of commands, type ? or help.";
+    private static final String MESSAGE_ERROR_CR_IOEXCEPTION = "Problem with ConsoleReader (IO).";
+    private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
     private static MenuInterface menuInstance;
+
+    private ConsoleReader consoleInstance;
 
     /**
      * Private Constructor for Singleton Implementation.
@@ -31,7 +39,7 @@ public class MenuInterface {
     }
 
     /**
-     * Method that retrieves the singleton instance of the MenuInterface
+     * Method that retrieves the singleton instance of the MenuInterface.
      *
      * @return instance of Parser
      */
@@ -47,14 +55,35 @@ public class MenuInterface {
      * Method that handles the interface of the program. It prompts from user
      * and calls the parser to determine the command to be executed. It then
      * proceed to execute the given command if it is valid.
-     * @throws Exception
+     *
      * @author Jason Sia
      */
-    public void handleInterface() throws Exception {
+    public void handleInterface() {
+        try {
+            consoleInstance = setupConsoleReader();
+            PrintWriter out = new PrintWriter(consoleInstance.getOutput());
 
+            showWelcome(out);
+            while (true) {
+                String line = consoleInstance.readLine(">");
+                Command userCommand = Parser.getInstance().parse(line);
+                String response = userCommand.safeExecute();
+                showToUser(response, out);
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
+        }
+    }
+
+    /**
+     * Method used to setup the ConsoleReader from jLine.
+     *
+     * @return ConsoleReader object
+     */
+    private ConsoleReader setupConsoleReader() throws IOException {
         ConsoleReader cr = new ConsoleReader();
         cr.setPrompt(">");
-        cr.isPaginationEnabled();
+        cr.setPaginationEnabled(true);
         List<Completer> completors = new LinkedList<Completer>();
         completors.add(new StringsCompleter(Command.CommandType.getAlias()));
 
@@ -62,16 +91,7 @@ public class MenuInterface {
             cr.addCompleter(c);
         }
 
-        PrintWriter out = new PrintWriter(cr.getOutput());
-        showWelcome(out);
-        while (true) {
-            String line = cr.readLine(">");
-            Command userCommand = Parser.getInstance().parse(line);
-            String response = userCommand.safeExecute();
-
-            showToUser(response, out);
-
-        }
+        return cr;
     }
 
     /**
@@ -89,12 +109,21 @@ public class MenuInterface {
     }
 
     /**
-     * Method that outputs a string object to the PrintWriter object
+     * Method that outputs a string object to the PrintWriter object.
      *
      * @param s String object
      * @param out PrintWriter object
      */
     private void showToUser(String s, PrintWriter out) {
         out.println(s);
+    }
+
+    /**
+     * Return the ConsoleReader instance back to caller.
+     *
+     * @return ConsoleReader object
+     */
+    public ConsoleReader getConsoleInstance() {
+        return consoleInstance;
     }
 }
