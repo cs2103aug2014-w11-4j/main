@@ -47,56 +47,54 @@ public class MenuInterface {
      * Method that handles the interface of the program. It prompts from user
      * and calls the parser to determine the command to be executed. It then
      * proceed to execute the given command if it is valid.
-     * @throws Exception 
+     * @throws Exception
+     * @author Jason Sia
      */
     public void handleInterface() throws Exception {
-        //author: JasonSia
+
         ConsoleReader cr = new ConsoleReader();
         cr.setPrompt(">");
         cr.isPaginationEnabled();
         List<Completer> completors = new LinkedList<Completer>();
-        completors.add(new StringsCompleter("view", "display", "find",
-                "lookup", "search", "add", "insert", "ins", "new", "delete",
-                "remove", "change", "update", "edit", "undo", "ud", "redo",
-                "rd", "mark", "completed", "done", "confirm", "mark",
-                "completed", "done", "help", "cls", "clear", "exit", "quit"));
+        completors.add(new StringsCompleter(Command.CommandType.getAlias()));
 
         for (Completer c : completors) {
             cr.addCompleter(c);
         }
+
         PrintWriter out = new PrintWriter(cr.getOutput());
         showWelcome(out);
         while (true) {
             String line = cr.readLine(">");
             Command userCommand = Parser.getInstance().parse(line);
             String response = userCommand.safeExecute();
-            
-            showToUser(response,out);
+
+            showToUser(response, out);
 
         }
     }
 
     /**
-     * Method that is used to show the welcome screen and information when user
-     * first run.
+     * Method that is used to show the welcome screen and relevant information
+     * when user first execute the program.
+     *
+     * @param out PrintWriter object
      */
     private void showWelcome(PrintWriter out) {
-        showToUser(MESSAGE_WELCOME,out);
+        showToUser(MESSAGE_WELCOME, out);
         Command userCommand = Parser.getInstance().parse("view today");
         String response = userCommand.safeExecute();
-        showToUser(response,out);
-        showToUser(MESSAGE_HELP,out);
+        showToUser(response, out);
+        showToUser(MESSAGE_HELP, out);
     }
 
-
     /**
-     * Method that outputs a string object to the CLI.
+     * Method that outputs a string object to the PrintWriter object
      *
-     * 
      * @param s String object
      * @param out PrintWriter object
      */
-    private void showToUser(String s,PrintWriter out) {
-        out.println(s);                 
+    private void showToUser(String s, PrintWriter out) {
+        out.println(s);
     }
 }
