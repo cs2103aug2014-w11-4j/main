@@ -1,6 +1,13 @@
 package com.rubberduck.menu;
 
-import java.util.Scanner;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+
+import jline.console.ConsoleReader;
+
+import jline.console.completer.Completer;
+import jline.console.completer.StringsCompleter;
 
 import com.rubberduck.command.Command;
 import com.rubberduck.logic.Parser;
@@ -41,15 +48,30 @@ public class MenuInterface {
      * Method that handles the interface of the program. It prompts from user
      * and calls the parser to determine the command to be executed. It then
      * proceed to execute the given command if it is valid.
+     * @throws Exception 
      */
-    public void handleInterface() {
-        Scanner sc = new Scanner(System.in);
+    public void handleInterface() throws Exception {
+        //author: JasonSia
+        ConsoleReader cr = new ConsoleReader();
+        cr.setPrompt(">");
+
+        List<Completer> completors = new LinkedList<Completer>();
+        completors.add(new StringsCompleter("view", "display", "find",
+                "lookup", "search", "add", "insert", "ins", "new", "delete",
+                "remove", "change", "update", "edit", "undo", "ud", "redo",
+                "rd", "mark", "completed", "done", "confirm", "mark",
+                "completed", "done", "help", "cls", "clear", "exit", "quit"));
+
+        for (Completer c : completors) {
+            cr.addCompleter(c);
+        }
         showWelcome();
         while (true) {
-            String rawInput = acceptInput(sc);
-            Command userCommand = Parser.getInstance().parse(rawInput);
+            String line = cr.readLine(">");
+            Command userCommand = Parser.getInstance().parse(line);
             String response = userCommand.safeExecute();
             showToUser(response);
+
         }
     }
 
@@ -65,15 +87,6 @@ public class MenuInterface {
         showToUser(MESSAGE_HELP);
     }
 
-    /**
-     * Accept raw input from user via CLI and return to parent.
-     *
-     * @return raw user's input
-     */
-    private String acceptInput(Scanner sc) {
-        System.out.print("> ");
-        return sc.nextLine();
-    }
 
     /**
      * Method that outputs a string object to the CLI.
