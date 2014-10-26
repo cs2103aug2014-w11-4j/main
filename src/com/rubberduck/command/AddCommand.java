@@ -51,10 +51,9 @@ public class AddCommand extends Command {
         Task task = new Task(description, datePairs);
 
         boolean hasConflict = task.checkConflictWithDB(getDbManager());
-        long id = getDbManager().putInstance(task);
+
+        long id = getDbManager().modify(null, task, String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
         assert id >= 0 : "ID should never be a negative number.";
-        getDbManager().recordAction(null, id,
-                String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
 
         if (hasConflict) {
             return String.format(MESSAGE_ADD_CONFLICT, description);

@@ -21,6 +21,11 @@ import java.util.UUID;
 import com.rubberduck.io.DatabaseManager;
 
 public class Task implements Serializable, Comparable<Task> {
+
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+
     private String description;
     private ArrayList<DatePair> dateList;
     private boolean isDone;
@@ -259,6 +264,7 @@ public class Task implements Serializable, Comparable<Task> {
      * @author Hooi Tong
      */
     public String formatOutput(long displayingId) {
+        boolean overdue = false;
         final int MAX_DESC_LENGTH = 41;
         StringBuilder stringBuilder = new StringBuilder();
         String description = getDescription();
@@ -301,6 +307,9 @@ public class Task implements Serializable, Comparable<Task> {
             } else if (dp.hasEndDate()) {
                 dateList.add(dateFormat.format(dp.getEndDate().getTime()));
             }
+            if (dp.getEndDate().before(Calendar.getInstance())) {
+                overdue = true;
+            }
         }
 
         /* Format all fragments in desc and date into multiple lines */
@@ -308,8 +317,8 @@ public class Task implements Serializable, Comparable<Task> {
         int dateId = 1;
         boolean rangeTicker = true;
         while (!wordWrapList.isEmpty() || !dateList.isEmpty()) {
-            String desc = wordWrapList.isEmpty() ? ""
-                    : wordWrapList.removeFirst();
+            String desc = wordWrapList.isEmpty() ? "" : wordWrapList
+                    .removeFirst();
 
             String date = dateList.isEmpty() ? "" : dateList.removeFirst();
             if (isTentative && rangeTicker) {
@@ -341,7 +350,14 @@ public class Task implements Serializable, Comparable<Task> {
             }
         }
 
-        return stringBuilder.toString();
+        String output = stringBuilder.toString();
+        if (overdue) {
+            output = ANSI_RED + output + ANSI_RESET;
+        } else {
+            output = ANSI_GREEN + output + ANSI_RESET;
+        }
+
+        return output;
     }
 
     public boolean isFloatingTask() {
