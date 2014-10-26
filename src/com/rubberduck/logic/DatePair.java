@@ -27,13 +27,17 @@ public class DatePair implements Serializable {
     }
 
     public DatePair(Calendar startDate, Calendar endDate) {
-        if(startDate.after(endDate)){
+        if(startDate.equals(endDate)){
+            startDate = null;
+            this.endDate = endDate;
+        }else if(startDate.after(endDate)){
             this.startDate = endDate;
             this.endDate = startDate;
         }else{
             this.startDate = startDate;
             this.endDate = endDate; 
         }
+        
     }
 
     public Calendar getStartDate() {

@@ -261,6 +261,7 @@ public class Parser {
                         tokens = tokens.replace(group.getText(), "");
                         continue;
                     }
+                    
 
                     if (dates.size() == 2) {
                         Calendar startDate = dateToCalendar(dates.get(0));
@@ -276,13 +277,17 @@ public class Parser {
                             endDate.set(Calendar.SECOND, 0);
                         }
                         
-                        if(startDate.after(endDate)){
+                        if(startDate.equals(endDate)){
+                           date.setEndDate(dateToCalendar(dates.get(0))); 
+                        }
+                        else if(startDate.after(endDate)){
                             date.setStartDate(endDate);
                             date.setEndDate(startDate); 
                         }else{
                             date.setStartDate(endDate);
                             date.setEndDate(startDate);  
                         }
+                        
 
                        
                     } else if (dates.size() == 1) {
