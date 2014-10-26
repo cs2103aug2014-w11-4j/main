@@ -27,12 +27,13 @@ public class DatePair implements Serializable {
     }
 
     public DatePair(Calendar startDate, Calendar endDate) {
-        if (startDate != null && startDate.after(endDate)) {
-            throw new IllegalArgumentException(
-                    "Start date later than end date."); // TODO: Refactor this
+        if(startDate.after(endDate)){
+            this.startDate = endDate;
+            this.endDate = startDate;
+        }else{
+            this.startDate = startDate;
+            this.endDate = endDate; 
         }
-        this.startDate = startDate;
-        this.endDate = endDate;
     }
 
     public Calendar getStartDate() {

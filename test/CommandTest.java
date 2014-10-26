@@ -88,7 +88,7 @@ public class CommandTest {
     public void addNoStartDateTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         String actual = "";
-        DatePair dp = new DatePair(null, Calendar.getInstance());
+        DatePair dp = new DatePair( Calendar.getInstance());
         dpList.add(dp);
         String keyword = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
         AddCommand command = new AddCommand(
