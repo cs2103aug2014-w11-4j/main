@@ -78,12 +78,11 @@ public class UpdateCommand extends Command {
             }
         }
 
-        long newDatabaseId = getDbManager().putInstance(task);
-        getDbManager().markAsInvalid(databaseId);
+        long newDatabaseId = getDbManager().modify(databaseId, task,
+                String.format(JOURNAL_MESSAGE_UPDATE, oldDescription));
 
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
-        getDbManager().recordAction(databaseId, newDatabaseId,
-                String.format(JOURNAL_MESSAGE_UPDATE, oldDescription));
+
 
         return String.format(MESSAGE_UPDATE, oldDescription);
     }
