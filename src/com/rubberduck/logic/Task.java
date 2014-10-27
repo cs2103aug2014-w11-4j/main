@@ -113,24 +113,13 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     /**
-     * Add a start date to the task without end date
-     *
-     * @param startDate the starting date of the task
-     */
-
-    public void addStartDate(GregorianCalendar startDate) {
-        DatePair dp = new DatePair(startDate, null);
-        dateList.add(dp);
-    }
-
-    /**
      * Add an end date to the task without a start date
      *
      * @param endDate the dateline of the task
      */
 
     public void addEndDate(GregorianCalendar endDate) {
-        DatePair dp = new DatePair(null, endDate);
+        DatePair dp = new DatePair(endDate);
         dateList.add(dp);
     }
 
