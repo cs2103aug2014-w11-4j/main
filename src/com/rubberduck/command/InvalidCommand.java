@@ -2,24 +2,35 @@ package com.rubberduck.command;
 
 import java.io.IOException;
 
+import com.rubberduck.menu.ColorFormatter;
+import com.rubberduck.menu.ColorFormatter.Color;
+
+/**
+ * Concrete Command Class that can be executed to return an invalid message back
+ * to the user.
+ *
+ * @author hooitong
+ */
 public class InvalidCommand extends Command {
 
     private String errorMessage;
 
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
     /**
+     * Public constructor of InvalidCommand that accepts an error message.
+     *
      * @param description of the invalid command
      */
     public InvalidCommand(String errorMessage) {
         this.errorMessage = errorMessage;
     }
 
+    /**
+     * Returns error message provided by application back to user.
+     *
+     * @return error message as String
+     */
     @Override
     public String execute() throws IOException {
-        return errorMessage;
+        return ColorFormatter.format(errorMessage, Color.RED);
     }
-
 }

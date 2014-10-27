@@ -3,21 +3,38 @@ package com.rubberduck.command;
 import java.io.IOException;
 
 import com.rubberduck.logic.Task;
+import com.rubberduck.menu.ColorFormatter;
+import com.rubberduck.menu.ColorFormatter.Color;
 
+/**
+ * Concrete Command Class that can be executed to mark as completed/incomplete
+ * the task object from database given the task id displayed on screen to the
+ * user.
+ *
+ * @author Zhao Hang
+ */
 public class MarkCommand extends Command {
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
     private static final String JOURNAL_MESSAGE_MARK_AS_COMPLETED = "Mark task \"%s\" as completed";
-    private static final String JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED = "Mark task \"%s\" as uncompleted";
+    private static final String JOURNAL_MESSAGE_MARK_AS_INCOMPLETE = "Mark task \"%s\" as incomplete";
     private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
-    private static final String MESSAGE_MARK_UNCOMPLETED = "\"%s\" has been marked to uncompleted.";
+    private static final String MESSAGE_MARK_INCOMPLETE = "\"%s\" has been marked to incomplete.";
 
     private int taskId;
 
+    /**
+     * Getter method of taskId.
+     *
+     * @return taskId as int
+     */
     public int getTaskId() {
         return taskId;
     }
 
     /**
+     * Public constructor of MarkCommand that accepts task id to determine what
+     * the command should mark when executed.
+     *
      * @param taskId displayed id of the task
      */
     public MarkCommand(int taskId) {
@@ -33,10 +50,11 @@ public class MarkCommand extends Command {
     @Override
     public String execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            return MESSAGE_ERROR_WRONG_TASK_ID;
+            return ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
         }
+
         if (isCompletedTask(taskId)) {
-            return markTaskUncompleted(taskId);
+            return markTaskIncomplete(taskId);
         } else {
             return markTaskCompleted(taskId);
         }
@@ -61,6 +79,8 @@ public class MarkCommand extends Command {
      * @param displayedId displayed id of the task
      * @return message of mark task to completed
      * @throws IOException
+     * @author Zhao Hang
+     * @author Hooi Tong ANSI & Response
      */
     public String markTaskCompleted(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
@@ -73,17 +93,26 @@ public class MarkCommand extends Command {
                 String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
                         oldTask.getDescription()));
         getDisplayedTasksList().set(displayedId - 1, newTaskId);
-        return String.format(MESSAGE_MARK_COMPLETED, oldTask.getDescription());
+        StringBuilder response = new StringBuilder();
+        response.append(ColorFormatter.format(
+                String.format(MESSAGE_MARK_COMPLETED, oldTask.getDescription()),
+                Color.GREEN));
+        response.append(System.lineSeparator());
+        response.append(getPreviousDisplayCommand().execute());
+        return response.toString();
+
     }
 
     /**
-     * Mark a task as Uncompleted.
+     * Mark a completed task as incomplete.
      *
      * @param displayedId displayed id of the task
      * @return message of mark task to uncompleted
      * @throws IOException
+     * @author Zhao Hang
+     * @author Hooi Tong ANSI & Response
      */
-    public String markTaskUncompleted(int displayedId) throws IOException {
+    public String markTaskIncomplete(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
         assert oldTask.getIsDone();
@@ -91,9 +120,15 @@ public class MarkCommand extends Command {
         long newTaskId = getDbManager().modify(
                 databaseId,
                 oldTask,
-                String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,
+                String.format(JOURNAL_MESSAGE_MARK_AS_INCOMPLETE,
                         oldTask.getDescription()));
         getDisplayedTasksList().set(displayedId - 1, newTaskId);
-        return String.format(MESSAGE_MARK_UNCOMPLETED, oldTask.getDescription());
+        StringBuilder response = new StringBuilder();
+        response.append(ColorFormatter.format(
+                String.format(MESSAGE_MARK_INCOMPLETE, oldTask.getDescription()),
+                Color.RED));
+        response.append(System.lineSeparator());
+        response.append(getPreviousDisplayCommand().execute());
+        return response.toString();
     }
 }

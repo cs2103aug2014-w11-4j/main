@@ -251,21 +251,29 @@ public class Parser {
             while (true) {
                 /* Use Natty library to parse date specified by user */
                 List<DateGroup> groups = dateParser.parse(tokens);
-                DatePair date = new DatePair();
 
                 for (DateGroup group : groups) {
                     List<Date> dates = group.getDates();
 
+                    /* Ignore parsing of random digits */
                     if (group.getText().length() <= 2) {
-                        /* remove parsed token from tokens */
                         tokens = tokens.replace(group.getText(), "");
                         continue;
                     }
 
+                    /* If date range is parsed */
                     if (dates.size() == 2) {
                         Calendar startDate = dateToCalendar(dates.get(0));
                         Calendar endDate = dateToCalendar(dates.get(1));
 
+                        /* Swap date if necessary */
+                        if (startDate.after(endDate)) {
+                            Calendar temp = endDate;
+                            endDate = startDate;
+                            startDate = temp;
+                        }
+
+                        /* If no time specified, set default timings */
                         if (group.isTimeInferred()) {
                             startDate.set(Calendar.HOUR_OF_DAY, 0);
                             startDate.set(Calendar.MINUTE, 0);
@@ -276,18 +284,10 @@ public class Parser {
                             endDate.set(Calendar.SECOND, 0);
                         }
 
-                        if (startDate.equals(endDate)) {
-                            date.setEndDate(dateToCalendar(dates.get(0)));
-                        } else if (startDate.after(endDate)) {
-                            date.setStartDate(endDate);
-                            date.setEndDate(startDate);
-                        } else {
-                            date.setStartDate(endDate);
-                            date.setEndDate(startDate);
-                        }
+                        datePairs.add(new DatePair(startDate, endDate));
 
                     } else if (dates.size() == 1) {
-                        date.setEndDate(dateToCalendar(dates.get(0)));
+                        datePairs.add(new DatePair(dateToCalendar(dates.get(0))));
                     }
 
                     desc += tentative.replace(group.getText(), "");
@@ -297,16 +297,11 @@ public class Parser {
                     desc += tentative;
                 }
 
-                if (date.hasEndDate()) {
-                    datePairs.add(date);
-                }
-
                 break;
             }
         }
 
         desc = desc.trim();
-
         if (desc.isEmpty()) {
             return new InvalidCommand(MESSAGE_ADD_ERROR_NO_DESC);
         } else {
@@ -363,21 +358,29 @@ public class Parser {
                 while (true) {
                     /* Use Natty library to parse date specified by user */
                     List<DateGroup> groups = dateParser.parse(tokens);
-                    DatePair date = new DatePair();
 
                     for (DateGroup group : groups) {
                         List<Date> dates = group.getDates();
 
+                        /* Ignore parsing of random digits */
                         if (group.getText().length() <= 2) {
-                            /* remove parsed token from tokens */
                             tokens = tokens.replace(group.getText(), "");
                             continue;
                         }
 
+                        /* If date range is parsed */
                         if (dates.size() == 2) {
                             Calendar startDate = dateToCalendar(dates.get(0));
                             Calendar endDate = dateToCalendar(dates.get(1));
 
+                            /* Swap date if necessary */
+                            if (startDate.after(endDate)) {
+                                Calendar temp = endDate;
+                                endDate = startDate;
+                                startDate = temp;
+                            }
+
+                            /* If no time specified, set default timings */
                             if (group.isTimeInferred()) {
                                 startDate.set(Calendar.HOUR_OF_DAY, 0);
                                 startDate.set(Calendar.MINUTE, 0);
@@ -388,12 +391,12 @@ public class Parser {
                                 endDate.set(Calendar.SECOND, 0);
                             }
 
-                            date.setStartDate(startDate);
-                            date.setEndDate(endDate);
-                        } else if (dates.size() == 1) {
-                            date.setEndDate(dateToCalendar(dates.get(0)));
-                        }
+                            datePairs.add(new DatePair(startDate, endDate));
 
+                        } else if (dates.size() == 1) {
+                            datePairs.add(new DatePair(
+                                    dateToCalendar(dates.get(0))));
+                        }
                         desc += tentative.replace(group.getText(), "");
                     }
 
@@ -401,16 +404,11 @@ public class Parser {
                         desc += tentative;
                     }
 
-                    if (date.hasEndDate()) {
-                        datePairs.add(date);
-                    }
-
                     break;
                 }
             }
 
             desc = desc.trim();
-
             if (!(!datePairs.isEmpty() || !desc.isEmpty())) {
                 return new InvalidCommand(MESSAGE_UPDATE_ERROR_EMPTY);
             }

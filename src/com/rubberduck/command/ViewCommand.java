@@ -6,6 +6,8 @@ import java.util.Collections;
 
 import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
+import com.rubberduck.menu.ColorFormatter;
+import com.rubberduck.menu.ColorFormatter.Color;
 
 /**
  * Concrete Command Class that can be executed to return related tasks as a
@@ -21,19 +23,33 @@ public class ViewCommand extends Command {
 
     protected static final int CONSOLE_MAX_WIDTH = 80;
 
-    /* Information required for view */
     private DatePair viewRange;
     private boolean viewAll;
     private boolean completed;
 
+    /**
+     * Getter method for viewRange.
+     *
+     * @return viewRange as DatePair
+     */
     public DatePair getViewRange() {
         return viewRange;
     }
 
+    /**
+     * Getter method for viewAll.
+     *
+     * @return viewAll as boolean
+     */
     public boolean isViewAll() {
         return viewAll;
     }
 
+    /**
+     * Getter method for completed.
+     *
+     * @return completed as boolean
+     */
     public boolean isCompleted() {
         return completed;
     }
@@ -41,9 +57,9 @@ public class ViewCommand extends Command {
     /**
      * Public constructor for ViewCommand.
      *
-     * @param viewAll
-     * @param completed
-     * @param viewRange
+     * @param viewAll true if all tasks should be returned
+     * @param completed true if all completed tasks should be returned instead
+     * @param viewRange date range to view tasks in
      */
     public ViewCommand(boolean viewAll, boolean completed, DatePair viewRange) {
         this.viewAll = viewAll;
@@ -52,29 +68,30 @@ public class ViewCommand extends Command {
     }
 
     /**
-     * Check the type of view requested by Command
+     * Check the type of view method requested by user.
      *
      * @return the result of the view option
      * @throws IOException
      */
     @Override
     public String execute() throws IOException {
+        setPreviousDisplayCommand(this);
         if (isViewAll()) {
             return viewAll(isCompleted());
         } else {
             return viewByPeriod(getViewRange(), isCompleted());
         }
-
     }
 
     /**
-     * Return all the valid task stored in the database
+     * Return all the valid task stored in the database.
      *
      * @return list of tasks and their information in the database
      */
     public String viewAll(boolean isCompleted) throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
         getDisplayedTasksList().clear();
+
         for (int i = 0; i < getDbManager().getValidIdList().size(); i++) {
             Long databaseId = getDbManager().getValidIdList().get(i);
             Task task = getDbManager().getInstance(databaseId);
@@ -83,12 +100,17 @@ public class ViewCommand extends Command {
             }
         }
 
+        Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
+                : Color.YELLOW;
+
         if (isCompleted) {
-            responseBuilder.append(String.format(MESSAGE_VIEWALL_CRESULT,
-                    getDisplayedTasksList().size()));
+            responseBuilder.append(ColorFormatter.format(String.format(
+                    MESSAGE_VIEWALL_CRESULT, getDisplayedTasksList().size()),
+                    headerColor));
         } else {
-            responseBuilder.append(String.format(MESSAGE_VIEWALL_RESULT,
-                    getDisplayedTasksList().size()));
+            responseBuilder.append(ColorFormatter.format(String.format(
+                    MESSAGE_VIEWALL_RESULT, getDisplayedTasksList().size()),
+                    headerColor));
         }
 
         if (!getDisplayedTasksList().isEmpty()) {
@@ -106,7 +128,6 @@ public class ViewCommand extends Command {
      * @param dateRange DatePair object containing the start date and end date
      * @return result of all the tasks that are within the period as queried
      */
-
     public String viewByPeriod(DatePair dateRange, boolean isCompleted)
             throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
@@ -133,12 +154,17 @@ public class ViewCommand extends Command {
             assert false : "This should not occur as there must be a date.";
         }
 
+        Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
+                : Color.YELLOW;
+
         if (isCompleted) {
-            responseBuilder.append(String.format(MESSAGE_VIEWDATE_CRESULT,
-                    getDisplayedTasksList().size(), range));
+            responseBuilder.append(ColorFormatter.format(String.format(
+                    MESSAGE_VIEWDATE_CRESULT, getDisplayedTasksList().size(),
+                    range), headerColor));
         } else {
-            responseBuilder.append(String.format(MESSAGE_VIEWDATE_RESULT,
-                    getDisplayedTasksList().size(), range));
+            responseBuilder.append(ColorFormatter.format(String.format(
+                    MESSAGE_VIEWDATE_RESULT, getDisplayedTasksList().size(),
+                    range), headerColor));
         }
 
         if (!getDisplayedTasksList().isEmpty()) {
@@ -149,6 +175,13 @@ public class ViewCommand extends Command {
         return responseBuilder.toString();
     }
 
+    /**
+     * Format the list of tasks into a String output and return.
+     *
+     * @return the formatted string of all tasks involved
+     * @throws IOException
+     * @author hooitong
+     */
     private String formatTaskListOutput() throws IOException {
         Collections.sort(getDisplayedTasksList(),
                 getDbManager().getInstanceIdComparator());
@@ -174,16 +207,17 @@ public class ViewCommand extends Command {
     }
 
     /**
-     * Helper method that formats the output of tasks.
+     * Helper method that formats the output of an individual task.
      *
      * @param displayingId the id of the task
      * @return the formatted output of the task
      * @throws IOException
+     * @author hooitong
      */
     protected String formatTaskOutput(int displayingId) throws IOException {
         Task task = getDbManager().getInstance(
                 getDisplayedTasksList().get(displayingId));
-        return task.formatOutput(displayingId + 1);
+        return task.formatOutput(displayingId + 1 + "");
     }
 
 }

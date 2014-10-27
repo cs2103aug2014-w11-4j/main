@@ -5,7 +5,15 @@ import java.util.ArrayList;
 
 import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
+import com.rubberduck.menu.ColorFormatter;
+import com.rubberduck.menu.ColorFormatter.Color;
 
+/**
+ * Concrete Command Class that can be executed to add a new task (floating,
+ * deadline, schedule) into the database.
+ *
+ * @author Jason Sia
+ */
 public class AddCommand extends Command {
     private static final String MESSAGE_ADD = "\"%s\" has been successfully added.";
     private static final String MESSAGE_ADD_CONFLICT = "\"%s\" has been successfully added.\nPlease note that there are conflicting task(s).";
@@ -16,17 +24,30 @@ public class AddCommand extends Command {
     private String description;
     private ArrayList<DatePair> datePairs;
 
+    /**
+     * Getter method for description.
+     *
+     * @return description as String
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * Getter method for datePairs.
+     *
+     * @return datePairs as ArrayList<DatePair>
+     */
     public ArrayList<DatePair> getDatePairs() {
         return datePairs;
     }
 
     /**
+     * Public constructor for AddCommand that accepts description and the list
+     * of DatePairs.
+     *
      * @param description of the task
-     * @param datePairs of possible DatePair
+     * @param list of datePairs if any
      */
     public AddCommand(String description, ArrayList<DatePair> datePairs) {
         this.description = description;
@@ -37,7 +58,9 @@ public class AddCommand extends Command {
      * Create and add the task to the database.
      *
      * @return the correct response back to the user
-     * @throws IOException
+     * @throws IOException DBManager has encountered an IO Error
+     * @author Jason Sia
+     * @author hooitong ANSI & Response
      */
     @Override
     public String execute() throws IOException {
@@ -46,12 +69,14 @@ public class AddCommand extends Command {
         assert !description.equals("");
 
         if (DatePair.isDateBeforeNow(datePairs)) {
-            return String.format(MESSAGE_ADD_PAST, description);
+            return ColorFormatter.format(
+                    String.format(MESSAGE_ADD_PAST, description), Color.RED);
         }
 
         Task task = new Task(description, datePairs);
         if (!task.checkValidity()) {
-            return MESSAGE_ERROR_WRONG_TASK_TYPE;
+            return ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_TYPE,
+                    Color.RED);
         }
 
         boolean hasConflict = task.checkConflictWithDB(getDbManager());
@@ -60,11 +85,18 @@ public class AddCommand extends Command {
                 String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
         assert id >= 0 : "ID should never be a negative number.";
 
+        StringBuilder response = new StringBuilder();
         if (hasConflict) {
-            return String.format(MESSAGE_ADD_CONFLICT, description);
+            response.append(ColorFormatter.format(
+                    String.format(MESSAGE_ADD_CONFLICT, description),
+                    Color.YELLOW));
         } else {
-            return String.format(MESSAGE_ADD, description);
+            response.append(ColorFormatter.format(
+                    String.format(MESSAGE_ADD, description), Color.YELLOW));
         }
+        response.append(System.lineSeparator());
+        response.append(ColorFormatter.format(task.formatOutput("+"),
+                Color.GREEN));
+        return response.toString();
     }
-
 }
