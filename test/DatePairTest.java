@@ -6,23 +6,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
+import com.rubberduck.logic.DatePair;
+import com.rubberduck.logic.Task;
+
 public class DatePairTest {
-    private Logic logic;
-
-    @Before
-    public void setUp() throws Exception {
-        logic = Logic.getInstance();
-        logic.getDB().resetDatabase();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        logic.getDB().resetDatabase();
-    }
 
     /**
      * Test for view of task that are within date range Task : 1 aug 2014 - 20
@@ -79,7 +68,7 @@ public class DatePairTest {
         assertEquals(true, actual);
 
     }
-    
+
     /**
      * Test for view of task overlap date range Task : 1 aug 2014 - 20 aug 2014
      * View Scope : 1 july 2014 - 15 aug 2014 Expected: true
@@ -133,13 +122,12 @@ public class DatePairTest {
         assertEquals(true, actual);
 
     }
-    
+
     /**
-     * Task Boundary test : 20 aug 2014
-     * View Scope :19 aug 2014 - 30 aug 2014 Expected: true
+     * Task Boundary test : 20 aug 2014 View Scope :19 aug 2014 - 30 aug 2014
+     * Expected: true
      * 
-     * Range = 19 - 30
-     * Test Value 20
+     * Range = 19 - 30 Test Value 20
      */
 
     @Test
@@ -162,13 +150,12 @@ public class DatePairTest {
         assertEquals(true, actual);
 
     }
-    
+
     /**
-     * Task Boundary Test: 19 aug 2014 
-     * View Scope :19 aug 2014 - 30 aug 2014 Expected: true
+     * Task Boundary Test: 19 aug 2014 View Scope :19 aug 2014 - 30 aug 2014
+     * Expected: true
      * 
-     * Range = 19 - 30
-     * Test Value 19
+     * Range = 19 - 30 Test Value 19
      */
 
     @Test
@@ -180,8 +167,7 @@ public class DatePairTest {
         dpList.add(dp);
         Task task = new Task("Test Date", dpList);
 
-        Calendar viewStartDate = Calendar.getInstance();
-        viewStartDate.set(2014, Calendar.AUGUST, 19);
+        Calendar viewStartDate = (Calendar) endDate.clone();
         Calendar viewEndDate = Calendar.getInstance();
         viewEndDate.set(2014, Calendar.AUGUST, 30);
 
@@ -191,12 +177,12 @@ public class DatePairTest {
         assertEquals(true, actual);
 
     }
+
     /**
-     * Task Boundary Test : 18 aug 2014 
-     * View Scope :19 aug 2014 - 30 aug 2014 Expected: false
+     * Task Boundary Test : 18 aug 2014 View Scope :19 aug 2014 - 30 aug 2014
+     * Expected: false
      * 
-     * Range = 19 - 30
-     * Test Value 18
+     * Range = 19 - 30 Test Value 18
      */
 
     @Test
@@ -218,13 +204,12 @@ public class DatePairTest {
         assertEquals(false, actual);
 
     }
-    
+
     /**
-     * Task Boundary Test : 24 aug 2014
-     * View Scope :19 aug 2014 - 25 aug 2014 Expected: true
+     * Task Boundary Test : 24 aug 2014 View Scope :19 aug 2014 - 25 aug 2014
+     * Expected: true
      * 
-     * Range = 19 - 25
-     * Test Value 24
+     * Range = 19 - 25 Test Value 24
      */
 
     @Test
@@ -246,13 +231,12 @@ public class DatePairTest {
         assertEquals(true, actual);
 
     }
-    
+
     /**
-     * Task Boundary Test: 24 aug 2014 
-     * View Scope :19 aug 2014 - 25 aug 2014 Expected: true
+     * Task Boundary Test: 24 aug 2014 View Scope :19 aug 2014 - 25 aug 2014
+     * Expected: true
      * 
-     * Range = 19 - 25
-     * Test Value 24
+     * Range = 19 - 25 Test Value 24
      */
 
     @Test
@@ -274,13 +258,13 @@ public class DatePairTest {
         assertEquals(true, actual);
 
     }
-    
+
     /**
-     * Task Boundary Test : 26 aug 2014 27 aug 2014
-     * View Scope : 19 aug 2014 - 25 aug 2014 Expected: false
+     * Task Boundary Test : 26 aug 2014 27 aug 2014 View Scope : 19 aug 2014 -
+     * 25 aug 2014 Expected: false
      * 
-     * Range = 19 - 25
-     * Test Value 26 start, 27 end; need to have 2 dates, as those with no start date = infinite early
+     * Range = 19 - 25 Test Value 26 start, 27 end; need to have 2 dates, as
+     * those with no start date = infinite early
      */
 
     @Test
@@ -304,8 +288,6 @@ public class DatePairTest {
         assertEquals(false, actual);
 
     }
-   
-    
 
     /**
      * Test: null startDate / endDate Expected: true

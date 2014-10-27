@@ -7,92 +7,76 @@ import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.rubberduck.io.DatabaseManager;
+
 public class JournalControllerTest {
 
     DatabaseManager<String> dbManager;
-    JournalController<String> journalController;
 
     @Before
     public void setUp() throws Exception {
         dbManager = new DatabaseManager<String>(File.createTempFile(
                 "JournalControllerTest", ".tmp").getPath());
-        journalController = new JournalController<String>(dbManager);
     }
 
     @Test
     public void testRecordAction() throws Exception {
-        Long newId = dbManager.putInstance("Test 0");
-        journalController.recordAction(null, newId, "create instance");
+        Long newId = dbManager.modify(null, "Test 0", "create instance");
 
-        newId = dbManager.putInstance("Test 1");
-        journalController.recordAction(null, newId, "create instance");
+        newId = dbManager.modify(null, "Test 1", "create instance");
 
-        dbManager.markAsInvalid(newId);
-        Long modifiedId = dbManager.putInstance("Modified test 1");
-        journalController.recordAction(newId, modifiedId, "modify instance");
+        Long modifiedId = dbManager.modify(newId, "Modified test 1", "modify instance");
 
-        dbManager.markAsInvalid(modifiedId);
-        journalController.recordAction(modifiedId, null, "delete instance");
+        dbManager.modify(modifiedId, null, "delete instance");
 
         assertEquals(dbManager.getValidIdList().size(), 1);
-        assertEquals(journalController.getUndoStackSize(), 4);
-        assertEquals(journalController.getRedoStackSize(), 0);
+        assertEquals(dbManager.getJournal().getUndoStackSize(), 4);
+        assertEquals(dbManager.getJournal().getRedoStackSize(), 0);
     }
 
     @Test
     public void testUndo() throws Exception {
-        Long newId = dbManager.putInstance("Test 0");
-        journalController.recordAction(null, newId, "create instance");
+        Long newId = dbManager.modify(null, "Test 0", "create instance");
 
-        newId = dbManager.putInstance("Test 1");
-        journalController.recordAction(null, newId, "create instance");
+        newId = dbManager.modify(null, "Test 1", "create instance");
 
-        dbManager.markAsInvalid(newId);
-        Long modifiedId = dbManager.putInstance("Modified test 1");
-        journalController.recordAction(newId, modifiedId, "modify instance");
+        Long modifiedId = dbManager.modify(newId, "Modified test 1", "modify instance");
 
-        dbManager.markAsInvalid(modifiedId);
-        journalController.recordAction(modifiedId, null, "delete instance");
+        dbManager.modify(modifiedId, null, "delete instance");
 
-        journalController.undo();
+        dbManager.undo();
         assertEquals(dbManager.getValidIdList().size(), 2);
-        assertEquals(journalController.getUndoStackSize(), 3);
-        assertEquals(journalController.getRedoStackSize(), 1);
+        assertEquals(dbManager.getJournal().getUndoStackSize(), 3);
+        assertEquals(dbManager.getJournal().getRedoStackSize(), 1);
 
-        journalController.undo();
+        dbManager.undo();
         assertEquals(dbManager.getValidIdList().size(), 2);
-        assertEquals(journalController.getUndoStackSize(), 2);
-        assertEquals(journalController.getRedoStackSize(), 2);
+        assertEquals(dbManager.getJournal().getUndoStackSize(), 2);
+        assertEquals(dbManager.getJournal().getRedoStackSize(), 2);
     }
 
     @Test
     public void testRedo() throws Exception {
-        Long newId = dbManager.putInstance("Test 0");
-        journalController.recordAction(null, newId, "create instance");
+        Long newId = dbManager.modify(null, "Test 0", "create instance");
 
-        newId = dbManager.putInstance("Test 1");
-        journalController.recordAction(null, newId, "create instance");
+        newId = dbManager.modify(null, "Test 1", "create instance");
 
-        dbManager.markAsInvalid(newId);
-        Long modifiedId = dbManager.putInstance("Modified test 1");
-        journalController.recordAction(newId, modifiedId, "modify instance");
+        Long modifiedId = dbManager.modify(newId, "Modified test 1", "modify instance");
 
-        dbManager.markAsInvalid(modifiedId);
-        journalController.recordAction(modifiedId, null, "delete instance");
+        dbManager.modify(modifiedId, null, "delete instance");
 
-        journalController.undo();
-        journalController.undo();
+        dbManager.undo();
+        dbManager.undo();
 
-        journalController.redo();
+        dbManager.redo();
         assertEquals(dbManager.getValidIdList().size(), 2);
 
-        journalController.redo();
+        dbManager.redo();
         assertEquals(dbManager.getValidIdList().size(), 1);
 
-        journalController.undo();
+        dbManager.undo();
         assertEquals(dbManager.getValidIdList().size(), 2);
-        newId = dbManager.putInstance("Test clear redo");
-        journalController.recordAction(null, newId, "create instance");
-        assertEquals(journalController.getRedoStackSize(), 0);
+        newId = dbManager.modify(null, "Test clear redo", "create instance");
+        assertEquals(dbManager.getJournal().getRedoStackSize(), 0);
     }
 }

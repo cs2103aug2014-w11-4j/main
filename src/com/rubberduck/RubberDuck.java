@@ -1,3 +1,5 @@
+package com.rubberduck;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -10,45 +12,59 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import com.rubberduck.command.Command;
+import com.rubberduck.menu.MenuInterface;
+
 /**
  * RubberDuck is a CLI Task Manager that stores user's task into a text file and
  * helps the user to handle all his/her tasks via this application.
  *
- * This class is used to start and initialize the program.
+ * This class is the main class used to start and initialize the program.
  *
  * @author hooitong
  *
  */
 public class RubberDuck {
+
+    /* Static variables used to store information about logging */
+    private static final String DATESTAMP_FORMAT = "dd-MM-yyyy_HH-mm-ss";
+    private static final String LOG_DIRECTORY = "logs/";
+    private static final String LOG_FILENAME = "%s.log";
+
+    /**
+     * Main method of application as well as the entry point.
+     *
+     * @param args not used
+     */
     public static void main(String[] args) {
         setupGlobalLogger();
+        Command.startDatabase();
         MenuInterface.getInstance().handleInterface();
     }
 
+    /**
+     * Grabs the global logger and setup a FileHandler to create a log file. It
+     * will then set it as the default logging file by the Logger.
+     */
     public static void setupGlobalLogger() {
-        /* Get global logger from application */
-        Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-
+        /* Suppress logger to Console using rootLogger */
         Logger rootLogger = Logger.getLogger("");
-        /* Suppress logger to Console */
         Handler[] handlers = rootLogger.getHandlers();
         if (handlers[0] instanceof ConsoleHandler) {
             rootLogger.removeHandler(handlers[0]);
         }
 
-        /* Handle minimum INFO logs */
+        Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         logger.setLevel(Level.INFO);
-
-        /* Get today's date and time */
-        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
-        Calendar cal = Calendar.getInstance();
-        String currentTime = dateFormat.format(cal.getTime());
 
         /* Setup file handler */
         try {
-            new File("logs").mkdirs();
-            FileHandler fileHandler = new FileHandler("logs/" + currentTime
-                    + ".log");
+            new File(LOG_DIRECTORY).mkdirs();
+            DateFormat dateFormat = new SimpleDateFormat(DATESTAMP_FORMAT);
+            Calendar cal = Calendar.getInstance();
+            String currentTime = dateFormat.format(cal.getTime());
+            FileHandler fileHandler = new FileHandler(LOG_DIRECTORY
+                    + String.format(LOG_FILENAME, currentTime));
             SimpleFormatter formatter = new SimpleFormatter();
             fileHandler.setFormatter(formatter);
             logger.addHandler(fileHandler);

@@ -1,5 +1,8 @@
+package com.rubberduck.logic;
+
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
@@ -24,12 +27,17 @@ public class DatePair implements Serializable {
     }
 
     public DatePair(Calendar startDate, Calendar endDate) {
-        if (startDate != null && startDate.after(endDate)) {
-            throw new IllegalArgumentException(
-                    "Start date later than end date."); // TODO: Refactor this
+        if (startDate.equals(endDate)) {
+            startDate = null;
+            this.endDate = endDate;
+        } else if (startDate.after(endDate)) {
+            this.startDate = endDate;
+            this.endDate = startDate;
+        } else {
+            this.startDate = startDate;
+            this.endDate = endDate;
         }
-        this.startDate = startDate;
-        this.endDate = endDate;
+
     }
 
     public Calendar getStartDate() {
@@ -95,11 +103,7 @@ public class DatePair implements Serializable {
      * @return true if there is overlap between two DatePairs
      * @author Huang Yue
      */
-    public boolean isWithinPeriod(DatePair dateRange) { // TODO: THIS METHOD IS
-                                                        // NOT TESTED! add test
-                                                        // for this (V
-                                                        // important!)
-
+    public boolean isWithinPeriod(DatePair dateRange) {
         Calendar startDateCriteria = dateRange.getStartDate();
         Calendar endDateCriteria = dateRange.getEndDate();
 
@@ -125,6 +129,25 @@ public class DatePair implements Serializable {
         }
 
         return !(startDate.after(endDateCriteria) || endDate.before(startDateCriteria));
-
     }
+
+    /**
+     * Check if any end date in the DateList has already past the current date
+     * and time during execution.
+     *
+     * @param dateList the ArrayList of DatePair
+     * @return true if there is a date that has already past else false
+     */
+    public static boolean isDateBeforeNow(ArrayList<DatePair> dateList) {
+        if (dateList.size() > 0) {
+            for (DatePair dp : dateList) {
+                if (dp.getEndDate().before(Calendar.getInstance())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
 }

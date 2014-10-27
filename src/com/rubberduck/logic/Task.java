@@ -1,3 +1,5 @@
+package com.rubberduck.logic;
+
 /**
  * This task class is used to represent a single task object
  * which stores all relevant information about the task and
@@ -7,15 +9,22 @@
  * @author Sia Wei Kiat Jason
  */
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
-import java.util.UUID;
+
+import com.rubberduck.io.DatabaseManager;
 
 public class Task implements Serializable, Comparable<Task> {
+
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_RED = "\u001B[31m";
+    private static final String ANSI_GREEN = "\u001B[32m";
+
     private String description;
     private ArrayList<DatePair> dateList;
     private boolean isDone;
@@ -48,7 +57,7 @@ public class Task implements Serializable, Comparable<Task> {
         this.description = description;
         this.dateList = dateList;
         this.isDone = false;
-        generateUuid();
+        resetUuid();
     }
 
     /**
@@ -62,6 +71,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Returns the description of the class
+     *
      * @return the description of the class
      */
     public String getDescription() {
@@ -70,6 +80,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Set a new dateList
+     *
      * @param dateList of possible DatePair
      */
 
@@ -79,6 +90,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Check if there is at least a start date or end date
+     *
      * @return if there exist at least a date
      */
     public boolean hasDate() {
@@ -92,6 +104,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Returns an ArrayList of DatePair
+     *
      * @return the dateList of possible DatePair
      */
 
@@ -100,27 +113,19 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     /**
-     * Add a start date to the task without end date
-     * @param startDate the starting date of the task
-     */
-
-    public void addStartDate(GregorianCalendar startDate) {
-        DatePair dp = new DatePair(startDate, null);
-        dateList.add(dp);
-    }
-
-    /**
      * Add an end date to the task without a start date
+     *
      * @param endDate the dateline of the task
      */
 
     public void addEndDate(GregorianCalendar endDate) {
-        DatePair dp = new DatePair(null, endDate);
+        DatePair dp = new DatePair(endDate);
         dateList.add(dp);
     }
 
     /**
      * Shortcut to adding another DatePair into DatePairList
+     *
      * @param datePair
      */
     public void addDatePair(DatePair datePair) {
@@ -129,6 +134,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Update the task to set it to complete
+     *
      * @param isDone whether the task is completed
      */
 
@@ -148,6 +154,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Return UUID of the task.
+     *
      * @return
      */
     public String getUuid() {
@@ -155,7 +162,8 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     /**
-     * Set UUID of the task, should only be used by Java Bean.
+     * Set UUID of the task.
+     *
      * @param uuid UUID to be set
      */
     public void setUuid(String uuid) {
@@ -163,11 +171,11 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     /**
+     * A String representation of the Task object.
      *
      * @return Tasks information: description, status, list of DatePair
-     *
+     * @deprecated Currently outdated and should not be used
      */
-
     @Override
     public String toString() {
         String status = "Done";
@@ -178,9 +186,9 @@ public class Task implements Serializable, Comparable<Task> {
         }
 
         if (!isDone) {
-            status = "Not Done"; // TODO
+            status = "Not Done";
         }
-        return description + " " + status + " " + datePair; // TODO
+        return description + " " + status + " " + datePair;
     }
 
     public boolean isDateListEmpty() {
@@ -207,10 +215,33 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     /**
-     * Generate a new random UUID for the task.
+     * Test whether current Task object has conflict with given Task object
+     *
+     * @param t another Task object to compare
+     * @return true if conflict else false
      */
-    public void generateUuid() {
-        this.uuid = UUID.randomUUID().toString();
+    public boolean hasConflictWith(Task t) {
+        ArrayList<DatePair> dp = t.getDateList();
+        for (int j = 0; j < dp.size(); j++) {
+            if (!isDeadline()) {
+                if (!t.isDeadline() && isWithinPeriod(dp.get(j))) {
+                    return true;
+                }
+            } else {
+                if (getEarliestDate().compareTo(dp.get(j).getEndDate()) == 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Reset the UUID to an empty string.
+     */
+    public void resetUuid() {
+        this.uuid = "";
     }
 
     /**
@@ -218,15 +249,21 @@ public class Task implements Serializable, Comparable<Task> {
      *
      * @param displayingId the id of the task
      * @return the formatted string of the task
-     * @author hooitong
+     * @author Hooi Tong
      */
     public String formatOutput(long displayingId) {
+        boolean overdue = false;
         final int MAX_DESC_LENGTH = 41;
         StringBuilder stringBuilder = new StringBuilder();
         String description = getDescription();
         ArrayList<DatePair> dates = getDateList();
         char isDone = getIsDone() ? 'Y' : 'N';
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa");
+        boolean isTentative = dates.size() > 1;
+
+        if (isTentative) {
+            description += " (tentative)";
+        }
 
         /* Used to store fragments of description and dates */
         LinkedList<String> wordWrapList = new LinkedList<String>();
@@ -248,10 +285,9 @@ public class Task implements Serializable, Comparable<Task> {
             }
         }
 
-        /* Currently supported for one date in v0.1 */
-        /* TODO: Support for multiple dates for tentative tasks */
-        if (!dates.isEmpty()) {
-            DatePair dp = dates.get(0);
+        /* Support for multiple dates for tentative tasks */
+        for (int i = 0; i < dates.size(); i++) {
+            DatePair dp = dates.get(i);
             if (dp.hasDateRange()) {
                 dateList.add(dateFormat.format(dp.getStartDate().getTime())
                         + " to");
@@ -259,27 +295,57 @@ public class Task implements Serializable, Comparable<Task> {
             } else if (dp.hasEndDate()) {
                 dateList.add(dateFormat.format(dp.getEndDate().getTime()));
             }
+            if (dp.getEndDate().before(Calendar.getInstance())) {
+                overdue = true;
+            }
         }
 
         /* Format all fragments in desc and date into multiple lines */
+
+        int dateId = 1;
+        boolean rangeTicker = true;
         while (!wordWrapList.isEmpty() || !dateList.isEmpty()) {
             String desc = wordWrapList.isEmpty() ? ""
                     : wordWrapList.removeFirst();
 
             String date = dateList.isEmpty() ? "" : dateList.removeFirst();
+            if (isTentative && rangeTicker) {
+                if (stringBuilder.length() != 0) {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(String.format(
+                            "%-7s%-6s%-43s%-19s%-5s", "", "", desc, date, "["
+                                    + dateId++ + "]"));
+                } else {
+                    stringBuilder.append(String.format(
+                            "%-7s%-6s%-43s%-19s%-5s", displayingId, isDone,
+                            desc, date, "[" + dateId++ + "]"));
+                }
 
-            if (stringBuilder.length() != 0) {
-                stringBuilder.append(System.lineSeparator());
-                stringBuilder.append(String.format("%-7s%-6s%-43s%-23s", "",
-                        "", desc, date));
+                if (date.contains("to")) {
+                    rangeTicker = false;
+                }
             } else {
-                stringBuilder.append(String.format("%-7s%-6s%-43s%-23s",
-                        displayingId, isDone, desc, date));
-            }
+                if (stringBuilder.length() != 0) {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(String.format("%-7s%-6s%-43s%-24s",
+                            "", "", desc, date));
+                } else {
+                    stringBuilder.append(String.format("%-7s%-6s%-43s%-24s",
+                            displayingId, isDone, desc, date));
+                }
 
+                rangeTicker = true;
+            }
         }
 
-        return stringBuilder.toString();
+        String output = stringBuilder.toString();
+        if (overdue) {
+            output = ANSI_RED + output + ANSI_RESET;
+        } else {
+            output = ANSI_GREEN + output + ANSI_RESET;
+        }
+
+        return output;
     }
 
     public boolean isFloatingTask() {
@@ -290,24 +356,39 @@ public class Task implements Serializable, Comparable<Task> {
         return (dateList.size() == 1 && dateList.get(0).isDeadline());
     }
 
+    public boolean isTimedTask() {
+        if (dateList.size() > 0) {
+            for (DatePair dp : dateList) {
+                if (!dp.hasDateRange()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public boolean checkValidity() {
+        return isFloatingTask() || isDeadline() || isTimedTask();
+    }
+
     public Calendar getEarliestDate() {
         if (isFloatingTask()) {
             throw new UnsupportedOperationException(
                     "No date in a floating task.");
         }
 
-        Calendar earliestDate;
-        if (isDeadline()) {
-            earliestDate = dateList.get(0).getEndDate();
-        } else {
-            earliestDate = dateList.get(0).getStartDate();
-        }
+        Calendar earliestDate = null;
 
         for (DatePair dp : dateList) {
-            if (dp.hasStartDate() && dp.getStartDate().before(earliestDate)) {
+            if (dp.hasStartDate()
+                    && (earliestDate == null || dp.getStartDate().before(
+                            earliestDate))) {
                 earliestDate = dp.getStartDate();
             }
-            if (dp.hasEndDate() && dp.getEndDate().before(earliestDate)) {
+            if (dp.hasEndDate()
+                    && (earliestDate == null || dp.getEndDate().before(
+                            earliestDate))) {
                 earliestDate = dp.getEndDate();
             }
         }
@@ -336,4 +417,28 @@ public class Task implements Serializable, Comparable<Task> {
         return this.getEarliestDate().compareTo(o.getEarliestDate());
     }
 
+    /**
+     * Method used to check whether a task has any potential conflict in current
+     * database.
+     *
+     * @param t the Task object
+     * @return true if there is a conflict else false
+     * @throws IOException
+     */
+    public boolean checkConflictWithDB(DatabaseManager<Task> dbManager)
+            throws IOException {
+        boolean isConflict = false;
+        if (isFloatingTask()) {
+            return isConflict;
+        }
+        ArrayList<Long> validIDList = dbManager.getValidIdList();
+        for (int i = 0; i < validIDList.size(); i++) {
+            Task storedTask = dbManager.getInstance(validIDList.get(i));
+            if (!storedTask.getIsDone() && !storedTask.isFloatingTask()) {
+                isConflict = hasConflictWith(storedTask);
+            }
+        }
+
+        return isConflict;
+    }
 }
