@@ -30,18 +30,24 @@ public abstract class Command {
         VIEW("view", "display"), SEARCH("find", "lookup", "search"), ADD("add",
                 "insert", "ins", "new"), DELETE("delete", "remove"), UPDATE(
                 "change", "update", "edit"), UNDO("undo", "ud"), REDO("redo",
-                "rd"), MARK("mark", "completed", "done"), CONFIRM("confirm"), HELP(
-                "?", "help"), CLEAR("cls", "clear"), EXIT("exit", "quit"), INVALID;
+                "rd"), MARK("mark", "completed", "done"), CONFIRM("confirm"), CLEAR(
+                "cls", "clear"), EXIT("exit", "quit"), HELP("?", "help"), INVALID;
 
         private List<String> tags;
         private static final Map<String, CommandType> tagMap = new HashMap<String, CommandType>();
 
+        /**
+         * Private constructor that accept literals and instantiate as List of
+         * String.
+         *
+         * @param tags String literals
+         */
         private CommandType(String... tags) {
             this.tags = Arrays.asList(tags);
         }
 
         /**
-         * Method to initialize/populate the tagMap for other methods.
+         * Initialize and populate the tagMap for other methods.
          */
         static {
             for (CommandType command : CommandType.values()) {
@@ -52,10 +58,10 @@ public abstract class Command {
         }
 
         /**
-         * Method used to return the command type based on user input
+         * Return the appropriate CommandType enum based on user input.
          *
          * @param input the input to retrieve command
-         * @return the correct command type based on input
+         * @return the correct CommandType enum based on input
          */
         public static CommandType getCommandType(String input) {
             if (input == null || input.isEmpty()) {
@@ -71,6 +77,11 @@ public abstract class Command {
             }
         }
 
+        /**
+         * Retrieve all available alias found in Command.
+         *
+         * @return Set object that contains all alias
+         */
         public static Set<String> getAlias() {
             return tagMap.keySet();
         }
@@ -102,22 +113,50 @@ public abstract class Command {
         return true;
     }
 
+    /**
+     * Getter method for LOGGER.
+     *
+     * @return Logger instance
+     */
     public static Logger getLogger() {
         return LOGGER;
     }
 
+    /**
+     * Getter method for displayedTaskLists.
+     *
+     * @return ArrayList<Long> instance
+     */
     public static ArrayList<Long> getDisplayedTasksList() {
         return displayedTasksList;
     }
 
+    /**
+     * Check whether given task ID is being displayed.
+     *
+     * @param displayedId the task ID
+     * @return true when it is being displayed else false
+     * @author Zhao Hang
+     */
     public static boolean isValidDisplayedId(int displayedId) {
         return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1);
     }
 
+    /**
+     * Getter method for dbManager
+     *
+     * @return DatabaseManager<Task> instance
+     */
     public static DatabaseManager<Task> getDbManager() {
         return dbManager;
     }
 
+    /**
+     * Execute the implemented execute in respective concrete class and catch
+     * any exception if occur.
+     *
+     * @return String response after execution
+     */
     public String safeExecute() {
         try {
             return execute();
@@ -127,6 +166,11 @@ public abstract class Command {
         }
     }
 
+    /**
+     * Abstract method for implementation by concrete class to execute logic.
+     *
+     * @return String response after execution
+     * @throws IOException thrown if DBManager encounter I/O problems
+     */
     protected abstract String execute() throws IOException;
-
 }

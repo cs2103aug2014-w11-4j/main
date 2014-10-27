@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.rubberduck.io.DatabaseManager;
-import com.rubberduck.io.JournalController;
 
 public class JournalControllerTest {
 
