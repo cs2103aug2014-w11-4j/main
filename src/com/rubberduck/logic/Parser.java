@@ -23,6 +23,7 @@ import com.rubberduck.command.InvalidCommand;
 import com.rubberduck.command.MarkCommand;
 import com.rubberduck.command.RedoCommand;
 import com.rubberduck.command.SearchCommand;
+import com.rubberduck.command.SyncCommand;
 import com.rubberduck.command.UndoCommand;
 import com.rubberduck.command.UpdateCommand;
 import com.rubberduck.command.ViewCommand;
@@ -144,6 +145,9 @@ public class Parser {
 
             case CONFIRM:
                 return parseConfirm(args);
+
+            case SYNC:
+                return parseSync(args);
 
             case HELP:
                 return parseHelp(args);
@@ -476,6 +480,16 @@ public class Parser {
         } catch (NumberFormatException e) {
             return new InvalidCommand(MESSAGE_CONFIRM_ERROR_INVALID);
         }
+    }
+
+    /**
+     * Parses sync command from user.
+     *
+     * @param args the arguments the user input
+     * @return SYNC command
+     */
+    private Command parseSync(String args) {
+        return new SyncCommand();
     }
 
     /**
