@@ -1,7 +1,9 @@
 package com.rubberduck.logic;
 
 import java.io.Serializable;
+
 import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -15,17 +17,32 @@ public class DatePair implements Serializable {
     private Calendar startDate = null;
     private Calendar endDate = null;
 
+    /**
+     * Basic Constructor for DatePair, create a DatePair without any initialization.
+     */
     public DatePair() {
         this.startDate = null;
         this.endDate = null;
 
     }
 
+    /**
+     * Overloaded Constructor for DatePair, create a DatePair with only endDate
+     * If one date is present, it will be taken as end date
+     * @param endDate the endDate of the task
+     */
     public DatePair(Calendar endDate) {
         this.endDate = endDate;
         this.startDate = null;
     }
-
+    
+    
+    /**
+     * Overloaded constructor for DatePair, create DatePair with startDate and endDate
+     * If start Date entered is later then endDate, it will be swapped over
+     * @param startDate the starting date of the task
+     * @param endDate the ending date of the task
+     */
     public DatePair(Calendar startDate, Calendar endDate) {
         if (startDate.equals(endDate)) {
             startDate = null;
@@ -40,40 +57,76 @@ public class DatePair implements Serializable {
 
     }
 
+    /**
+     * Get the startDate of the task 
+     * @return starting date of the task
+     */
     public Calendar getStartDate() {
         return this.startDate;
     }
 
+    /**
+     * Get the endDate of the task
+     * @return ending date of the task
+     */
     public Calendar getEndDate() {
         return this.endDate;
     }
 
-    // This should never be called manually, only for Java Bean.
+    
+    /**
+     * Set the startDate of the task
+     * @param startDate the date when the task starts
+     */
     public void setStartDate(Calendar startDate) {
         this.startDate = startDate;
     }
 
-    // This should never be called manually, only for Java Bean.
+    /**
+     * Set the endDate of the task
+     * @param endDate the date when the task ends
+     */
     public void setEndDate(Calendar endDate) {
         this.endDate = endDate;
     }
 
+    /**
+     * Check if the task has startDate
+     * @return if the task has startDate
+     */
     public boolean hasStartDate() {
         return (this.startDate != null);
     }
 
+    /**
+     * Check if the task has endDate
+     * @return if the task has endDate
+     */
     public boolean hasEndDate() {
         return (this.endDate != null);
     }
 
+    /**
+     * Check if the task has DateRange
+     * @return if the task has DateRange
+     */
     public boolean hasDateRange() {
         return (this.startDate != null && this.endDate != null);
     }
 
+    /**
+     * Check if the task has endDate
+     * @return if the task has endDate
+     */
     public boolean isDeadline() {
         return (!hasStartDate() && hasEndDate());
     }
 
+    /**
+     * Overwrite the default to string value of task
+     * Formatted for RubberDuck console design
+     * 
+     */
     @Override
     public String toString() {
         String formattedStartDate, formattedEndDate;
