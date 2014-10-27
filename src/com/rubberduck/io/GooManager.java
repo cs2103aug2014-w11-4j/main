@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -41,6 +42,7 @@ public class GooManager {
     private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static HttpTransport httpTransport;
     private static MemoryDataStoreFactory memoryDataStoreFactory = MemoryDataStoreFactory.getDefaultInstance();
+
     private static com.google.api.services.calendar.Calendar calendarClient;
     private static String calendarId = null;
 
@@ -102,7 +104,7 @@ public class GooManager {
             System.out.println("Not found, creating new one");
             Calendar calendar = new Calendar();
             calendar.setSummary(CALENDAR_NAME);
-            calendar.setTimeZone("Asia/Singapore");
+            calendar.setTimeZone(TimeZone.getDefault().getID());
             Calendar createdCalendar = calendarClient.calendars().insert(calendar).execute();
             calendarId = createdCalendar.getId();
         }
