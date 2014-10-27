@@ -101,7 +101,7 @@ public class GooManager {
         } while (pageToken != null);
 
         if (calendarId == null) {
-            System.out.println("Not found, creating new one");
+            // System.out.println("Not found, creating new one"); //TODO
             Calendar calendar = new Calendar();
             calendar.setSummary(CALENDAR_NAME);
             calendar.setTimeZone(TimeZone.getDefault().getID());
@@ -126,7 +126,7 @@ public class GooManager {
         } while (pageToken != null);
 
         if (taskListId == null) {
-            System.out.println("Not found, creating new one");
+            // System.out.println("Not found, creating new one"); //TODO
             TaskList taskList = new TaskList();
             taskList.setTitle(CALENDAR_NAME);
             TaskList createdTaskList = tasksClient.tasklists().insert(taskList).execute();
