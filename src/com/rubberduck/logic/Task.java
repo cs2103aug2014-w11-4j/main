@@ -27,6 +27,7 @@ public class Task implements Serializable, Comparable<Task> {
     private ArrayList<DatePair> dateList;
     private boolean isDone;
     private String uuid;
+    private Calendar lastUpdate;
 
     /**
      * Creates a task with no fields. This should only be used by Java Bean.
@@ -55,6 +56,7 @@ public class Task implements Serializable, Comparable<Task> {
         this.description = description;
         this.dateList = dateList;
         this.isDone = false;
+        updateLastUpdate();
         resetUuid();
     }
 
@@ -65,6 +67,7 @@ public class Task implements Serializable, Comparable<Task> {
      */
     public void setDescription(String description) {
         this.description = description;
+        updateLastUpdate();
     }
 
     /**
@@ -84,6 +87,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     public void setDateList(ArrayList<DatePair> dateList) {
         this.dateList = dateList;
+        updateLastUpdate();
     }
 
     /**
@@ -119,6 +123,7 @@ public class Task implements Serializable, Comparable<Task> {
     public void addEndDate(GregorianCalendar endDate) {
         DatePair dp = new DatePair(endDate);
         dateList.add(dp);
+        updateLastUpdate();
     }
 
     /**
@@ -128,6 +133,7 @@ public class Task implements Serializable, Comparable<Task> {
      */
     public void addDatePair(DatePair datePair) {
         dateList.add(datePair);
+        updateLastUpdate();
     }
 
     /**
@@ -138,6 +144,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     public void setIsDone(boolean isDone) {
         this.isDone = isDone;
+        updateLastUpdate();
     }
 
     /**
@@ -166,6 +173,22 @@ public class Task implements Serializable, Comparable<Task> {
      */
     public void setUuid(String uuid) {
         this.uuid = uuid;
+        updateLastUpdate();
+    }
+    
+    /**
+     * Get the task last update
+     * @return Calendar format of last update time of the task
+     */
+    public Calendar getLastUpdate(){
+        return this.lastUpdate;
+    }
+    
+    /**
+     * Update the task last updateTime (For Google Sync)
+     */
+    public void updateLastUpdate(){
+        this.lastUpdate = Calendar.getInstance();
     }
 
     /**
@@ -189,6 +212,10 @@ public class Task implements Serializable, Comparable<Task> {
         return description + " " + status + " " + datePair;
     }
 
+    /**
+     * Check if the dateList is empty
+     * @return if the dateList is empty
+     */
     public boolean isDateListEmpty() {
         return dateList.isEmpty();
     }
@@ -240,6 +267,7 @@ public class Task implements Serializable, Comparable<Task> {
      */
     public void resetUuid() {
         this.uuid = "";
+        updateLastUpdate();
     }
 
     /**
@@ -342,15 +370,29 @@ public class Task implements Serializable, Comparable<Task> {
         }
         return output;
     }
+    
+    /**
+     * Check if the task is a floating task
+     * @return if the task is a floating task
+     */
 
     public boolean isFloatingTask() {
         return dateList.isEmpty();
     }
+    
+    /**
+     * Check if the task is a deadline only task
+     * @return if the task is a deadline only task
+     */
 
     public boolean isDeadline() {
         return (dateList.size() == 1 && dateList.get(0).isDeadline());
     }
 
+    /**
+     * Check if the task is a timed task
+     * @return if the task is a timed task
+     */
     public boolean isTimedTask() {
         if (dateList.size() > 0) {
             for (DatePair dp : dateList) {
@@ -362,11 +404,18 @@ public class Task implements Serializable, Comparable<Task> {
         }
         return false;
     }
-
+    /**
+     * Check if the task is a valid task
+     * @return if the task is a valid task
+     */
     public boolean checkValidity() {
         return isFloatingTask() || isDeadline() || isTimedTask();
     }
 
+    /**
+     * Get the earliest Date of the task
+     * @return the earliest Date of the task
+     */
     public Calendar getEarliestDate() {
         if (isFloatingTask()) {
             throw new UnsupportedOperationException(
@@ -390,7 +439,10 @@ public class Task implements Serializable, Comparable<Task> {
 
         return earliestDate;
     }
-
+    
+    /**
+     * Compare both task by their deadline
+     */
     @Override
     public int compareTo(Task o) {
         assert (o != null);
