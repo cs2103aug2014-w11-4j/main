@@ -95,6 +95,7 @@ public abstract class Command {
 
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private static ArrayList<Long> displayedTasksList = new ArrayList<Long>();
+    private static Command previousDisplayCommand;
     private static DatabaseManager<Task> dbManager;
 
     /**
@@ -132,14 +133,26 @@ public abstract class Command {
     }
 
     /**
-     * Check whether given task ID is being displayed.
+     * Getter method for previousDisplayCommand
      *
-     * @param displayedId the task ID
-     * @return true when it is being displayed else false
-     * @author Zhao Hang
+     * @return Command object of type ViewCommand or SearchCommand
      */
-    public static boolean isValidDisplayedId(int displayedId) {
-        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1);
+    public static Command getPreviousDisplayCommand() {
+        assert previousDisplayCommand != null : "Should not be null";
+        return previousDisplayCommand;
+    }
+
+    /**
+     * Setter method for previousDisplayCommand
+     *
+     * @param c ViewCommand or SearchCommand object
+     */
+    public static void setPreviousDisplayCommand(Command c) {
+        if (c instanceof ViewCommand || c instanceof SearchCommand) {
+            previousDisplayCommand = c;
+        }
+
+        assert false : "Must only be VIEW or SEARCH.";
     }
 
     /**
@@ -149,6 +162,17 @@ public abstract class Command {
      */
     public static DatabaseManager<Task> getDbManager() {
         return dbManager;
+    }
+
+    /**
+     * Check whether given task ID is being displayed.
+     *
+     * @param displayedId the task ID
+     * @return true when it is being displayed else false
+     * @author Zhao Hang
+     */
+    public static boolean isValidDisplayedId(int displayedId) {
+        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1);
     }
 
     /**

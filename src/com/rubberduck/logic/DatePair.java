@@ -54,7 +54,6 @@ public class DatePair implements Serializable {
             this.startDate = startDate;
             this.endDate = endDate;
         }
-
     }
 
     /**

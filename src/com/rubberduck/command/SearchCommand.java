@@ -4,19 +4,35 @@ import java.io.IOException;
 import java.util.Collections;
 
 import com.rubberduck.logic.Task;
+import com.rubberduck.menu.ColorFormatter;
+import com.rubberduck.menu.ColorFormatter.Color;
 
+/**
+ * Concrete Command Class that can be executed to search the data store for
+ * tasks containing the provided keyword and returns back the task details.
+ *
+ * @author Jason Sia
+ */
 public class SearchCommand extends Command {
     private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
-    protected static final int CONSOLE_MAX_WIDTH = 80;
+
+    private static final int CONSOLE_MAX_WIDTH = 80;
 
     /* Information required for search */
     private String keyword;
 
+    /**
+     * Getter method for keyword.
+     *
+     * @return String object
+     */
     public String getKeyword() {
         return keyword;
     }
 
     /**
+     * Public constructor of SearchCommand.
+     *
      * @param keyword that is used to search for the task
      */
     public SearchCommand(String keyword) {
@@ -24,10 +40,15 @@ public class SearchCommand extends Command {
     }
 
     /**
-     * Search for task based on description.
+     * Search for task based on description and return formatted string of tasks
+     * back to parent.
+     *
+     * @return formatted string back to parent
      */
     @Override
     public String execute() throws IOException {
+        setPreviousDisplayCommand(this);
+
         StringBuilder responseBuilder = new StringBuilder();
 
         getDisplayedTasksList().clear();
@@ -40,8 +61,12 @@ public class SearchCommand extends Command {
             }
         }
 
-        responseBuilder.append(String.format(MESSAGE_SEARCH_RESULT,
-                getDisplayedTasksList().size(), keyword));
+        Color headerColor = getDisplayedTasksList().isEmpty() ? Color.RED
+                : Color.GREEN;
+
+        responseBuilder.append(ColorFormatter.format(
+                String.format(MESSAGE_SEARCH_RESULT,
+                        getDisplayedTasksList().size(), keyword), headerColor));
 
         if (!getDisplayedTasksList().isEmpty()) {
             responseBuilder.append(System.lineSeparator());
@@ -49,9 +74,15 @@ public class SearchCommand extends Command {
         }
 
         return responseBuilder.toString();
-
     }
 
+    /**
+     * Format the list of tasks into a String output and return.
+     *
+     * @return the formatted string of all tasks involved
+     * @throws IOException
+     * @author hooitong
+     */
     private String formatTaskListOutput() throws IOException {
         Collections.sort(getDisplayedTasksList(),
                 getDbManager().getInstanceIdComparator());
@@ -77,16 +108,16 @@ public class SearchCommand extends Command {
     }
 
     /**
-     * Helper method that formats the output of tasks.
+     * Helper method that formats the output of an individual task.
      *
      * @param displayingId the id of the task
      * @return the formatted output of the task
      * @throws IOException
+     * @author hooitong
      */
     protected String formatTaskOutput(int displayingId) throws IOException {
         Task task = getDbManager().getInstance(
                 getDisplayedTasksList().get(displayingId));
-        return task.formatOutput(displayingId + 1);
+        return task.formatOutput(displayingId + 1 + "");
     }
-
 }

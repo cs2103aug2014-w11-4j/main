@@ -18,12 +18,10 @@ import java.util.GregorianCalendar;
 import java.util.LinkedList;
 
 import com.rubberduck.io.DatabaseManager;
+import com.rubberduck.menu.ColorFormatter;
+import com.rubberduck.menu.ColorFormatter.Color;
 
 public class Task implements Serializable, Comparable<Task> {
-
-    private static final String ANSI_RESET = "\u001B[0m";
-    private static final String ANSI_RED = "\u001B[31m";
-    private static final String ANSI_GREEN = "\u001B[32m";
 
     private String description;
     private ArrayList<DatePair> dateList;
@@ -279,7 +277,7 @@ public class Task implements Serializable, Comparable<Task> {
      * @return the formatted string of the task
      * @author Hooi Tong
      */
-    public String formatOutput(long displayingId) {
+    public String formatOutput(String displayingId) {
         boolean overdue = false;
         final int MAX_DESC_LENGTH = 41;
         StringBuilder stringBuilder = new StringBuilder();
@@ -366,13 +364,10 @@ public class Task implements Serializable, Comparable<Task> {
             }
         }
 
-        String output = stringBuilder.toString();
+        String output = stringBuilder.toString().trim();
         if (overdue) {
-            output = ANSI_RED + output + ANSI_RESET;
-        } else {
-            output = ANSI_GREEN + output + ANSI_RESET;
+            output = ColorFormatter.format(output, Color.RED);
         }
-
         return output;
     }
     
