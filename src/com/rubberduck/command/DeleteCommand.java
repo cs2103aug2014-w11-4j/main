@@ -36,7 +36,8 @@ public class DeleteCommand extends Command {
         long databaseId = getDisplayedTasksList().get(taskId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
-        getDbManager().modify(databaseId, null, String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
+        getDbManager().modify(databaseId, null,
+                String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
         getDisplayedTasksList().set(taskId - 1, (long) -1);
         return String.format(MESSAGE_DELETE, oldDescription);
     }

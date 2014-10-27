@@ -244,7 +244,8 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
 
     private void writeStringAtEnd(String string) throws IOException {
         randomAccessFile.seek(eofOffset);
-        randomAccessFile.writeBytes(VALID_FLAG + System.getProperty("line.separator"));
+        randomAccessFile.writeBytes(VALID_FLAG
+                + System.getProperty("line.separator"));
         randomAccessFile.writeBytes(string);
         randomAccessFile.writeBytes(System.getProperty("line.separator"));
         eofOffset = randomAccessFile.getFilePointer();
@@ -396,13 +397,18 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
     /**
      * Make modification to the database.
      *
-     * @param previousId the ID of instance to be removed, or null if no removal is needed.
-     * @param newInstance the new instance to be put into the database, or null if no inserting is needed.
-     * @param description the description of the action, which will be returned when undo/redo.
-     * @return the ID of the new instance, or null if no new instance is created.
+     * @param previousId the ID of instance to be removed, or null if no removal
+     *            is needed.
+     * @param newInstance the new instance to be put into the database, or null
+     *            if no inserting is needed.
+     * @param description the description of the action, which will be returned
+     *            when undo/redo.
+     * @return the ID of the new instance, or null if no new instance is
+     *         created.
      * @throws IOException
      */
-    public Long modify(Long previousId, T newInstance, String description) throws IOException {
+    public Long modify(Long previousId, T newInstance, String description)
+            throws IOException {
         Long newId = null;
         if (newInstance != null) {
             newId = putInstance(newInstance);

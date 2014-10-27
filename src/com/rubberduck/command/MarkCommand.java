@@ -67,8 +67,11 @@ public class MarkCommand extends Command {
         Task oldTask = getDbManager().getInstance(databaseId);
         assert !oldTask.getIsDone();
         oldTask.setIsDone(true);
-        long newTaskId = getDbManager().modify(databaseId, oldTask,
-                String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED, oldTask.getDescription()));
+        long newTaskId = getDbManager().modify(
+                databaseId,
+                oldTask,
+                String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
+                        oldTask.getDescription()));
         getDisplayedTasksList().set(displayedId - 1, newTaskId);
         return String.format(MESSAGE_MARK_COMPLETED, oldTask.getDescription());
     }
@@ -85,8 +88,11 @@ public class MarkCommand extends Command {
         Task oldTask = getDbManager().getInstance(databaseId);
         assert oldTask.getIsDone();
         oldTask.setIsDone(false);
-        long newTaskId = getDbManager().modify(databaseId, oldTask,
-                String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,oldTask.getDescription()));
+        long newTaskId = getDbManager().modify(
+                databaseId,
+                oldTask,
+                String.format(JOURNAL_MESSAGE_MARK_AS_UNCOMPLETED,
+                        oldTask.getDescription()));
         getDisplayedTasksList().set(displayedId - 1, newTaskId);
         return String.format(MESSAGE_MARK_UNCOMPLETED, oldTask.getDescription());
     }

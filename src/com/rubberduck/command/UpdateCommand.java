@@ -78,16 +78,15 @@ public class UpdateCommand extends Command {
                 }
             }
         }
-        
-        if (!task.checkValidity()){
-        	return MESSAGE_ERROR_WRONG_TASK_TYPE;
+
+        if (!task.checkValidity()) {
+            return MESSAGE_ERROR_WRONG_TASK_TYPE;
         }
 
         long newDatabaseId = getDbManager().modify(databaseId, task,
                 String.format(JOURNAL_MESSAGE_UPDATE, oldDescription));
 
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
-
 
         return String.format(MESSAGE_UPDATE, oldDescription);
     }

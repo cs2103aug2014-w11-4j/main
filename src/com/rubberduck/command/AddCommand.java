@@ -50,13 +50,14 @@ public class AddCommand extends Command {
         }
 
         Task task = new Task(description, datePairs);
-        if (!task.checkValidity()){
-        	return MESSAGE_ERROR_WRONG_TASK_TYPE;
+        if (!task.checkValidity()) {
+            return MESSAGE_ERROR_WRONG_TASK_TYPE;
         }
 
         boolean hasConflict = task.checkConflictWithDB(getDbManager());
 
-        long id = getDbManager().modify(null, task, String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
+        long id = getDbManager().modify(null, task,
+                String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
         assert id >= 0 : "ID should never be a negative number.";
 
         if (hasConflict) {

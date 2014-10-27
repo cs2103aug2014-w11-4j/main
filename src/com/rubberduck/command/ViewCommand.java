@@ -7,11 +7,18 @@ import java.util.Collections;
 import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
 
+/**
+ * Concrete Command Class that can be executed to return related tasks as a
+ * formatted String based on various input upon creation.
+ *
+ * @author Jason Sia
+ */
 public class ViewCommand extends Command {
     private static final String MESSAGE_VIEWALL_RESULT = "You have %s uncompleted task(s).";
     private static final String MESSAGE_VIEWDATE_RESULT = "You have %s uncompleted task(s) %s.";
     private static final String MESSAGE_VIEWALL_CRESULT = "You have %s completed task(s).";
     private static final String MESSAGE_VIEWDATE_CRESULT = "You have %s completed task(s) %s.";
+
     protected static final int CONSOLE_MAX_WIDTH = 80;
 
     /* Information required for view */
@@ -32,6 +39,8 @@ public class ViewCommand extends Command {
     }
 
     /**
+     * Public constructor for ViewCommand.
+     *
      * @param viewAll
      * @param completed
      * @param viewRange

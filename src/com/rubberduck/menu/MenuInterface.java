@@ -1,7 +1,6 @@
 package com.rubberduck.menu;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -13,6 +12,7 @@ import jline.console.completer.StringsCompleter;
 
 import com.rubberduck.command.Command;
 import com.rubberduck.logic.Parser;
+import com.rubberduck.menu.ColorFormatter.Color;
 
 /**
  * This class focuses on handling the user interface of the entire application
@@ -26,6 +26,8 @@ public class MenuInterface {
     private static final String MESSAGE_WELCOME = "Welcome to RubberDuck. Here's your agenda for today.";
     private static final String MESSAGE_HELP = "If you need a list of commands, type ? or help.";
     private static final String MESSAGE_ERROR_CR_IOEXCEPTION = "Problem with ConsoleReader (IO).";
+    private static final String DEFAULT_PROMPT = ">";
+
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private static MenuInterface menuInstance;
@@ -61,14 +63,12 @@ public class MenuInterface {
     public void handleInterface() {
         try {
             consoleInstance = setupConsoleReader();
-            PrintWriter out = new PrintWriter(consoleInstance.getOutput());
-
-            showWelcome(out);
+            showWelcome();
             while (true) {
-                String line = consoleInstance.readLine(">");
+                String line = consoleInstance.readLine(DEFAULT_PROMPT);
                 Command userCommand = Parser.getInstance().parse(line);
                 String response = userCommand.safeExecute();
-                showToUser(response, out);
+                showToUser(response);
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
@@ -82,7 +82,8 @@ public class MenuInterface {
      */
     private ConsoleReader setupConsoleReader() throws IOException {
         ConsoleReader cr = new ConsoleReader();
-        cr.setPrompt(">");
+        cr.clearScreen();
+        cr.setPrompt(DEFAULT_PROMPT);
         cr.setPaginationEnabled(true);
         List<Completer> completors = new LinkedList<Completer>();
         completors.add(new StringsCompleter(Command.CommandType.getAlias()));
@@ -100,12 +101,12 @@ public class MenuInterface {
      *
      * @param out PrintWriter object
      */
-    private void showWelcome(PrintWriter out) {
-        showToUser(MESSAGE_WELCOME, out);
+    private void showWelcome() throws IOException {
+        showToUser(MESSAGE_WELCOME);
         Command userCommand = Parser.getInstance().parse("view today");
         String response = userCommand.safeExecute();
-        showToUser(response, out);
-        showToUser(MESSAGE_HELP, out);
+        showToUser(response);
+        showToUser(ColorFormatter.format(MESSAGE_HELP, Color.YELLOW));
     }
 
     /**
@@ -114,8 +115,8 @@ public class MenuInterface {
      * @param s String object
      * @param out PrintWriter object
      */
-    private void showToUser(String s, PrintWriter out) {
-        out.println(s);
+    private void showToUser(String s) throws IOException {
+        consoleInstance.println(s);
     }
 
     /**
