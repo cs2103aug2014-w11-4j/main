@@ -214,6 +214,10 @@ public class Task implements Serializable, Comparable<Task> {
         return description + " " + status + " " + datePair;
     }
 
+    /**
+     * Check if the dateList is empty
+     * @return if the dateList is empty
+     */
     public boolean isDateListEmpty() {
         return dateList.isEmpty();
     }
@@ -371,15 +375,29 @@ public class Task implements Serializable, Comparable<Task> {
 
         return output;
     }
+    
+    /**
+     * Check if the task is a floating task
+     * @return if the task is a floating task
+     */
 
     public boolean isFloatingTask() {
         return dateList.isEmpty();
     }
+    
+    /**
+     * Check if the task is a deadline only task
+     * @return if the task is a deadline only task
+     */
 
     public boolean isDeadline() {
         return (dateList.size() == 1 && dateList.get(0).isDeadline());
     }
 
+    /**
+     * Check if the task is a timed task
+     * @return if the task is a timed task
+     */
     public boolean isTimedTask() {
         if (dateList.size() > 0) {
             for (DatePair dp : dateList) {
@@ -391,11 +409,18 @@ public class Task implements Serializable, Comparable<Task> {
         }
         return false;
     }
-
+    /**
+     * Check if the task is a valid task
+     * @return if the task is a valid task
+     */
     public boolean checkValidity() {
         return isFloatingTask() || isDeadline() || isTimedTask();
     }
 
+    /**
+     * Get the earliest Date of the task
+     * @return the earliest Date of the task
+     */
     public Calendar getEarliestDate() {
         if (isFloatingTask()) {
             throw new UnsupportedOperationException(
@@ -419,7 +444,10 @@ public class Task implements Serializable, Comparable<Task> {
 
         return earliestDate;
     }
-
+    
+    /**
+     * Compare both task by their deadline
+     */
     @Override
     public int compareTo(Task o) {
         assert (o != null);
