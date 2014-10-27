@@ -29,6 +29,7 @@ public class Task implements Serializable, Comparable<Task> {
     private ArrayList<DatePair> dateList;
     private boolean isDone;
     private String uuid;
+    private Calendar lastUpdate;
 
     /**
      * Creates a task with no fields. This should only be used by Java Bean.
@@ -57,6 +58,7 @@ public class Task implements Serializable, Comparable<Task> {
         this.description = description;
         this.dateList = dateList;
         this.isDone = false;
+        updateLastUpdate();
         resetUuid();
     }
 
@@ -67,6 +69,7 @@ public class Task implements Serializable, Comparable<Task> {
      */
     public void setDescription(String description) {
         this.description = description;
+        updateLastUpdate();
     }
 
     /**
@@ -86,6 +89,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     public void setDateList(ArrayList<DatePair> dateList) {
         this.dateList = dateList;
+        updateLastUpdate();
     }
 
     /**
@@ -121,6 +125,7 @@ public class Task implements Serializable, Comparable<Task> {
     public void addEndDate(GregorianCalendar endDate) {
         DatePair dp = new DatePair(endDate);
         dateList.add(dp);
+        updateLastUpdate();
     }
 
     /**
@@ -130,6 +135,7 @@ public class Task implements Serializable, Comparable<Task> {
      */
     public void addDatePair(DatePair datePair) {
         dateList.add(datePair);
+        updateLastUpdate();
     }
 
     /**
@@ -140,6 +146,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     public void setIsDone(boolean isDone) {
         this.isDone = isDone;
+        updateLastUpdate();
     }
 
     /**
@@ -168,6 +175,22 @@ public class Task implements Serializable, Comparable<Task> {
      */
     public void setUuid(String uuid) {
         this.uuid = uuid;
+        updateLastUpdate();
+    }
+    
+    /**
+     * Get the task last update
+     * @return Calendar format of last update time of the task
+     */
+    public Calendar getLastUpdate(){
+        return this.lastUpdate;
+    }
+    
+    /**
+     * Update the task last updateTime (For Google Sync)
+     */
+    public void updateLastUpdate(){
+        this.lastUpdate = Calendar.getInstance();
     }
 
     /**
@@ -242,6 +265,7 @@ public class Task implements Serializable, Comparable<Task> {
      */
     public void resetUuid() {
         this.uuid = "";
+        updateLastUpdate();
     }
 
     /**
