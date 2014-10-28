@@ -280,6 +280,9 @@ public class GooManager {
 
     private static void prepareTask(Task task, com.rubberduck.logic.Task originalTask) {
         task.setTitle(originalTask.getDescription());
+        if (isLocalTaskUuid(originalTask.getUuid())) {
+            task.setId(constructRemoteTaskId(originalTask.getUuid()));
+        }
         if (!originalTask.isFloatingTask()) {
             task.setDue(calendarToDateTime(originalTask.getEarliestDate()));
         }
@@ -287,11 +290,15 @@ public class GooManager {
             task.setStatus("completed");
         } else {
             task.setStatus("needsAction");
+            task.setCompleted(null);
         }
     }
 
     private static void prepareEvent(Event event, com.rubberduck.logic.Task originalTask) {
         event.setSummary(originalTask.getDescription());
+        if (isLocalEventUuid(originalTask.getUuid())) {
+            event.setId(constructRemoteEventId(originalTask.getUuid()));
+        }
         DatePair datePair = originalTask.getDateList().get(0);
         event.setStart(calendarToEventDateTime(datePair.getStartDate()));
         event.setEnd(calendarToEventDateTime(datePair.getEndDate()));
