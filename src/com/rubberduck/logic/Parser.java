@@ -48,6 +48,7 @@ public class Parser {
     private static final String MESSAGE_CONFIRM_ERROR_INVALID = "Please enter a task and date id to confirm task.";
     private static final String MESSAGE_MARK_ERROR_INVALID = "Please enter a task id to mark.";
     private static final String MESSAGE_UPDATE_ERROR_EMPTY = "Please enter something to update.";
+    private static final String MESSAGE_SYNC_INVALID = "Please enter a valid sync type.";
     private static final String MESSAGE_INVALID_COMMAND = "Please enter a valid command.";
 
     /* Static member that holds the single instance */
@@ -489,7 +490,27 @@ public class Parser {
      * @return SYNC command
      */
     private Command parseSync(String args) {
-        return new SyncCommand();
+        args = args.trim();
+
+        if (args.contains("push") && args.contains("pull")) {
+            return new InvalidCommand(MESSAGE_SYNC_INVALID);
+        } else if (args.contains("push")) {
+            if (args.contains("force")) {
+                return new SyncCommand(SyncCommand.SyncType.FORCE_PUSH);
+            } else {
+                return new SyncCommand(SyncCommand.SyncType.PUSH);
+            }
+        } else if (args.contains("pull")) {
+            if (args.contains("force")) {
+                return new SyncCommand(SyncCommand.SyncType.FORCE_PULL);
+            } else {
+                return new SyncCommand(SyncCommand.SyncType.PULL);
+            }
+        } else if (args.isEmpty()) {
+            return new SyncCommand(SyncCommand.SyncType.TWO_WAY);
+        } else {
+            return new InvalidCommand(MESSAGE_SYNC_INVALID);
+        }
     }
 
     /**
