@@ -26,6 +26,7 @@ public class HelpCommand extends Command {
         { "redo", "Redo your undone action.", "-" },
         { "mark", "Mark any task to complete/incomplete given task ID.", "<task id>" },
         { "confirm", "Confirm any tentative task given task ID and date ID.", "<task id> <date id>" },
+        { "sync", "Initiate 2-way synchronisation with Google.", "-" },
         { "clear", "Clear the screen of RubberDuck.", "-" },
         { "exit", "Exit from RubberDuck.", "-"},
         { "help", "Get help information on commands available and specifics.", "[command]" }
