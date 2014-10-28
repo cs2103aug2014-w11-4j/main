@@ -3,6 +3,7 @@ package com.rubberduck.io;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -381,9 +382,7 @@ public class GooManager {
         tasksClient.tasks().clear(taskListId);
     }
 
-    public static void forcePushAll(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
-        clearRemoteEvents();
-        clearRemoteTasks();
+    public static void pushAll(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
         for (Long databaseId : dbManager.getValidIdList()) {
             com.rubberduck.logic.Task localTask = dbManager.getInstance(databaseId);
             pushTask(localTask);
@@ -392,18 +391,32 @@ public class GooManager {
         dbManager.rewriteFile();
     }
 
-    public static void forcePullAll(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
-        dbManager.resetDatabase();
+    public static void forcePushAll(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
+        clearRemoteEvents();
+        clearRemoteTasks();
+        pushAll(dbManager);
+    }
+
+    public static void pullAll(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
+        HashMap<String, Long> uuidMap = new HashMap<String, Long>();
+        for (Long databaseId : dbManager.getValidIdList()) {
+            uuidMap.put(dbManager.getInstance(databaseId).getUuid(), databaseId);
+        }
         for (Task remoteTask : getRemoteTaskList()) {
             if (remoteTask != null && !remoteTask.getTitle().isEmpty()) {
-                dbManager.modify(null, reconstructTask(remoteTask), null);
+                dbManager.modify(uuidMap.get(constructLocalTaskUuid(remoteTask.getId())), reconstructTask(remoteTask), null);
             }
         }
         for (Event remoteEvent : getRemoteEventList()) {
             if (remoteEvent != null) {
-                dbManager.modify(null, reconstructEvent(remoteEvent), null);
+                dbManager.modify(uuidMap.get(constructLocalEventUuid(remoteEvent.getId())), reconstructEvent(remoteEvent), null);
             }
         }
+    }
+
+    public static void forcePullAll(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
+        dbManager.resetDatabase();
+        pullAll(dbManager);
     }
 
     public static void main(String[] args) throws Exception {
