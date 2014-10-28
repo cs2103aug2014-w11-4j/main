@@ -3,6 +3,7 @@ package com.rubberduck.io;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -36,6 +37,8 @@ public class GooManager {
     private static final String CLIENT_SECRET = "Zq0v8OByEqQfPMXZis8Iw86D";
     private static final String APPLICATION_NAME = "RubberDuck/0.2";
     private static final String CALENDAR_NAME = "RubberDuck";
+
+    private static final String REMOTE_FLAG_COMPLETED = "[Completed]";
 
     private static final String LOCAL_UUID_TASK = "_RD_T_";
     private static final String LOCAL_UUID_EVENT = "_RD_E_";
@@ -192,7 +195,7 @@ public class GooManager {
         }
     }
 
-    public static com.rubberduck.logic.Task pushTask(com.rubberduck.logic.Task originalTask) throws IOException {
+    public static void pushTask(com.rubberduck.logic.Task originalTask) throws IOException {
         boolean shouldUpdate = true;
         if (originalTask.isFloatingTask() || originalTask.isDeadline()) {
             Task remoteTask = null;
@@ -227,7 +230,6 @@ public class GooManager {
             }
             originalTask.setUuid(constructLocalEventUuid(remoteEvent.getId()));
         }
-        return originalTask;
     }
 
     public static Task getRemoteTask(String remoteId) throws IOException {
@@ -278,46 +280,77 @@ public class GooManager {
 
     private static void prepareTask(Task task, com.rubberduck.logic.Task originalTask) {
         task.setTitle(originalTask.getDescription());
+        if (isLocalTaskUuid(originalTask.getUuid())) {
+            task.setId(constructRemoteTaskId(originalTask.getUuid()));
+        }
         if (!originalTask.isFloatingTask()) {
             task.setDue(calendarToDateTime(originalTask.getEarliestDate()));
         }
         if (originalTask.getIsDone()) {
             task.setStatus("completed");
+        } else {
+            task.setStatus("needsAction");
+            task.setCompleted(null);
         }
     }
 
     private static void prepareEvent(Event event, com.rubberduck.logic.Task originalTask) {
         event.setSummary(originalTask.getDescription());
+        if (isLocalEventUuid(originalTask.getUuid())) {
+            event.setId(constructRemoteEventId(originalTask.getUuid()));
+        }
         DatePair datePair = originalTask.getDateList().get(0);
         event.setStart(calendarToEventDateTime(datePair.getStartDate()));
         event.setEnd(calendarToEventDateTime(datePair.getEndDate()));
+        if (originalTask.getIsDone()) {
+            event.setDescription(REMOTE_FLAG_COMPLETED);
+        }
+    }
+
+    private static com.rubberduck.logic.Task reconstructTask(Task remoteTask) {
+        com.rubberduck.logic.Task task = new com.rubberduck.logic.Task();
+        task.setUuid(constructLocalTaskUuid(remoteTask.getId()));
+        task.setDescription(remoteTask.getTitle());
+        if (remoteTask.getStatus().equals("completed")) {
+            task.setIsDone(true);
+        } else {
+            task.setIsDone(false);
+        }
+        if (remoteTask.getDue() != null) {
+            ArrayList<DatePair> dateList = new ArrayList<DatePair>();
+            dateList.add(new DatePair(dateTimeToCalendar(remoteTask.getDue())));
+            task.setDateList(dateList);
+        } else {
+            task.setDateList(new ArrayList<DatePair>());
+        }
+        return task;
+    }
+
+    private static com.rubberduck.logic.Task reconstructEvent(Event remoteEvent) {
+        com.rubberduck.logic.Task task = new com.rubberduck.logic.Task();
+        task.setUuid(constructLocalEventUuid(remoteEvent.getId()));
+        task.setDescription(remoteEvent.getSummary());
+        ArrayList<DatePair> dateList = new ArrayList<DatePair>();
+        dateList.add(new DatePair(
+                eventDateTimeToCalendar(remoteEvent.getStart()),
+                eventDateTimeToCalendar(remoteEvent.getEnd())));
+        task.setDateList(dateList);
+        if (remoteEvent.getDescription().startsWith(REMOTE_FLAG_COMPLETED)) {
+            task.setIsDone(true);
+        } else {
+            task.setIsDone(false);
+        }
+        return task;
     }
 
     public static com.rubberduck.logic.Task pullTask(String localId) throws IOException {
-        com.rubberduck.logic.Task task = new com.rubberduck.logic.Task();
-        task.setUuid(localId);
+        com.rubberduck.logic.Task task;
         if (isLocalTaskUuid(localId)) {
             Task remoteTask = getRemoteTask(constructRemoteTaskId(localId));
-            task.setDescription(remoteTask.getTitle());
-            if (remoteTask.getStatus().equals("completed")) {
-                task.setIsDone(true);
-            } else {
-                task.setIsDone(false);
-            }
-            if (remoteTask.getDue() != null) {
-                ArrayList<DatePair> dateList = new ArrayList<DatePair>();
-                dateList.add(new DatePair(dateTimeToCalendar(remoteTask.getDue())));
-                task.setDateList(dateList);
-            }
+            task = reconstructTask(remoteTask);
         } else if (isLocalEventUuid(localId)) {
             Event remoteEvent = getRemoteEvent(constructRemoteEventId(localId));
-            task.setDescription(remoteEvent.getSummary());
-            // TODO: what should we do with completed here?
-            ArrayList<DatePair> dateList = new ArrayList<DatePair>();
-            dateList.add(new DatePair(
-                    eventDateTimeToCalendar(remoteEvent.getStart()),
-                    eventDateTimeToCalendar(remoteEvent.getEnd())));
-            task.setDateList(dateList);
+            task = reconstructEvent(remoteEvent);
         } else {
             throw new UnsupportedOperationException(); // TODO
         }
@@ -348,6 +381,55 @@ public class GooManager {
         } while (pageToken != null);
 
         return remoteEventList;
+    }
+
+    public static void clearRemoteEvents() throws IOException {
+        calendarClient.calendars().clear(calendarId);
+    }
+
+    public static void clearRemoteTasks() throws IOException {
+        tasksClient.tasks().clear(taskListId);
+    }
+
+    public static void pushAll(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
+        for (Long databaseId : dbManager.getValidIdList()) {
+            com.rubberduck.logic.Task localTask = dbManager.getInstance(databaseId);
+            pushTask(localTask);
+            dbManager.modify(databaseId, localTask, null);
+        }
+        dbManager.rewriteFile();
+    }
+
+    public static void forcePushAll(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
+        clearRemoteEvents();
+        clearRemoteTasks();
+        pushAll(dbManager);
+    }
+
+    public static void pullAll(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
+        HashMap<String, Long> uuidMap = new HashMap<String, Long>();
+        for (Long databaseId : dbManager.getValidIdList()) {
+            uuidMap.put(dbManager.getInstance(databaseId).getUuid(), databaseId);
+        }
+        for (Task remoteTask : getRemoteTaskList()) {
+            if (remoteTask != null && !remoteTask.getTitle().isEmpty()) {
+                dbManager.modify(uuidMap.get(constructLocalTaskUuid(remoteTask.getId())), reconstructTask(remoteTask), null);
+            }
+        }
+        for (Event remoteEvent : getRemoteEventList()) {
+            if (remoteEvent != null) {
+                dbManager.modify(uuidMap.get(constructLocalEventUuid(remoteEvent.getId())), reconstructEvent(remoteEvent), null);
+            }
+        }
+    }
+
+    public static void forcePullAll(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
+        dbManager.resetDatabase();
+        pullAll(dbManager);
+    }
+
+    public static void twoWaySync(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
+        
     }
 
     public static void main(String[] args) throws Exception {
