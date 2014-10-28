@@ -285,6 +285,8 @@ public class GooManager {
         }
         if (originalTask.getIsDone()) {
             task.setStatus("completed");
+        } else {
+            task.setStatus("needsAction");
         }
     }
 
