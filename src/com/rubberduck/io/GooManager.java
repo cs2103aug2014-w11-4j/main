@@ -428,6 +428,10 @@ public class GooManager {
         pullAll(dbManager);
     }
 
+    public static void twoWaySync(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
+        
+    }
+
     public static void main(String[] args) throws Exception {
         initialize();
         System.out.println(calendarId);
