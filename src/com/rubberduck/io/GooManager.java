@@ -421,6 +421,7 @@ public class GooManager {
                 dbManager.modify(uuidMap.get(constructLocalEventUuid(remoteEvent.getId())), reconstructEvent(remoteEvent), null);
             }
         }
+        dbManager.rewriteFile();
     }
 
     public static void forcePullAll(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
