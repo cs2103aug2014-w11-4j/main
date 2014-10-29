@@ -127,4 +127,23 @@ public class MenuInterface {
     public ConsoleReader getConsoleInstance() {
         return consoleInstance;
     }
+
+    /**
+     * Displays a prompt to the user and request an input which will be returned
+     * to the caller.
+     *
+     * @param prompt Strings to be displayed to the user
+     * @return response by the user
+     */
+    public String requestPrompt(String... prompt) {
+        try {
+            for (String p : prompt) {
+                showToUser(p);
+            }
+            return consoleInstance.readLine(DEFAULT_PROMPT);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
+            return null;
+        }
+    }
 }
