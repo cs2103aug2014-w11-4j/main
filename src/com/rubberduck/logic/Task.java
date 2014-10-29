@@ -446,22 +446,23 @@ public class Task implements Serializable, Comparable<Task> {
     @Override
     public int compareTo(Task o) {
         assert (o != null);
-
-        if (this.isDeadline() && !o.isDeadline()) {
+ 
+        if(this.isTimedTask() && !o.isTimedTask()){
             return -1;
-        } else if (!this.isDeadline() && o.isDeadline()) {
+        } else if (!this.isTimedTask() && o.isTimedTask()){
             return 1;
         }
-
-        if (this.isFloatingTask() && o.isFloatingTask()) {
+        
+        if(this.isFloatingTask() && o.isFloatingTask()){
             return 0;
-        } else if (this.isFloatingTask()) {
+        } else if(this.isFloatingTask()){
             return 1;
-        } else if (o.isFloatingTask()) {
+        } else if(o.isFloatingTask()){
             return -1;
         }
-
+                        
         return this.getEarliestDate().compareTo(o.getEarliestDate());
+        
     }
 
     /**
