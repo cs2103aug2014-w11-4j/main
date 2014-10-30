@@ -216,8 +216,10 @@ public class CommandTest {
         viewCommand.execute();
         UpdateCommand updateCommand = new UpdateCommand(1,
                 "Lorem ipsum dolor sit amet.", dpList);
-        String actual = updateCommand.execute();
-        String expected = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully updated.";
+        updateCommand.execute();
+        String actual = Command.getDbManager().getInstance(
+        		Command.getDisplayedTasksList().get(0)).getDescription();
+        String expected = "Lorem ipsum dolor sit amet.";
         assertEquals(expected, actual);
     }
 
