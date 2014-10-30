@@ -230,7 +230,7 @@ public class CommandTest {
      */
 
     @Test
-    public void markTaskCompleted() throws IOException {
+    public void markTaskUncompleted() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         AddCommand addCommand = new AddCommand(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -252,7 +252,7 @@ public class CommandTest {
      *
      */
     @Test
-    public void markTaskUncompleted() throws IOException {
+    public void markTaskCompleted() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         AddCommand addCommand = new AddCommand(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
