@@ -178,6 +178,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Get the task last update
+     * 
      * @return Calendar format of last update time of the task
      */
     public Calendar getLastUpdate() {
@@ -214,6 +215,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Check if the dateList is empty
+     * 
      * @return if the dateList is empty
      */
     public boolean isDateListEmpty() {
@@ -373,6 +375,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Check if the task is a floating task
+     * 
      * @return if the task is a floating task
      */
 
@@ -382,6 +385,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Check if the task is a deadline only task
+     * 
      * @return if the task is a deadline only task
      */
 
@@ -391,6 +395,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Check if the task is a timed task
+     * 
      * @return if the task is a timed task
      */
     public boolean isTimedTask() {
@@ -407,6 +412,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Check if the task is a valid task
+     * 
      * @return if the task is a valid task
      */
     public boolean checkValidity() {
@@ -415,6 +421,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Get the earliest Date of the task
+     * 
      * @return the earliest Date of the task
      */
     public Calendar getEarliestDate() {
@@ -447,23 +454,23 @@ public class Task implements Serializable, Comparable<Task> {
     @Override
     public int compareTo(Task o) {
         assert (o != null);
- 
-        if(this.isTimedTask() && !o.isTimedTask()){
+
+        if (this.isTimedTask() && !o.isTimedTask()) {
             return -1;
-        } else if (!this.isTimedTask() && o.isTimedTask()){
+        } else if (!this.isTimedTask() && o.isTimedTask()) {
             return 1;
         }
-        
-        if(this.isFloatingTask() && o.isFloatingTask()){
+
+        if (this.isFloatingTask() && o.isFloatingTask()) {
             return 0;
-        } else if(this.isFloatingTask()){
+        } else if (this.isFloatingTask()) {
             return 1;
-        } else if(o.isFloatingTask()){
+        } else if (o.isFloatingTask()) {
             return -1;
         }
-                        
+
         return this.getEarliestDate().compareTo(o.getEarliestDate());
-        
+
     }
 
     /**

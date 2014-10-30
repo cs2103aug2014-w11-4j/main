@@ -676,6 +676,7 @@ public class Parser {
 
     /**
      * Gets the first word from a given String object.
+     * 
      * @param input String object
      * @return a String object containing the first word
      */

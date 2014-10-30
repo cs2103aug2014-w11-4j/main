@@ -28,6 +28,7 @@ public class DatePair implements Serializable {
     /**
      * Overloaded Constructor for DatePair, create a DatePair with only endDate
      * If one date is present, it will be taken as end date
+     * 
      * @param endDate the endDate of the task
      */
     public DatePair(Calendar endDate) {
@@ -39,6 +40,7 @@ public class DatePair implements Serializable {
      * Overloaded constructor for DatePair, create DatePair with startDate and
      * endDate If start Date entered is later then endDate, it will be swapped
      * over
+     * 
      * @param startDate the starting date of the task
      * @param endDate the ending date of the task
      */
@@ -57,6 +59,7 @@ public class DatePair implements Serializable {
 
     /**
      * Get the startDate of the task
+     * 
      * @return starting date of the task
      */
     public Calendar getStartDate() {
@@ -65,6 +68,7 @@ public class DatePair implements Serializable {
 
     /**
      * Get the endDate of the task
+     * 
      * @return ending date of the task
      */
     public Calendar getEndDate() {
@@ -73,6 +77,7 @@ public class DatePair implements Serializable {
 
     /**
      * Set the startDate of the task
+     * 
      * @param startDate the date when the task starts
      */
     public void setStartDate(Calendar startDate) {
@@ -81,6 +86,7 @@ public class DatePair implements Serializable {
 
     /**
      * Set the endDate of the task
+     * 
      * @param endDate the date when the task ends
      */
     public void setEndDate(Calendar endDate) {
@@ -89,6 +95,7 @@ public class DatePair implements Serializable {
 
     /**
      * Check if the task has startDate
+     * 
      * @return if the task has startDate
      */
     public boolean hasStartDate() {
@@ -97,6 +104,7 @@ public class DatePair implements Serializable {
 
     /**
      * Check if the task has endDate
+     * 
      * @return if the task has endDate
      */
     public boolean hasEndDate() {
@@ -105,6 +113,7 @@ public class DatePair implements Serializable {
 
     /**
      * Check if the task has DateRange
+     * 
      * @return if the task has DateRange
      */
     public boolean hasDateRange() {
@@ -113,6 +122,7 @@ public class DatePair implements Serializable {
 
     /**
      * Check if the task has endDate
+     * 
      * @return if the task has endDate
      */
     public boolean isDeadline() {

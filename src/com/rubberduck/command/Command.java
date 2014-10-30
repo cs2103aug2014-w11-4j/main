@@ -30,8 +30,8 @@ public abstract class Command {
         VIEW("view", "display"), SEARCH("find", "lookup", "search"), ADD("add",
                 "insert", "ins", "new"), DELETE("delete", "remove"), UPDATE(
                 "change", "update", "edit"), UNDO("undo", "ud"), REDO("redo",
-                "rd"), MARK("mark", "completed", "done"), CONFIRM("confirm"), SYNC(
-                "sync"), CLEAR("cls", "clear"), EXIT("exit", "quit"), HELP("?",
+                "rd"), MARK("mark", "completed", "done"), CONFIRM("confirm"),
+        SYNC("sync"), CLEAR("cls", "clear"), EXIT("exit", "quit"), HELP("?",
                 "help"), INVALID;
 
         private List<String> tags;

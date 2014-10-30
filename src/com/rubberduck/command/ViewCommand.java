@@ -20,11 +20,11 @@ public class ViewCommand extends Command {
     private static final String MESSAGE_VIEWDATE_RESULT = "You have %s uncompleted task(s) %s.";
     private static final String MESSAGE_VIEWALL_CRESULT = "You have %s completed task(s).";
     private static final String MESSAGE_VIEWDATE_CRESULT = "You have %s completed task(s) %s.";
-    
+
     private static final String SCHEDULE_SEPERATOR = "-------------------------------SCHEDULE-----------------------------------------\n";
     private static final String FLOATING_SEPERATOR = "--------------------------------TASKS-------------------------------------------\n";
     private static final String DEADLINE_SEPERATOR = "-------------------------------DUE DATE-----------------------------------------\n";
-    
+
     private static final int FLOATING_TASK = 0;
     private static final int DEADLINE_TASK = 1;
     private static final int TIMED_TASK = 2;
@@ -204,24 +204,24 @@ public class ViewCommand extends Command {
 
         stringBuilder.append(border + System.lineSeparator() + header
                 + System.lineSeparator() + border + System.lineSeparator());
-        int currentType=-1;
-        int prevType=-1;
+        int currentType = -1;
+        int prevType = -1;
         for (int i = 0; i < getDisplayedTasksList().size(); i++) {
             currentType = getTaskType(i);
-            if(currentType != prevType){
-                if(currentType == FLOATING_TASK){
+            if (currentType != prevType) {
+                if (currentType == FLOATING_TASK) {
                     stringBuilder.append(FLOATING_SEPERATOR);
-                }else if(currentType == DEADLINE_TASK){
+                } else if (currentType == DEADLINE_TASK) {
                     stringBuilder.append(DEADLINE_SEPERATOR);
-                }else if(currentType == TIMED_TASK){
-                    stringBuilder.append(SCHEDULE_SEPERATOR);                    
+                } else if (currentType == TIMED_TASK) {
+                    stringBuilder.append(SCHEDULE_SEPERATOR);
                 }
             }
             prevType = currentType;
             stringBuilder.append(formatTaskOutput(i));
             stringBuilder.append(System.lineSeparator());
         }
-        stringBuilder.append(border);        
+        stringBuilder.append(border);
         return stringBuilder.toString();
     }
 
@@ -238,14 +238,15 @@ public class ViewCommand extends Command {
                 getDisplayedTasksList().get(displayingId));
         return task.formatOutput(displayingId + 1 + "");
     }
-    
-    private int getTaskType (int displayingId) throws IOException{
-        Task t =  getDbManager().getInstance(getDisplayedTasksList().get(displayingId));
-        if(t.isFloatingTask()){
+
+    private int getTaskType(int displayingId) throws IOException {
+        Task t = getDbManager().getInstance(
+                getDisplayedTasksList().get(displayingId));
+        if (t.isFloatingTask()) {
             return FLOATING_TASK;
-        }else if(t.isDeadline()){
+        } else if (t.isDeadline()) {
             return DEADLINE_TASK;
-        }else{
+        } else {
             return TIMED_TASK;
         }
     }
