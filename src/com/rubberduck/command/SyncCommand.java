@@ -5,8 +5,8 @@ import java.security.GeneralSecurityException;
 
 import com.rubberduck.io.GooManager;
 import com.rubberduck.menu.ColorFormatter;
-import com.rubberduck.menu.MenuInterface;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.MenuInterface;
 
 /**
  * Concrete Command Class that can be executed to synchronise with Google based

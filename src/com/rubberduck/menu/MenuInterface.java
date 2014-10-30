@@ -26,6 +26,7 @@ public class MenuInterface {
     private static final String MESSAGE_WELCOME = "Welcome to RubberDuck. Here's your agenda for today.";
     private static final String MESSAGE_HELP = "If you need a list of commands, type ? or help.";
     private static final String MESSAGE_ERROR_CR_IOEXCEPTION = "Problem with ConsoleReader (IO).";
+    private static final String MESSAGE_PROMPT = "Press [Enter] to continue...";
     private static final String DEFAULT_PROMPT = ">";
 
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -84,7 +85,6 @@ public class MenuInterface {
         ConsoleReader cr = new ConsoleReader();
         cr.clearScreen();
         cr.setPrompt(DEFAULT_PROMPT);
-        cr.setPaginationEnabled(true);
         List<Completer> completors = new LinkedList<Completer>();
         completors.add(new StringsCompleter(Command.CommandType.getAlias()));
 
@@ -102,11 +102,18 @@ public class MenuInterface {
      * @param out PrintWriter object
      */
     private void showWelcome() throws IOException {
-        showToUser(MESSAGE_WELCOME);
+        StringBuilder sb = new StringBuilder();
+        sb.append(MESSAGE_WELCOME);
+        sb.append(System.lineSeparator());
+
         Command userCommand = Parser.getInstance().parse("view today");
         String response = userCommand.safeExecute();
-        showToUser(response);
-        showToUser(ColorFormatter.format(MESSAGE_HELP, Color.YELLOW));
+        sb.append(response);
+        sb.append(System.lineSeparator());
+
+        sb.append(ColorFormatter.format(MESSAGE_HELP, Color.YELLOW));
+
+        showToUser(sb.toString());
     }
 
     /**
@@ -116,7 +123,18 @@ public class MenuInterface {
      * @param out PrintWriter object
      */
     private void showToUser(String s) throws IOException {
-        consoleInstance.println(s);
+        consoleInstance.clearScreen();
+        String[] buffer = s.split(System.lineSeparator());
+        int console_height = consoleInstance.getTerminal().getHeight() - 2;
+        for (int i = 0; i < buffer.length; i++) {
+            consoleInstance.println(buffer[i]);
+            if (i >= console_height) {
+                consoleInstance.readLine(ColorFormatter.format(MESSAGE_PROMPT,
+                        Color.CYAN));
+                consoleInstance.clearScreen();
+                console_height += console_height + 1;
+            }
+        }
     }
 
     /**

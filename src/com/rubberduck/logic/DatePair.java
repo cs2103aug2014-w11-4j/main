@@ -1,9 +1,7 @@
 package com.rubberduck.logic;
 
 import java.io.Serializable;
-
 import java.text.SimpleDateFormat;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -18,7 +16,8 @@ public class DatePair implements Serializable {
     private Calendar endDate = null;
 
     /**
-     * Basic Constructor for DatePair, create a DatePair without any initialization.
+     * Basic Constructor for DatePair, create a DatePair without any
+     * initialization.
      */
     public DatePair() {
         this.startDate = null;
@@ -35,11 +34,11 @@ public class DatePair implements Serializable {
         this.endDate = endDate;
         this.startDate = null;
     }
-    
-    
+
     /**
-     * Overloaded constructor for DatePair, create DatePair with startDate and endDate
-     * If start Date entered is later then endDate, it will be swapped over
+     * Overloaded constructor for DatePair, create DatePair with startDate and
+     * endDate If start Date entered is later then endDate, it will be swapped
+     * over
      * @param startDate the starting date of the task
      * @param endDate the ending date of the task
      */
@@ -57,7 +56,7 @@ public class DatePair implements Serializable {
     }
 
     /**
-     * Get the startDate of the task 
+     * Get the startDate of the task
      * @return starting date of the task
      */
     public Calendar getStartDate() {
@@ -72,7 +71,6 @@ public class DatePair implements Serializable {
         return this.endDate;
     }
 
-    
     /**
      * Set the startDate of the task
      * @param startDate the date when the task starts
@@ -122,8 +120,8 @@ public class DatePair implements Serializable {
     }
 
     /**
-     * Overwrite the default to string value of task
-     * Formatted for RubberDuck console design
+     * Overwrite the default to string value of task Formatted for RubberDuck
+     * console design
      * 
      */
     @Override

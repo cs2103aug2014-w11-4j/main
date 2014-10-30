@@ -175,19 +175,19 @@ public class Task implements Serializable, Comparable<Task> {
         this.uuid = uuid;
         updateLastUpdate();
     }
-    
+
     /**
      * Get the task last update
      * @return Calendar format of last update time of the task
      */
-    public Calendar getLastUpdate(){
+    public Calendar getLastUpdate() {
         return this.lastUpdate;
     }
-    
+
     /**
      * Update the task last updateTime (For Google Sync)
      */
-    public void updateLastUpdate(){
+    public void updateLastUpdate() {
         this.lastUpdate = Calendar.getInstance();
     }
 
@@ -370,7 +370,7 @@ public class Task implements Serializable, Comparable<Task> {
         }
         return output;
     }
-    
+
     /**
      * Check if the task is a floating task
      * @return if the task is a floating task
@@ -379,7 +379,7 @@ public class Task implements Serializable, Comparable<Task> {
     public boolean isFloatingTask() {
         return dateList.isEmpty();
     }
-    
+
     /**
      * Check if the task is a deadline only task
      * @return if the task is a deadline only task
@@ -404,6 +404,7 @@ public class Task implements Serializable, Comparable<Task> {
         }
         return false;
     }
+
     /**
      * Check if the task is a valid task
      * @return if the task is a valid task
@@ -439,7 +440,7 @@ public class Task implements Serializable, Comparable<Task> {
 
         return earliestDate;
     }
-    
+
     /**
      * Compare both task by their deadline
      */
