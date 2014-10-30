@@ -263,9 +263,13 @@ public class CommandTest {
 
         MarkCommand markCommand = new MarkCommand(1);
         markCommand.execute();
-
-        String expected = markCommand.execute();
-        String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to uncompleted.";
+        
+        ViewCommand viewCommandComplete = new ViewCommand(false, true, null);
+        viewCommandComplete.execute();
+        
+        boolean actual = Command.getDbManager().getInstance(
+        		Command.getDisplayedTasksList().get(0)).getIsDone();
+        boolean expected = true;
         assertEquals(actual, expected);
     }
 
