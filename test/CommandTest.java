@@ -193,9 +193,8 @@ public class CommandTest {
         ViewCommand viewCommand = new ViewCommand(true, false, null);
         viewCommand.execute();
         DeleteCommand deleteCommand = new DeleteCommand(1);
-        String expected = deleteCommand.execute();
-        String actual = ("\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully deleted.");
-        assertEquals(actual, expected);
+        deleteCommand.execute();
+        assertEquals(0, Command.getDbManager().getValidIdList().size());
     }
 
     /**
