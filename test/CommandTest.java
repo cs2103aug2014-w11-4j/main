@@ -264,7 +264,7 @@ public class CommandTest {
         MarkCommand markCommand = new MarkCommand(1);
         markCommand.execute();
         
-        ViewCommand viewCommandComplete = new ViewCommand(false, true, null);
+        ViewCommand viewCommandComplete = new ViewCommand(true, true, null);
         viewCommandComplete.execute();
         
         boolean actual = Command.getDbManager().getInstance(
