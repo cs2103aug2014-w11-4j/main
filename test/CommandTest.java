@@ -240,8 +240,20 @@ public class CommandTest {
         viewCommand.execute();
 
         MarkCommand markCommand = new MarkCommand(1);
-        String expected = markCommand.execute();
-        String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to completed.";
+        markCommand.execute();
+        
+        ViewCommand viewCommandComplete = new ViewCommand(true, true, null);
+        viewCommandComplete.execute();
+        
+        MarkCommand markCommandAgain = new MarkCommand(1);
+        markCommandAgain.execute();
+        
+        ViewCommand viewCommandAgain = new ViewCommand(true, false, null);
+        viewCommandAgain.execute();
+        
+        boolean actual = Command.getDbManager().getInstance(
+        		Command.getDisplayedTasksList().get(0)).getIsDone();
+        boolean expected = false;
         assertEquals(actual, expected);
     }
 
