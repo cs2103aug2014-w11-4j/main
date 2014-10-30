@@ -313,9 +313,11 @@ public class CommandTest {
         ViewCommand viewCommand = new ViewCommand(true, false, null);
         viewCommand.execute();
         ConfirmCommand confirmCommand = new ConfirmCommand(1, 2);
-        String actual = confirmCommand.execute();
+        confirmCommand.execute();
 
-        String expected = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been confirmed.";
+        String actual = Command.getDbManager().getInstance(
+        		Command.getDisplayedTasksList().get(0)).getDateList().get(0).toString();
+        String expected = dp2.toString();
 
         assertEquals(expected, actual);
     }
