@@ -3,6 +3,7 @@ package com.rubberduck.command;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Locale;
 
 import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
@@ -150,7 +151,7 @@ public class ViewCommand extends Command {
         }
 
         String range = "";
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM", Locale.US);
         if (dateRange.hasDateRange()) {
             range = "from "
                     + dateFormat.format(dateRange.getStartDate().getTime())

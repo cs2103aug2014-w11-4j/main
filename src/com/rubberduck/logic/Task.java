@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
+import java.util.Locale;
 
 import com.rubberduck.io.DatabaseManager;
 import com.rubberduck.menu.ColorFormatter;
@@ -178,7 +179,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Get the task last update
-     * 
+     *
      * @return Calendar format of last update time of the task
      */
     public Calendar getLastUpdate() {
@@ -215,7 +216,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Check if the dateList is empty
-     * 
+     *
      * @return if the dateList is empty
      */
     public boolean isDateListEmpty() {
@@ -286,7 +287,8 @@ public class Task implements Serializable, Comparable<Task> {
         String description = getDescription();
         ArrayList<DatePair> dates = getDateList();
         char isDone = getIsDone() ? 'Y' : 'N';
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa",
+                Locale.US);
         boolean isTentative = dates.size() > 1;
 
         if (isTentative) {
@@ -375,7 +377,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Check if the task is a floating task
-     * 
+     *
      * @return if the task is a floating task
      */
 
@@ -385,7 +387,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Check if the task is a deadline only task
-     * 
+     *
      * @return if the task is a deadline only task
      */
 
@@ -395,7 +397,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Check if the task is a timed task
-     * 
+     *
      * @return if the task is a timed task
      */
     public boolean isTimedTask() {
@@ -412,7 +414,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Check if the task is a valid task
-     * 
+     *
      * @return if the task is a valid task
      */
     public boolean checkValidity() {
@@ -421,7 +423,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Get the earliest Date of the task
-     * 
+     *
      * @return the earliest Date of the task
      */
     public Calendar getEarliestDate() {

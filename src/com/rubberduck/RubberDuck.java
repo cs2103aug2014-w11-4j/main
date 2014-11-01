@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -56,7 +57,8 @@ public class RubberDuck {
         /* Setup file handler */
         try {
             new File(LOG_DIRECTORY).mkdirs();
-            DateFormat dateFormat = new SimpleDateFormat(DATESTAMP_FORMAT);
+            DateFormat dateFormat = new SimpleDateFormat(DATESTAMP_FORMAT,
+                    Locale.US);
             Calendar cal = Calendar.getInstance();
             String currentTime = dateFormat.format(cal.getTime());
             FileHandler fileHandler = new FileHandler(LOG_DIRECTORY

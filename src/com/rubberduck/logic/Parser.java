@@ -611,7 +611,8 @@ public class Parser {
 
         /* Expand next week to a DatePair with the range of next week */
         while (textMatcher.find()) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy",
+                    Locale.US);
             Calendar nextWeekDate = Calendar.getInstance(Locale.UK);
             nextWeekDate.add(Calendar.DATE, 7);
             int firstDayOfWeek = nextWeekDate.getFirstDayOfWeek();
@@ -637,7 +638,8 @@ public class Parser {
 
         /* Expand next month to a DatePair with the range of next month */
         while (textMatcher.find()) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy",
+                    Locale.US);
 
             Calendar startDate = Calendar.getInstance(Locale.UK);
             startDate.add(Calendar.MONTH, 1);
@@ -661,7 +663,8 @@ public class Parser {
 
         /* Expand next year to a DatePair with the range of next year */
         while (textMatcher.find()) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy",
+                    Locale.US);
             Calendar yearCalendar = Calendar.getInstance(Locale.UK);
             yearCalendar.add(Calendar.YEAR, 1);
 
@@ -676,7 +679,7 @@ public class Parser {
 
     /**
      * Gets the first word from a given String object.
-     * 
+     *
      * @param input String object
      * @return a String object containing the first word
      */
