@@ -63,10 +63,7 @@ public class RubberDuck {
 
         /* Setup file handler */
         try {
-            if (!new File(LOG_DIR).mkdirs()) {
-                throw new IOException(MESSAGE_MKDIR_ERROR);
-            }
-
+            new File(LOG_DIR).mkdirs();
             DateFormat dateFormat = new SimpleDateFormat(DATESTAMP_FORMAT,
                                                          Locale.US);
             Calendar cal = Calendar.getInstance();
