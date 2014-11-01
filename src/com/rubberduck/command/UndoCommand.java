@@ -24,9 +24,9 @@ public class UndoCommand extends Command {
     @Override
     public String execute() throws IOException {
         try {
-            return String.format(
-                ColorFormatter.format(JOURNAL_MESSAGE_UNDONE, Color.YELLOW),
-                getDbManager().undo());
+            return String.format(ColorFormatter.format(JOURNAL_MESSAGE_UNDONE,
+                                                       Color.YELLOW),
+                                 getDbManager().undo());
         } catch (UnsupportedOperationException e) { /* Nothing to undo */
             return e.getMessage();
         }

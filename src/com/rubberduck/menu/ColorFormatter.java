@@ -69,7 +69,8 @@ public class ColorFormatter {
     }
 
     /**
-     * Format input string with given attribute, foreground color and background color.
+     * Format input string with given attribute, foreground color and background
+     * color.
      *
      * @param input input string
      * @param atr   attribute
@@ -77,7 +78,8 @@ public class ColorFormatter {
      * @param bg    background color
      * @return input that is color-coded
      */
-    public static String format(String input, Attribute atr, Color fg, Color bg) {
+    public static String format(String input, Attribute atr, Color fg,
+                                Color bg) {
         StringBuilder sb = new StringBuilder();
 
         if (atr != null) {

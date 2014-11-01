@@ -55,8 +55,8 @@ public class MarkCommand extends Command {
     @Override
     public String execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            return ColorFormatter
-                .format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
         }
 
         if (isCompletedTask(taskId)) {

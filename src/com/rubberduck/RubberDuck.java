@@ -28,9 +28,12 @@ import java.util.logging.SimpleFormatter;
 public class RubberDuck {
 
     /* Static variables used to store information about logging */
-    private static final String DATESTAMP_FORMAT = "dd-MM-yyyy_HH-mm-ss";
-    private static final String LOG_DIRECTORY = "logs/";
-    private static final String LOG_FILENAME = "%s.log";
+    private static final String DATESTAMP_FORMAT =
+        "dd-MM-yyyy_HH-mm-ss";
+    private static final String LOG_DIR =
+        "logs/";
+    private static final String LOG_FILENAME =
+        "%s.log";
     private static final String MESSAGE_MKDIR_ERROR =
         "Directory creation failed.";
 
@@ -60,7 +63,7 @@ public class RubberDuck {
 
         /* Setup file handler */
         try {
-            if (new File(LOG_DIRECTORY).mkdirs()) {
+            if (new File(LOG_DIR).mkdirs()) {
                 throw new IOException(MESSAGE_MKDIR_ERROR);
             }
 
@@ -68,9 +71,9 @@ public class RubberDuck {
                                                          Locale.US);
             Calendar cal = Calendar.getInstance();
             String currentTime = dateFormat.format(cal.getTime());
-            FileHandler fileHandler = new FileHandler(LOG_DIRECTORY
-                                                      + String.format(
-                LOG_FILENAME, currentTime));
+            FileHandler fileHandler =
+                new FileHandler(LOG_DIR + String.format(LOG_FILENAME,
+                                                        currentTime));
             SimpleFormatter formatter = new SimpleFormatter();
             fileHandler.setFormatter(formatter);
             logger.addHandler(fileHandler);

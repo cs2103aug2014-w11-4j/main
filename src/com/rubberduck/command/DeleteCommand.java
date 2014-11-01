@@ -52,8 +52,8 @@ public class DeleteCommand extends Command {
     @Override
     public String execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            return ColorFormatter
-                .format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
         }
         long databaseId = getDisplayedTasksList().get(taskId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);

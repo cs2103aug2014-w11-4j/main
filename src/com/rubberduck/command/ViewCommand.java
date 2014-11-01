@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 /**
  * Concrete Command Class that can be executed to return related tasks as a
@@ -22,6 +23,10 @@ public class ViewCommand extends Command {
     public enum ViewType {
         TASK, DEADLINE, SCHEDULE
     }
+
+    /* Global logger to log information and exception. */
+    private static final Logger LOGGER =
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private static final String MESSAGE_VIEWALL_RESULT =
         "You have %s uncompleted task(s).";
@@ -136,8 +141,8 @@ public class ViewCommand extends Command {
                                                          headerColor));
         } else {
             String formattedString = String.format(MESSAGE_VIEWALL_RESULT,
-                                                   getDisplayedTasksList()
-                                                       .size());
+                                                   getDisplayedTasksList().
+                                                       size());
             responseBuilder.append(ColorFormatter.format(formattedString,
                                                          headerColor));
         }

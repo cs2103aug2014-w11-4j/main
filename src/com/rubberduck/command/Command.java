@@ -182,8 +182,8 @@ public abstract class Command {
      * @author Zhao Hang
      */
     public static boolean isValidDisplayedId(int displayedId) {
-        return !(displayedId > displayedTasksList.size() || displayedId <= 0
-                 || displayedTasksList.get(displayedId - 1) == -1);
+        return !(displayedId > displayedTasksList.size() || displayedId <= 0 ||
+                 displayedTasksList.get(displayedId - 1) == -1);
     }
 
     /**

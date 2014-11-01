@@ -36,6 +36,8 @@ public class SyncCommand extends Command {
         "Successfully pulled (forced) data from Google.";
     private static final String MESSAGE_TWOWAY_SUCCESS =
         "Successfully synchronise between RubberDuck and Google.";
+    private static final String EXCEPTION_UNSUPPORTED_TYPE =
+        "Type has not been implemented.";
 
     public enum SyncType {
         PUSH, PULL, FORCE_PUSH, FORCE_PULL, TWO_WAY
@@ -99,7 +101,7 @@ public class SyncCommand extends Command {
 
                     default:
                         throw new UnsupportedOperationException(
-                            "Type has not been implemented.");
+                            EXCEPTION_UNSUPPORTED_TYPE);
                 }
             } else {
                 return ColorFormatter.format(MESSAGE_SYNC_CANCELLED, Color.RED);

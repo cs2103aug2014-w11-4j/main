@@ -19,6 +19,10 @@ import java.util.logging.Logger;
 //@author A0111736M
 public class MenuInterface {
 
+    /* Global logger to log information and exception. */
+    private static final Logger LOGGER =
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
     private static final String MESSAGE_WELCOME =
         "Welcome to RubberDuck. Here's your agenda for today.";
     private static final String MESSAGE_HELP =
@@ -31,8 +35,6 @@ public class MenuInterface {
         ">";
     private static final String WELCOME_EXECUTE =
         "view today";
-    private static final Logger LOGGER =
-        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private static MenuInterface menuInstance;
 
