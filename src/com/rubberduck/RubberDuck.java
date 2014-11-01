@@ -40,7 +40,7 @@ public class RubberDuck {
     /**
      * Main method of application as well as the entry point.
      */
-    public static void main() {
+    public static void main(String[] args) {
         setupGlobalLogger();
         Command.startDatabase();
         MenuInterface.getInstance().handleInterface();
