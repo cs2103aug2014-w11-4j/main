@@ -8,6 +8,7 @@ import com.rubberduck.menu.ColorFormatter.Color;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 
@@ -38,6 +39,9 @@ public class ViewCommand extends Command {
     private static final String DEADLINE_SEPERATOR =
         "--------------------------------[  DEADLINES  ]---------------------------------";
 
+    private static final ArrayList<ViewType> VIEW_SELECTION_ALL = new ArrayList<ViewType>(
+            Arrays.asList(ViewType.DEADLINE, ViewType.SCHEDULE, ViewType.TASK));
+    
     private static final int FLOATING_TASK = 0;
     private static final int DEADLINE_TASK = 1;
     private static final int TIMED_TASK = 2;
@@ -48,6 +52,8 @@ public class ViewCommand extends Command {
     private boolean viewAll;
     private boolean completed;
     private ArrayList<ViewType> viewSelection;
+    
+        
 
     /**
      * Getter method for viewRange.
@@ -88,7 +94,12 @@ public class ViewCommand extends Command {
         this.viewAll = viewAll;
         this.viewRange = viewRange;
         this.completed = completed;
-        this.viewSelection = viewSelection;
+        if(viewSelection.size()==0){
+            this.viewSelection = VIEW_SELECTION_ALL;
+        }else{
+            this.viewSelection = viewSelection;
+        }
+        
     }
 
     /**
@@ -100,9 +111,9 @@ public class ViewCommand extends Command {
     public String execute() throws IOException {
         setPreviousDisplayCommand(this);
         if (isViewAll()) {
-            return viewAll(isCompleted());
+            return viewAll(isCompleted(), viewSelection);
         } else {
-            return viewByPeriod(getViewRange(), isCompleted());
+            return viewByPeriod(getViewRange(), isCompleted(),viewSelection);
         }
     }
 
@@ -113,14 +124,14 @@ public class ViewCommand extends Command {
      * @return list of tasks and their information in the database
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    private String viewAll(boolean isCompleted) throws IOException {
+    private String viewAll(boolean isCompleted, ArrayList<ViewType> viewSelection) throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
         getDisplayedTasksList().clear();
 
         for (int i = 0; i < getDbManager().getValidIdList().size(); i++) {
             Long databaseId = getDbManager().getValidIdList().get(i);
             Task task = getDbManager().getInstance(databaseId);
-            if (isCompleted == task.getIsDone()) {
+            if (isCompleted == task.getIsDone() && viewSelection.contains(getTaskType(task))) {
                 getDisplayedTasksList().add(databaseId);
             }
         }
@@ -160,16 +171,18 @@ public class ViewCommand extends Command {
      * @return result of all the tasks that are within the period as queried
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    private String viewByPeriod(DatePair dateRange, boolean isCompleted)
+    private String viewByPeriod(DatePair dateRange, boolean isCompleted, ArrayList<ViewType> viewSelection)
         throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
         getDisplayedTasksList().clear();
         for (Long databaseId : getDbManager().getValidIdList()) {
             Task task = getDbManager().getInstance(databaseId);
-            if (isCompleted == task.getIsDone() && task.hasDate()) {
+            if (isCompleted == task.getIsDone() && task.hasDate()
+                    && viewSelection.contains(getTaskType(task))) {
                 if (task.isWithinPeriod(dateRange)) {
                     getDisplayedTasksList().add(databaseId);
                 }
+
             }
         }
 
@@ -278,6 +291,23 @@ public class ViewCommand extends Command {
             return DEADLINE_TASK;
         } else {
             return TIMED_TASK;
+        }
+    }
+    
+    /**
+     * Overloaded method to retrieve the viewType
+     * 
+     * @param task object to get type
+     * @return ViewType of the class
+     */
+    
+    private ViewType getTaskType(Task task){
+        if(task.isFloatingTask()){
+            return ViewType.TASK;
+        } else if(task.isDeadline()){
+            return ViewType.DEADLINE;
+        } else {
+            return ViewType.SCHEDULE;
         }
     }
 
