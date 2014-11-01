@@ -44,9 +44,10 @@ public class ViewCommand extends Command {
     private static final String DEADLINE_SEPERATOR =
         "--------------------------------[  DEADLINES  ]---------------------------------";
 
-    private static final ArrayList<ViewType> VIEW_SELECTION_ALL = new ArrayList<ViewType>(
+    private static final ArrayList<ViewType> VIEW_SELECTION_ALL =
+        new ArrayList<ViewType>(
             Arrays.asList(ViewType.DEADLINE, ViewType.SCHEDULE, ViewType.TASK));
-    
+
     private static final int FLOATING_TASK = 0;
     private static final int DEADLINE_TASK = 1;
     private static final int TIMED_TASK = 2;
@@ -57,8 +58,6 @@ public class ViewCommand extends Command {
     private boolean viewAll;
     private boolean completed;
     private ArrayList<ViewType> viewSelection;
-    
-        
 
     /**
      * Getter method for viewRange.
@@ -90,21 +89,23 @@ public class ViewCommand extends Command {
     /**
      * Public constructor for ViewCommand.
      *
-     * @param viewAll   true if all tasks should be returned
-     * @param completed true if all completed tasks should be returned instead
-     * @param viewRange date range to view tasks in
+     * @param viewAll       true if all tasks should be returned
+     * @param completed     true if all completed tasks should be returned
+     *                      instead
+     * @param viewRange     date range to view tasks in
+     * @param viewSelection specified view scope from user
      */
     public ViewCommand(boolean viewAll, boolean completed, DatePair viewRange,
                        ArrayList<ViewType> viewSelection) {
         this.viewAll = viewAll;
         this.viewRange = viewRange;
         this.completed = completed;
-        if(viewSelection.size()==0){
+        if (viewSelection.isEmpty()) {
             this.viewSelection = VIEW_SELECTION_ALL;
-        }else{
+        } else {
             this.viewSelection = viewSelection;
         }
-        
+
     }
 
     /**
@@ -118,25 +119,29 @@ public class ViewCommand extends Command {
         if (isViewAll()) {
             return viewAll(isCompleted(), viewSelection);
         } else {
-            return viewByPeriod(getViewRange(), isCompleted(),viewSelection);
+            return viewByPeriod(getViewRange(), isCompleted(), viewSelection);
         }
     }
 
     /**
      * Return all the valid task stored in the database.
      *
-     * @param isCompleted true if completed tasks should be displayed
+     * @param isCompleted   true if completed tasks should be displayed
+     * @param viewSelection specified view scope from user
      * @return list of tasks and their information in the database
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    private String viewAll(boolean isCompleted, ArrayList<ViewType> viewSelection) throws IOException {
+    private String viewAll(boolean isCompleted,
+                           ArrayList<ViewType> viewSelection)
+        throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
         getDisplayedTasksList().clear();
 
         for (int i = 0; i < getDbManager().getValidIdList().size(); i++) {
             Long databaseId = getDbManager().getValidIdList().get(i);
             Task task = getDbManager().getInstance(databaseId);
-            if (isCompleted == task.getIsDone() && viewSelection.contains(getTaskType(task))) {
+            if (isCompleted == task.getIsDone() && viewSelection.
+                contains(getTaskType(task))) {
                 getDisplayedTasksList().add(databaseId);
             }
         }
@@ -176,14 +181,15 @@ public class ViewCommand extends Command {
      * @return result of all the tasks that are within the period as queried
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    private String viewByPeriod(DatePair dateRange, boolean isCompleted, ArrayList<ViewType> viewSelection)
+    private String viewByPeriod(DatePair dateRange, boolean isCompleted,
+                                ArrayList<ViewType> viewSelection)
         throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
         getDisplayedTasksList().clear();
         for (Long databaseId : getDbManager().getValidIdList()) {
             Task task = getDbManager().getInstance(databaseId);
-            if (isCompleted == task.getIsDone() && task.hasDate()
-                    && viewSelection.contains(getTaskType(task))) {
+            if (isCompleted == task.getIsDone() && task.hasDate() &&
+                viewSelection.contains(getTaskType(task))) {
                 if (task.isWithinPeriod(dateRange)) {
                     getDisplayedTasksList().add(databaseId);
                 }
@@ -245,8 +251,8 @@ public class ViewCommand extends Command {
         }
 
         stringBuilder.append(border + System.lineSeparator() + header +
-                             System.lineSeparator() +
-                             border + System.lineSeparator());
+                             System.lineSeparator() + border +
+                             System.lineSeparator());
 
         int prevType = -1;
         for (int i = 0; i < getDisplayedTasksList().size(); i++) {
@@ -283,6 +289,8 @@ public class ViewCommand extends Command {
     }
 
     /**
+     * Retrieve the task type from the database given the ID displayed.
+     *
      * @param displayingId the id of the task
      * @return enum which specifies what type of task it is
      * @throws IOException occurs when dbManager encounters a problem with file
@@ -298,18 +306,18 @@ public class ViewCommand extends Command {
             return TIMED_TASK;
         }
     }
-    
+
     /**
-     * Overloaded method to retrieve the viewType
-     * 
+     * Retrieve the viewType based on the task provided.
+     *
      * @param task object to get type
-     * @return ViewType of the class
+     * @return ViewType of the object
      */
-    
-    private ViewType getTaskType(Task task){
-        if(task.isFloatingTask()){
+
+    private ViewType getTaskType(Task task) {
+        if (task.isFloatingTask()) {
             return ViewType.TASK;
-        } else if(task.isDeadline()){
+        } else if (task.isDeadline()) {
             return ViewType.DEADLINE;
         } else {
             return ViewType.SCHEDULE;

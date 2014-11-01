@@ -14,19 +14,22 @@ import java.util.Collections;
  * @author Jason Sia
  */
 public class SearchCommand extends Command {
+
     private static final String MESSAGE_SEARCH_RESULT =
         "%s task with \"%s\" has been found.";
-    
-    private static final String SCHEDULE_SEPERATOR = "--------------------------------[  SCHEDULES  ]---------------------------------";
-    private static final String FLOATING_SEPERATOR = "--------------------------------[    TASKS    ]---------------------------------";
-    private static final String DEADLINE_SEPERATOR = "--------------------------------[  DEADLINES  ]---------------------------------";
+    private static final String SCHEDULE_SEPERATOR =
+        "--------------------------------[  SCHEDULES  ]---------------------------------";
+    private static final String FLOATING_SEPERATOR =
+        "--------------------------------[    TASKS    ]---------------------------------";
+    private static final String DEADLINE_SEPERATOR =
+        "--------------------------------[  DEADLINES  ]---------------------------------";
 
     private static final int CONSOLE_MAX_WIDTH = 80;
 
     private static final int FLOATING_TASK = 0;
     private static final int DEADLINE_TASK = 1;
     private static final int TIMED_TASK = 2;
-    
+
     /* Information required for search */
     private String keyword;
 
@@ -61,7 +64,7 @@ public class SearchCommand extends Command {
         StringBuilder responseBuilder = new StringBuilder();
 
         getDisplayedTasksList().clear();
-        
+
         for (Long databaseId : getDbManager().getValidIdList()) {
             String taskInDb =
                 getDbManager().getInstance(databaseId).getDescription();
@@ -105,10 +108,10 @@ public class SearchCommand extends Command {
             border += "-";
         }
 
-        stringBuilder.append(border + System.lineSeparator() + header
-                             + System.lineSeparator() + border +
+        stringBuilder.append(border + System.lineSeparator() + header +
+                             System.lineSeparator() + border +
                              System.lineSeparator());
-        
+
         int prevType = -1;
         for (int i = 0; i < getDisplayedTasksList().size(); i++) {
             int currentType = getTaskType(i);
@@ -139,12 +142,14 @@ public class SearchCommand extends Command {
      * @author hooitong
      */
     private String formatTaskOutput(int displayingId) throws IOException {
-        Task task = getDbManager()
-            .getInstance(getDisplayedTasksList().get(displayingId));
+        Task task = getDbManager().
+            getInstance(getDisplayedTasksList().get(displayingId));
         return task.formatOutput(displayingId + 1 + "");
     }
-    
+
     /**
+     * Retrieve the task type from the database given the ID displayed.
+     *
      * @param displayingId the id of the task
      * @return enum which specifies what type of task it is
      * @throws IOException occurs when dbManager encounters a problem with file
