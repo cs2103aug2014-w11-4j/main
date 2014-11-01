@@ -18,10 +18,11 @@ import java.util.logging.SimpleFormatter;
 
 
 /**
- * RubberDuck is a CLI Task Manager that stores user's task into a text file and helps the user to
- * handle all his/her tasks via this application.
+ * RubberDuck is a CLI Task Manager that stores user's task into a text file and
+ * helps the user to handle all his/her tasks via this application.
  *
- * <p>This class is the main class used to start and initialize the program.</p>
+ * <p>This class is the main class used to start and initialize the
+ * program.</p>
  */
 //@author A0111736M
 public class RubberDuck {
@@ -30,7 +31,8 @@ public class RubberDuck {
     private static final String DATESTAMP_FORMAT = "dd-MM-yyyy_HH-mm-ss";
     private static final String LOG_DIRECTORY = "logs/";
     private static final String LOG_FILENAME = "%s.log";
-    private static final String MESSAGE_MKDIR_ERROR = "Directory creation failed.";
+    private static final String MESSAGE_MKDIR_ERROR =
+        "Directory creation failed.";
 
     /**
      * Main method of application as well as the entry point.
@@ -42,8 +44,8 @@ public class RubberDuck {
     }
 
     /**
-     * Grabs the global logger and setup a FileHandler to create a log file. It will then set it as
-     * the default logging file by the Logger.
+     * Grabs the global logger and setup a FileHandler to create a log file. It
+     * will then set it as the default logging file by the Logger.
      */
     public static void setupGlobalLogger() {
         /* Suppress logger to Console using rootLogger */
@@ -67,7 +69,8 @@ public class RubberDuck {
             Calendar cal = Calendar.getInstance();
             String currentTime = dateFormat.format(cal.getTime());
             FileHandler fileHandler = new FileHandler(LOG_DIRECTORY
-                                                      + String.format(LOG_FILENAME, currentTime));
+                                                      + String.format(
+                LOG_FILENAME, currentTime));
             SimpleFormatter formatter = new SimpleFormatter();
             fileHandler.setFormatter(formatter);
             logger.addHandler(fileHandler);

@@ -9,21 +9,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Concrete Command Class that can be executed to update the task object from database given the
- * task id displayed on screen to the user.
+ * Concrete Command Class that can be executed to update the task object from
+ * database given the task id displayed on screen to the user.
  *
  * @author Zhao Hang
  */
 public class UpdateCommand extends Command {
 
-    private static final String JOURNAL_MESSAGE_UPDATE = "Updated task \"%s\"";
-    private static final String MESSAGE_UPDATE = "\"%s\" has been successfully updated.";
-    private static final String
-        MESSAGE_UPDATE_PAST =
-        "You cannot update the end date thats already passed.";
-    private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
-    private static final String
-        MESSAGE_ERROR_WRONG_TASK_TYPE =
+    private static final String JOURNAL_MESSAGE_UPDATE =
+        "Updated task \"%s\"";
+    private static final String MESSAGE_UPDATE =
+        "\"%s\" has been successfully updated.";
+    private static final String MESSAGE_UPDATE_PAST =
+        "You cannot update the end date that has already passed.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
+        "You have input an invalid ID.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_TYPE =
         "You have input an invalid task type.";
 
     private int taskId;
@@ -81,7 +82,8 @@ public class UpdateCommand extends Command {
     @Override
     public String execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            return ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_ID,
+                                         Color.RED);
         }
 
         if (DatePair.isDateBeforeNow(datePairs)) {
@@ -91,8 +93,8 @@ public class UpdateCommand extends Command {
         long databaseId = getDisplayedTasksList().get(taskId - 1);
 
         Task task = getDbManager().getInstance(databaseId);
-        String oldTaskFormattedString = ColorFormatter.format(
-            String.format(task.formatOutput("-")), Color.RED);
+        String oldTaskFormattedString = ColorFormatter.
+            format(String.format(task.formatOutput("-")), Color.RED);
         String oldDescription = task.getDescription();
 
         if (!description.isEmpty()) {
@@ -118,9 +120,9 @@ public class UpdateCommand extends Command {
                                          Color.RED);
         }
 
-        long newDatabaseId = getDbManager().modify(databaseId, task,
-                                                   String.format(JOURNAL_MESSAGE_UPDATE,
-                                                                 oldDescription));
+        long newDatabaseId = getDbManager().
+            modify(databaseId, task, String.format(JOURNAL_MESSAGE_UPDATE,
+                                                   oldDescription));
 
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
 

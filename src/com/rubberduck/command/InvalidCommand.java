@@ -6,7 +6,8 @@ import com.rubberduck.menu.ColorFormatter.Color;
 import java.io.IOException;
 
 /**
- * Concrete Command Class that can be executed to return an invalid message back to the user.
+ * Concrete Command Class that can be executed to return an invalid message back
+ * to the user.
  *
  * @author hooitong
  */

@@ -8,14 +8,15 @@ import java.io.IOException;
 import java.util.Collections;
 
 /**
- * Concrete Command Class that can be executed to search the data store for tasks containing the
- * provided keyword and returns back the task details.
+ * Concrete Command Class that can be executed to search the data store for
+ * tasks containing the provided keyword and returns back the task details.
  *
  * @author Jason Sia
  */
 public class SearchCommand extends Command {
 
-    private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
+    private static final String MESSAGE_SEARCH_RESULT =
+        "%s task with \"%s\" has been found.";
 
     private static final int CONSOLE_MAX_WIDTH = 80;
 
@@ -41,7 +42,8 @@ public class SearchCommand extends Command {
     }
 
     /**
-     * Search for task based on description and return formatted string of tasks back to parent.
+     * Search for task based on description and return formatted string of tasks
+     * back to parent.
      *
      * @return formatted string back to parent
      */
@@ -53,8 +55,8 @@ public class SearchCommand extends Command {
 
         getDisplayedTasksList().clear();
         for (Long databaseId : getDbManager().getValidIdList()) {
-            String taskInDb = getDbManager().getInstance(databaseId)
-                .getDescription();
+            String taskInDb =
+                getDbManager().getInstance(databaseId).getDescription();
             taskInDb = taskInDb.toLowerCase();
             if (taskInDb.contains(keyword.toLowerCase())) {
                 getDisplayedTasksList().add(databaseId);
@@ -65,8 +67,8 @@ public class SearchCommand extends Command {
                                                               : Color.GREEN;
 
         responseBuilder.append(ColorFormatter.format(
-            String.format(MESSAGE_SEARCH_RESULT,
-                          getDisplayedTasksList().size(), keyword), headerColor));
+            String.format(MESSAGE_SEARCH_RESULT, getDisplayedTasksList().size(),
+                          keyword), headerColor));
 
         if (!getDisplayedTasksList().isEmpty()) {
             responseBuilder.append(System.lineSeparator());
@@ -96,7 +98,8 @@ public class SearchCommand extends Command {
         }
 
         stringBuilder.append(border + System.lineSeparator() + header
-                             + System.lineSeparator() + border + System.lineSeparator());
+                             + System.lineSeparator() + border +
+                             System.lineSeparator());
 
         for (int i = 0; i < getDisplayedTasksList().size(); i++) {
             stringBuilder.append(formatTaskOutput(i));
@@ -116,8 +119,8 @@ public class SearchCommand extends Command {
      * @author hooitong
      */
     private String formatTaskOutput(int displayingId) throws IOException {
-        Task task = getDbManager().getInstance(
-            getDisplayedTasksList().get(displayingId));
+        Task task = getDbManager()
+            .getInstance(getDisplayedTasksList().get(displayingId));
         return task.formatOutput(displayingId + 1 + "");
     }
 }

@@ -9,35 +9,32 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 /**
- * Concrete Command Class that can be executed to synchronise with Google based on the type.
+ * Concrete Command Class that can be executed to synchronise with Google based
+ * on the type.
  *
  * @author hooitong
  */
 public class SyncCommand extends Command {
 
-    private static final String
-        MESSAGE_ERROR_UNABLE_TO_START_SAFE_CONNECTION =
+    private static final String MESSAGE_ERROR_UNABLE_TO_START_SAFE_CONNECTION =
         "Failed to initialize safe connection with server.";
-    private static final String
-        MESSAGE_ERROR_NETWORK_IOEXCEPTION =
+    private static final String MESSAGE_ERROR_NETWORK_IOEXCEPTION =
         "Failed to connect to the server.";
-    private static final String
-        MESSAGE_UNDO_WARNING =
+    private static final String MESSAGE_UNDO_WARNING =
         "Note that once synchronization is done, you cannot undo your previous actions.";
-    private static final String
-        MESSAGE_CONFIRM_PROMPT =
+    private static final String MESSAGE_CONFIRM_PROMPT =
         "Are you sure you want to continue with the operation? (Y/N)";
-    private static final String MESSAGE_SYNC_CANCELLED = "Sync operation cancelled by user.";
-    private static final String MESSAGE_PUSH_SUCCESS = "Successfully pushed data to Google.";
-    private static final String MESSAGE_PULL_SUCCESS = "Successfully pulled data from Google.";
-    private static final String
-        MESSAGE_FORCEPUSH_SUCCESS =
+    private static final String MESSAGE_SYNC_CANCELLED =
+        "Sync operation cancelled by user.";
+    private static final String MESSAGE_PUSH_SUCCESS =
+        "Successfully pushed data to Google.";
+    private static final String MESSAGE_PULL_SUCCESS =
+        "Successfully pulled data from Google.";
+    private static final String MESSAGE_FORCEPUSH_SUCCESS =
         "Successfully pushed (forced) data to Google.";
-    private static final String
-        MESSAGE_FORCEPULL_SUCCESS =
+    private static final String MESSAGE_FORCEPULL_SUCCESS =
         "Successfully pulled (forced) data from Google.";
-    private static final String
-        MESSAGE_TWOWAY_SUCCESS =
+    private static final String MESSAGE_TWOWAY_SUCCESS =
         "Successfully synchronise between RubberDuck and Google.";
 
     public enum SyncType {
@@ -47,8 +44,8 @@ public class SyncCommand extends Command {
     private SyncType type;
 
     /**
-     * Public constructor of SyncCommand that accepts a enum to determine what type of
-     * synchronization to execute.
+     * Public constructor of SyncCommand that accepts a enum to determine what
+     * type of synchronization to execute.
      *
      * @param type SyncType to represent what to sync
      */

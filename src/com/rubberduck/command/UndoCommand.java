@@ -12,11 +12,12 @@ import java.io.IOException;
  */
 public class UndoCommand extends Command {
 
-    private static final String JOURNAL_MESSAGE_UNDONE = "Undone previous action \"%s\".";
+    private static final String JOURNAL_MESSAGE_UNDONE =
+        "Undone previous action \"%s\".";
 
     /**
-     * Undo the operation done by the user. Will return error message when there is nothing to
-     * undo.
+     * Undo the operation done by the user. Will return error message when there
+     * is nothing to undo.
      *
      * @throws IOException occurs when DatabaseManager has I/O issues
      */

@@ -321,13 +321,14 @@ public class Task implements Serializable, Comparable<Task> {
             if (isTentative && rangeTicker) {
                 if (stringBuilder.length() != 0) {
                     stringBuilder.append(System.lineSeparator());
-                    stringBuilder.append(String.format(
-                        "%-7s%-6s%-43s%-19s%-5s", "", "", desc, date, "["
-                                                                      + dateId++ + "]"));
+                    stringBuilder.
+                        append(String.format("%-7s%-6s%-43s%-19s%-5s", "", "",
+                                             desc, date, "[" + dateId++ + "]"));
                 } else {
-                    stringBuilder.append(String.format(
-                        "%-7s%-6s%-43s%-19s%-5s", displayingId, isDone,
-                        desc, date, "[" + dateId++ + "]"));
+                    stringBuilder.
+                        append(String.format("%-7s%-6s%-43s%-19s%-5s",
+                                             displayingId, isDone,
+                                             desc, date, "[" + dateId++ + "]"));
                 }
 
                 if (date.contains("to")) {
@@ -340,7 +341,8 @@ public class Task implements Serializable, Comparable<Task> {
                                                        "", "", desc, date));
                 } else {
                     stringBuilder.append(String.format("%-7s%-6s%-43s%-24s",
-                                                       displayingId, isDone, desc, date));
+                                                       displayingId, isDone,
+                                                       desc, date));
                 }
 
                 rangeTicker = true;
@@ -414,14 +416,12 @@ public class Task implements Serializable, Comparable<Task> {
         Calendar earliestDate = null;
 
         for (DatePair dp : dateList) {
-            if (dp.hasStartDate()
-                && (earliestDate == null || dp.getStartDate().before(
-                earliestDate))) {
+            if (dp.hasStartDate() && (earliestDate == null ||
+                                      dp.getStartDate().before(earliestDate))) {
                 earliestDate = dp.getStartDate();
             }
-            if (dp.hasEndDate()
-                && (earliestDate == null || dp.getEndDate().before(
-                earliestDate))) {
+            if (dp.hasEndDate() && (earliestDate == null ||
+                                    dp.getEndDate().before(earliestDate))) {
                 earliestDate = dp.getEndDate();
             }
         }
@@ -455,7 +455,8 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     /**
-     * Method used to check whether a task has any potential conflict in current database.
+     * Method used to check whether a task has any potential conflict in current
+     * database.
      *
      * @param dbManager DatabaseManager object to interact with
      * @return true if there is a conflict else false

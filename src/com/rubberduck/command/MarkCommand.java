@@ -7,20 +7,24 @@ import com.rubberduck.menu.ColorFormatter.Color;
 import java.io.IOException;
 
 /**
- * Concrete Command Class that can be executed to mark as completed/incomplete the task object from
- * database given the task id displayed on screen to the user.
+ * Concrete Command Class that can be executed to mark as completed/incomplete
+ * the task object from database given the task id displayed on screen to the
+ * user.
  *
  * @author Zhao Hang
  */
 public class MarkCommand extends Command {
 
-    private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
-    private static final String JOURNAL_MESSAGE_MARK_AS_COMPLETED = "Mark task \"%s\" as completed";
-    private static final String
-        JOURNAL_MESSAGE_MARK_AS_INCOMPLETE =
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
+        "You have input an invalid ID.";
+    private static final String JOURNAL_MESSAGE_MARK_AS_COMPLETED =
+        "Mark task \"%s\" as completed";
+    private static final String JOURNAL_MESSAGE_MARK_AS_INCOMPLETE =
         "Mark task \"%s\" as incomplete";
-    private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
-    private static final String MESSAGE_MARK_INCOMPLETE = "\"%s\" has been marked to incomplete.";
+    private static final String MESSAGE_MARK_COMPLETED =
+        "\"%s\" has been marked to completed.";
+    private static final String MESSAGE_MARK_INCOMPLETE =
+        "\"%s\" has been marked to incomplete.";
 
     private int taskId;
 
@@ -34,8 +38,8 @@ public class MarkCommand extends Command {
     }
 
     /**
-     * Public constructor of MarkCommand that accepts task id to determine what the command should
-     * mark when executed.
+     * Public constructor of MarkCommand that accepts task id to determine what
+     * the command should mark when executed.
      *
      * @param taskId displayed id of the task
      */
@@ -51,7 +55,8 @@ public class MarkCommand extends Command {
     @Override
     public String execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            return ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return ColorFormatter
+                .format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
         }
 
         if (isCompletedTask(taskId)) {
@@ -88,11 +93,10 @@ public class MarkCommand extends Command {
         Task oldTask = getDbManager().getInstance(databaseId);
         assert !oldTask.getIsDone();
         oldTask.setIsDone(true);
-        long newTaskId = getDbManager().modify(
-            databaseId,
-            oldTask,
-            String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
-                          oldTask.getDescription()));
+        long newTaskId =
+            getDbManager().modify(databaseId, oldTask, String.format(
+                JOURNAL_MESSAGE_MARK_AS_COMPLETED,
+                oldTask.getDescription()));
         getDisplayedTasksList().set(displayedId - 1, newTaskId);
         StringBuilder response = new StringBuilder();
         response.append(ColorFormatter.format(
@@ -118,11 +122,10 @@ public class MarkCommand extends Command {
         Task oldTask = getDbManager().getInstance(databaseId);
         assert oldTask.getIsDone();
         oldTask.setIsDone(false);
-        long newTaskId = getDbManager().modify(
-            databaseId,
-            oldTask,
-            String.format(JOURNAL_MESSAGE_MARK_AS_INCOMPLETE,
-                          oldTask.getDescription()));
+        long newTaskId =
+            getDbManager().modify(databaseId, oldTask, String.format(
+                JOURNAL_MESSAGE_MARK_AS_INCOMPLETE,
+                oldTask.getDescription()));
         getDisplayedTasksList().set(displayedId - 1, newTaskId);
         StringBuilder response = new StringBuilder();
         response.append(ColorFormatter.format(

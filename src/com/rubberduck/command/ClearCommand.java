@@ -7,21 +7,22 @@ import com.rubberduck.menu.MenuInterface;
 import java.io.IOException;
 
 /**
- * Concrete Command Class that can be executed to clear the screen of the terminal.
+ * Concrete Command Class that can be executed to clear the screen of the
+ * terminal.
  *
  * @author hooitong
  */
 public class ClearCommand extends Command {
 
-    private static final String MESSAGE_CLEAR = "Screen cleared.";
-    private static final String
-        MESSAGE_IOEXCEPTION_ERROR =
+    private static final String MESSAGE_CLEAR =
+        "Screen cleared.";
+    private static final String MESSAGE_IOEXCEPTION_ERROR =
         "Problem calling clearScreen in ConsoleReader.";
 
     /**
-     * Clear the screen of the current terminal by calling the clearScreen method in the current
-     * ConsoleReader instance. Will return error message if encounter IOException when calling
-     * clearScreen.
+     * Clear the screen of the current terminal by calling the clearScreen
+     * method in the current ConsoleReader instance. Will return error message
+     * if encounter IOException when calling clearScreen.
      */
     @Override
     public String execute() {

@@ -6,24 +6,26 @@ import com.rubberduck.menu.ColorFormatter.Color;
 import java.io.IOException;
 
 /**
- * Concrete Command Class that can be executed to show the list of available commands and their
- * description.
+ * Concrete Command Class that can be executed to show the list of available
+ * commands and their description.
  *
  * @author hooitong
  */
 public class HelpCommand extends Command {
 
-    private static final String
-        HELP_ALL_HEADER =
+    private static final String HELP_ALL_HEADER =
         "Here are for the available commands in RubberDuck.";
-    private static final String HELP_ALL_FORMAT = "%-15s%-65s";
-    private static final String
-        HELP_SPECIFIC_HEADER =
+    private static final String HELP_ALL_FORMAT =
+        "%-15s%-65s";
+    private static final String HELP_SPECIFIC_HEADER =
         "More information about your queried command.";
-    private static final String HELP_SPECIFIC_FORMAT = "%-15s%-65s";
+    private static final String HELP_SPECIFIC_FORMAT =
+        "%-15s%-65s";
     private static final String[][] COMMANDS = {
-        {"view", "View your agenda given a date range or \"all\".", "[date | all]"},
-        {"search", "Search for tasks related to the given keyword.", "[keyword]"},
+        {"view", "View your agenda given a date range or \"all\".",
+         "[date | all]"},
+        {"search", "Search for tasks related to the given keyword.",
+         "[keyword]"},
         {"add", "Add a new task of provided description with optional date.",
          "<description> [date...]"},
         {"delete", "Delete a task from the system given task ID.", "<task id>"},
@@ -31,12 +33,15 @@ public class HelpCommand extends Command {
          "<task id> [description] [date...]"},
         {"undo", "Undo your previous action.", "-"},
         {"redo", "Redo your undone action.", "-"},
-        {"mark", "Mark any task to complete/incomplete given task ID.", "<task id>"},
-        {"confirm", "Confirm any tentative task given task ID and date ID.", "<task id> <date id>"},
+        {"mark", "Mark any task to complete/incomplete given task ID.",
+         "<task id>"},
+        {"confirm", "Confirm any tentative task given task ID and date ID.",
+         "<task id> <date id>"},
         {"sync", "Initiate 2-way synchronisation with Google.", "-"},
         {"clear", "Clear the screen of RubberDuck.", "-"},
         {"exit", "Exit from RubberDuck.", "-"},
-        {"help", "Get help information on commands available and specifics.", "[command]"}
+        {"help", "Get help information on commands available and specifics.",
+         "[command]"}
     };
     private static final int COMMANDS_NAME = 0;
     private static final int COMMANDS_INFO = 1;
@@ -46,10 +51,12 @@ public class HelpCommand extends Command {
     private String type;
 
     /**
-     * Public constructor for HelpCommand that accepts a boolean and a command type as String.
+     * Public constructor for HelpCommand that accepts a boolean and a command
+     * type as String.
      *
      * @param isSpecific if true, users want a specific command information
-     * @param type       null if isSpecific is false else must not be null if true
+     * @param type       null if isSpecific is false else must not be null if
+     *                   true
      */
     public HelpCommand(boolean isSpecific, String type) {
         this.isSpecific = isSpecific;

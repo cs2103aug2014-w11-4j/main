@@ -7,17 +7,18 @@ import com.rubberduck.menu.ColorFormatter.Color;
 import java.io.IOException;
 
 /**
- * Concrete Command Class that can be executed to delete the task object from database given the
- * task id displayed on screen to the user.
+ * Concrete Command Class that can be executed to delete the task object from
+ * database given the task id displayed on screen to the user.
  *
  * @author Zhao Hang
  */
 public class DeleteCommand extends Command {
 
-    private static final String JOURNAL_MESSAGE_DELETE = "Deleted task \"%s\"";
-    private static final String MESSAGE_DELETE = "\"%s\" has been successfully deleted.";
-    private static final String
-        MESSAGE_ERROR_WRONG_TASK_ID =
+    private static final String JOURNAL_MESSAGE_DELETE =
+        "Deleted task \"%s\"";
+    private static final String MESSAGE_DELETE =
+        "\"%s\" has been successfully deleted.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
         "This is not a valid task ID to delete.";
 
     private int taskId;
@@ -51,13 +52,15 @@ public class DeleteCommand extends Command {
     @Override
     public String execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            return ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return ColorFormatter
+                .format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
         }
         long databaseId = getDisplayedTasksList().get(taskId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
         getDbManager().modify(databaseId, null,
-                              String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
+                              String.format(JOURNAL_MESSAGE_DELETE,
+                                            oldDescription));
         getDisplayedTasksList().set(taskId - 1, (long) -1);
 
         StringBuilder response = new StringBuilder();

@@ -12,22 +12,27 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class focuses on handling the user interface of the entire application which accepts the
- * user's input, call the parser and execute the command returned from the parser.
+ * This class focuses on handling the user interface of the entire application
+ * which accepts the user's input, call the parser and execute the command
+ * returned from the parser.
  */
 //@author A0111736M
 public class MenuInterface {
 
-    private static final String
-        MESSAGE_WELCOME =
+    private static final String MESSAGE_WELCOME =
         "Welcome to RubberDuck. Here's your agenda for today.";
-    private static final String MESSAGE_HELP = "If you need a list of commands, type ? or help.";
-    private static final String MESSAGE_ERROR_CR_IOEXCEPTION = "Problem with ConsoleReader (IO).";
-    private static final String MESSAGE_PROMPT = "Press [Enter] to continue...";
-    private static final String DEFAULT_PROMPT = ">";
-    private static final String WELCOME_EXECUTE = "view today";
-
-    private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final String MESSAGE_HELP =
+        "If you need a list of commands, type ? or help.";
+    private static final String MESSAGE_ERROR_CR_IOEXCEPTION =
+        "Problem with ConsoleReader (IO).";
+    private static final String MESSAGE_PROMPT =
+        "Press [Enter] to continue...";
+    private static final String DEFAULT_PROMPT =
+        ">";
+    private static final String WELCOME_EXECUTE =
+        "view today";
+    private static final Logger LOGGER =
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private static MenuInterface menuInstance;
 
@@ -53,8 +58,9 @@ public class MenuInterface {
     }
 
     /**
-     * Handles the interface of the program. It prompts from user and calls the parser to determine
-     * the command to be executed. It then proceed to execute the returned command.
+     * Handles the interface of the program. It prompts from user and calls the
+     * parser to determine the command to be executed. It then proceed to
+     * execute the returned command.
      */
     public void handleInterface() {
         try {
@@ -86,8 +92,8 @@ public class MenuInterface {
     }
 
     /**
-     * Used to show the welcome screen and relevant information when user first execute the
-     * program.
+     * Used to show the welcome screen and relevant information when user first
+     * execute the program.
      *
      * @return String to display as welcome message
      */
@@ -106,7 +112,8 @@ public class MenuInterface {
     }
 
     /**
-     * Outputs a string object to the ConsoleReader instance which will be visible to the user.
+     * Outputs a string object to the ConsoleReader instance which will be
+     * visible to the user.
      *
      * @param s String object to be displayed
      * @throws IOException occurs when ConsoleReader has problem with output
@@ -127,8 +134,9 @@ public class MenuInterface {
     }
 
     /**
-     * Displays a prompt midway through an execution of a command and request an input from the user
-     * which will be returned to the command execution flow.
+     * Displays a prompt midway through an execution of a command and request an
+     * input from the user which will be returned to the command execution
+     * flow.
      *
      * @param prompt String literals to be displayed to the user
      * @return response by the user

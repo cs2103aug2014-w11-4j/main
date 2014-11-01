@@ -187,11 +187,15 @@ public class CommandTest {
     @Test
     public void deleteExistTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
         AddCommand addCommand = new AddCommand(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         addCommand.execute();
-        ViewCommand viewCommand = new ViewCommand(true, false, null);
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
         viewCommand.execute();
         DeleteCommand deleteCommand = new DeleteCommand(1);
         deleteCommand.execute();
@@ -209,11 +213,15 @@ public class CommandTest {
     @Test
     public void updateTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
         AddCommand addCommand = new AddCommand(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         addCommand.execute();
-        ViewCommand viewCommand = new ViewCommand(true, false, null);
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
         viewCommand.execute();
         UpdateCommand updateCommand = new UpdateCommand(1,
                 "Lorem ipsum dolor sit amet.", dpList);
@@ -236,23 +244,27 @@ public class CommandTest {
     @Test
     public void markTaskUncompleted() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
         AddCommand addCommand = new AddCommand(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         addCommand.execute();
-        ViewCommand viewCommand = new ViewCommand(true, false, null);
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
         viewCommand.execute();
 
         MarkCommand markCommand = new MarkCommand(1);
         markCommand.execute();
 
-        ViewCommand viewCommandComplete = new ViewCommand(true, true, null);
+        ViewCommand viewCommandComplete = new ViewCommand(true, true, null, viewChoice);
         viewCommandComplete.execute();
 
         MarkCommand markCommandAgain = new MarkCommand(1);
         markCommandAgain.execute();
 
-        ViewCommand viewCommandAgain = new ViewCommand(true, false, null);
+        ViewCommand viewCommandAgain = new ViewCommand(true, false, null, viewChoice);
         viewCommandAgain.execute();
 
         boolean actual = Command.getDbManager()
@@ -271,18 +283,22 @@ public class CommandTest {
      */
     @Test
     public void markTaskCompleted() throws IOException {
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         AddCommand addCommand = new AddCommand(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         addCommand.execute();
-        ViewCommand viewCommand = new ViewCommand(true, false, null);
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
         viewCommand.execute();
 
         MarkCommand markCommand = new MarkCommand(1);
         markCommand.execute();
 
-        ViewCommand viewCommandComplete = new ViewCommand(true, true, null);
+        ViewCommand viewCommandComplete = new ViewCommand(true, true, null, viewChoice);
         viewCommandComplete.execute();
 
         boolean actual = Command.getDbManager()
@@ -302,6 +318,10 @@ public class CommandTest {
      */
     @Test
     public void confirmTask() throws IOException {
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
@@ -329,7 +349,7 @@ public class CommandTest {
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 datePairList);
         addCommand.execute();
-        ViewCommand viewCommand = new ViewCommand(true, false, null);
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
         viewCommand.execute();
         ConfirmCommand confirmCommand = new ConfirmCommand(1, 2);
         confirmCommand.execute();

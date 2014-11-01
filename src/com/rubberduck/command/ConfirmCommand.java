@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Concrete Command Class that can be executed to confirm the a tentative task given a task id
- * displayed on the screen to the user.
+ * Concrete Command Class that can be executed to confirm the a tentative task
+ * given a task id displayed on the screen to the user.
  *
  * @author Zhao Hang
  */
@@ -18,11 +18,13 @@ public class ConfirmCommand extends Command {
 
     private static final String JOURNAL_MESSAGE_CONFIRM = "Confirm task \"%s\"";
     private static final String MESSAGE_CONFIRM = "\"%s\" has been confirmed.";
-    private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid task ID.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
+        "You have input an invalid task ID.";
     private static final String
         MESSAGE_ERROR_NOT_TENTATIVE =
         "\"%s\" is not tentative and does not need confirmation.";
-    private static final String MESSAGE_ERROR_WRONG_DATE_ID = "You have input an invalid date ID.";
+    private static final String MESSAGE_ERROR_WRONG_DATE_ID =
+        "You have input an invalid date ID.";
 
     private int taskId;
     private int dateId;
@@ -66,7 +68,8 @@ public class ConfirmCommand extends Command {
     @Override
     public String execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            return ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return ColorFormatter
+                .format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
         }
 
         long databaseId = getDisplayedTasksList().get(taskId - 1);
@@ -85,7 +88,8 @@ public class ConfirmCommand extends Command {
         }
 
         if (dateList.size() < dateId) {
-            return ColorFormatter.format(MESSAGE_ERROR_WRONG_DATE_ID, Color.RED);
+            return ColorFormatter
+                .format(MESSAGE_ERROR_WRONG_DATE_ID, Color.RED);
         }
 
         DatePair date = dateList.get(dateId - 1);
@@ -94,8 +98,9 @@ public class ConfirmCommand extends Command {
         task.setDateList(newDateList);
 
         long newDatabaseId = getDbManager().modify(databaseId, task,
-                                                   String.format(JOURNAL_MESSAGE_CONFIRM,
-                                                                 oldDescription));
+                                                   String.format(
+                                                       JOURNAL_MESSAGE_CONFIRM,
+                                                       oldDescription));
 
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
 
