@@ -63,7 +63,7 @@ public class RubberDuck {
 
         /* Setup file handler */
         try {
-            if (new File(LOG_DIR).mkdirs()) {
+            if (!new File(LOG_DIR).mkdirs()) {
                 throw new IOException(MESSAGE_MKDIR_ERROR);
             }
 
