@@ -37,7 +37,7 @@ import com.rubberduck.command.ViewCommand;
  */
 public class Parser {
     /* Global logger to log information and exception. */
-    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     /* Parser specific error messages to return */
     private static final String MESSAGE_SEARCH_ERROR_EMPTY = "Please enter a keyword to search for.";
@@ -50,6 +50,15 @@ public class Parser {
     private static final String MESSAGE_UPDATE_ERROR_EMPTY = "Please enter something to update.";
     private static final String MESSAGE_SYNC_INVALID = "Please enter a valid sync type.";
     private static final String MESSAGE_INVALID_COMMAND = "Please enter a valid command.";
+
+    private static final int DEFAULT_START_HOUR = 0;
+    private static final int DEFAULT_START_MINUTE = 0;
+    private static final int DEFAULT_START_SECOND = 0;
+    private static final int DEFAULT_START_MILLISECOND = 0;
+    private static final int DEFAULT_END_HOUR = 23;
+    private static final int DEFAULT_END_MINUTE = 59;
+    private static final int DEFAULT_END_SECOND = 0;
+    private static final int DEFAULT_END_MILLISECOND = 0;
 
     /* Static member that holds the single instance */
     private static Parser parserInstance;
@@ -64,11 +73,11 @@ public class Parser {
         dateParser = new com.joestelmach.natty.Parser();
         Calendar today = Calendar.getInstance();
 
-        /* Default time of all dates parsed are 2359 of that day */
-        today.set(Calendar.HOUR_OF_DAY, 23);
-        today.set(Calendar.MINUTE, 59);
-        today.set(Calendar.SECOND, 0);
-        today.set(Calendar.MILLISECOND, 0);
+        /* Set the base calendar time to the default time declared. */
+        today.set(Calendar.HOUR_OF_DAY, DEFAULT_END_HOUR);
+        today.set(Calendar.MINUTE, DEFAULT_END_MINUTE);
+        today.set(Calendar.SECOND, DEFAULT_END_SECOND);
+        today.set(Calendar.MILLISECOND, DEFAULT_END_MILLISECOND);
         CalendarSource.setBaseDate(today.getTime());
     }
 
@@ -91,9 +100,9 @@ public class Parser {
      * @return Command object with the correct argument and type
      */
     public Command parse(String input) {
-        logger.info("Parsing input: " + input);
+        LOGGER.info("Parsing input: " + input);
         Command.CommandType userCommand = determineCommandType(input);
-        logger.info("CommandType requested: " + userCommand.toString());
+        LOGGER.info("CommandType requested: " + userCommand.toString());
         String args = removeFirstWord(input).trim();
         return parseCommand(userCommand, args);
     }
@@ -174,7 +183,7 @@ public class Parser {
      * @param args the arguments the user input
      * @return either a VIEW command or INVALID command
      */
-    public Command parseView(String args) {
+    private Command parseView(String args) {
         boolean isCompleted = args.toLowerCase().contains("completed");
 
         /* Create empty DatePair object */
@@ -220,7 +229,7 @@ public class Parser {
      * @param args user given arguments
      * @return either a SEARCH or INVALID command
      */
-    public Command parseSearch(String args) {
+    private Command parseSearch(String args) {
         if (args.trim().isEmpty()) {
             return new InvalidCommand(MESSAGE_SEARCH_ERROR_EMPTY);
         } else {
@@ -234,7 +243,7 @@ public class Parser {
      * @param args the arguments the user input
      * @return either a ADD command or INVALID command
      */
-    public Command parseAdd(String args) {
+    private Command parseAdd(String args) {
         /* Parse all US Date to SG Date Formal Format */
         String input = parseUStoSGDate(args);
 
@@ -280,13 +289,18 @@ public class Parser {
 
                         /* If no time specified, set default timings */
                         if (group.isTimeInferred()) {
-                            startDate.set(Calendar.HOUR_OF_DAY, 0);
-                            startDate.set(Calendar.MINUTE, 0);
-                            startDate.set(Calendar.SECOND, 0);
+                            startDate.set(Calendar.HOUR_OF_DAY,
+                                    DEFAULT_START_HOUR);
+                            startDate.set(Calendar.MINUTE, DEFAULT_START_MINUTE);
+                            startDate.set(Calendar.SECOND, DEFAULT_START_SECOND);
+                            startDate.set(Calendar.MILLISECOND,
+                                    DEFAULT_START_MILLISECOND);
 
-                            endDate.set(Calendar.HOUR_OF_DAY, 23);
-                            endDate.set(Calendar.MINUTE, 59);
-                            endDate.set(Calendar.SECOND, 0);
+                            endDate.set(Calendar.HOUR_OF_DAY, DEFAULT_END_HOUR);
+                            endDate.set(Calendar.MINUTE, DEFAULT_END_MINUTE);
+                            endDate.set(Calendar.SECOND, DEFAULT_END_SECOND);
+                            endDate.set(Calendar.MILLISECOND,
+                                    DEFAULT_END_MILLISECOND);
                         }
 
                         datePairs.add(new DatePair(startDate, endDate));
@@ -320,7 +334,7 @@ public class Parser {
      * @param args the arguments the user input
      * @return either a DELETE command or INVALID command
      */
-    public Command parseDelete(String args) {
+    private Command parseDelete(String args) {
         try {
             int deleteId = Integer.parseInt(getFirstWord(args).trim());
             return new DeleteCommand(deleteId);
@@ -336,7 +350,7 @@ public class Parser {
      * @param args the arguments the user input
      * @return either a UPDATE command or INVALID command
      */
-    public Command parseUpdate(String args) {
+    private Command parseUpdate(String args) {
         try {
             /* Get Task ID to update */
             int deleteId = Integer.parseInt(getFirstWord(args));
@@ -387,13 +401,21 @@ public class Parser {
 
                             /* If no time specified, set default timings */
                             if (group.isTimeInferred()) {
-                                startDate.set(Calendar.HOUR_OF_DAY, 0);
-                                startDate.set(Calendar.MINUTE, 0);
-                                startDate.set(Calendar.SECOND, 0);
+                                startDate.set(Calendar.HOUR_OF_DAY,
+                                        DEFAULT_START_HOUR);
+                                startDate.set(Calendar.MINUTE,
+                                        DEFAULT_START_MINUTE);
+                                startDate.set(Calendar.SECOND,
+                                        DEFAULT_START_SECOND);
+                                startDate.set(Calendar.MILLISECOND,
+                                        DEFAULT_START_MILLISECOND);
 
-                                endDate.set(Calendar.HOUR_OF_DAY, 23);
-                                endDate.set(Calendar.MINUTE, 59);
-                                endDate.set(Calendar.SECOND, 0);
+                                endDate.set(Calendar.HOUR_OF_DAY,
+                                        DEFAULT_END_HOUR);
+                                endDate.set(Calendar.MINUTE, DEFAULT_END_MINUTE);
+                                endDate.set(Calendar.SECOND, DEFAULT_END_SECOND);
+                                endDate.set(Calendar.MILLISECOND,
+                                        DEFAULT_END_MILLISECOND);
                             }
 
                             datePairs.add(new DatePair(startDate, endDate));
@@ -432,7 +454,7 @@ public class Parser {
      * @param args the arguments the user input
      * @return UNDO command
      */
-    public Command parseUndo(String args) {
+    private Command parseUndo(String args) {
         return new UndoCommand();
     }
 
@@ -443,7 +465,7 @@ public class Parser {
      * @param args the arguments the user input
      * @return REDO command
      */
-    public Command parseRedo(String args) {
+    private Command parseRedo(String args) {
         return new RedoCommand();
     }
 
@@ -453,7 +475,7 @@ public class Parser {
      * @param args the arguments the user input
      * @return either a MARK or INVALID command
      */
-    public Command parseMark(String args) {
+    private Command parseMark(String args) {
         try {
             int markId = Integer.parseInt(getFirstWord(args).trim());
             return new MarkCommand(markId);
@@ -519,7 +541,7 @@ public class Parser {
      * @param args the arguments the user input
      * @return HELP command
      */
-    public Command parseHelp(String args) {
+    private Command parseHelp(String args) {
         if (args.isEmpty()) {
             return new HelpCommand(false, null);
         } else {
@@ -533,7 +555,7 @@ public class Parser {
      * @param args the arguments the user input
      * @return CLEAR command
      */
-    public Command parseClear(String args) {
+    private Command parseClear(String args) {
         return new ClearCommand();
     }
 
@@ -543,7 +565,7 @@ public class Parser {
      * @param args the arguments the user input
      * @return EXIT command
      */
-    public Command parseExit(String args) {
+    private Command parseExit(String args) {
         return new ExitCommand();
     }
 
@@ -561,16 +583,23 @@ public class Parser {
         String dateRegex = "(0[1-9]|[12][0-9]|3[01])[-\\s\\/.](0[1-9]|1[012])[-\\s\\/.]?((?:19|20)\\d\\d)?";
         Pattern datePattern = Pattern.compile(dateRegex);
         Matcher dateMatcher = datePattern.matcher(input);
+        final int yearGroupIndex = 3;
+        final int dayGroupIndex = 2;
+        final int monthGroupIndex = 1;
 
         /* Swap to SG Format of ddmmyyyy */
         while (dateMatcher.find()) {
-            if (dateMatcher.group(3) != null) {
-                input = input.replace(dateMatcher.group().trim(),
-                        dateMatcher.group(2) + "/" + dateMatcher.group(1) + "/"
-                                + dateMatcher.group(3));
+            if (dateMatcher.group(yearGroupIndex) != null) {
+                input = input.replace(
+                        dateMatcher.group().trim(),
+                        dateMatcher.group(dayGroupIndex) + "/"
+                                + dateMatcher.group(monthGroupIndex) + "/"
+                                + dateMatcher.group(yearGroupIndex));
             } else {
-                input = input.replace(dateMatcher.group().trim(),
-                        dateMatcher.group(2) + "/" + dateMatcher.group(1));
+                input = input.replace(
+                        dateMatcher.group().trim(),
+                        dateMatcher.group(dayGroupIndex) + "/"
+                                + dateMatcher.group(monthGroupIndex));
             }
         }
 
@@ -585,6 +614,8 @@ public class Parser {
      * @return a modified string if there is any occurrence of identified terms.
      */
     private String parseSpecialTerms(String input) {
+        int daysInWeek = 7;
+
         /* Check if any usage of until */
         String untilTerm = "\\b(until)\\b";
         Pattern textPattern = Pattern.compile(untilTerm);
@@ -606,6 +637,7 @@ public class Parser {
 
         /* Check if any usage of next week */
         String weekTerm = "\\b(next\\s+week)\\b";
+        String weekFormat = "%s 00:00 to %s 23:59";
         textPattern = Pattern.compile(weekTerm);
         textMatcher = textPattern.matcher(input);
 
@@ -614,25 +646,29 @@ public class Parser {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy",
                     Locale.US);
             Calendar nextWeekDate = Calendar.getInstance(Locale.UK);
-            nextWeekDate.add(Calendar.DATE, 7);
+            nextWeekDate.add(Calendar.DATE, daysInWeek);
             int firstDayOfWeek = nextWeekDate.getFirstDayOfWeek();
 
             Calendar startDate = Calendar.getInstance(Locale.UK);
             startDate.setTime(nextWeekDate.getTime());
-            int days = (startDate.get(Calendar.DAY_OF_WEEK) + 7 - firstDayOfWeek) % 7;
+            int days = (startDate.get(Calendar.DAY_OF_WEEK) + daysInWeek - firstDayOfWeek)
+                    % daysInWeek;
             startDate.add(Calendar.DATE, -days);
 
             Calendar endDate = Calendar.getInstance(Locale.UK);
             endDate.setTime(startDate.getTime());
-            endDate.add(Calendar.DATE, 6);
+            endDate.add(Calendar.DATE, daysInWeek - 1);
 
-            input = input.replace(textMatcher.group().trim(),
-                    dateFormat.format(startDate.getTime()) + " 00:00 to "
-                            + dateFormat.format(endDate.getTime()) + " 23:59");
+            input = input.replace(
+                    textMatcher.group().trim(),
+                    String.format(weekFormat,
+                            dateFormat.format(startDate.getTime()),
+                            dateFormat.format(endDate.getTime())));
         }
 
         /* Check if any usage of next month */
         String monthTerm = "\\b(next\\s+month)\\b";
+        String monthFormat = "%s 00:00 to %s 23:59";
         textPattern = Pattern.compile(monthTerm);
         textMatcher = textPattern.matcher(input);
 
@@ -651,13 +687,16 @@ public class Parser {
             endDate.set(Calendar.DAY_OF_MONTH,
                     endDate.getActualMaximum(Calendar.DAY_OF_MONTH));
 
-            input = input.replace(textMatcher.group().trim(),
-                    dateFormat.format(startDate.getTime()) + " 00:00 to "
-                            + dateFormat.format(endDate.getTime()) + " 23:59");
+            input = input.replace(
+                    textMatcher.group().trim(),
+                    String.format(monthFormat,
+                            dateFormat.format(startDate.getTime()),
+                            dateFormat.format(endDate.getTime())));
         }
 
         /* Check if any usage of next year */
         String yearTerm = "\\b(next\\s+year)\\b";
+        String yearFormat = "1 Jan %s 00:00 to 31 Dec %s 23:59";
         textPattern = Pattern.compile(yearTerm);
         textMatcher = textPattern.matcher(input);
 
@@ -670,8 +709,8 @@ public class Parser {
 
             String year = dateFormat.format(yearCalendar.getTime());
 
-            input = input.replace(textMatcher.group().trim(), "1 Jan " + year
-                    + " 00:00 to " + "31 Dec " + year + " 23:59");
+            input = input.replace(textMatcher.group().trim(),
+                    String.format(yearFormat, year, year));
         }
 
         return input;

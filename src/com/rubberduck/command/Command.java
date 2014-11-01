@@ -35,7 +35,7 @@ public abstract class Command {
                 "help"), INVALID;
 
         private List<String> tags;
-        private static final Map<String, CommandType> tagMap = new HashMap<String, CommandType>();
+        private static final Map<String, CommandType> ALIAS_MAP = new HashMap<String, CommandType>();
 
         /**
          * Private constructor that accept literals and instantiate as List of
@@ -53,7 +53,7 @@ public abstract class Command {
         static {
             for (CommandType command : CommandType.values()) {
                 for (String tag : command.tags) {
-                    tagMap.put(tag, command);
+                    ALIAS_MAP.put(tag, command);
                 }
             }
         }
@@ -69,7 +69,7 @@ public abstract class Command {
                 return CommandType.INVALID;
             }
 
-            CommandType cmd = tagMap.get(input.toLowerCase());
+            CommandType cmd = ALIAS_MAP.get(input.toLowerCase());
 
             if (cmd == null) {
                 return CommandType.INVALID;
@@ -84,7 +84,7 @@ public abstract class Command {
          * @return Set object that contains all alias
          */
         public static Set<String> getAlias() {
-            return tagMap.keySet();
+            return ALIAS_MAP.keySet();
         }
 
     }
@@ -120,7 +120,7 @@ public abstract class Command {
      *
      * @return Logger instance
      */
-    public static Logger getLogger() {
+    private static Logger getLogger() {
         return LOGGER;
     }
 
@@ -134,17 +134,17 @@ public abstract class Command {
     }
 
     /**
-     * Getter method for previousDisplayCommand
+     * Getter method for previousDisplayCommand.
      *
      * @return Command object of type ViewCommand or SearchCommand
      */
-    public static Command getPreviousDisplayCommand() {
+    protected static Command getPreviousDisplayCommand() {
         assert previousDisplayCommand != null : "Should not be null";
         return previousDisplayCommand;
     }
 
     /**
-     * Setter method for previousDisplayCommand
+     * Setter method for previousDisplayCommand.
      *
      * @param c ViewCommand or SearchCommand object
      */
@@ -157,7 +157,7 @@ public abstract class Command {
     }
 
     /**
-     * Getter method for dbManager
+     * Getter method for dbManager.
      *
      * @return DatabaseManager<Task> instance
      */

@@ -88,7 +88,7 @@ public class CommandTest {
     public void addNoStartDateTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         String actual = "";
-        DatePair dp = new DatePair( Calendar.getInstance());
+        DatePair dp = new DatePair(Calendar.getInstance());
         dpList.add(dp);
         String keyword = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
         AddCommand command = new AddCommand(
@@ -180,6 +180,7 @@ public class CommandTest {
 
     /**
      * Delete exist task
+     *
      * @throws IOException
      *
      */
@@ -200,6 +201,7 @@ public class CommandTest {
     /**
      *
      * update the task description
+     *
      * @throws IOException
      *
      */
@@ -216,8 +218,9 @@ public class CommandTest {
         UpdateCommand updateCommand = new UpdateCommand(1,
                 "Lorem ipsum dolor sit amet.", dpList);
         updateCommand.execute();
-        String actual = Command.getDbManager().getInstance(
-        		Command.getDisplayedTasksList().get(0)).getDescription();
+        String actual = Command.getDbManager()
+                .getInstance(Command.getDisplayedTasksList().get(0))
+                .getDescription();
         String expected = "Lorem ipsum dolor sit amet.";
         assertEquals(expected, actual);
     }
@@ -225,6 +228,7 @@ public class CommandTest {
     /**
      *
      * mark task as completed
+     *
      * @throws IOException
      *
      */
@@ -241,18 +245,19 @@ public class CommandTest {
 
         MarkCommand markCommand = new MarkCommand(1);
         markCommand.execute();
-        
+
         ViewCommand viewCommandComplete = new ViewCommand(true, true, null);
         viewCommandComplete.execute();
-        
+
         MarkCommand markCommandAgain = new MarkCommand(1);
         markCommandAgain.execute();
-        
+
         ViewCommand viewCommandAgain = new ViewCommand(true, false, null);
         viewCommandAgain.execute();
-        
-        boolean actual = Command.getDbManager().getInstance(
-        		Command.getDisplayedTasksList().get(0)).getIsDone();
+
+        boolean actual = Command.getDbManager()
+                .getInstance(Command.getDisplayedTasksList().get(0))
+                .getIsDone();
         boolean expected = false;
         assertEquals(actual, expected);
     }
@@ -260,6 +265,7 @@ public class CommandTest {
     /**
      *
      * mark task as completed
+     *
      * @throws IOException
      *
      */
@@ -275,12 +281,13 @@ public class CommandTest {
 
         MarkCommand markCommand = new MarkCommand(1);
         markCommand.execute();
-        
+
         ViewCommand viewCommandComplete = new ViewCommand(true, true, null);
         viewCommandComplete.execute();
-        
-        boolean actual = Command.getDbManager().getInstance(
-        		Command.getDisplayedTasksList().get(0)).getIsDone();
+
+        boolean actual = Command.getDbManager()
+                .getInstance(Command.getDisplayedTasksList().get(0))
+                .getIsDone();
         boolean expected = true;
         assertEquals(actual, expected);
     }
@@ -327,8 +334,11 @@ public class CommandTest {
         ConfirmCommand confirmCommand = new ConfirmCommand(1, 2);
         confirmCommand.execute();
 
-        String actual = Command.getDbManager().getInstance(
-        		Command.getDisplayedTasksList().get(0)).getDateList().get(0).toString();
+        String actual = Command.getDbManager()
+                .getInstance(Command.getDisplayedTasksList().get(0))
+                .getDateList()
+                .get(0)
+                .toString();
         String expected = dp2.toString();
 
         assertEquals(expected, actual);

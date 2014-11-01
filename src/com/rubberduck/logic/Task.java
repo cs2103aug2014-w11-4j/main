@@ -282,7 +282,7 @@ public class Task implements Serializable, Comparable<Task> {
      */
     public String formatOutput(String displayingId) {
         boolean overdue = false;
-        final int MAX_DESC_LENGTH = 41;
+        final int maxDescLength = 41;
         StringBuilder stringBuilder = new StringBuilder();
         String description = getDescription();
         ArrayList<DatePair> dates = getDateList();
@@ -301,14 +301,14 @@ public class Task implements Serializable, Comparable<Task> {
 
         /* Break sentences into multiple lines and add into list */
         while (!description.isEmpty()) {
-            if (description.length() <= MAX_DESC_LENGTH) {
+            if (description.length() <= maxDescLength) {
                 wordWrapList.add(description);
                 description = "";
             } else {
-                int i = description.lastIndexOf(" ", MAX_DESC_LENGTH);
+                int i = description.lastIndexOf(" ", maxDescLength);
                 /* if there's a word with more than 41 characters long */
                 if (i == -1) {
-                    i = MAX_DESC_LENGTH;
+                    i = maxDescLength;
                 }
                 wordWrapList.add(description.substring(0, i));
                 description = description.substring(i + 1);

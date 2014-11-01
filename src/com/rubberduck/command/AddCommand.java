@@ -47,7 +47,7 @@ public class AddCommand extends Command {
      * of DatePairs.
      *
      * @param description of the task
-     * @param list of datePairs if any
+     * @param datePairs list of datePairs if any
      */
     public AddCommand(String description, ArrayList<DatePair> datePairs) {
         this.description = description;

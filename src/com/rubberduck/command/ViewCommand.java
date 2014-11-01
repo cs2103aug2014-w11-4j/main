@@ -30,7 +30,7 @@ public class ViewCommand extends Command {
     private static final int DEADLINE_TASK = 1;
     private static final int TIMED_TASK = 2;
 
-    protected static final int CONSOLE_MAX_WIDTH = 80;
+    private static final int CONSOLE_MAX_WIDTH = 80;
 
     private DatePair viewRange;
     private boolean viewAll;
@@ -97,7 +97,7 @@ public class ViewCommand extends Command {
      *
      * @return list of tasks and their information in the database
      */
-    public String viewAll(boolean isCompleted) throws IOException {
+    private String viewAll(boolean isCompleted) throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
         getDisplayedTasksList().clear();
 
@@ -137,7 +137,7 @@ public class ViewCommand extends Command {
      * @param dateRange DatePair object containing the start date and end date
      * @return result of all the tasks that are within the period as queried
      */
-    public String viewByPeriod(DatePair dateRange, boolean isCompleted)
+    private String viewByPeriod(DatePair dateRange, boolean isCompleted)
             throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
         getDisplayedTasksList().clear();
@@ -234,7 +234,7 @@ public class ViewCommand extends Command {
      * @throws IOException
      * @author hooitong
      */
-    protected String formatTaskOutput(int displayingId) throws IOException {
+    private String formatTaskOutput(int displayingId) throws IOException {
         Task task = getDbManager().getInstance(
                 getDisplayedTasksList().get(displayingId));
         return task.formatOutput(displayingId + 1 + "");

@@ -115,7 +115,7 @@ public class SearchCommand extends Command {
      * @throws IOException
      * @author hooitong
      */
-    protected String formatTaskOutput(int displayingId) throws IOException {
+    private String formatTaskOutput(int displayingId) throws IOException {
         Task task = getDbManager().getInstance(
                 getDisplayedTasksList().get(displayingId));
         return task.formatOutput(displayingId + 1 + "");
