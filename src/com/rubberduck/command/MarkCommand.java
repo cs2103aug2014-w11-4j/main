@@ -1,22 +1,24 @@
 package com.rubberduck.command;
 
-import java.io.IOException;
-
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
 
+import java.io.IOException;
+
 /**
- * Concrete Command Class that can be executed to mark as completed/incomplete
- * the task object from database given the task id displayed on screen to the
- * user.
+ * Concrete Command Class that can be executed to mark as completed/incomplete the task object from
+ * database given the task id displayed on screen to the user.
  *
  * @author Zhao Hang
  */
 public class MarkCommand extends Command {
+
     private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
     private static final String JOURNAL_MESSAGE_MARK_AS_COMPLETED = "Mark task \"%s\" as completed";
-    private static final String JOURNAL_MESSAGE_MARK_AS_INCOMPLETE = "Mark task \"%s\" as incomplete";
+    private static final String
+        JOURNAL_MESSAGE_MARK_AS_INCOMPLETE =
+        "Mark task \"%s\" as incomplete";
     private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
     private static final String MESSAGE_MARK_INCOMPLETE = "\"%s\" has been marked to incomplete.";
 
@@ -32,8 +34,8 @@ public class MarkCommand extends Command {
     }
 
     /**
-     * Public constructor of MarkCommand that accepts task id to determine what
-     * the command should mark when executed.
+     * Public constructor of MarkCommand that accepts task id to determine what the command should
+     * mark when executed.
      *
      * @param taskId displayed id of the task
      */
@@ -42,10 +44,9 @@ public class MarkCommand extends Command {
     }
 
     /**
-     * Mark a task (completed to uncompleted and vice versa)
+     * Mark a task (completed to uncompleted and vice versa).
      *
      * @return message of mark
-     * @throws IOException
      */
     @Override
     public String execute() throws IOException {
@@ -65,7 +66,7 @@ public class MarkCommand extends Command {
      *
      * @param displayedId of the task
      * @return true if the task is completed
-     * @throws IOException
+     * @throws IOException occurs when dbManager encounters a problem with file
      */
     private boolean isCompletedTask(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
@@ -78,7 +79,7 @@ public class MarkCommand extends Command {
      *
      * @param displayedId displayed id of the task
      * @return message of mark task to completed
-     * @throws IOException
+     * @throws IOException occurs when dbManager encounters a problem with file
      * @author Zhao Hang
      * @author Hooi Tong ANSI & Response
      */
@@ -88,15 +89,15 @@ public class MarkCommand extends Command {
         assert !oldTask.getIsDone();
         oldTask.setIsDone(true);
         long newTaskId = getDbManager().modify(
-                databaseId,
-                oldTask,
-                String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
-                        oldTask.getDescription()));
+            databaseId,
+            oldTask,
+            String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
+                          oldTask.getDescription()));
         getDisplayedTasksList().set(displayedId - 1, newTaskId);
         StringBuilder response = new StringBuilder();
         response.append(ColorFormatter.format(
-                String.format(MESSAGE_MARK_COMPLETED, oldTask.getDescription()),
-                Color.GREEN));
+            String.format(MESSAGE_MARK_COMPLETED, oldTask.getDescription()),
+            Color.GREEN));
         response.append(System.lineSeparator());
         response.append(getPreviousDisplayCommand().execute());
         return response.toString();
@@ -108,7 +109,7 @@ public class MarkCommand extends Command {
      *
      * @param displayedId displayed id of the task
      * @return message of mark task to uncompleted
-     * @throws IOException
+     * @throws IOException occurs when dbManager encounters a problem with file
      * @author Zhao Hang
      * @author Hooi Tong ANSI & Response
      */
@@ -118,15 +119,15 @@ public class MarkCommand extends Command {
         assert oldTask.getIsDone();
         oldTask.setIsDone(false);
         long newTaskId = getDbManager().modify(
-                databaseId,
-                oldTask,
-                String.format(JOURNAL_MESSAGE_MARK_AS_INCOMPLETE,
-                        oldTask.getDescription()));
+            databaseId,
+            oldTask,
+            String.format(JOURNAL_MESSAGE_MARK_AS_INCOMPLETE,
+                          oldTask.getDescription()));
         getDisplayedTasksList().set(displayedId - 1, newTaskId);
         StringBuilder response = new StringBuilder();
         response.append(ColorFormatter.format(
-                String.format(MESSAGE_MARK_INCOMPLETE, oldTask.getDescription()),
-                Color.RED));
+            String.format(MESSAGE_MARK_INCOMPLETE, oldTask.getDescription()),
+            Color.RED));
         response.append(System.lineSeparator());
         response.append(getPreviousDisplayCommand().execute());
         return response.toString();

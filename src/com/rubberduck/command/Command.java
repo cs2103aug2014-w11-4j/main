@@ -1,5 +1,8 @@
 package com.rubberduck.command;
 
+import com.rubberduck.io.DatabaseManager;
+import com.rubberduck.logic.Task;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,16 +14,14 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.rubberduck.io.DatabaseManager;
-import com.rubberduck.logic.Task;
-
 /**
- * Class that represents a command object where it stores the type of command it
- * is and all its arguments.
+ * Class that represents a command object where it stores the type of command it is and all its
+ * arguments.
  *
  * @author hooitong
  */
 public abstract class Command {
+
     /* Enum type to store all types of command and their possible variations */
     public enum CommandType {
         /*
@@ -28,18 +29,23 @@ public abstract class Command {
          * type
          */
         VIEW("view", "display"), SEARCH("find", "lookup", "search"), ADD("add",
-                "insert", "ins", "new"), DELETE("delete", "remove"), UPDATE(
-                "change", "update", "edit"), UNDO("undo", "ud"), REDO("redo",
-                "rd"), MARK("mark", "completed", "done"), CONFIRM("confirm"),
+                                                                         "insert", "ins",
+                                                                         "new"), DELETE("delete",
+                                                                                        "remove"), UPDATE(
+            "change", "update", "edit"), UNDO("undo", "ud"), REDO("redo",
+                                                                  "rd"), MARK("mark", "completed",
+                                                                              "done"), CONFIRM(
+            "confirm"),
         SYNC("sync"), CLEAR("cls", "clear"), EXIT("exit", "quit"), HELP("?",
-                "help"), INVALID;
+                                                                        "help"), INVALID;
 
         private List<String> tags;
-        private static final Map<String, CommandType> ALIAS_MAP = new HashMap<String, CommandType>();
+        private static final Map<String, CommandType>
+            ALIAS_MAP =
+            new HashMap<String, CommandType>();
 
         /**
-         * Private constructor that accept literals and instantiate as List of
-         * String.
+         * Private constructor that accept literals and instantiate as List of String.
          *
          * @param tags String literals
          */
@@ -90,7 +96,9 @@ public abstract class Command {
     }
 
     /* Details about the DataStore/DatabaseManager */
-    private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
+    private static final String
+        MESSAGE_ERROR_DATABASE_IOEXCEPTION =
+        "Exception has occured when accessing local storage.";
     private static final String DATABASE_NAME = "database.xml";
     private static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
 
@@ -107,7 +115,7 @@ public abstract class Command {
     public static boolean startDatabase() {
         try {
             dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
-                    + File.separator + DATABASE_NAME);
+                                                  + File.separator + DATABASE_NAME);
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
             return false;
@@ -173,12 +181,13 @@ public abstract class Command {
      * @author Zhao Hang
      */
     public static boolean isValidDisplayedId(int displayedId) {
-        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1);
+        return !(displayedId > displayedTasksList.size() || displayedId <= 0
+                 || displayedTasksList.get(displayedId - 1) == -1);
     }
 
     /**
-     * Execute the implemented execute in respective concrete class and catch
-     * any exception if occur.
+     * Execute the implemented execute in respective concrete class and catch any exception if
+     * occur.
      *
      * @return String response after execution
      */

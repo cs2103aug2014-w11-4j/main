@@ -1,19 +1,20 @@
 package com.rubberduck.command;
 
-import java.io.IOException;
-import java.util.Collections;
-
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
 
+import java.io.IOException;
+import java.util.Collections;
+
 /**
- * Concrete Command Class that can be executed to search the data store for
- * tasks containing the provided keyword and returns back the task details.
+ * Concrete Command Class that can be executed to search the data store for tasks containing the
+ * provided keyword and returns back the task details.
  *
  * @author Jason Sia
  */
 public class SearchCommand extends Command {
+
     private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
 
     private static final int CONSOLE_MAX_WIDTH = 80;
@@ -40,8 +41,7 @@ public class SearchCommand extends Command {
     }
 
     /**
-     * Search for task based on description and return formatted string of tasks
-     * back to parent.
+     * Search for task based on description and return formatted string of tasks back to parent.
      *
      * @return formatted string back to parent
      */
@@ -54,7 +54,7 @@ public class SearchCommand extends Command {
         getDisplayedTasksList().clear();
         for (Long databaseId : getDbManager().getValidIdList()) {
             String taskInDb = getDbManager().getInstance(databaseId)
-                    .getDescription();
+                .getDescription();
             taskInDb = taskInDb.toLowerCase();
             if (taskInDb.contains(keyword.toLowerCase())) {
                 getDisplayedTasksList().add(databaseId);
@@ -62,11 +62,11 @@ public class SearchCommand extends Command {
         }
 
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.RED
-                : Color.GREEN;
+                                                              : Color.GREEN;
 
         responseBuilder.append(ColorFormatter.format(
-                String.format(MESSAGE_SEARCH_RESULT,
-                        getDisplayedTasksList().size(), keyword), headerColor));
+            String.format(MESSAGE_SEARCH_RESULT,
+                          getDisplayedTasksList().size(), keyword), headerColor));
 
         if (!getDisplayedTasksList().isEmpty()) {
             responseBuilder.append(System.lineSeparator());
@@ -80,23 +80,23 @@ public class SearchCommand extends Command {
      * Format the list of tasks into a String output and return.
      *
      * @return the formatted string of all tasks involved
-     * @throws IOException
+     * @throws IOException occurs when dbManager encounters a problem with file
      * @author hooitong
      */
     private String formatTaskListOutput() throws IOException {
         Collections.sort(getDisplayedTasksList(),
-                getDbManager().getInstanceIdComparator());
+                         getDbManager().getInstanceIdComparator());
 
         StringBuilder stringBuilder = new StringBuilder();
         String header = String.format("%-7s%-6s%-43s%-24s", "ID", "Done",
-                "Task", "Date");
+                                      "Task", "Date");
         String border = "";
         for (int i = 0; i < CONSOLE_MAX_WIDTH; i++) {
             border += "-";
         }
 
         stringBuilder.append(border + System.lineSeparator() + header
-                + System.lineSeparator() + border + System.lineSeparator());
+                             + System.lineSeparator() + border + System.lineSeparator());
 
         for (int i = 0; i < getDisplayedTasksList().size(); i++) {
             stringBuilder.append(formatTaskOutput(i));
@@ -112,12 +112,12 @@ public class SearchCommand extends Command {
      *
      * @param displayingId the id of the task
      * @return the formatted output of the task
-     * @throws IOException
+     * @throws IOException occurs when dbManager encounters a problem with file
      * @author hooitong
      */
     private String formatTaskOutput(int displayingId) throws IOException {
         Task task = getDbManager().getInstance(
-                getDisplayedTasksList().get(displayingId));
+            getDisplayedTasksList().get(displayingId));
         return task.formatOutput(displayingId + 1 + "");
     }
 }

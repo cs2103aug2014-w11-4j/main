@@ -1,21 +1,24 @@
 package com.rubberduck.command;
 
-import java.io.IOException;
-
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
 
+import java.io.IOException;
+
 /**
- * Concrete Command Class that can be executed to delete the task object from
- * database given the task id displayed on screen to the user.
+ * Concrete Command Class that can be executed to delete the task object from database given the
+ * task id displayed on screen to the user.
  *
  * @author Zhao Hang
  */
 public class DeleteCommand extends Command {
+
     private static final String JOURNAL_MESSAGE_DELETE = "Deleted task \"%s\"";
     private static final String MESSAGE_DELETE = "\"%s\" has been successfully deleted.";
-    private static final String MESSAGE_ERROR_WRONG_TASK_ID = "This is not a valid task ID to delete.";
+    private static final String
+        MESSAGE_ERROR_WRONG_TASK_ID =
+        "This is not a valid task ID to delete.";
 
     private int taskId;
 
@@ -54,15 +57,15 @@ public class DeleteCommand extends Command {
         Task oldTask = getDbManager().getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
         getDbManager().modify(databaseId, null,
-                String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
+                              String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
         getDisplayedTasksList().set(taskId - 1, (long) -1);
 
         StringBuilder response = new StringBuilder();
         response.append(ColorFormatter.format(
-                String.format(MESSAGE_DELETE, oldDescription), Color.YELLOW));
+            String.format(MESSAGE_DELETE, oldDescription), Color.YELLOW));
         response.append(System.lineSeparator());
         response.append(ColorFormatter.format(
-                String.format(oldTask.formatOutput("-")), Color.RED));
+            String.format(oldTask.formatOutput("-")), Color.RED));
         response.append(System.lineSeparator());
         response.append(getPreviousDisplayCommand().execute());
 

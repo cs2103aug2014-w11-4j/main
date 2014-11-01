@@ -1,17 +1,18 @@
 package com.rubberduck.command;
 
-import java.io.IOException;
-
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
 
+import java.io.IOException;
+
 /**
- * Concrete Command Class that can be executed to close the DatabaseManager and
- * exit the application.
+ * Concrete Command Class that can be executed to close the DatabaseManager and exit the
+ * application.
  *
  * @author hooitong
  */
 public class ExitCommand extends Command {
+
     private static final String MESSAGE_EXIT = "Closing Rubberduck.";
 
     /**

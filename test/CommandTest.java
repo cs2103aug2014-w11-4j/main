@@ -185,7 +185,7 @@ public class CommandTest {
      *
      */
     @Test
-    public void DeleteExistTask() throws IOException {
+    public void deleteExistTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         AddCommand addCommand = new AddCommand(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
