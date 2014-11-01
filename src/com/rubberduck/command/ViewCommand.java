@@ -260,10 +260,13 @@ public class ViewCommand extends Command {
             if (currentType != prevType) {
                 if (currentType == FLOATING_TASK) {
                     stringBuilder.append(FLOATING_SEPERATOR);
+                    stringBuilder.append(System.lineSeparator());
                 } else if (currentType == DEADLINE_TASK) {
                     stringBuilder.append(DEADLINE_SEPERATOR);
+                    stringBuilder.append(System.lineSeparator());
                 } else if (currentType == TIMED_TASK) {
                     stringBuilder.append(SCHEDULE_SEPERATOR);
+                    stringBuilder.append(System.lineSeparator());
                 }
             }
             prevType = currentType;
