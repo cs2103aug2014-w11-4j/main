@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
+import java.util.Locale;
 
 import com.rubberduck.io.DatabaseManager;
 import com.rubberduck.menu.ColorFormatter;
@@ -175,19 +176,20 @@ public class Task implements Serializable, Comparable<Task> {
         this.uuid = uuid;
         updateLastUpdate();
     }
-    
+
     /**
      * Get the task last update
+     *
      * @return Calendar format of last update time of the task
      */
-    public Calendar getLastUpdate(){
+    public Calendar getLastUpdate() {
         return this.lastUpdate;
     }
-    
+
     /**
      * Update the task last updateTime (For Google Sync)
      */
-    public void updateLastUpdate(){
+    public void updateLastUpdate() {
         this.lastUpdate = Calendar.getInstance();
     }
 
@@ -214,6 +216,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Check if the dateList is empty
+     *
      * @return if the dateList is empty
      */
     public boolean isDateListEmpty() {
@@ -284,7 +287,8 @@ public class Task implements Serializable, Comparable<Task> {
         String description = getDescription();
         ArrayList<DatePair> dates = getDateList();
         char isDone = getIsDone() ? 'Y' : 'N';
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa",
+                Locale.US);
         boolean isTentative = dates.size() > 1;
 
         if (isTentative) {
@@ -370,18 +374,20 @@ public class Task implements Serializable, Comparable<Task> {
         }
         return output;
     }
-    
+
     /**
      * Check if the task is a floating task
+     *
      * @return if the task is a floating task
      */
 
     public boolean isFloatingTask() {
         return dateList.isEmpty();
     }
-    
+
     /**
      * Check if the task is a deadline only task
+     *
      * @return if the task is a deadline only task
      */
 
@@ -391,6 +397,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Check if the task is a timed task
+     *
      * @return if the task is a timed task
      */
     public boolean isTimedTask() {
@@ -404,8 +411,10 @@ public class Task implements Serializable, Comparable<Task> {
         }
         return false;
     }
+
     /**
      * Check if the task is a valid task
+     *
      * @return if the task is a valid task
      */
     public boolean checkValidity() {
@@ -414,6 +423,7 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Get the earliest Date of the task
+     *
      * @return the earliest Date of the task
      */
     public Calendar getEarliestDate() {
@@ -439,30 +449,30 @@ public class Task implements Serializable, Comparable<Task> {
 
         return earliestDate;
     }
-    
+
     /**
      * Compare both task by their deadline
      */
     @Override
     public int compareTo(Task o) {
         assert (o != null);
- 
-        if(this.isTimedTask() && !o.isTimedTask()){
+
+        if (this.isTimedTask() && !o.isTimedTask()) {
             return -1;
-        } else if (!this.isTimedTask() && o.isTimedTask()){
+        } else if (!this.isTimedTask() && o.isTimedTask()) {
             return 1;
         }
-        
-        if(this.isFloatingTask() && o.isFloatingTask()){
+
+        if (this.isFloatingTask() && o.isFloatingTask()) {
             return 0;
-        } else if(this.isFloatingTask()){
+        } else if (this.isFloatingTask()) {
             return 1;
-        } else if(o.isFloatingTask()){
+        } else if (o.isFloatingTask()) {
             return -1;
         }
-                        
+
         return this.getEarliestDate().compareTo(o.getEarliestDate());
-        
+
     }
 
     /**

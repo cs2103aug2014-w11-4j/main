@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -20,10 +21,8 @@ import com.rubberduck.menu.MenuInterface;
  * helps the user to handle all his/her tasks via this application.
  *
  * This class is the main class used to start and initialize the program.
- *
- * @author hooitong
- *
  */
+//@author A0111736M
 public class RubberDuck {
 
     /* Static variables used to store information about logging */
@@ -33,10 +32,8 @@ public class RubberDuck {
 
     /**
      * Main method of application as well as the entry point.
-     *
-     * @param args not used
      */
-    public static void main(String[] args) {
+    public static void main() {
         setupGlobalLogger();
         Command.startDatabase();
         MenuInterface.getInstance().handleInterface();
@@ -60,7 +57,8 @@ public class RubberDuck {
         /* Setup file handler */
         try {
             new File(LOG_DIRECTORY).mkdirs();
-            DateFormat dateFormat = new SimpleDateFormat(DATESTAMP_FORMAT);
+            DateFormat dateFormat = new SimpleDateFormat(DATESTAMP_FORMAT,
+                    Locale.US);
             Calendar cal = Calendar.getInstance();
             String currentTime = dateFormat.format(cal.getTime());
             FileHandler fileHandler = new FileHandler(LOG_DIRECTORY

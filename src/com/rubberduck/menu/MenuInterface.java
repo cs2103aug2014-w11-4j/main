@@ -1,13 +1,10 @@
 package com.rubberduck.menu;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jline.console.ConsoleReader;
-import jline.console.completer.Completer;
 import jline.console.completer.StringsCompleter;
 
 import com.rubberduck.command.Command;
@@ -16,17 +13,17 @@ import com.rubberduck.menu.ColorFormatter.Color;
 
 /**
  * This class focuses on handling the user interface of the entire application
- * which accepts the user's input, call the parser and calls the correct method
- * in the logic.
- *
- * @author hooitong
- *
+ * which accepts the user's input, call the parser and execute the command
+ * returned from the parser.
  */
+//@author A0111736M
 public class MenuInterface {
     private static final String MESSAGE_WELCOME = "Welcome to RubberDuck. Here's your agenda for today.";
     private static final String MESSAGE_HELP = "If you need a list of commands, type ? or help.";
     private static final String MESSAGE_ERROR_CR_IOEXCEPTION = "Problem with ConsoleReader (IO).";
+    private static final String MESSAGE_PROMPT = "Press [Enter] to continue...";
     private static final String DEFAULT_PROMPT = ">";
+    private static final String WELCOME_EXECUTE = "view today";
 
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
@@ -35,13 +32,13 @@ public class MenuInterface {
     private ConsoleReader consoleInstance;
 
     /**
-     * Private Constructor for Singleton Implementation.
+     * Private Constructor of MenuInterface for Singleton Pattern.
      */
     private MenuInterface() {
     }
 
     /**
-     * Method that retrieves the singleton instance of the MenuInterface.
+     * Retrieves the singleton instance of the MenuInterface.
      *
      * @return instance of Parser
      */
@@ -54,16 +51,14 @@ public class MenuInterface {
     }
 
     /**
-     * Method that handles the interface of the program. It prompts from user
-     * and calls the parser to determine the command to be executed. It then
-     * proceed to execute the given command if it is valid.
-     *
-     * @author Jason Sia
+     * Handles the interface of the program. It prompts from user and calls the
+     * parser to determine the command to be executed. It then proceed to
+     * execute the returned command.
      */
     public void handleInterface() {
         try {
             consoleInstance = setupConsoleReader();
-            showWelcome();
+            showToUser(getWelcomeMessage());
             while (true) {
                 String line = consoleInstance.readLine(DEFAULT_PROMPT);
                 Command userCommand = Parser.getInstance().parse(line);
@@ -76,47 +71,83 @@ public class MenuInterface {
     }
 
     /**
-     * Method used to setup the ConsoleReader from jLine.
+     * Used to setup and instantiate the ConsoleReader from jLine.
      *
      * @return ConsoleReader object
+     * @throws IOException
      */
     private ConsoleReader setupConsoleReader() throws IOException {
         ConsoleReader cr = new ConsoleReader();
         cr.clearScreen();
         cr.setPrompt(DEFAULT_PROMPT);
-        cr.setPaginationEnabled(true);
-        List<Completer> completors = new LinkedList<Completer>();
-        completors.add(new StringsCompleter(Command.CommandType.getAlias()));
-
-        for (Completer c : completors) {
-            cr.addCompleter(c);
-        }
-
+        cr.addCompleter(new StringsCompleter(Command.CommandType.getAlias()));
         return cr;
     }
 
     /**
-     * Method that is used to show the welcome screen and relevant information
-     * when user first execute the program.
+     * Used to show the welcome screen and relevant information when user first
+     * execute the program.
      *
-     * @param out PrintWriter object
+     * @return String to display as welcome message
      */
-    private void showWelcome() throws IOException {
-        showToUser(MESSAGE_WELCOME);
-        Command userCommand = Parser.getInstance().parse("view today");
-        String response = userCommand.safeExecute();
-        showToUser(response);
-        showToUser(ColorFormatter.format(MESSAGE_HELP, Color.YELLOW));
+    private String getWelcomeMessage() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(MESSAGE_WELCOME);
+        sb.append(System.lineSeparator());
+
+        Command userCommand = Parser.getInstance().parse(WELCOME_EXECUTE);
+        sb.append(userCommand.safeExecute());
+        sb.append(System.lineSeparator());
+
+        sb.append(ColorFormatter.format(MESSAGE_HELP, Color.YELLOW));
+
+        return sb.toString();
     }
 
     /**
-     * Method that outputs a string object to the PrintWriter object.
+     * Outputs a string object to the ConsoleReader instance which will be
+     * visible to the user.
      *
-     * @param s String object
-     * @param out PrintWriter object
+     * @param s String object to be displayed
+     * @throws IOException
      */
     private void showToUser(String s) throws IOException {
-        consoleInstance.println(s);
+        consoleInstance.clearScreen();
+        String[] buffer = s.split(System.lineSeparator());
+        int bufferHeight = consoleInstance.getTerminal().getHeight() - 2;
+        for (int i = 0; i < buffer.length; i++) {
+            consoleInstance.println(buffer[i]);
+            if (i >= bufferHeight) {
+                consoleInstance.readLine(ColorFormatter.format(MESSAGE_PROMPT,
+                        Color.CYAN));
+                consoleInstance.clearScreen();
+                bufferHeight += bufferHeight + 1;
+            }
+        }
+    }
+
+    /**
+     * Displays a prompt midway through an execution of a command and request an
+     * input from the user which will be returned to the command execution flow.
+     *
+     * @param prompt String literals to be displayed to the user
+     * @return response by the user
+     */
+    public String requestPrompt(String... prompt) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (String p : prompt) {
+                if (sb.length() > 0) {
+                    sb.append(System.lineSeparator());
+                }
+                sb.append(p);
+            }
+            showToUser(sb.toString());
+            return consoleInstance.readLine(DEFAULT_PROMPT);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
+            return MESSAGE_ERROR_CR_IOEXCEPTION;
+        }
     }
 
     /**
@@ -126,24 +157,5 @@ public class MenuInterface {
      */
     public ConsoleReader getConsoleInstance() {
         return consoleInstance;
-    }
-
-    /**
-     * Displays a prompt to the user and request an input which will be returned
-     * to the caller.
-     *
-     * @param prompt Strings to be displayed to the user
-     * @return response by the user
-     */
-    public String requestPrompt(String... prompt) {
-        try {
-            for (String p : prompt) {
-                showToUser(p);
-            }
-            return consoleInstance.readLine(DEFAULT_PROMPT);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
-            return null;
-        }
     }
 }
