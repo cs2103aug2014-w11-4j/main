@@ -67,9 +67,14 @@ public class ConfirmCommand extends Command {
     //@author A0119504L
     @Override
     public String execute() throws IOException {
+        StringBuilder response = new StringBuilder();
+
         if (!isValidDisplayedId(taskId)) {
-            return ColorFormatter.
-                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            response.append(ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED));
+            response.append(System.lineSeparator());
+            response.append(getPreviousDisplayCommand().execute());
+            return response.toString();
         }
 
         long databaseId = getDisplayedTasksList().get(taskId - 1);
@@ -82,14 +87,20 @@ public class ConfirmCommand extends Command {
         ArrayList<DatePair> dateList = task.getDateList();
 
         if (dateList.size() <= 1) {
-            return ColorFormatter.format(
+            response.append(ColorFormatter.format(
                 String.format(MESSAGE_ERROR_NOT_TENTATIVE, oldDescription),
-                Color.RED);
+                Color.RED));
+            response.append(System.lineSeparator());
+            response.append(getPreviousDisplayCommand().execute());
+            return response.toString();
         }
 
         if (dateList.size() < dateId) {
-            return ColorFormatter.
-                format(MESSAGE_ERROR_WRONG_DATE_ID, Color.RED);
+            response.append(ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_DATE_ID, Color.RED));
+            response.append(System.lineSeparator());
+            response.append(getPreviousDisplayCommand().execute());
+            return response.toString();
         }
 
         DatePair date = dateList.get(dateId - 1);
@@ -103,7 +114,6 @@ public class ConfirmCommand extends Command {
 
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
 
-        StringBuilder response = new StringBuilder();
         response.append(ColorFormatter.format(
             String.format(MESSAGE_CONFIRM, oldDescription), Color.YELLOW));
         response.append(System.lineSeparator());
