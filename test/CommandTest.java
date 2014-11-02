@@ -238,7 +238,7 @@ public class CommandTest {
      */
 
     @Test
-    public void updateTask() throws IOException {
+    public void updateTaskDescription() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
         viewChoice.add(ViewCommand.ViewType.DEADLINE);
@@ -259,6 +259,45 @@ public class CommandTest {
         String expected = "Lorem ipsum dolor sit amet.";
         assertEquals(expected, actual);
     }
+    
+    /**
+    *
+    * update the task description
+    *
+    * @throws IOException
+    *
+    */
+
+   @Test
+   public void updateTaskDate() throws IOException {
+       ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+       ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+       viewChoice.add(ViewCommand.ViewType.DEADLINE);
+       viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+       viewChoice.add(ViewCommand.ViewType.TASK);
+       AddCommand addCommand = new AddCommand(
+               "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+               dpList);
+       addCommand.execute();
+       ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+       viewCommand.execute();
+       
+       ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+       Calendar date = Calendar.getInstance();
+       Calendar date2 = Calendar.getInstance();
+       date.add(Calendar.DAY_OF_YEAR, 1);
+       date2.add(Calendar.DAY_OF_YEAR, 2);
+       DatePair dp2 = new DatePair(date, date2);
+       datePairList.add(dp2);
+       
+       UpdateCommand updateCommand = new UpdateCommand(1,
+    		   "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", datePairList);
+       updateCommand.execute();
+       String actual = Command.getDbManager()
+               .getInstance(Command.getDisplayedTasksList().get(0)).getDateList().toString();
+       String expected = datePairList.toString();
+       assertEquals(expected, actual);
+   }
 
     /**
      *
