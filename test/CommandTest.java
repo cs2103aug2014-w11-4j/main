@@ -475,6 +475,34 @@ public class CommandTest {
     }
 
     /**
+    *
+    * mark task does not exist
+    *
+    * @throws IOException
+    *
+    */
+   @Test
+   public void markTaskNotExist() throws IOException {
+       ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+       viewChoice.add(ViewCommand.ViewType.DEADLINE);
+       viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+       viewChoice.add(ViewCommand.ViewType.TASK);
+       ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+       AddCommand addCommand = new AddCommand(
+               "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+               dpList);
+       addCommand.execute();
+       ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+       viewCommand.execute();
+
+       MarkCommand markCommand = new MarkCommand(2);
+       String actual = markCommand.execute();
+
+       String expected = ColorFormatter.
+               format("You have input an invalid ID.", Color.RED);
+       assertEquals(actual, expected);
+   }
+    /**
      * Test adding of task with todays date
      *
      * Add a task with todays date and current runtime Call display to display
