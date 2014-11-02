@@ -364,6 +364,41 @@ public class CommandTest {
        assertEquals(expected, actual);
    }
    
+   /**
+   *
+   * update task date which has passed the deadline
+   *
+   * @throws IOException
+   *
+   */
+  @Test
+  public void updateTaskPassedDeadline() throws IOException {
+      ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+      ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+      viewChoice.add(ViewCommand.ViewType.DEADLINE);
+      viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+      viewChoice.add(ViewCommand.ViewType.TASK);
+      AddCommand addCommand = new AddCommand(
+              "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+              dpList);
+      addCommand.execute();
+      ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+      viewCommand.execute();
+      
+      ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+      Calendar date = Calendar.getInstance();
+      date.add(Calendar.DAY_OF_MONTH, -5);
+      DatePair dp = new DatePair(date);
+      datePairList.add(dp);
+      
+      UpdateCommand updateCommand = new UpdateCommand(1,
+   		   "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", datePairList);
+      String actual = updateCommand.execute();
+      String expected = ColorFormatter.format("You cannot update the end date that has already passed.",
+              Color.RED);
+      assertEquals(expected, actual);
+  }
+   
     /**
      *
      * mark task as completed
