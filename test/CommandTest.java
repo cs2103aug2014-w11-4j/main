@@ -604,4 +604,40 @@ public class CommandTest {
 
         assertEquals(expected, actual);
     }
+    
+    /**
+ 	 * confirm task not tentative
+ 	 * @throws IOException
+     *
+     */
+    @Test
+    public void confirmTaskNotTentative() throws IOException {
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
+        ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+        Calendar date = Calendar.getInstance();
+        Calendar date2 = Calendar.getInstance();
+
+        date.add(Calendar.DAY_OF_YEAR, 1);
+        date2.add(Calendar.DAY_OF_YEAR, 2);
+        DatePair dp = new DatePair(date, date2);
+        datePairList.add(dp);
+
+
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                datePairList);
+        addCommand.execute();
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+        viewCommand.execute();
+        ConfirmCommand confirmCommand = new ConfirmCommand(1, 2);
+        String actual = confirmCommand.execute();
+
+        String expected = ColorFormatter.
+                format("\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" is not tentative and does not need confirmation.", Color.RED);
+
+        assertEquals(expected, actual);
+    }
 }
