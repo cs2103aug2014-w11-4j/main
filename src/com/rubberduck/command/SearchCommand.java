@@ -141,7 +141,6 @@ public class SearchCommand extends Command {
      * @return the formatted output of the task
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    //@author A0111736M
     private String formatTaskOutput(int displayingId) throws IOException {
         Task task = getDbManager().
             getInstance(getDisplayedTasksList().get(displayingId));
@@ -155,6 +154,7 @@ public class SearchCommand extends Command {
      * @return enum which specifies what type of task it is
      * @throws IOException occurs when dbManager encounters a problem with file
      */
+    //@author A0111794E
     private int getTaskType(int displayingId) throws IOException {
         Task t = getDbManager().
             getInstance(getDisplayedTasksList().get(displayingId));

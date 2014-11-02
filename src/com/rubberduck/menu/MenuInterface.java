@@ -85,6 +85,8 @@ public class MenuInterface {
      * @return ConsoleReader object
      * @throws IOException occurs when ConsoleReader has problem with output
      */
+    
+    //@author A0111794E
     private ConsoleReader setupConsoleReader() throws IOException {
         ConsoleReader cr = new ConsoleReader();
         cr.clearScreen();
@@ -99,6 +101,7 @@ public class MenuInterface {
      *
      * @return String to display as welcome message
      */
+    //@author A0111736M
     private String getWelcomeMessage() {
         StringBuilder sb = new StringBuilder();
         sb.append(MESSAGE_WELCOME);

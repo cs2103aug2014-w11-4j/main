@@ -65,7 +65,6 @@ public class AddCommand extends Command {
      * @return the correct response back to the user
      * @throws IOException DBManager has encountered an IO Error
      */
-    //@author A0111794E
     @Override
     public String execute() throws IOException {
         assert datePairs != null;
