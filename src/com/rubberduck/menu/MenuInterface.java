@@ -84,8 +84,7 @@ public class MenuInterface {
      *
      * @return ConsoleReader object
      * @throws IOException occurs when ConsoleReader has problem with output
-     */
-    
+     */    
     //@author A0111794E
     private ConsoleReader setupConsoleReader() throws IOException {
         ConsoleReader cr = new ConsoleReader();

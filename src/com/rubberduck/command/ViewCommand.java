@@ -296,7 +296,6 @@ public class ViewCommand extends Command {
      * @return enum which specifies what type of task it is
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    
     //@author A0111794E
     private int getTaskType(int displayingId) throws IOException {
         Task t = getDbManager().
