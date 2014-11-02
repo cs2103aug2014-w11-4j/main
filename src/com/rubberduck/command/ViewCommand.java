@@ -17,9 +17,8 @@ import java.util.logging.Logger;
  * Concrete Command Class that can be executed to return related tasks as a
  * formatted String based on various input upon creation.
  *
-*/
-// @author A0111794E
-
+ * @author Jason Sia
+ */
 public class ViewCommand extends Command {
 
     public enum ViewType {
@@ -27,18 +26,26 @@ public class ViewCommand extends Command {
     }
 
     /* Global logger to log information and exception. */
-    private static final Logger LOGGER = Logger
-            .getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final Logger LOGGER =
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    private static final String MESSAGE_VIEWALL_RESULT = "You have %s uncompleted task(s).";
-    private static final String MESSAGE_VIEWDATE_RESULT = "You have %s uncompleted task(s) %s.";
-    private static final String MESSAGE_VIEWALL_CRESULT = "You have %s completed task(s).";
-    private static final String MESSAGE_VIEWDATE_CRESULT = "You have %s completed task(s) %s.";
-    private static final String SCHEDULE_SEPERATOR = "--------------------------------[  SCHEDULES  ]---------------------------------";
-    private static final String FLOATING_SEPERATOR = "--------------------------------[    TASKS    ]---------------------------------";
-    private static final String DEADLINE_SEPERATOR = "--------------------------------[  DEADLINES  ]---------------------------------";
+    private static final String MESSAGE_VIEWALL_RESULT =
+        "You have %s uncompleted task(s).";
+    private static final String MESSAGE_VIEWDATE_RESULT =
+        "You have %s uncompleted task(s) %s.";
+    private static final String MESSAGE_VIEWALL_CRESULT =
+        "You have %s completed task(s).";
+    private static final String MESSAGE_VIEWDATE_CRESULT =
+        "You have %s completed task(s) %s.";
+    private static final String SCHEDULE_SEPERATOR =
+        "--------------------------------[  SCHEDULES  ]---------------------------------";
+    private static final String FLOATING_SEPERATOR =
+        "--------------------------------[    TASKS    ]---------------------------------";
+    private static final String DEADLINE_SEPERATOR =
+        "--------------------------------[  DEADLINES  ]---------------------------------";
 
-    private static final ArrayList<ViewType> VIEW_SELECTION_ALL = new ArrayList<ViewType>(
+    private static final ArrayList<ViewType> VIEW_SELECTION_ALL =
+        new ArrayList<ViewType>(
             Arrays.asList(ViewType.DEADLINE, ViewType.SCHEDULE, ViewType.TASK));
 
     private static final int FLOATING_TASK = 0;
@@ -89,7 +96,7 @@ public class ViewCommand extends Command {
      * @param viewSelection specified view scope from user
      */
     public ViewCommand(boolean viewAll, boolean completed, DatePair viewRange,
-            ArrayList<ViewType> viewSelection) {
+                       ArrayList<ViewType> viewSelection) {
         this.viewAll = viewAll;
         this.viewRange = viewRange;
         this.completed = completed;
@@ -125,32 +132,35 @@ public class ViewCommand extends Command {
      * @throws IOException occurs when dbManager encounters a problem with file
      */
     private String viewAll(boolean isCompleted,
-            ArrayList<ViewType> viewSelection) throws IOException {
+                           ArrayList<ViewType> viewSelection)
+        throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
         getDisplayedTasksList().clear();
 
         for (int i = 0; i < getDbManager().getValidIdList().size(); i++) {
             Long databaseId = getDbManager().getValidIdList().get(i);
             Task task = getDbManager().getInstance(databaseId);
-            if (isCompleted == task.getIsDone()
-                    && viewSelection.contains(getTaskType(task))) {
+            if (isCompleted == task.getIsDone() && viewSelection.
+                contains(getTaskType(task))) {
                 getDisplayedTasksList().add(databaseId);
             }
         }
 
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
-                : Color.YELLOW;
+                                                              : Color.YELLOW;
 
         if (isCompleted) {
             String formattedString = String.format(MESSAGE_VIEWALL_CRESULT,
-                    getDisplayedTasksList().size());
+                                                   getDisplayedTasksList().
+                                                       size());
             responseBuilder.append(ColorFormatter.format(formattedString,
-                    headerColor));
+                                                         headerColor));
         } else {
             String formattedString = String.format(MESSAGE_VIEWALL_RESULT,
-                    getDisplayedTasksList().size());
+                                                   getDisplayedTasksList().
+                                                       size());
             responseBuilder.append(ColorFormatter.format(formattedString,
-                    headerColor));
+                                                         headerColor));
         }
 
         if (!getDisplayedTasksList().isEmpty()) {
@@ -172,13 +182,14 @@ public class ViewCommand extends Command {
      * @throws IOException occurs when dbManager encounters a problem with file
      */
     private String viewByPeriod(DatePair dateRange, boolean isCompleted,
-            ArrayList<ViewType> viewSelection) throws IOException {
+                                ArrayList<ViewType> viewSelection)
+        throws IOException {
         StringBuilder responseBuilder = new StringBuilder();
         getDisplayedTasksList().clear();
         for (Long databaseId : getDbManager().getValidIdList()) {
             Task task = getDbManager().getInstance(databaseId);
-            if (isCompleted == task.getIsDone() && task.hasDate()
-                    && viewSelection.contains(getTaskType(task))) {
+            if (isCompleted == task.getIsDone() && task.hasDate() &&
+                viewSelection.contains(getTaskType(task))) {
                 if (task.isWithinPeriod(dateRange)) {
                     getDisplayedTasksList().add(databaseId);
                 }
@@ -189,10 +200,10 @@ public class ViewCommand extends Command {
         String range = "";
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM", Locale.US);
         if (dateRange.hasDateRange()) {
-            range = "from "
-                    + dateFormat.format(dateRange.getStartDate().getTime())
-                    + " to "
-                    + dateFormat.format(dateRange.getEndDate().getTime());
+            range = "from " +
+                    dateFormat.format(dateRange.getStartDate().getTime()) +
+                    " to " +
+                    dateFormat.format(dateRange.getEndDate().getTime());
         } else if (dateRange.hasEndDate()) {
             range = "on " + dateFormat.format(dateRange.getEndDate().getTime());
         } else {
@@ -200,16 +211,16 @@ public class ViewCommand extends Command {
         }
 
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
-                : Color.YELLOW;
+                                                              : Color.YELLOW;
 
         if (isCompleted) {
             responseBuilder.append(ColorFormatter.format(String.format(
-                    MESSAGE_VIEWDATE_CRESULT, getDisplayedTasksList().size(),
-                    range), headerColor));
+                MESSAGE_VIEWDATE_CRESULT, getDisplayedTasksList().size(),
+                range), headerColor));
         } else {
             responseBuilder.append(ColorFormatter.format(String.format(
-                    MESSAGE_VIEWDATE_RESULT, getDisplayedTasksList().size(),
-                    range), headerColor));
+                MESSAGE_VIEWDATE_RESULT, getDisplayedTasksList().size(),
+                range), headerColor));
         }
 
         if (!getDisplayedTasksList().isEmpty()) {
@@ -225,23 +236,23 @@ public class ViewCommand extends Command {
      *
      * @return the formatted string of all tasks involved
      * @throws IOException occurs when dbManager encounters a problem with file
+     * @author hooitong
      */
-    // @author A0111736M
-    // @author A0111794E
     private String formatTaskListOutput() throws IOException {
-        Collections.sort(getDisplayedTasksList(), getDbManager()
-                .getInstanceIdComparator());
+        Collections.sort(getDisplayedTasksList(),
+                         getDbManager().getInstanceIdComparator());
 
         StringBuilder stringBuilder = new StringBuilder();
         String header = String.format("%-7s%-6s%-43s%-24s", "ID", "Done",
-                "Task", "Date");
+                                      "Task", "Date");
         String border = "";
         for (int i = 0; i < CONSOLE_MAX_WIDTH; i++) {
             border += "-";
         }
 
-        stringBuilder.append(border + System.lineSeparator() + header
-                + System.lineSeparator() + border + System.lineSeparator());
+        stringBuilder.append(border + System.lineSeparator() + header +
+                             System.lineSeparator() + border +
+                             System.lineSeparator());
 
         int prevType = -1;
         for (int i = 0; i < getDisplayedTasksList().size(); i++) {
@@ -272,12 +283,11 @@ public class ViewCommand extends Command {
      * @param displayingId the id of the task
      * @return the formatted output of the task
      * @throws IOException occurs when dbManager encounters a problem with file
+     * @author hooitong
      */
-    // @author A0111736M
-
     private String formatTaskOutput(int displayingId) throws IOException {
-        Task task = getDbManager().getInstance(
-                getDisplayedTasksList().get(displayingId));
+        Task task = getDbManager().
+            getInstance(getDisplayedTasksList().get(displayingId));
         return task.formatOutput(displayingId + 1 + "");
     }
 
@@ -288,11 +298,9 @@ public class ViewCommand extends Command {
      * @return enum which specifies what type of task it is
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-
-    // @author A0111794E
     private int getTaskType(int displayingId) throws IOException {
-        Task t = getDbManager().getInstance(
-                getDisplayedTasksList().get(displayingId));
+        Task t = getDbManager().
+            getInstance(getDisplayedTasksList().get(displayingId));
         if (t.isFloatingTask()) {
             return FLOATING_TASK;
         } else if (t.isDeadline()) {
@@ -308,7 +316,7 @@ public class ViewCommand extends Command {
      * @param task object to get type
      * @return ViewType of the object
      */
-    // @author A0111794E
+
     private ViewType getTaskType(Task task) {
         if (task.isFloatingTask()) {
             return ViewType.TASK;

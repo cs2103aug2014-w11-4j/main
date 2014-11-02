@@ -33,8 +33,8 @@ import java.util.regex.Pattern;
  * Parser that reads in raw user input and provides instruction on how the UI
  * should call for the correction execution at the logic.
  *
+ * @author hooitong
  */
- //@author A0111736M
 public class Parser {
 
     /* Global logger to log information and exception. */

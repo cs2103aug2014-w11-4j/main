@@ -18,9 +18,8 @@ import java.util.logging.Logger;
  * Class that represents a command object where it stores the type of command it
  * is and all its arguments.
  *
+ * @author hooitong
  */
-
-// @author A0111736M
 public abstract class Command {
 
     /* Enum type to store all types of command and their possible variations */
@@ -29,15 +28,16 @@ public abstract class Command {
          * use var args to populate all possible variations for each command
          * type
          */
-        VIEW("view", "display"), SEARCH("find", "lookup", "search"), ADD("add",
-                "insert", "ins", "new"), DELETE("delete", "remove"), UPDATE(
-                "change", "update", "edit"), UNDO("undo", "ud"), REDO("redo",
-                "rd"), MARK("mark", "completed", "done"), CONFIRM("confirm"), SYNC(
-                "sync"), CLEAR("cls", "clear"), EXIT("exit", "quit"), HELP("?",
-                "help"), INVALID;
+        VIEW("view", "display"), SEARCH("find", "lookup", "search"),
+        ADD("add", "insert", "ins", "new"), DELETE("delete", "remove"),
+        UPDATE("change", "update", "edit"), UNDO("undo", "ud"),
+        REDO("redo", "rd"), MARK("mark", "completed", "done"),
+        CONFIRM("confirm"), SYNC("sync"), CLEAR("cls", "clear"),
+        EXIT("exit", "quit"), HELP("?", "help"), INVALID;
 
         private List<String> tags;
-        private static final Map<String, CommandType> ALIAS_MAP = new HashMap<String, CommandType>();
+        private static final Map<String, CommandType>
+            ALIAS_MAP = new HashMap<String, CommandType>();
 
         /**
          * Private constructor that accept literals and instantiate as List of
@@ -92,13 +92,15 @@ public abstract class Command {
     }
 
     /* Details about the DataStore/DatabaseManager */
-    private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
-    private static final String DATABASE_NAME = "database.xml";
-    private static final String CURRENT_DIRECTORY = System
-            .getProperty("user.dir");
+    private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION =
+        "Exception has occured when accessing local storage.";
+    private static final String DATABASE_NAME =
+        "database.xml";
+    private static final String CURRENT_DIRECTORY =
+        System.getProperty("user.dir");
 
-    private static final Logger LOGGER = Logger
-            .getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final Logger LOGGER =
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private static ArrayList<Long> displayedTasksList = new ArrayList<Long>();
     private static Command previousDisplayCommand;
@@ -112,10 +114,11 @@ public abstract class Command {
     public static boolean startDatabase() {
         try {
             dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
-                    + File.separator + DATABASE_NAME);
+                                                  + File.separator
+                                                  + DATABASE_NAME);
         } catch (IOException e) {
             getLogger()
-                    .log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
+                .log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
             return false;
         }
         return true;
@@ -179,8 +182,8 @@ public abstract class Command {
      */
     //@author A0119504L
     public static boolean isValidDisplayedId(int displayedId) {
-        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList
-                .get(displayedId - 1) == -1);
+        return !(displayedId > displayedTasksList.size() || displayedId <= 0 ||
+                 displayedTasksList.get(displayedId - 1) == -1);
     }
 
     /**
@@ -195,7 +198,7 @@ public abstract class Command {
             return execute();
         } catch (IOException e) {
             getLogger()
-                    .log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
+                .log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
             return MESSAGE_ERROR_DATABASE_IOEXCEPTION;
         }
     }

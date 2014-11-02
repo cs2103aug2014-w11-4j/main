@@ -11,15 +11,18 @@ import java.util.Collections;
  * Concrete Command Class that can be executed to search the data store for
  * tasks containing the provided keyword and returns back the task details.
  *
-*/
-// @author A0111794E
-
+ * @author Jason Sia
+ */
 public class SearchCommand extends Command {
 
-    private static final String MESSAGE_SEARCH_RESULT = "%s task with \"%s\" has been found.";
-    private static final String SCHEDULE_SEPERATOR = "--------------------------------[  SCHEDULES  ]---------------------------------";
-    private static final String FLOATING_SEPERATOR = "--------------------------------[    TASKS    ]---------------------------------";
-    private static final String DEADLINE_SEPERATOR = "--------------------------------[  DEADLINES  ]---------------------------------";
+    private static final String MESSAGE_SEARCH_RESULT =
+        "%s task with \"%s\" has been found.";
+    private static final String SCHEDULE_SEPERATOR =
+        "--------------------------------[  SCHEDULES  ]---------------------------------";
+    private static final String FLOATING_SEPERATOR =
+        "--------------------------------[    TASKS    ]---------------------------------";
+    private static final String DEADLINE_SEPERATOR =
+        "--------------------------------[  DEADLINES  ]---------------------------------";
 
     private static final int CONSOLE_MAX_WIDTH = 80;
 
@@ -63,8 +66,8 @@ public class SearchCommand extends Command {
         getDisplayedTasksList().clear();
 
         for (Long databaseId : getDbManager().getValidIdList()) {
-            String taskInDb = getDbManager().getInstance(databaseId)
-                    .getDescription();
+            String taskInDb =
+                getDbManager().getInstance(databaseId).getDescription();
             taskInDb = taskInDb.toLowerCase();
             if (taskInDb.contains(keyword.toLowerCase())) {
                 getDisplayedTasksList().add(databaseId);
@@ -72,11 +75,11 @@ public class SearchCommand extends Command {
         }
 
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.RED
-                : Color.GREEN;
+                                                              : Color.GREEN;
 
         responseBuilder.append(ColorFormatter.format(
-                String.format(MESSAGE_SEARCH_RESULT, getDisplayedTasksList()
-                        .size(), keyword), headerColor));
+            String.format(MESSAGE_SEARCH_RESULT, getDisplayedTasksList().size(),
+                          keyword), headerColor));
 
         if (!getDisplayedTasksList().isEmpty()) {
             responseBuilder.append(System.lineSeparator());
@@ -91,23 +94,23 @@ public class SearchCommand extends Command {
      *
      * @return the formatted string of all tasks involved
      * @throws IOException occurs when dbManager encounters a problem with file
+     * @author hooitong
      */
-    // @author A0111736M
-    // @author A0111794E
     private String formatTaskListOutput() throws IOException {
-        Collections.sort(getDisplayedTasksList(), getDbManager()
-                .getInstanceIdComparator());
+        Collections.sort(getDisplayedTasksList(),
+                         getDbManager().getInstanceIdComparator());
 
         StringBuilder stringBuilder = new StringBuilder();
         String header = String.format("%-7s%-6s%-43s%-24s", "ID", "Done",
-                "Task", "Date");
+                                      "Task", "Date");
         String border = "";
         for (int i = 0; i < CONSOLE_MAX_WIDTH; i++) {
             border += "-";
         }
 
-        stringBuilder.append(border + System.lineSeparator() + header
-                + System.lineSeparator() + border + System.lineSeparator());
+        stringBuilder.append(border + System.lineSeparator() + header +
+                             System.lineSeparator() + border +
+                             System.lineSeparator());
 
         int prevType = -1;
         for (int i = 0; i < getDisplayedTasksList().size(); i++) {
@@ -138,11 +141,11 @@ public class SearchCommand extends Command {
      * @param displayingId the id of the task
      * @return the formatted output of the task
      * @throws IOException occurs when dbManager encounters a problem with file
+     * @author hooitong
      */
-    // @author A0111736M
     private String formatTaskOutput(int displayingId) throws IOException {
-        Task task = getDbManager().getInstance(
-                getDisplayedTasksList().get(displayingId));
+        Task task = getDbManager().
+            getInstance(getDisplayedTasksList().get(displayingId));
         return task.formatOutput(displayingId + 1 + "");
     }
 
@@ -153,11 +156,9 @@ public class SearchCommand extends Command {
      * @return enum which specifies what type of task it is
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-
-    // @author A0111794E
     private int getTaskType(int displayingId) throws IOException {
-        Task t = getDbManager().getInstance(
-                getDisplayedTasksList().get(displayingId));
+        Task t = getDbManager().
+            getInstance(getDisplayedTasksList().get(displayingId));
         if (t.isFloatingTask()) {
             return FLOATING_TASK;
         } else if (t.isDeadline()) {
