@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import com.rubberduck.command.*;
 import com.rubberduck.logic.DatePair;
+import com.rubberduck.menu.ColorFormatter;
+import com.rubberduck.menu.ColorFormatter.Color;
 
 public class CommandTest {
 
@@ -202,6 +204,31 @@ public class CommandTest {
         assertEquals(0, Command.getDbManager().getValidIdList().size());
     }
 
+    /**
+     * Delete not exist task
+     *
+     * @throws IOException
+     *
+     */
+    @Test
+    public void deleteNotExistTask() throws IOException {
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                dpList);
+        addCommand.execute();
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+        viewCommand.execute();
+        DeleteCommand deleteCommand = new DeleteCommand(2);
+        String expected = deleteCommand.execute();
+        assertEquals(expected, ColorFormatter.
+                format("This is not a valid task ID to delete.", Color.RED));
+    }
+    
     /**
      *
      * update the task description
