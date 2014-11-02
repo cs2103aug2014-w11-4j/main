@@ -16,7 +16,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-
 /**
  * RubberDuck is a CLI Task Manager that stores user's task into a text file and
  * helps the user to handle all his/her tasks via this application.
@@ -60,6 +59,9 @@ public class RubberDuck {
 
         Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         logger.setLevel(Level.INFO);
+
+        /* Disable mortbay logging for GooManager*/
+        org.mortbay.log.Log.setLog(null);
 
         /* Setup file handler */
         try {
