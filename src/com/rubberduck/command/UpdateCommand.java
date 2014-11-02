@@ -14,6 +14,7 @@ import java.util.ArrayList;
  *
  * @author Zhao Hang
  */
+//@author A0119504L
 public class UpdateCommand extends Command {
 
     private static final String JOURNAL_MESSAGE_UPDATE =
@@ -76,9 +77,9 @@ public class UpdateCommand extends Command {
      * Update the task with provided arguments to the database.
      *
      * @return updated message with the displayed id
-     * @author Zhao Hang
-     * @author Hooi Tong ANSI & Response
      */
+    // @author A0111736M
+    // @author A0119504L
     @Override
     public String execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {

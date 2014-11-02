@@ -10,8 +10,8 @@ import java.io.IOException;
  * Concrete Command Class that can be executed to delete the task object from
  * database given the task id displayed on screen to the user.
  *
- * @author Zhao Hang
  */
+// @author A0119504L
 public class DeleteCommand extends Command {
 
     private static final String JOURNAL_MESSAGE_DELETE =
@@ -46,9 +46,10 @@ public class DeleteCommand extends Command {
      *
      * @return success message and previous view list or error if invalid id
      * @throws IOException DBManager has encountered an IO Error
-     * @author Zhao Hang
-     * @author Hooi Tong ANSI & Response
+     * 
      */
+    // @author A0111736M
+    // @author A0119504L
     @Override
     public String execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {

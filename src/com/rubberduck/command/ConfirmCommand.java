@@ -11,9 +11,9 @@ import java.util.ArrayList;
 /**
  * Concrete Command Class that can be executed to confirm the a tentative task
  * given a task id displayed on the screen to the user.
- *
- * @author Zhao Hang
+ * 
  */
+// @author A0119504L
 public class ConfirmCommand extends Command {
 
     private static final String JOURNAL_MESSAGE_CONFIRM =
@@ -63,9 +63,10 @@ public class ConfirmCommand extends Command {
      * Confirm the date of task to the database.
      *
      * @return confirm message with the displayed id
-     * @author Zhao Hang
-     * @author Hooi Tong ANSI & Response
+     * 
      */
+    // @author A0111736M
+    // @author A0119504L
     @Override
     public String execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
