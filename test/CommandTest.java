@@ -299,7 +299,7 @@ public class CommandTest {
 
    	/**
 	 *
-	 * update the task description
+	 * update the task does not exist
 	 *
 	 * @throws IOException
 	 *
@@ -324,6 +324,46 @@ public class CommandTest {
                 Color.RED);
 		assertEquals(expected, actual);
 	}
+	
+    /**
+    *
+    * update to wrong task type with multiple deadlines
+    *
+    * @throws IOException
+    *
+    */
+   @Test
+   public void updateTaskWrongType() throws IOException {
+       ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+       ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+       viewChoice.add(ViewCommand.ViewType.DEADLINE);
+       viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+       viewChoice.add(ViewCommand.ViewType.TASK);
+       AddCommand addCommand = new AddCommand(
+               "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+               dpList);
+       addCommand.execute();
+       ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+       viewCommand.execute();
+       
+       ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+       Calendar date = Calendar.getInstance();
+       Calendar date2 = Calendar.getInstance();
+       date.add(Calendar.DAY_OF_YEAR, 1);
+       date2.add(Calendar.DAY_OF_YEAR, 2);
+       DatePair dp = new DatePair(date);
+       DatePair dp2 = new DatePair(date2);
+       datePairList.add(dp);
+       datePairList.add(dp2);
+       
+       UpdateCommand updateCommand = new UpdateCommand(1,
+    		   "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", datePairList);
+       String actual = updateCommand.execute();
+       String expected = ColorFormatter.format("You have input an invalid task type.",
+               Color.RED);
+       assertEquals(expected, actual);
+   }
+   
     /**
      *
      * mark task as completed
