@@ -373,7 +373,7 @@ public class Parser {
             int deleteId = Integer.parseInt(getFirstWord(args).trim());
             return new DeleteCommand(deleteId);
         } catch (NumberFormatException e) {
-            return new InvalidCommand(MESSAGE_DELETE_ERROR_INVALID);
+            return new InvalidCommand(MESSAGE_DELETE_ERROR_INVALID, true);
         }
     }
 
@@ -472,12 +472,12 @@ public class Parser {
 
             String descString = desc.toString().trim();
             if (!(!datePairs.isEmpty() || !descString.isEmpty())) {
-                return new InvalidCommand(MESSAGE_UPDATE_ERROR_EMPTY);
+                return new InvalidCommand(MESSAGE_UPDATE_ERROR_EMPTY, true);
             }
 
             return new UpdateCommand(deleteId, descString, datePairs);
         } catch (NumberFormatException e) {
-            return new InvalidCommand(MESSAGE_UPDATE_ERROR_INVALID);
+            return new InvalidCommand(MESSAGE_UPDATE_ERROR_INVALID, true);
         }
 
     }
@@ -515,7 +515,7 @@ public class Parser {
             int markId = Integer.parseInt(getFirstWord(args).trim());
             return new MarkCommand(markId);
         } catch (NumberFormatException e) {
-            return new InvalidCommand(MESSAGE_MARK_ERROR_INVALID);
+            return new InvalidCommand(MESSAGE_MARK_ERROR_INVALID, true);
         }
     }
 
@@ -530,14 +530,14 @@ public class Parser {
         try {
             String[] substrings = args.split("\\s+");
             if (substrings.length < 2) {
-                return new InvalidCommand(MESSAGE_CONFIRM_ERROR_INVALID);
+                return new InvalidCommand(MESSAGE_CONFIRM_ERROR_INVALID, true);
             }
 
             int confirmId = Integer.parseInt(substrings[0]);
             int dateId = Integer.parseInt(substrings[1]);
             return new ConfirmCommand(confirmId, dateId);
         } catch (NumberFormatException e) {
-            return new InvalidCommand(MESSAGE_CONFIRM_ERROR_INVALID);
+            return new InvalidCommand(MESSAGE_CONFIRM_ERROR_INVALID, true);
         }
     }
 
