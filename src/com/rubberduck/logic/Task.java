@@ -14,10 +14,9 @@ import java.util.LinkedList;
 import java.util.Locale;
 
 /**
- * This task class is used to represent a single task object
- * which stores all relevant information about the task and
- * provide the needed getters and setters for retrieval and
- * storage.
+ * This task class is used to represent a single task object which stores all
+ * relevant information about the task and provide the needed getters and
+ * setters for retrieval and storage.
  */
 //@author A0111794E
 public class Task implements Serializable, Comparable<Task> {

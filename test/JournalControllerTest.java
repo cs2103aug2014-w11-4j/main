@@ -1,14 +1,13 @@
-//@author A0119416H
-
-import static org.junit.Assert.assertEquals;
-
-import java.io.File;
+import com.rubberduck.io.DatabaseManager;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.rubberduck.io.DatabaseManager;
+import java.io.File;
 
+import static org.junit.Assert.assertEquals;
+
+//@author A0119416H
 public class JournalControllerTest {
 
     DatabaseManager<String> dbManager;
@@ -16,7 +15,7 @@ public class JournalControllerTest {
     @Before
     public void setUp() throws Exception {
         dbManager = new DatabaseManager<String>(File.createTempFile(
-                "JournalControllerTest", ".tmp").getPath());
+            "JournalControllerTest", ".tmp").getPath());
     }
 
     @Test
@@ -25,7 +24,8 @@ public class JournalControllerTest {
 
         newId = dbManager.modify(null, "Test 1", "create instance");
 
-        Long modifiedId = dbManager.modify(newId, "Modified test 1", "modify instance");
+        Long modifiedId =
+            dbManager.modify(newId, "Modified test 1", "modify instance");
 
         dbManager.modify(modifiedId, null, "delete instance");
 
@@ -40,7 +40,8 @@ public class JournalControllerTest {
 
         newId = dbManager.modify(null, "Test 1", "create instance");
 
-        Long modifiedId = dbManager.modify(newId, "Modified test 1", "modify instance");
+        Long modifiedId =
+            dbManager.modify(newId, "Modified test 1", "modify instance");
 
         dbManager.modify(modifiedId, null, "delete instance");
 
@@ -61,7 +62,8 @@ public class JournalControllerTest {
 
         newId = dbManager.modify(null, "Test 1", "create instance");
 
-        Long modifiedId = dbManager.modify(newId, "Modified test 1", "modify instance");
+        Long modifiedId =
+            dbManager.modify(newId, "Modified test 1", "modify instance");
 
         dbManager.modify(modifiedId, null, "delete instance");
 
