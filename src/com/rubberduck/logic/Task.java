@@ -1,26 +1,29 @@
 package com.rubberduck.logic;
 
-/**
- * This task class is used to represent a single task object
- * which stores all relevant information about the task and
- * provide the needed getters and setters for retrieval and
- * storage.
- *
- * @author Sia Wei Kiat Jason
- */
-
 import com.rubberduck.io.DatabaseManager;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
 
 import java.io.IOException;
 import java.io.Serializable;
+
 import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.Locale;
+
+/**
+ * This task class is used to represent a single task object
+ * which stores all relevant information about the task and
+ * provide the needed getters and setters for retrieval and
+ * storage.
+ *
+ */
+
+// @author A0111794E
 
 public class Task implements Serializable, Comparable<Task> {
 
@@ -257,8 +260,10 @@ public class Task implements Serializable, Comparable<Task> {
      *
      * @param displayingId the id of the task
      * @return the formatted string of the task
-     * @author Hooi Tong
+     * 
      */
+
+    // @author A0111736M
     public String formatOutput(String displayingId) {
         boolean overdue = false;
         final int maxDescLength = 41;
@@ -267,7 +272,7 @@ public class Task implements Serializable, Comparable<Task> {
         ArrayList<DatePair> dates = getDateList();
         char isDone = getIsDone() ? 'Y' : 'N';
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa",
-                                                           Locale.US);
+                Locale.US);
         boolean isTentative = dates.size() > 1;
 
         if (isTentative) {
@@ -299,7 +304,7 @@ public class Task implements Serializable, Comparable<Task> {
             DatePair dp = dates.get(i);
             if (dp.hasDateRange()) {
                 dateList.add(dateFormat.format(dp.getStartDate().getTime())
-                             + " to");
+                        + " to");
                 dateList.add(dateFormat.format(dp.getEndDate().getTime()));
             } else if (dp.hasEndDate()) {
                 dateList.add(dateFormat.format(dp.getEndDate().getTime()));
@@ -314,21 +319,20 @@ public class Task implements Serializable, Comparable<Task> {
         int dateId = 1;
         boolean rangeTicker = true;
         while (!wordWrapList.isEmpty() || !dateList.isEmpty()) {
-            String desc = wordWrapList.isEmpty() ? ""
-                                                 : wordWrapList.removeFirst();
+            String desc = wordWrapList.isEmpty() ? "" : wordWrapList
+                    .removeFirst();
 
             String date = dateList.isEmpty() ? "" : dateList.removeFirst();
             if (isTentative && rangeTicker) {
                 if (stringBuilder.length() != 0) {
                     stringBuilder.append(System.lineSeparator());
-                    stringBuilder.
-                        append(String.format("%-7s%-6s%-43s%-19s%-5s", "", "",
-                                             desc, date, "[" + dateId++ + "]"));
+                    stringBuilder.append(String.format(
+                            "%-7s%-6s%-43s%-19s%-5s", "", "", desc, date, "["
+                                    + dateId++ + "]"));
                 } else {
-                    stringBuilder.
-                        append(String.format("%-7s%-6s%-43s%-19s%-5s",
-                                             displayingId, isDone,
-                                             desc, date, "[" + dateId++ + "]"));
+                    stringBuilder.append(String.format(
+                            "%-7s%-6s%-43s%-19s%-5s", displayingId, isDone,
+                            desc, date, "[" + dateId++ + "]"));
                 }
 
                 if (date.contains("to")) {
@@ -338,11 +342,10 @@ public class Task implements Serializable, Comparable<Task> {
                 if (stringBuilder.length() != 0) {
                     stringBuilder.append(System.lineSeparator());
                     stringBuilder.append(String.format("%-7s%-6s%-43s%-24s",
-                                                       "", "", desc, date));
+                            "", "", desc, date));
                 } else {
                     stringBuilder.append(String.format("%-7s%-6s%-43s%-24s",
-                                                       displayingId, isDone,
-                                                       desc, date));
+                            displayingId, isDone, desc, date));
                 }
 
                 rangeTicker = true;
@@ -410,18 +413,20 @@ public class Task implements Serializable, Comparable<Task> {
     public Calendar getEarliestDate() {
         if (isFloatingTask()) {
             throw new UnsupportedOperationException(
-                "No date in a floating task.");
+                    "No date in a floating task.");
         }
 
         Calendar earliestDate = null;
 
         for (DatePair dp : dateList) {
-            if (dp.hasStartDate() && (earliestDate == null ||
-                                      dp.getStartDate().before(earliestDate))) {
+            if (dp.hasStartDate()
+                    && (earliestDate == null || dp.getStartDate().before(
+                            earliestDate))) {
                 earliestDate = dp.getStartDate();
             }
-            if (dp.hasEndDate() && (earliestDate == null ||
-                                    dp.getEndDate().before(earliestDate))) {
+            if (dp.hasEndDate()
+                    && (earliestDate == null || dp.getEndDate().before(
+                            earliestDate))) {
                 earliestDate = dp.getEndDate();
             }
         }
@@ -431,26 +436,33 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Compare both task by their deadline.
+     * <p>Schedule Task > Deadline Task > Floating Task<p/> 
+     * 
+     * @param task the task object to be compared with the argument
+     * @return int ,  0 = equal, -1 = smaller, 1 = bigger
+     * 
      */
-    @Override
-    public int compareTo(Task o) {
-        assert (o != null);
 
-        if (this.isTimedTask() && !o.isTimedTask()) {
+    // @author A0111794E
+    @Override
+    public int compareTo(Task task) {
+        assert (task != null);
+
+        if (this.isTimedTask() && !task.isTimedTask()) {
             return -1;
-        } else if (!this.isTimedTask() && o.isTimedTask()) {
+        } else if (!this.isTimedTask() && task.isTimedTask()) {
             return 1;
         }
 
-        if (this.isFloatingTask() && o.isFloatingTask()) {
+        if (this.isFloatingTask() && task.isFloatingTask()) {
             return 0;
         } else if (this.isFloatingTask()) {
             return 1;
-        } else if (o.isFloatingTask()) {
+        } else if (task.isFloatingTask()) {
             return -1;
         }
 
-        return this.getEarliestDate().compareTo(o.getEarliestDate());
+        return this.getEarliestDate().compareTo(task.getEarliestDate());
 
     }
 
@@ -462,8 +474,9 @@ public class Task implements Serializable, Comparable<Task> {
      * @return true if there is a conflict else false
      * @throws IOException occurs when dbManager encounters a problem with file
      */
+
     public boolean checkConflictWithDB(DatabaseManager<Task> dbManager)
-        throws IOException {
+            throws IOException {
         boolean isConflict = false;
         if (isFloatingTask()) {
             return isConflict;

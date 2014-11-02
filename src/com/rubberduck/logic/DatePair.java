@@ -10,8 +10,9 @@ import java.util.Locale;
  * This DatePair class is used to store a pair of date in the form of Calendar
  * object which represent the possible start date and end date.
  *
- * @author Sia Wei Kiat Jason
  */
+
+//@author A0111794E
 public class DatePair implements Serializable {
 
     private Calendar startDate = null;

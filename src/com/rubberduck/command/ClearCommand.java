@@ -10,14 +10,13 @@ import java.io.IOException;
  * Concrete Command Class that can be executed to clear the screen of the
  * terminal.
  *
- * @author hooitong
  */
+// @author A0111736M
+
 public class ClearCommand extends Command {
 
-    private static final String MESSAGE_CLEAR =
-        "Screen cleared.";
-    private static final String MESSAGE_IOEXCEPTION_ERROR =
-        "Problem calling clearScreen in ConsoleReader.";
+    private static final String MESSAGE_CLEAR = "Screen cleared.";
+    private static final String MESSAGE_IOEXCEPTION_ERROR = "Problem calling clearScreen in ConsoleReader.";
 
     /**
      * Clear the screen of the current terminal by calling the clearScreen
