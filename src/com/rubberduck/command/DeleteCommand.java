@@ -1,21 +1,25 @@
 package com.rubberduck.command;
 
-import java.io.IOException;
-
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+
+import java.io.IOException;
 
 /**
  * Concrete Command Class that can be executed to delete the task object from
  * database given the task id displayed on screen to the user.
  *
- * @author Zhao Hang
  */
+//@author A0119504L
 public class DeleteCommand extends Command {
-    private static final String JOURNAL_MESSAGE_DELETE = "Deleted task \"%s\"";
-    private static final String MESSAGE_DELETE = "\"%s\" has been successfully deleted.";
-    private static final String MESSAGE_ERROR_WRONG_TASK_ID = "This is not a valid task ID to delete.";
+
+    private static final String JOURNAL_MESSAGE_DELETE =
+        "Deleted task \"%s\"";
+    private static final String MESSAGE_DELETE =
+        "\"%s\" has been successfully deleted.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
+        "This is not a valid task ID to delete.";
 
     private int taskId;
 
@@ -24,6 +28,7 @@ public class DeleteCommand extends Command {
      *
      * @return taskId as int
      */
+    //@author A0119504L-reused
     public int getTaskId() {
         return taskId;
     }
@@ -42,27 +47,29 @@ public class DeleteCommand extends Command {
      *
      * @return success message and previous view list or error if invalid id
      * @throws IOException DBManager has encountered an IO Error
-     * @author Zhao Hang
-     * @author Hooi Tong ANSI & Response
+     * 
      */
+    // @author A0119504L
     @Override
     public String execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            return ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
         }
         long databaseId = getDisplayedTasksList().get(taskId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
         getDbManager().modify(databaseId, null,
-                String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
+                              String.format(JOURNAL_MESSAGE_DELETE,
+                                            oldDescription));
         getDisplayedTasksList().set(taskId - 1, (long) -1);
 
         StringBuilder response = new StringBuilder();
         response.append(ColorFormatter.format(
-                String.format(MESSAGE_DELETE, oldDescription), Color.YELLOW));
+            String.format(MESSAGE_DELETE, oldDescription), Color.YELLOW));
         response.append(System.lineSeparator());
         response.append(ColorFormatter.format(
-                String.format(oldTask.formatOutput("-")), Color.RED));
+            String.format(oldTask.formatOutput("-")), Color.RED));
         response.append(System.lineSeparator());
         response.append(getPreviousDisplayCommand().execute());
 

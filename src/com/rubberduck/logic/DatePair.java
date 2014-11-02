@@ -10,9 +10,11 @@ import java.util.Locale;
  * This DatePair class is used to store a pair of date in the form of Calendar
  * object which represent the possible start date and end date.
  *
- * @author Sia Wei Kiat Jason
  */
+
+//@author A0111794E
 public class DatePair implements Serializable {
+
     private Calendar startDate = null;
     private Calendar endDate = null;
 
@@ -28,7 +30,7 @@ public class DatePair implements Serializable {
 
     /**
      * Overloaded Constructor for DatePair, create a DatePair with only endDate
-     * If one date is present, it will be taken as end date
+     * If one date is present, it will be taken as end date.
      *
      * @param endDate the endDate of the task
      */
@@ -39,11 +41,11 @@ public class DatePair implements Serializable {
 
     /**
      * Overloaded constructor for DatePair, create DatePair with startDate and
-     * endDate If start Date entered is later then endDate, it will be swapped
+     * endDate If start Date entered is later then endDate, it will be swapped.
      * over
      *
      * @param startDate the starting date of the task
-     * @param endDate the ending date of the task
+     * @param endDate   the ending date of the task
      */
     public DatePair(Calendar startDate, Calendar endDate) {
         if (startDate.equals(endDate)) {
@@ -59,7 +61,7 @@ public class DatePair implements Serializable {
     }
 
     /**
-     * Get the startDate of the task
+     * Get the startDate of the task.
      *
      * @return starting date of the task
      */
@@ -68,7 +70,7 @@ public class DatePair implements Serializable {
     }
 
     /**
-     * Get the endDate of the task
+     * Get the endDate of the task.
      *
      * @return ending date of the task
      */
@@ -77,7 +79,7 @@ public class DatePair implements Serializable {
     }
 
     /**
-     * Set the startDate of the task
+     * Set the startDate of the task.
      *
      * @param startDate the date when the task starts
      */
@@ -86,7 +88,7 @@ public class DatePair implements Serializable {
     }
 
     /**
-     * Set the endDate of the task
+     * Set the endDate of the task.
      *
      * @param endDate the date when the task ends
      */
@@ -95,7 +97,7 @@ public class DatePair implements Serializable {
     }
 
     /**
-     * Check if the task has startDate
+     * Check if the task has startDate.
      *
      * @return if the task has startDate
      */
@@ -104,7 +106,7 @@ public class DatePair implements Serializable {
     }
 
     /**
-     * Check if the task has endDate
+     * Check if the task has endDate.
      *
      * @return if the task has endDate
      */
@@ -113,7 +115,7 @@ public class DatePair implements Serializable {
     }
 
     /**
-     * Check if the task has DateRange
+     * Check if the task has DateRange.
      *
      * @return if the task has DateRange
      */
@@ -122,7 +124,7 @@ public class DatePair implements Serializable {
     }
 
     /**
-     * Check if the task has endDate
+     * Check if the task has endDate.
      *
      * @return if the task has endDate
      */
@@ -132,14 +134,13 @@ public class DatePair implements Serializable {
 
     /**
      * Overwrite the default to string value of task Formatted for RubberDuck
-     * console design
-     *
+     * console design.
      */
     @Override
     public String toString() {
         String formattedStartDate, formattedEndDate;
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YYYY HH:ss",
-                Locale.US);
+                                                           Locale.US);
 
         if (hasStartDate()) {
             formattedStartDate = dateFormat.format(startDate.getTime());
@@ -169,8 +170,8 @@ public class DatePair implements Serializable {
         Calendar startDateCriteria = dateRange.getStartDate();
         Calendar endDateCriteria = dateRange.getEndDate();
 
-        if ((startDate == null && endDate == null)
-                || (startDateCriteria == null && endDateCriteria == null)) {
+        if ((startDate == null && endDate == null) ||
+            (startDateCriteria == null && endDateCriteria == null)) {
             return true;
         }
 
@@ -190,7 +191,8 @@ public class DatePair implements Serializable {
             return (!endDate.before(startDateCriteria));
         }
 
-        return !(startDate.after(endDateCriteria) || endDate.before(startDateCriteria));
+        return !(startDate.after(endDateCriteria) ||
+                 endDate.before(startDateCriteria));
     }
 
     /**

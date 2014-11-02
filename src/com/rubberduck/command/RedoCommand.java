@@ -1,9 +1,9 @@
 package com.rubberduck.command;
 
-import java.io.IOException;
-
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+
+import java.io.IOException;
 
 /**
  * Concrete Command Class that can be executed to redo the previous undone
@@ -12,7 +12,9 @@ import com.rubberduck.menu.ColorFormatter.Color;
  * @author hooitong
  */
 public class RedoCommand extends Command {
-    private static final String JOURNAL_MESSAGE_REDONE = "Redone action \"%s\".";
+
+    private static final String JOURNAL_MESSAGE_REDONE =
+        "Redone action \"%s\".";
 
     /**
      * Redo previous action that was undone in the journal by the user. Will
@@ -24,8 +26,8 @@ public class RedoCommand extends Command {
     public String execute() throws IOException {
         try {
             return String.format(
-                    ColorFormatter.format(JOURNAL_MESSAGE_REDONE, Color.YELLOW),
-                    getDbManager().redo());
+                ColorFormatter.format(JOURNAL_MESSAGE_REDONE, Color.YELLOW),
+                getDbManager().redo());
         } catch (UnsupportedOperationException e) { /* Nothing to redo */
             return e.getMessage();
         }

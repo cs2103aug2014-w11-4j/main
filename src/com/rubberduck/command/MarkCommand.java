@@ -1,10 +1,10 @@
 package com.rubberduck.command;
 
-import java.io.IOException;
-
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+
+import java.io.IOException;
 
 /**
  * Concrete Command Class that can be executed to mark as completed/incomplete
@@ -13,12 +13,19 @@ import com.rubberduck.menu.ColorFormatter.Color;
  *
  * @author Zhao Hang
  */
+//@author A0119504L
 public class MarkCommand extends Command {
-    private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid ID.";
-    private static final String JOURNAL_MESSAGE_MARK_AS_COMPLETED = "Mark task \"%s\" as completed";
-    private static final String JOURNAL_MESSAGE_MARK_AS_INCOMPLETE = "Mark task \"%s\" as incomplete";
-    private static final String MESSAGE_MARK_COMPLETED = "\"%s\" has been marked to completed.";
-    private static final String MESSAGE_MARK_INCOMPLETE = "\"%s\" has been marked to incomplete.";
+
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
+        "You have input an invalid ID.";
+    private static final String JOURNAL_MESSAGE_MARK_AS_COMPLETED =
+        "Mark task \"%s\" as completed";
+    private static final String JOURNAL_MESSAGE_MARK_AS_INCOMPLETE =
+        "Mark task \"%s\" as incomplete";
+    private static final String MESSAGE_MARK_COMPLETED =
+        "\"%s\" has been marked to completed.";
+    private static final String MESSAGE_MARK_INCOMPLETE =
+        "\"%s\" has been marked to incomplete.";
 
     private int taskId;
 
@@ -27,6 +34,7 @@ public class MarkCommand extends Command {
      *
      * @return taskId as int
      */
+  //@author A0119504L-reused
     public int getTaskId() {
         return taskId;
     }
@@ -42,15 +50,16 @@ public class MarkCommand extends Command {
     }
 
     /**
-     * Mark a task (completed to uncompleted and vice versa)
+     * Mark a task (completed to uncompleted and vice versa).
      *
      * @return message of mark
-     * @throws IOException
      */
+    // @author A0119504L
     @Override
     public String execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            return ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
         }
 
         if (isCompletedTask(taskId)) {
@@ -65,8 +74,9 @@ public class MarkCommand extends Command {
      *
      * @param displayedId of the task
      * @return true if the task is completed
-     * @throws IOException
+     * @throws IOException occurs when dbManager encounters a problem with file
      */
+    //@author A0119504L
     private boolean isCompletedTask(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
@@ -78,25 +88,23 @@ public class MarkCommand extends Command {
      *
      * @param displayedId displayed id of the task
      * @return message of mark task to completed
-     * @throws IOException
-     * @author Zhao Hang
-     * @author Hooi Tong ANSI & Response
+     * @throws IOException occurs when dbManager encounters a problem with file
      */
+    //@author A0119504L
     public String markTaskCompleted(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
         assert !oldTask.getIsDone();
         oldTask.setIsDone(true);
-        long newTaskId = getDbManager().modify(
-                databaseId,
-                oldTask,
-                String.format(JOURNAL_MESSAGE_MARK_AS_COMPLETED,
-                        oldTask.getDescription()));
+        long newTaskId =
+            getDbManager().modify(databaseId, oldTask, String.format(
+                JOURNAL_MESSAGE_MARK_AS_COMPLETED,
+                oldTask.getDescription()));
         getDisplayedTasksList().set(displayedId - 1, newTaskId);
         StringBuilder response = new StringBuilder();
         response.append(ColorFormatter.format(
-                String.format(MESSAGE_MARK_COMPLETED, oldTask.getDescription()),
-                Color.GREEN));
+            String.format(MESSAGE_MARK_COMPLETED, oldTask.getDescription()),
+            Color.GREEN));
         response.append(System.lineSeparator());
         response.append(getPreviousDisplayCommand().execute());
         return response.toString();
@@ -108,25 +116,23 @@ public class MarkCommand extends Command {
      *
      * @param displayedId displayed id of the task
      * @return message of mark task to uncompleted
-     * @throws IOException
-     * @author Zhao Hang
-     * @author Hooi Tong ANSI & Response
+     * @throws IOException occurs when dbManager encounters a problem with file
      */
+    //@author A0119504L
     public String markTaskIncomplete(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
         assert oldTask.getIsDone();
         oldTask.setIsDone(false);
-        long newTaskId = getDbManager().modify(
-                databaseId,
-                oldTask,
-                String.format(JOURNAL_MESSAGE_MARK_AS_INCOMPLETE,
-                        oldTask.getDescription()));
+        long newTaskId =
+            getDbManager().modify(databaseId, oldTask, String.format(
+                JOURNAL_MESSAGE_MARK_AS_INCOMPLETE,
+                oldTask.getDescription()));
         getDisplayedTasksList().set(displayedId - 1, newTaskId);
         StringBuilder response = new StringBuilder();
         response.append(ColorFormatter.format(
-                String.format(MESSAGE_MARK_INCOMPLETE, oldTask.getDescription()),
-                Color.RED));
+            String.format(MESSAGE_MARK_INCOMPLETE, oldTask.getDescription()),
+            Color.RED));
         response.append(System.lineSeparator());
         response.append(getPreviousDisplayCommand().execute());
         return response.toString();

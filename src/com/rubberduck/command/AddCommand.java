@@ -1,22 +1,24 @@
 package com.rubberduck.command;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
 /**
  * Concrete Command Class that can be executed to add a new task (floating,
  * deadline, schedule) into the database.
  *
- * @author Jason Sia
  */
+
+// @author A0111794E
 public class AddCommand extends Command {
+
     private static final String MESSAGE_ADD = "\"%s\" has been successfully added.";
-    private static final String MESSAGE_ADD_CONFLICT = "\"%s\" has been successfully added.\nPlease note that there are conflicting task(s).";
+    private static final String MESSAGE_ADD_CONFLICT = "\"%s\" has been successfully added.%nPlease note that there are conflicting task(s).";
     private static final String MESSAGE_ADD_PAST = "\"%s\" cannot be added as the end date has already passed.";
     private static final String JOURNAL_MESSAGE_ADD = "Added task \"%s\"";
     private static final String MESSAGE_ERROR_WRONG_TASK_TYPE = "You have input an invalid task type.";
@@ -47,7 +49,7 @@ public class AddCommand extends Command {
      * of DatePairs.
      *
      * @param description of the task
-     * @param list of datePairs if any
+     * @param datePairs   list of datePairs if any
      */
     public AddCommand(String description, ArrayList<DatePair> datePairs) {
         this.description = description;
@@ -59,9 +61,11 @@ public class AddCommand extends Command {
      *
      * @return the correct response back to the user
      * @throws IOException DBManager has encountered an IO Error
-     * @author Jason Sia
-     * @author hooitong ANSI & Response
+     *
      */
+    // @author A0111736M
+    // @author A0111794E
+
     @Override
     public String execute() throws IOException {
         assert datePairs != null;

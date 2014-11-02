@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import com.rubberduck.command.*;
 import com.rubberduck.logic.DatePair;
+import com.rubberduck.menu.ColorFormatter;
+import com.rubberduck.menu.ColorFormatter.Color;
 
 public class CommandTest {
 
@@ -88,7 +90,7 @@ public class CommandTest {
     public void addNoStartDateTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         String actual = "";
-        DatePair dp = new DatePair( Calendar.getInstance());
+        DatePair dp = new DatePair(Calendar.getInstance());
         dpList.add(dp);
         String keyword = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
         AddCommand command = new AddCommand(
@@ -180,104 +182,350 @@ public class CommandTest {
 
     /**
      * Delete exist task
+     *
      * @throws IOException
      *
      */
+  //@author A0119504L
     @Test
-    public void DeleteExistTask() throws IOException {
+    public void deleteExistTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
         AddCommand addCommand = new AddCommand(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         addCommand.execute();
-        ViewCommand viewCommand = new ViewCommand(true, false, null);
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
         viewCommand.execute();
         DeleteCommand deleteCommand = new DeleteCommand(1);
-        String expected = deleteCommand.execute();
-        String actual = ("\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully deleted.");
-        assertEquals(actual, expected);
+        deleteCommand.execute();
+        assertEquals(0, Command.getDbManager().getValidIdList().size());
     }
 
+    /**
+     * Delete not exist task
+     *
+     * @throws IOException
+     *
+     */
+  //@author A0119504L
+    @Test
+    public void deleteNotExistTask() throws IOException {
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                dpList);
+        addCommand.execute();
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+        viewCommand.execute();
+        DeleteCommand deleteCommand = new DeleteCommand(2);
+        String expected = deleteCommand.execute();
+        assertEquals(expected, ColorFormatter.
+                format("This is not a valid task ID to delete.", Color.RED));
+    }
+    
     /**
      *
      * update the task description
+     *
      * @throws IOException
      *
      */
-
+  //@author A0119504L
     @Test
-    public void updateTask() throws IOException {
+    public void updateTaskDescription() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
         AddCommand addCommand = new AddCommand(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         addCommand.execute();
-        ViewCommand viewCommand = new ViewCommand(true, false, null);
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
         viewCommand.execute();
         UpdateCommand updateCommand = new UpdateCommand(1,
                 "Lorem ipsum dolor sit amet.", dpList);
-        String actual = updateCommand.execute();
-        String expected = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully updated.";
+        updateCommand.execute();
+        String actual = Command.getDbManager()
+                .getInstance(Command.getDisplayedTasksList().get(0))
+                .getDescription();
+        String expected = "Lorem ipsum dolor sit amet.";
         assertEquals(expected, actual);
     }
+    
+    /**
+    *
+    * update the task dateList
+    *
+    * @throws IOException
+    *
+    */
+  //@author A0119504L
+   @Test
+   public void updateTaskDate() throws IOException {
+       ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+       ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+       viewChoice.add(ViewCommand.ViewType.DEADLINE);
+       viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+       viewChoice.add(ViewCommand.ViewType.TASK);
+       AddCommand addCommand = new AddCommand(
+               "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+               dpList);
+       addCommand.execute();
+       ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+       viewCommand.execute();
+       
+       ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+       Calendar date = Calendar.getInstance();
+       Calendar date2 = Calendar.getInstance();
+       date.add(Calendar.DAY_OF_YEAR, 1);
+       date2.add(Calendar.DAY_OF_YEAR, 2);
+       DatePair dp2 = new DatePair(date, date2);
+       datePairList.add(dp2);
+       
+       UpdateCommand updateCommand = new UpdateCommand(1,
+    		   "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", datePairList);
+       updateCommand.execute();
+       String actual = Command.getDbManager()
+               .getInstance(Command.getDisplayedTasksList().get(0)).getDateList().toString();
+       String expected = datePairList.toString();
+       assertEquals(expected, actual);
+   }
 
+   	/**
+	 *
+	 * update the task does not exist
+	 *
+	 * @throws IOException
+	 *
+	 */
+ //@author A0119504L
+	@Test
+	public void updateTaskNotExist() throws IOException {
+		ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+		ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+		viewChoice.add(ViewCommand.ViewType.DEADLINE);
+		viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+		viewChoice.add(ViewCommand.ViewType.TASK);
+		AddCommand addCommand = new AddCommand(
+				"Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+				dpList);
+		addCommand.execute();
+		ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+		viewCommand.execute();
+		UpdateCommand updateCommand = new UpdateCommand(2,
+				"Lorem ipsum dolor sit amet.", dpList);
+		String expected = updateCommand.execute();
+		String actual = ColorFormatter.format("You have input an invalid ID.",
+                Color.RED);
+		assertEquals(expected, actual);
+	}
+	
+    /**
+    *
+    * update to wrong task type with multiple deadlines
+    *
+    * @throws IOException
+    *
+    */
+	//@author A0119504L
+   @Test
+   public void updateTaskWrongType() throws IOException {
+       ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+       ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+       viewChoice.add(ViewCommand.ViewType.DEADLINE);
+       viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+       viewChoice.add(ViewCommand.ViewType.TASK);
+       AddCommand addCommand = new AddCommand(
+               "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+               dpList);
+       addCommand.execute();
+       ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+       viewCommand.execute();
+       
+       ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+       Calendar date = Calendar.getInstance();
+       Calendar date2 = Calendar.getInstance();
+       date.add(Calendar.DAY_OF_YEAR, 1);
+       date2.add(Calendar.DAY_OF_YEAR, 2);
+       DatePair dp = new DatePair(date);
+       DatePair dp2 = new DatePair(date2);
+       datePairList.add(dp);
+       datePairList.add(dp2);
+       
+       UpdateCommand updateCommand = new UpdateCommand(1,
+    		   "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", datePairList);
+       String actual = updateCommand.execute();
+       String expected = ColorFormatter.format("You have input an invalid task type.",
+               Color.RED);
+       assertEquals(expected, actual);
+   }
+
+	/**
+	 *
+	 * update task date which has passed
+	 *
+	 * @throws IOException
+	 *
+	 */
+	//@author A0119504L
+	@Test
+	public void updateTaskPassed() throws IOException {
+		ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+		ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+		viewChoice.add(ViewCommand.ViewType.DEADLINE);
+		viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+		viewChoice.add(ViewCommand.ViewType.TASK);
+		AddCommand addCommand = new AddCommand(
+				"Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+				dpList);
+		addCommand.execute();
+		ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+		viewCommand.execute();
+
+		ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+		Calendar date = Calendar.getInstance();
+		date.add(Calendar.DAY_OF_MONTH, -5);
+		DatePair dp = new DatePair(date);
+		datePairList.add(dp);
+
+		UpdateCommand updateCommand = new UpdateCommand(1,
+				"Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+				datePairList);
+		String actual = updateCommand.execute();
+		String expected = ColorFormatter.format(
+				"You cannot update the end date that has already passed.",
+				Color.RED);
+		assertEquals(expected, actual);
+	}
+   
     /**
      *
      * mark task as completed
+     *
      * @throws IOException
      *
      */
-
-    @Test
-    public void markTaskCompleted() throws IOException {
-        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        AddCommand addCommand = new AddCommand(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                dpList);
-        addCommand.execute();
-        ViewCommand viewCommand = new ViewCommand(true, false, null);
-        viewCommand.execute();
-
-        MarkCommand markCommand = new MarkCommand(1);
-        String expected = markCommand.execute();
-        String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to completed.";
-        assertEquals(actual, expected);
-    }
-
-    /**
-     *
-     * mark task as completed
-     * @throws IOException
-     *
-     */
+  	//@author A0119504L
     @Test
     public void markTaskUncompleted() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
         AddCommand addCommand = new AddCommand(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 dpList);
         addCommand.execute();
-        ViewCommand viewCommand = new ViewCommand(true, false, null);
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
         viewCommand.execute();
 
         MarkCommand markCommand = new MarkCommand(1);
         markCommand.execute();
 
-        String expected = markCommand.execute();
-        String actual = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been marked to uncompleted.";
+        ViewCommand viewCommandComplete = new ViewCommand(true, true, null, viewChoice);
+        viewCommandComplete.execute();
+
+        MarkCommand markCommandAgain = new MarkCommand(1);
+        markCommandAgain.execute();
+
+        ViewCommand viewCommandAgain = new ViewCommand(true, false, null, viewChoice);
+        viewCommandAgain.execute();
+
+        boolean actual = Command.getDbManager()
+                .getInstance(Command.getDisplayedTasksList().get(0))
+                .getIsDone();
+        boolean expected = false;
         assertEquals(actual, expected);
     }
 
     /**
-     * Test adding of task with todays date
      *
-     * Add a task with todays date and current runtime Call display to display
-     * specified task via id Store both actual and expected values Mark recent
-     * created task as invalid Execute comparison
+     * mark task as completed
+     *
+     * @throws IOException
      *
      */
+    //@author A0119504L
+    @Test
+    public void markTaskCompleted() throws IOException {
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                dpList);
+        addCommand.execute();
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+        viewCommand.execute();
+
+        MarkCommand markCommand = new MarkCommand(1);
+        markCommand.execute();
+
+        ViewCommand viewCommandComplete = new ViewCommand(true, true, null, viewChoice);
+        viewCommandComplete.execute();
+
+        boolean actual = Command.getDbManager()
+                .getInstance(Command.getDisplayedTasksList().get(0))
+                .getIsDone();
+        boolean expected = true;
+        assertEquals(actual, expected);
+    }
+
+    /**
+    *
+    * mark task does not exist
+    *
+    * @throws IOException
+    *
+    */
+    //@author A0119504L
+   @Test
+   public void markTaskNotExist() throws IOException {
+       ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+       viewChoice.add(ViewCommand.ViewType.DEADLINE);
+       viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+       viewChoice.add(ViewCommand.ViewType.TASK);
+       ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+       AddCommand addCommand = new AddCommand(
+               "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+               dpList);
+       addCommand.execute();
+       ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+       viewCommand.execute();
+
+       MarkCommand markCommand = new MarkCommand(2);
+       String actual = markCommand.execute();
+
+       String expected = ColorFormatter.
+               format("You have input an invalid ID.", Color.RED);
+       assertEquals(actual, expected);
+   }
+   
+    /**
+ 	 * confirm task
+ 	 * @throws IOException
+     *
+     */
+   	//@author A0119504L
     @Test
     public void confirmTask() throws IOException {
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
@@ -305,14 +553,156 @@ public class CommandTest {
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 datePairList);
         addCommand.execute();
-        ViewCommand viewCommand = new ViewCommand(true, false, null);
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+        viewCommand.execute();
+        ConfirmCommand confirmCommand = new ConfirmCommand(1, 2);
+        confirmCommand.execute();
+
+        String actual = Command.getDbManager()
+                .getInstance(Command.getDisplayedTasksList().get(0))
+                .getDateList()
+                .get(0)
+                .toString();
+        String expected = dp2.toString();
+
+        assertEquals(expected, actual);
+    }
+    
+    /**
+ 	 * confirm task which does not exist
+ 	 * @throws IOException
+     *
+     */
+    //@author A0119504L
+    @Test
+    public void confirmTaskNotExist() throws IOException {
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
+        ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+        Calendar date = Calendar.getInstance();
+        Calendar date2 = Calendar.getInstance();
+
+        date.add(Calendar.DAY_OF_YEAR, 1);
+        date2.add(Calendar.DAY_OF_YEAR, 2);
+        DatePair dp = new DatePair(date, date2);
+        datePairList.add(dp);
+
+        Calendar date3 = Calendar.getInstance();
+        Calendar date4 = Calendar.getInstance();
+        date3.add(Calendar.DAY_OF_YEAR, 2);
+        date4.add(Calendar.DAY_OF_YEAR, 3);
+        DatePair dp2 = new DatePair(date3, date4);
+        datePairList.add(dp2);
+
+        Calendar date5 = Calendar.getInstance();
+        Calendar date6 = Calendar.getInstance();
+        date5.add(Calendar.DAY_OF_YEAR, 3);
+        date6.add(Calendar.DAY_OF_YEAR, 4);
+        DatePair dp3 = new DatePair(date5, date6);
+        datePairList.add(dp3);
+
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                datePairList);
+        addCommand.execute();
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+        viewCommand.execute();
+        ConfirmCommand confirmCommand = new ConfirmCommand(2, 2);
+        String actual = confirmCommand.execute();
+
+        String expected = ColorFormatter.
+                format("You have input an invalid task ID.", Color.RED);
+
+        assertEquals(expected, actual);
+    }
+    
+    /**
+ 	 * confirm task not tentative
+ 	 * @throws IOException
+     *
+     */
+    //@author A0119504L
+    @Test
+    public void confirmTaskNotTentative() throws IOException {
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
+        ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+        Calendar date = Calendar.getInstance();
+        Calendar date2 = Calendar.getInstance();
+
+        date.add(Calendar.DAY_OF_YEAR, 1);
+        date2.add(Calendar.DAY_OF_YEAR, 2);
+        DatePair dp = new DatePair(date, date2);
+        datePairList.add(dp);
+
+
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                datePairList);
+        addCommand.execute();
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
         viewCommand.execute();
         ConfirmCommand confirmCommand = new ConfirmCommand(1, 2);
         String actual = confirmCommand.execute();
 
-        String expected = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been confirmed.";
+        String expected = ColorFormatter.
+                format("\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" is not tentative and does not need confirmation.", Color.RED);
 
         assertEquals(expected, actual);
     }
+    
+    /**
+ 	 * confirm task invalid date id
+ 	 * @throws IOException
+     *
+     */
+    //@author A0119504L
+    @Test
+    public void confirmTaskInvalidDateId() throws IOException {
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
+        ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+        Calendar date = Calendar.getInstance();
+        Calendar date2 = Calendar.getInstance();
 
+        date.add(Calendar.DAY_OF_YEAR, 1);
+        date2.add(Calendar.DAY_OF_YEAR, 2);
+        DatePair dp = new DatePair(date, date2);
+        datePairList.add(dp);
+
+        Calendar date3 = Calendar.getInstance();
+        Calendar date4 = Calendar.getInstance();
+        date3.add(Calendar.DAY_OF_YEAR, 2);
+        date4.add(Calendar.DAY_OF_YEAR, 3);
+        DatePair dp2 = new DatePair(date3, date4);
+        datePairList.add(dp2);
+
+        Calendar date5 = Calendar.getInstance();
+        Calendar date6 = Calendar.getInstance();
+        date5.add(Calendar.DAY_OF_YEAR, 3);
+        date6.add(Calendar.DAY_OF_YEAR, 4);
+        DatePair dp3 = new DatePair(date5, date6);
+        datePairList.add(dp3);
+
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                datePairList);
+        addCommand.execute();
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+        viewCommand.execute();
+        ConfirmCommand confirmCommand = new ConfirmCommand(1, 4);
+        String actual = confirmCommand.execute();
+
+        String expected = ColorFormatter.
+                format("You have input an invalid date ID.", Color.RED);
+
+        assertEquals(expected, actual);
+    }
+    
 }

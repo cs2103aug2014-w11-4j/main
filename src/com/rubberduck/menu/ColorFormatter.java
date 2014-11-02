@@ -1,10 +1,21 @@
 package com.rubberduck.menu;
 
 /**
- * Color formatter for ANSI-colored output for RubberDuck
+ * Color formatter for ANSI-colored output for RubberDuck.
  */
 //@author A0111736M
 public class ColorFormatter {
+
+    /**
+     * Private constructor for ColorFormatter as it is a utility class.
+     */
+    private ColorFormatter() {
+
+    }
+
+    /**
+     * Attribute that can be applied to text.
+     */
     public enum Attribute {
         NORMAL(0), BRIGHT(1), DIM(2), UNDERLINE(4), BLINK(5), REVERSE(7),
         HIDDEN(8);
@@ -20,6 +31,9 @@ public class ColorFormatter {
         }
     }
 
+    /**
+     * Color that can be applied to foreground or background.
+     */
     public enum Color {
         BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
     }
@@ -35,7 +49,7 @@ public class ColorFormatter {
      * Format input string with given color as foreground.
      *
      * @param input input string
-     * @param fg foreground color
+     * @param fg    foreground color
      * @return input that is color-coded
      */
     public static String format(String input, Color fg) {
@@ -46,8 +60,8 @@ public class ColorFormatter {
      * Format input string with given foreground color and background color.
      *
      * @param input input string
-     * @param fg foreground color
-     * @param bg background color
+     * @param fg    foreground color
+     * @param bg    background color
      * @return input that is color-coded
      */
     public static String format(String input, Color fg, Color bg) {
@@ -59,12 +73,13 @@ public class ColorFormatter {
      * color.
      *
      * @param input input string
-     * @param atr attribute
-     * @param fg foreground color
-     * @param bg background color
+     * @param atr   attribute
+     * @param fg    foreground color
+     * @param bg    background color
      * @return input that is color-coded
      */
-    public static String format(String input, Attribute atr, Color fg, Color bg) {
+    public static String format(String input, Attribute atr, Color fg,
+                                Color bg) {
         StringBuilder sb = new StringBuilder();
 
         if (atr != null) {

@@ -1,5 +1,8 @@
 package com.rubberduck.command;
 
+import com.rubberduck.io.DatabaseManager;
+import com.rubberduck.logic.Task;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,16 +14,15 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.rubberduck.io.DatabaseManager;
-import com.rubberduck.logic.Task;
-
 /**
  * Class that represents a command object where it stores the type of command it
  * is and all its arguments.
  *
- * @author hooitong
  */
+
+// @author A0111736M
 public abstract class Command {
+
     /* Enum type to store all types of command and their possible variations */
     public enum CommandType {
         /*
@@ -30,12 +32,12 @@ public abstract class Command {
         VIEW("view", "display"), SEARCH("find", "lookup", "search"), ADD("add",
                 "insert", "ins", "new"), DELETE("delete", "remove"), UPDATE(
                 "change", "update", "edit"), UNDO("undo", "ud"), REDO("redo",
-                "rd"), MARK("mark", "completed", "done"), CONFIRM("confirm"),
-        SYNC("sync"), CLEAR("cls", "clear"), EXIT("exit", "quit"), HELP("?",
+                "rd"), MARK("mark", "completed", "done"), CONFIRM("confirm"), SYNC(
+                "sync"), CLEAR("cls", "clear"), EXIT("exit", "quit"), HELP("?",
                 "help"), INVALID;
 
         private List<String> tags;
-        private static final Map<String, CommandType> tagMap = new HashMap<String, CommandType>();
+        private static final Map<String, CommandType> ALIAS_MAP = new HashMap<String, CommandType>();
 
         /**
          * Private constructor that accept literals and instantiate as List of
@@ -53,7 +55,7 @@ public abstract class Command {
         static {
             for (CommandType command : CommandType.values()) {
                 for (String tag : command.tags) {
-                    tagMap.put(tag, command);
+                    ALIAS_MAP.put(tag, command);
                 }
             }
         }
@@ -69,7 +71,7 @@ public abstract class Command {
                 return CommandType.INVALID;
             }
 
-            CommandType cmd = tagMap.get(input.toLowerCase());
+            CommandType cmd = ALIAS_MAP.get(input.toLowerCase());
 
             if (cmd == null) {
                 return CommandType.INVALID;
@@ -84,7 +86,7 @@ public abstract class Command {
          * @return Set object that contains all alias
          */
         public static Set<String> getAlias() {
-            return tagMap.keySet();
+            return ALIAS_MAP.keySet();
         }
 
     }
@@ -92,9 +94,12 @@ public abstract class Command {
     /* Details about the DataStore/DatabaseManager */
     private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION = "Exception has occured when accessing local storage.";
     private static final String DATABASE_NAME = "database.xml";
-    private static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
+    private static final String CURRENT_DIRECTORY = System
+            .getProperty("user.dir");
 
-    private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final Logger LOGGER = Logger
+            .getLogger(Logger.GLOBAL_LOGGER_NAME);
+
     private static ArrayList<Long> displayedTasksList = new ArrayList<Long>();
     private static Command previousDisplayCommand;
     private static DatabaseManager<Task> dbManager;
@@ -109,7 +114,8 @@ public abstract class Command {
             dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
                     + File.separator + DATABASE_NAME);
         } catch (IOException e) {
-            getLogger().log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
+            getLogger()
+                    .log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
             return false;
         }
         return true;
@@ -120,7 +126,7 @@ public abstract class Command {
      *
      * @return Logger instance
      */
-    public static Logger getLogger() {
+    private static Logger getLogger() {
         return LOGGER;
     }
 
@@ -134,17 +140,17 @@ public abstract class Command {
     }
 
     /**
-     * Getter method for previousDisplayCommand
+     * Getter method for previousDisplayCommand.
      *
      * @return Command object of type ViewCommand or SearchCommand
      */
-    public static Command getPreviousDisplayCommand() {
+    protected static Command getPreviousDisplayCommand() {
         assert previousDisplayCommand != null : "Should not be null";
         return previousDisplayCommand;
     }
 
     /**
-     * Setter method for previousDisplayCommand
+     * Setter method for previousDisplayCommand.
      *
      * @param c ViewCommand or SearchCommand object
      */
@@ -157,7 +163,7 @@ public abstract class Command {
     }
 
     /**
-     * Getter method for dbManager
+     * Getter method for dbManager.
      *
      * @return DatabaseManager<Task> instance
      */
@@ -170,10 +176,11 @@ public abstract class Command {
      *
      * @param displayedId the task ID
      * @return true when it is being displayed else false
-     * @author Zhao Hang
      */
+    //@author A0119504L
     public static boolean isValidDisplayedId(int displayedId) {
-        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList.get(displayedId - 1) == -1);
+        return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList
+                .get(displayedId - 1) == -1);
     }
 
     /**
@@ -182,11 +189,13 @@ public abstract class Command {
      *
      * @return String response after execution
      */
+    //@author A0119504L
     public String safeExecute() {
         try {
             return execute();
         } catch (IOException e) {
-            getLogger().log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
+            getLogger()
+                    .log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
             return MESSAGE_ERROR_DATABASE_IOEXCEPTION;
         }
     }
@@ -197,5 +206,6 @@ public abstract class Command {
      * @return String response after execution
      * @throws IOException thrown if DBManager encounter I/O problems
      */
+    //@author A0119504L
     protected abstract String execute() throws IOException;
 }

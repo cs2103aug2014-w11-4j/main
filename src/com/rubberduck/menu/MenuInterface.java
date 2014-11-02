@@ -1,31 +1,34 @@
 package com.rubberduck.menu;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.rubberduck.command.Command;
+import com.rubberduck.logic.Parser;
+import com.rubberduck.menu.ColorFormatter.Color;
 
 import jline.console.ConsoleReader;
 import jline.console.completer.StringsCompleter;
 
-import com.rubberduck.command.Command;
-import com.rubberduck.logic.Parser;
-import com.rubberduck.menu.ColorFormatter.Color;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class focuses on handling the user interface of the entire application
  * which accepts the user's input, call the parser and execute the command
  * returned from the parser.
  */
-//@author A0111736M
+// @author A0111736M
 public class MenuInterface {
+
+    /* Global logger to log information and exception. */
+    private static final Logger LOGGER = Logger
+            .getLogger(Logger.GLOBAL_LOGGER_NAME);
+
     private static final String MESSAGE_WELCOME = "Welcome to RubberDuck. Here's your agenda for today.";
     private static final String MESSAGE_HELP = "If you need a list of commands, type ? or help.";
     private static final String MESSAGE_ERROR_CR_IOEXCEPTION = "Problem with ConsoleReader (IO).";
     private static final String MESSAGE_PROMPT = "Press [Enter] to continue...";
     private static final String DEFAULT_PROMPT = ">";
     private static final String WELCOME_EXECUTE = "view today";
-
-    private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private static MenuInterface menuInstance;
 
@@ -74,8 +77,11 @@ public class MenuInterface {
      * Used to setup and instantiate the ConsoleReader from jLine.
      *
      * @return ConsoleReader object
-     * @throws IOException
+     * @throws IOException occurs when ConsoleReader has problem with output
      */
+
+    // @author A0111736M
+    // @author A0111794E
     private ConsoleReader setupConsoleReader() throws IOException {
         ConsoleReader cr = new ConsoleReader();
         cr.clearScreen();
@@ -90,6 +96,8 @@ public class MenuInterface {
      *
      * @return String to display as welcome message
      */
+
+    // @author A0111736M
     private String getWelcomeMessage() {
         StringBuilder sb = new StringBuilder();
         sb.append(MESSAGE_WELCOME);
@@ -109,7 +117,7 @@ public class MenuInterface {
      * visible to the user.
      *
      * @param s String object to be displayed
-     * @throws IOException
+     * @throws IOException occurs when ConsoleReader has problem with output
      */
     private void showToUser(String s) throws IOException {
         consoleInstance.clearScreen();
@@ -128,7 +136,8 @@ public class MenuInterface {
 
     /**
      * Displays a prompt midway through an execution of a command and request an
-     * input from the user which will be returned to the command execution flow.
+     * input from the user which will be returned to the command execution
+     * flow.
      *
      * @param prompt String literals to be displayed to the user
      * @return response by the user
