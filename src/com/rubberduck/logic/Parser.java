@@ -373,7 +373,6 @@ public class Parser {
             int deleteId = Integer.parseInt(getFirstWord(args).trim());
             return new DeleteCommand(deleteId);
         } catch (NumberFormatException e) {
-
             return new InvalidCommand(MESSAGE_DELETE_ERROR_INVALID);
         }
     }

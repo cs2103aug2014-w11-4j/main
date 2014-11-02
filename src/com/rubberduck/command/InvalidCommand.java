@@ -30,6 +30,10 @@ public class InvalidCommand extends Command {
      */
     @Override
     public String execute() throws IOException {
-        return ColorFormatter.format(errorMessage, Color.RED);
+        StringBuilder response = new StringBuilder();
+        response.append(ColorFormatter.format(errorMessage, Color.RED));
+        response.append(System.lineSeparator());
+        response.append(getPreviousDisplayCommand().execute());
+        return response.toString();
     }
 }
