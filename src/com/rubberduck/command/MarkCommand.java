@@ -56,8 +56,12 @@ public class MarkCommand extends Command {
     @Override
     public String execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            return ColorFormatter.
-                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            StringBuilder errorResponse = new StringBuilder();
+            errorResponse.append(ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED));
+            errorResponse.append(System.lineSeparator());
+            errorResponse.append(getPreviousDisplayCommand().execute());
+            return errorResponse.toString();
         }
 
         if (isCompletedTask(taskId)) {

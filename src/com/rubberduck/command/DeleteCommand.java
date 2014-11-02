@@ -50,10 +50,16 @@ public class DeleteCommand extends Command {
     // @author A0119504L
     @Override
     public String execute() throws IOException {
+        StringBuilder response = new StringBuilder();
+
         if (!isValidDisplayedId(taskId)) {
-            return ColorFormatter.
-                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            response.append(ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED));
+            response.append(System.lineSeparator());
+            response.append(getPreviousDisplayCommand().execute());
+            return response.toString();
         }
+
         long databaseId = getDisplayedTasksList().get(taskId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
         String oldDescription = oldTask.getDescription();
@@ -62,7 +68,6 @@ public class DeleteCommand extends Command {
                                             oldDescription));
         getDisplayedTasksList().set(taskId - 1, (long) -1);
 
-        StringBuilder response = new StringBuilder();
         response.append(ColorFormatter.format(
             String.format(MESSAGE_DELETE, oldDescription), Color.YELLOW));
         response.append(System.lineSeparator());

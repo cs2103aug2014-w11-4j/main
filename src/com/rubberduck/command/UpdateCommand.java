@@ -80,9 +80,13 @@ public class UpdateCommand extends Command {
     // @author A0119504L
     @Override
     public String execute() throws IOException {
+        StringBuilder response = new StringBuilder();
         if (!isValidDisplayedId(taskId)) {
-            return ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_ID,
-                                         Color.RED);
+            response.append(ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_ID,
+                                                  Color.RED));
+            response.append(System.lineSeparator());
+            response.append(getPreviousDisplayCommand().execute());
+            return response.toString();
         }
 
         if (DatePair.isDateBeforeNow(datePairs)) {
@@ -115,8 +119,11 @@ public class UpdateCommand extends Command {
         }
 
         if (!task.checkValidity()) {
-            return ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_TYPE,
-                                         Color.RED);
+            response.append(ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_TYPE,
+                                                  Color.RED));
+            response.append(System.lineSeparator());
+            response.append(getPreviousDisplayCommand().execute());
+            return response.toString();
         }
 
         long newDatabaseId = getDbManager().
@@ -125,7 +132,6 @@ public class UpdateCommand extends Command {
 
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
 
-        StringBuilder response = new StringBuilder();
         response.append(ColorFormatter.format(
             String.format(MESSAGE_UPDATE, oldDescription), Color.YELLOW));
         response.append(System.lineSeparator());
