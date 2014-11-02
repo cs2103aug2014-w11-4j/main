@@ -366,13 +366,13 @@ public class CommandTest {
    
    /**
    *
-   * update task date which has passed the deadline
+   * update task date which has passed
    *
    * @throws IOException
    *
    */
   @Test
-  public void updateTaskPassedDeadline() throws IOException {
+  public void updateTaskPassed() throws IOException {
       ArrayList<DatePair> dpList = new ArrayList<DatePair>();
       ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
       viewChoice.add(ViewCommand.ViewType.DEADLINE);
