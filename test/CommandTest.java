@@ -502,12 +502,10 @@ public class CommandTest {
                format("You have input an invalid ID.", Color.RED);
        assertEquals(actual, expected);
    }
+   
     /**
-     * Test adding of task with todays date
-     *
-     * Add a task with todays date and current runtime Call display to display
-     * specified task via id Store both actual and expected values Mark recent
-     * created task as invalid Execute comparison
+ 	 * confirm task
+ 	 * @throws IOException
      *
      */
     @Test
