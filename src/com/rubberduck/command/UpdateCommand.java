@@ -12,7 +12,6 @@ import java.util.ArrayList;
  * Concrete Command Class that can be executed to update the task object from
  * database given the task id displayed on screen to the user.
  *
- * @author Zhao Hang
  */
 //@author A0119504L
 public class UpdateCommand extends Command {
@@ -37,6 +36,7 @@ public class UpdateCommand extends Command {
      *
      * @return taskId as int
      */
+    //@author A0119504L-reused
     public int getTaskId() {
         return taskId;
     }
@@ -78,7 +78,6 @@ public class UpdateCommand extends Command {
      *
      * @return updated message with the displayed id
      */
-    // @author A0111736M
     // @author A0119504L
     @Override
     public String execute() throws IOException {

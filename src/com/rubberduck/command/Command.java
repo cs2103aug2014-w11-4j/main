@@ -176,8 +176,8 @@ public abstract class Command {
      *
      * @param displayedId the task ID
      * @return true when it is being displayed else false
-     * @author Zhao Hang
      */
+    //@author A0119504L
     public static boolean isValidDisplayedId(int displayedId) {
         return !(displayedId > displayedTasksList.size() || displayedId <= 0 || displayedTasksList
                 .get(displayedId - 1) == -1);
@@ -189,6 +189,7 @@ public abstract class Command {
      *
      * @return String response after execution
      */
+    //@author A0119504L
     public String safeExecute() {
         try {
             return execute();
@@ -205,5 +206,6 @@ public abstract class Command {
      * @return String response after execution
      * @throws IOException thrown if DBManager encounter I/O problems
      */
+    //@author A0119504L
     protected abstract String execute() throws IOException;
 }

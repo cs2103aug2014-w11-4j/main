@@ -186,6 +186,7 @@ public class CommandTest {
      * @throws IOException
      *
      */
+  //@author A0119504L
     @Test
     public void deleteExistTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
@@ -210,6 +211,7 @@ public class CommandTest {
      * @throws IOException
      *
      */
+  //@author A0119504L
     @Test
     public void deleteNotExistTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
@@ -236,6 +238,7 @@ public class CommandTest {
      * @throws IOException
      *
      */
+  //@author A0119504L
     @Test
     public void updateTaskDescription() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
@@ -266,6 +269,7 @@ public class CommandTest {
     * @throws IOException
     *
     */
+  //@author A0119504L
    @Test
    public void updateTaskDate() throws IOException {
        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
@@ -304,6 +308,7 @@ public class CommandTest {
 	 * @throws IOException
 	 *
 	 */
+ //@author A0119504L
 	@Test
 	public void updateTaskNotExist() throws IOException {
 		ArrayList<DatePair> dpList = new ArrayList<DatePair>();
@@ -332,6 +337,7 @@ public class CommandTest {
     * @throws IOException
     *
     */
+	//@author A0119504L
    @Test
    public void updateTaskWrongType() throws IOException {
        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
@@ -363,41 +369,44 @@ public class CommandTest {
                Color.RED);
        assertEquals(expected, actual);
    }
-   
-   /**
-   *
-   * update task date which has passed
-   *
-   * @throws IOException
-   *
-   */
-  @Test
-  public void updateTaskPassed() throws IOException {
-      ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-      ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
-      viewChoice.add(ViewCommand.ViewType.DEADLINE);
-      viewChoice.add(ViewCommand.ViewType.SCHEDULE);
-      viewChoice.add(ViewCommand.ViewType.TASK);
-      AddCommand addCommand = new AddCommand(
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-              dpList);
-      addCommand.execute();
-      ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
-      viewCommand.execute();
-      
-      ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
-      Calendar date = Calendar.getInstance();
-      date.add(Calendar.DAY_OF_MONTH, -5);
-      DatePair dp = new DatePair(date);
-      datePairList.add(dp);
-      
-      UpdateCommand updateCommand = new UpdateCommand(1,
-   		   "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", datePairList);
-      String actual = updateCommand.execute();
-      String expected = ColorFormatter.format("You cannot update the end date that has already passed.",
-              Color.RED);
-      assertEquals(expected, actual);
-  }
+
+	/**
+	 *
+	 * update task date which has passed
+	 *
+	 * @throws IOException
+	 *
+	 */
+	//@author A0119504L
+	@Test
+	public void updateTaskPassed() throws IOException {
+		ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+		ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+		viewChoice.add(ViewCommand.ViewType.DEADLINE);
+		viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+		viewChoice.add(ViewCommand.ViewType.TASK);
+		AddCommand addCommand = new AddCommand(
+				"Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+				dpList);
+		addCommand.execute();
+		ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+		viewCommand.execute();
+
+		ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+		Calendar date = Calendar.getInstance();
+		date.add(Calendar.DAY_OF_MONTH, -5);
+		DatePair dp = new DatePair(date);
+		datePairList.add(dp);
+
+		UpdateCommand updateCommand = new UpdateCommand(1,
+				"Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+				datePairList);
+		String actual = updateCommand.execute();
+		String expected = ColorFormatter.format(
+				"You cannot update the end date that has already passed.",
+				Color.RED);
+		assertEquals(expected, actual);
+	}
    
     /**
      *
@@ -406,7 +415,7 @@ public class CommandTest {
      * @throws IOException
      *
      */
-
+  	//@author A0119504L
     @Test
     public void markTaskUncompleted() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
@@ -447,6 +456,7 @@ public class CommandTest {
      * @throws IOException
      *
      */
+    //@author A0119504L
     @Test
     public void markTaskCompleted() throws IOException {
         ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
@@ -481,6 +491,7 @@ public class CommandTest {
     * @throws IOException
     *
     */
+    //@author A0119504L
    @Test
    public void markTaskNotExist() throws IOException {
        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
@@ -508,6 +519,7 @@ public class CommandTest {
  	 * @throws IOException
      *
      */
+   	//@author A0119504L
     @Test
     public void confirmTask() throws IOException {
         ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
@@ -561,6 +573,7 @@ public class CommandTest {
  	 * @throws IOException
      *
      */
+    //@author A0119504L
     @Test
     public void confirmTaskNotExist() throws IOException {
         ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
@@ -610,6 +623,7 @@ public class CommandTest {
  	 * @throws IOException
      *
      */
+    //@author A0119504L
     @Test
     public void confirmTaskNotTentative() throws IOException {
         ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
@@ -646,6 +660,7 @@ public class CommandTest {
  	 * @throws IOException
      *
      */
+    //@author A0119504L
     @Test
     public void confirmTaskInvalidDateId() throws IOException {
         ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();

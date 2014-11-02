@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * given a task id displayed on the screen to the user.
  * 
  */
-// @author A0119504L
+//@author A0119504L
 public class ConfirmCommand extends Command {
 
     private static final String JOURNAL_MESSAGE_CONFIRM =
@@ -35,6 +35,7 @@ public class ConfirmCommand extends Command {
      *
      * @return taskId as int
      */
+    //@author A0119504L-reused
     public int getTaskId() {
         return taskId;
     }
@@ -65,8 +66,7 @@ public class ConfirmCommand extends Command {
      * @return confirm message with the displayed id
      * 
      */
-    // @author A0111736M
-    // @author A0119504L
+    //@author A0119504L
     @Override
     public String execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {

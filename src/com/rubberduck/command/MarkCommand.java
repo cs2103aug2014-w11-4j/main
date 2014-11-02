@@ -13,7 +13,7 @@ import java.io.IOException;
  *
  * @author Zhao Hang
  */
-// @author A0119504L
+//@author A0119504L
 public class MarkCommand extends Command {
 
     private static final String MESSAGE_ERROR_WRONG_TASK_ID =
@@ -34,6 +34,7 @@ public class MarkCommand extends Command {
      *
      * @return taskId as int
      */
+  //@author A0119504L-reused
     public int getTaskId() {
         return taskId;
     }
@@ -75,7 +76,7 @@ public class MarkCommand extends Command {
      * @return true if the task is completed
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    // @author A0119504L
+    //@author A0119504L
     private boolean isCompletedTask(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
@@ -89,8 +90,7 @@ public class MarkCommand extends Command {
      * @return message of mark task to completed
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    // @author A0111736M
-    // @author A0119504L
+    //@author A0119504L
     public String markTaskCompleted(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
@@ -118,8 +118,7 @@ public class MarkCommand extends Command {
      * @return message of mark task to uncompleted
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    // @author A0111736M
-    // @author A0119504L
+    //@author A0119504L
     public String markTaskIncomplete(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
