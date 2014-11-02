@@ -33,8 +33,6 @@ public class RubberDuck {
         "logs/";
     private static final String LOG_FILENAME =
         "%s.log";
-    private static final String MESSAGE_MKDIR_ERROR =
-        "Directory creation failed.";
 
     /**
      * Main method of application as well as the entry point.
