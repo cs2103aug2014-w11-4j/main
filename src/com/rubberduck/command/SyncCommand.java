@@ -11,9 +11,8 @@ import java.security.GeneralSecurityException;
 /**
  * Concrete Command Class that can be executed to synchronise with Google based
  * on the type.
- *
- * @author hooitong
  */
+//@author A0111736M
 public class SyncCommand extends Command {
 
     private static final String MESSAGE_ERROR_UNABLE_TO_START_SAFE_CONNECTION =

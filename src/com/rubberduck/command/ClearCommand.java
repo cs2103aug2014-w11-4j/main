@@ -9,9 +9,8 @@ import java.io.IOException;
 /**
  * Concrete Command Class that can be executed to clear the screen of the
  * terminal.
- *
- * @author hooitong
  */
+//@author A0111736M
 public class ClearCommand extends Command {
 
     private static final String MESSAGE_CLEAR =

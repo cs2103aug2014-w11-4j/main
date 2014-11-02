@@ -11,7 +11,6 @@ import java.util.ArrayList;
 /**
  * Concrete Command Class that can be executed to update the task object from
  * database given the task id displayed on screen to the user.
- *
  */
 //@author A0119504L
 public class UpdateCommand extends Command {

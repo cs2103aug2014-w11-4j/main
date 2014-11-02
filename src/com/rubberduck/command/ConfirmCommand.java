@@ -11,7 +11,6 @@ import java.util.ArrayList;
 /**
  * Concrete Command Class that can be executed to confirm the a tentative task
  * given a task id displayed on the screen to the user.
- * 
  */
 //@author A0119504L
 public class ConfirmCommand extends Command {
@@ -64,7 +63,6 @@ public class ConfirmCommand extends Command {
      * Confirm the date of task to the database.
      *
      * @return confirm message with the displayed id
-     * 
      */
     //@author A0119504L
     @Override

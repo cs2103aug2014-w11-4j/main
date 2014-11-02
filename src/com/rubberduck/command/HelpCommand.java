@@ -8,9 +8,8 @@ import java.io.IOException;
 /**
  * Concrete Command Class that can be executed to show the list of available
  * commands and their description.
- *
- * @author hooitong
  */
+//@author A0111736M
 public class HelpCommand extends Command {
 
     private static final String HELP_ALL_HEADER =

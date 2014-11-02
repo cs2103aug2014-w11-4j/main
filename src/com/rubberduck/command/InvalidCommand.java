@@ -8,9 +8,8 @@ import java.io.IOException;
 /**
  * Concrete Command Class that can be executed to return an invalid message back
  * to the user.
- *
- * @author hooitong
  */
+//@author A0111736M
 public class InvalidCommand extends Command {
 
     private String errorMessage;

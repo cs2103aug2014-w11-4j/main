@@ -16,9 +16,8 @@ import java.util.logging.Logger;
 /**
  * Concrete Command Class that can be executed to return related tasks as a
  * formatted String based on various input upon creation.
- *
- * @author Jason Sia
  */
+//@author A0111794E
 public class ViewCommand extends Command {
 
     public enum ViewType {
@@ -236,8 +235,8 @@ public class ViewCommand extends Command {
      *
      * @return the formatted string of all tasks involved
      * @throws IOException occurs when dbManager encounters a problem with file
-     * @author hooitong
      */
+    //@author A0111736M
     private String formatTaskListOutput() throws IOException {
         Collections.sort(getDisplayedTasksList(),
                          getDbManager().getInstanceIdComparator());
@@ -283,8 +282,8 @@ public class ViewCommand extends Command {
      * @param displayingId the id of the task
      * @return the formatted output of the task
      * @throws IOException occurs when dbManager encounters a problem with file
-     * @author hooitong
      */
+    //@author A0111736M
     private String formatTaskOutput(int displayingId) throws IOException {
         Task task = getDbManager().
             getInstance(getDisplayedTasksList().get(displayingId));

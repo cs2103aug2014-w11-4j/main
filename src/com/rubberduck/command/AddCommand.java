@@ -11,9 +11,8 @@ import java.util.ArrayList;
 /**
  * Concrete Command Class that can be executed to add a new task (floating,
  * deadline, schedule) into the database.
- *
- * @author Jason Sia
  */
+//@author A0111794E
 public class AddCommand extends Command {
 
     private static final String MESSAGE_ADD =
@@ -65,9 +64,8 @@ public class AddCommand extends Command {
      *
      * @return the correct response back to the user
      * @throws IOException DBManager has encountered an IO Error
-     * @author Jason Sia
-     * @author hooitong ANSI & Response
      */
+    //@author A0111794E
     @Override
     public String execute() throws IOException {
         assert datePairs != null;

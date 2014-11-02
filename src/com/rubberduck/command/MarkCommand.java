@@ -10,8 +10,6 @@ import java.io.IOException;
  * Concrete Command Class that can be executed to mark as completed/incomplete
  * the task object from database given the task id displayed on screen to the
  * user.
- *
- * @author Zhao Hang
  */
 //@author A0119504L
 public class MarkCommand extends Command {
@@ -34,7 +32,7 @@ public class MarkCommand extends Command {
      *
      * @return taskId as int
      */
-  //@author A0119504L-reused
+    //@author A0119504L-reused
     public int getTaskId() {
         return taskId;
     }

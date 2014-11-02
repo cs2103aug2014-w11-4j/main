@@ -8,9 +8,8 @@ import java.io.IOException;
 /**
  * Concrete Command Class that can be executed to redo the previous undone
  * operation.
- *
- * @author hooitong
  */
+//@author A0111736M
 public class RedoCommand extends Command {
 
     private static final String JOURNAL_MESSAGE_REDONE =

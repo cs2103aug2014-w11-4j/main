@@ -1,14 +1,5 @@
 package com.rubberduck.logic;
 
-/**
- * This task class is used to represent a single task object
- * which stores all relevant information about the task and
- * provide the needed getters and setters for retrieval and
- * storage.
- *
- * @author Sia Wei Kiat Jason
- */
-
 import com.rubberduck.io.DatabaseManager;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
@@ -22,6 +13,13 @@ import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.Locale;
 
+/**
+ * This task class is used to represent a single task object
+ * which stores all relevant information about the task and
+ * provide the needed getters and setters for retrieval and
+ * storage.
+ */
+//@author A0111794E
 public class Task implements Serializable, Comparable<Task> {
 
     private String description;
@@ -207,8 +205,8 @@ public class Task implements Serializable, Comparable<Task> {
      *
      * @param dateRange the DatePair to be compared with
      * @return true if there is overlap with the given DatePair
-     * @author Huang Yue
      */
+    //@author A0119416H
     public boolean isWithinPeriod(DatePair dateRange) {
         if (dateList.isEmpty()) {
             return true;
@@ -257,8 +255,8 @@ public class Task implements Serializable, Comparable<Task> {
      *
      * @param displayingId the id of the task
      * @return the formatted string of the task
-     * @author Hooi Tong
      */
+    //@author A0111736M
     public String formatOutput(String displayingId) {
         boolean overdue = false;
         final int maxDescLength = 41;

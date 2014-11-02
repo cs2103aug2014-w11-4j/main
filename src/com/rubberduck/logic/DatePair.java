@@ -9,9 +9,8 @@ import java.util.Locale;
 /**
  * This DatePair class is used to store a pair of date in the form of Calendar
  * object which represent the possible start date and end date.
- *
- * @author Sia Wei Kiat Jason
  */
+//@author A0111794E
 public class DatePair implements Serializable {
 
     private Calendar startDate = null;
@@ -163,8 +162,8 @@ public class DatePair implements Serializable {
      *
      * @param dateRange another DatePair to be compared with
      * @return true if there is overlap between two DatePairs
-     * @author Huang Yue
      */
+    //@author A0119416H
     public boolean isWithinPeriod(DatePair dateRange) {
         Calendar startDateCriteria = dateRange.getStartDate();
         Calendar endDateCriteria = dateRange.getEndDate();

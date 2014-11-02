@@ -7,9 +7,8 @@ import java.io.IOException;
 
 /**
  * Concrete Command Class that can be executed to undo the previous operation.
- *
- * @author hooitong
  */
+//@author A0111736M
 public class UndoCommand extends Command {
 
     private static final String JOURNAL_MESSAGE_UNDONE =

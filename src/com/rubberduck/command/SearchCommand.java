@@ -10,9 +10,8 @@ import java.util.Collections;
 /**
  * Concrete Command Class that can be executed to search the data store for
  * tasks containing the provided keyword and returns back the task details.
- *
- * @author Jason Sia
  */
+//@author A0111794E
 public class SearchCommand extends Command {
 
     private static final String MESSAGE_SEARCH_RESULT =
@@ -94,8 +93,8 @@ public class SearchCommand extends Command {
      *
      * @return the formatted string of all tasks involved
      * @throws IOException occurs when dbManager encounters a problem with file
-     * @author hooitong
      */
+    //@author A0111736M
     private String formatTaskListOutput() throws IOException {
         Collections.sort(getDisplayedTasksList(),
                          getDbManager().getInstanceIdComparator());
@@ -141,8 +140,8 @@ public class SearchCommand extends Command {
      * @param displayingId the id of the task
      * @return the formatted output of the task
      * @throws IOException occurs when dbManager encounters a problem with file
-     * @author hooitong
      */
+    //@author A0111736M
     private String formatTaskOutput(int displayingId) throws IOException {
         Task task = getDbManager().
             getInstance(getDisplayedTasksList().get(displayingId));

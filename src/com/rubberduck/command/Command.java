@@ -17,9 +17,8 @@ import java.util.logging.Logger;
 /**
  * Class that represents a command object where it stores the type of command it
  * is and all its arguments.
- *
- * @author hooitong
  */
+//@author A0111736M
 public abstract class Command {
 
     /* Enum type to store all types of command and their possible variations */
@@ -117,8 +116,8 @@ public abstract class Command {
                                                   + File.separator
                                                   + DATABASE_NAME);
         } catch (IOException e) {
-            getLogger()
-                .log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
+            getLogger().
+                log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
             return false;
         }
         return true;
@@ -197,8 +196,8 @@ public abstract class Command {
         try {
             return execute();
         } catch (IOException e) {
-            getLogger()
-                .log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
+            getLogger().
+                log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
             return MESSAGE_ERROR_DATABASE_IOEXCEPTION;
         }
     }
