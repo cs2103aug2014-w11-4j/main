@@ -236,7 +236,6 @@ public class CommandTest {
      * @throws IOException
      *
      */
-
     @Test
     public void updateTaskDescription() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
@@ -262,12 +261,11 @@ public class CommandTest {
     
     /**
     *
-    * update the task description
+    * update the task dateList
     *
     * @throws IOException
     *
     */
-
    @Test
    public void updateTaskDate() throws IOException {
        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
@@ -299,6 +297,33 @@ public class CommandTest {
        assertEquals(expected, actual);
    }
 
+   	/**
+	 *
+	 * update the task description
+	 *
+	 * @throws IOException
+	 *
+	 */
+	@Test
+	public void updateTaskNotExist() throws IOException {
+		ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+		ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+		viewChoice.add(ViewCommand.ViewType.DEADLINE);
+		viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+		viewChoice.add(ViewCommand.ViewType.TASK);
+		AddCommand addCommand = new AddCommand(
+				"Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+				dpList);
+		addCommand.execute();
+		ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+		viewCommand.execute();
+		UpdateCommand updateCommand = new UpdateCommand(2,
+				"Lorem ipsum dolor sit amet.", dpList);
+		String expected = updateCommand.execute();
+		String actual = ColorFormatter.format("You have input an invalid ID.",
+                Color.RED);
+		assertEquals(expected, actual);
+	}
     /**
      *
      * mark task as completed
