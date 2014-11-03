@@ -3,6 +3,7 @@ import com.rubberduck.command.Command;
 import com.rubberduck.command.ConfirmCommand;
 import com.rubberduck.command.DeleteCommand;
 import com.rubberduck.command.HelpCommand;
+import com.rubberduck.command.InvalidCommand;
 import com.rubberduck.command.MarkCommand;
 import com.rubberduck.command.RedoCommand;
 import com.rubberduck.command.SearchCommand;
@@ -353,6 +354,19 @@ public class CommandTest {
         HelpCommand command = new HelpCommand(true, "abc");
         String actual = command.execute();
         String expected = "No such command/alias.";
+        assertTrue(actual.contains(expected));
+        
+    }
+    
+    /**
+     * Test invalid command
+     */
+    //@author A0119504L
+    @Test
+    public void InvalidCommandTest() throws IOException {
+        InvalidCommand command = new InvalidCommand("abc");
+        String actual = command.execute();
+        String expected = "abc";
         assertTrue(actual.contains(expected));
         
     }
