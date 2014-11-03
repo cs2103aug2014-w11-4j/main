@@ -6,6 +6,7 @@
 # Package Files #
 *.war
 *.ear
+*.jar
 
 # Eclipse Plugin (UML) #
 *.ucls
@@ -19,6 +20,7 @@ hs_err_pid*
 .settings/edu.umd.cs.findbugs.core.prefs
 .idea/*
 *.iml
+*/MANIFEST.MF
 
 # Database File #
 database.xml
@@ -26,4 +28,6 @@ database.xml
 # Log Files #
 /logs/
 *.log
+
+
 
