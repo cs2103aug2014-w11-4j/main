@@ -702,7 +702,7 @@ public class CommandTest {
                 "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" is not tentative and does not need confirmation.",
                 Color.RED);
 
-        assertEquals(expected, actual);
+        assertTrue(actual.contains(expected));
     }
 
     /**
