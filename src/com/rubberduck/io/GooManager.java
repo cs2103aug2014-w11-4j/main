@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -51,6 +53,9 @@ public class GooManager {
 
     private static com.google.api.services.tasks.Tasks tasksClient;
     private static String taskListId = null;
+
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss", Locale.US);
+    private static final String REMOTE_SYNC_FLAG_FORMAT = "Last Synced on: ";
 
     private static Credential authorize() throws IOException {
         GoogleClientSecrets.Details details = new GoogleClientSecrets.Details();
@@ -147,6 +152,27 @@ public class GooManager {
                     .insert(taskList)
                     .execute();
             taskListId = createdTaskList.getId();
+        }
+    }
+
+    private static void setLastSyncTime() throws IOException {
+        Calendar calendar = calendarClient.calendars().get(calendarId).execute();
+        calendar.setDescription(REMOTE_SYNC_FLAG_FORMAT +
+                DATE_FORMAT.format(java.util.Calendar.getInstance().getTime()));
+        calendarClient.calendars().update(calendarId, calendar).execute();
+    }
+
+    private static Date getLastSyncTime() throws IOException {
+        Calendar calendar = calendarClient.calendars().get(calendarId).execute();
+        String line = calendar.getDescription();
+        if (line.startsWith(REMOTE_SYNC_FLAG_FORMAT)) {
+            try {
+                return DATE_FORMAT.parse(line.replace(REMOTE_SYNC_FLAG_FORMAT, ""));
+            } catch (ParseException e) {
+                throw new IOException();
+            }
+        } else {
+            return null;
         }
     }
 
@@ -438,6 +464,7 @@ public class GooManager {
             dbManager.modify(databaseId, localTask, null);
         }
         dbManager.rewriteFile();
+        setLastSyncTime();
     }
 
     public static void forcePushAll(
@@ -470,6 +497,7 @@ public class GooManager {
             }
         }
         dbManager.rewriteFile();
+        setLastSyncTime();
     }
 
     public static void forcePullAll(
