@@ -131,11 +131,7 @@ public class CommandTest {
     //@author A0119504L
     @Test
     public void addTentativeTask() throws IOException {
-        ArrayList<ViewCommand.ViewType> viewChoice =
-            new ArrayList<ViewCommand.ViewType>();
-        viewChoice.add(ViewCommand.ViewType.DEADLINE);
-        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewType.TASK);
+ 
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
@@ -168,6 +164,30 @@ public class CommandTest {
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
         assertTrue(actual.contains(expected));
     }
+    
+    /**
+     * add task which deadline have passed
+     * 
+     */
+    //@author A0119504L
+    @Test
+    public void addTaskPassed() throws IOException {
+        
+        ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+        Calendar date = Calendar.getInstance();
+        date.add(Calendar.DAY_OF_MONTH, -5);
+        DatePair dp = new DatePair(date);
+        datePairList.add(dp);
+
+        AddCommand addCommand = new AddCommand(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            datePairList);
+        String actual = addCommand.execute();
+
+        String expected =
+            "cannot be added as the end date has already passed.";
+        assertTrue(actual.contains(expected));
+    }
 
     /**
      * add conflict task
@@ -177,11 +197,7 @@ public class CommandTest {
     //@author A0119504L
     @Test
     public void addConflictTask() throws IOException {
-        ArrayList<ViewCommand.ViewType> viewChoice =
-            new ArrayList<ViewCommand.ViewType>();
-        viewChoice.add(ViewCommand.ViewType.DEADLINE);
-        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewType.TASK);
+
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         ArrayList<DatePair> datePairList2 = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
