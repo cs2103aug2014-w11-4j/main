@@ -283,8 +283,8 @@ public class CommandTest {
         viewCommand.execute();
         DeleteCommand deleteCommand = new DeleteCommand(2);
         String expected = deleteCommand.execute();
-        assertEquals(expected, ColorFormatter.
-            format("This is not a valid task ID to delete.", Color.RED));
+        assertTrue(expected.contains( ColorFormatter.
+            format("This is not a valid task ID to delete.", Color.RED)));
     }
 
     /**
