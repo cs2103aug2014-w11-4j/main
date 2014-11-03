@@ -42,7 +42,7 @@ public class GooManager {
     private static final String APPLICATION_NAME = "RubberDuck/0.2";
     private static final String CALENDAR_NAME = "RubberDuck";
 
-    private static final String REMOTE_FLAG_COMPLETED = "[Completed]";
+    private static final String REMOTE_FLAG_COMPLETED = "[Completed]\n";
 
     private static final String LOCAL_UUID_TASK = "_RD_T_";
     private static final String LOCAL_UUID_EVENT = "_RD_E_";
@@ -362,7 +362,9 @@ public class GooManager {
         event.setStart(calendarToEventDateTime(datePair.getStartDate()));
         event.setEnd(calendarToEventDateTime(datePair.getEndDate()));
         if (originalTask.getIsDone()) {
-            event.setDescription(REMOTE_FLAG_COMPLETED);
+            event.setDescription(REMOTE_FLAG_COMPLETED + event.getDescription());
+        } else {
+            event.setDescription(event.getDescription().replaceAll(REMOTE_FLAG_COMPLETED, ""));
         }
     }
 
@@ -394,7 +396,7 @@ public class GooManager {
                 eventDateTimeToCalendar(remoteEvent.getStart()),
                 eventDateTimeToCalendar(remoteEvent.getEnd())));
         task.setDateList(dateList);
-        if (remoteEvent.getDescription().startsWith(REMOTE_FLAG_COMPLETED)) {
+        if (remoteEvent.getDescription().contains(REMOTE_FLAG_COMPLETED)) {
             task.setIsDone(true);
         } else {
             task.setIsDone(false);
