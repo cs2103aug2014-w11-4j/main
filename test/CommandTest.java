@@ -560,7 +560,7 @@ public class CommandTest {
 
         String expected = ColorFormatter.
             format("You have input an invalid ID.", Color.RED);
-        assertEquals(actual, expected);
+        assertTrue(actual.contains(expected));
     }
 
     /**
