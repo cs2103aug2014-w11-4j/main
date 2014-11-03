@@ -343,6 +343,19 @@ public class CommandTest {
         String expected = "More information about your queried command.";
         assertTrue(actual.contains(expected));
     }
+    
+    /**
+     * Test invalid help command
+     */
+    //@author A0119504L
+    @Test
+    public void helpInvalidCommandTest() throws IOException {
+        HelpCommand command = new HelpCommand(true, "abc");
+        String actual = command.execute();
+        String expected = "No such command/alias.";
+        assertTrue(actual.contains(expected));
+        
+    }
 
     /**
      * Delete exist task
