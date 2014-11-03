@@ -664,7 +664,7 @@ public class CommandTest {
         String expected = ColorFormatter.
             format("You have input an invalid task ID.", Color.RED);
 
-        assertEquals(expected, actual);
+        assertTrue(actual.contains(expected));
     }
 
     /**
