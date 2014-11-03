@@ -390,6 +390,26 @@ public class Task implements Serializable, Comparable<Task> {
         return false;
     }
 
+    public boolean isTentative() {
+        return dateList.size() > 1;
+    }
+
+    public String getDateString() {
+        if (isFloatingTask()) {
+            return "No Date";
+        } else {
+            SimpleDateFormat dateFormat =
+                new SimpleDateFormat("dd-MMM hh:mm aa", Locale.US);
+            DatePair dp = dateList.get(0);
+            if (dp.hasDateRange()) {
+                return dateFormat.format(dp.getStartDate().getTime())
+                       + " to" + dateFormat.format(dp.getEndDate().getTime());
+            } else {
+                return dateFormat.format(dp.getEndDate().getTime());
+            }
+        }
+    }
+
     /**
      * Check if the task is a valid task.
      *
@@ -425,13 +445,13 @@ public class Task implements Serializable, Comparable<Task> {
 
         return earliestDate;
     }
+
     /**
-     * Compare both task by their deadline.
-     * <p>Schedule Task > Deadline Task > Floating Task<p/> 
-     * 
-     * @param task the task object to be compared with the argument
+     * Compare both task by their deadline. <p>Schedule Task > Deadline Task >
+     * Floating Task<p/>
+     *
+     * @param o the task object to be compared with the argument
      * @return int ,  0 = equal, -1 = smaller, 1 = bigger
-     * 
      */
     //@author A0111794E
     @Override
