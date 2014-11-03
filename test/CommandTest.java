@@ -124,6 +124,50 @@ public class CommandTest {
             "lorem ipsum dolor sit amet, consectetur adipiscing elit.";
         assertEquals(expected, actual);
     }
+    
+    /**
+     * add tentative task
+     */
+    //@author A0119504L
+    @Test
+    public void addTentativeTask() throws IOException {
+        ArrayList<ViewCommand.ViewType> viewChoice =
+            new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
+        ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+        Calendar date = Calendar.getInstance();
+        Calendar date2 = Calendar.getInstance();
+
+        date.add(Calendar.DAY_OF_YEAR, 1);
+        date2.add(Calendar.DAY_OF_YEAR, 2);
+        DatePair dp = new DatePair(date, date2);
+        datePairList.add(dp);
+
+        Calendar date3 = Calendar.getInstance();
+        Calendar date4 = Calendar.getInstance();
+        date3.add(Calendar.DAY_OF_YEAR, 2);
+        date4.add(Calendar.DAY_OF_YEAR, 3);
+        DatePair dp2 = new DatePair(date3, date4);
+        datePairList.add(dp2);
+
+        Calendar date5 = Calendar.getInstance();
+        Calendar date6 = Calendar.getInstance();
+        date5.add(Calendar.DAY_OF_YEAR, 3);
+        date6.add(Calendar.DAY_OF_YEAR, 4);
+        DatePair dp3 = new DatePair(date5, date6);
+        datePairList.add(dp3);
+
+        AddCommand addCommand = new AddCommand(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            datePairList);
+        String actual = addCommand.execute();
+
+        String expected =
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+        assertTrue(actual.contains(expected));
+    }
 
     /**
      * Search for keyword in description
