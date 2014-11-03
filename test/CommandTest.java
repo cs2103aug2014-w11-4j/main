@@ -2,6 +2,7 @@ import com.rubberduck.command.AddCommand;
 import com.rubberduck.command.Command;
 import com.rubberduck.command.ConfirmCommand;
 import com.rubberduck.command.DeleteCommand;
+import com.rubberduck.command.HelpCommand;
 import com.rubberduck.command.MarkCommand;
 import com.rubberduck.command.RedoCommand;
 import com.rubberduck.command.SearchCommand;
@@ -317,6 +318,18 @@ public class CommandTest {
         assertEquals(originalSize + 2, Command.getDbManager()
             .getValidIdList()
             .size());
+    }
+
+    /**
+     * Test help command
+     */
+    //@author A0119504L
+    @Test
+    public void helpTest() throws IOException {
+        HelpCommand command = new HelpCommand(false, null);
+        String actual = command.execute();
+        String expected = "Here are for the available commands in RubberDuck.";
+        assertTrue(actual.contains(expected));
     }
 
     /**
