@@ -270,6 +270,25 @@ public class CommandTest {
         String expected = "1 task with \"Lorem\" has been found.";
         assertTrue(actual.contains(expected));
     }
+    
+    /**
+     * Search for keyword not exist
+     */
+    //@author A0119504L
+    @Test
+    public void searchKeywordNotExistTest() throws IOException {
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+
+        AddCommand addCommand = new AddCommand(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            dpList);
+        addCommand.execute();
+
+        SearchCommand searchCommand = new SearchCommand("apple");
+        String actual = searchCommand.execute();
+        String expected = "0 task with \"apple\" has been found.";
+        assertTrue(actual.contains(expected));
+    }
 
     /**
      * Test undo function on Journal Add in a task, and call undo, Expected:
