@@ -331,6 +331,18 @@ public class CommandTest {
         String expected = "Here are for the available commands in RubberDuck.";
         assertTrue(actual.contains(expected));
     }
+    
+    /**
+     * Test specific help command
+     */
+    //@author A0119504L
+    @Test
+    public void helpSpecificTest() throws IOException {
+        HelpCommand command = new HelpCommand(true, "add");
+        String actual = command.execute();
+        String expected = "More information about your queried command.";
+        assertTrue(actual.contains(expected));
+    }
 
     /**
      * Delete exist task
