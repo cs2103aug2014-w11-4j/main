@@ -460,8 +460,10 @@ public class GooManager {
             throws IOException {
         for (Long databaseId : dbManager.getValidIdList()) {
             com.rubberduck.logic.Task localTask = dbManager.getInstance(databaseId);
-            pushTask(localTask);
-            dbManager.modify(databaseId, localTask, null);
+            if (!(localTask.getDateList().size() > 1)) {
+                pushTask(localTask);
+                dbManager.modify(databaseId, localTask, null);
+            }
         }
         dbManager.rewriteFile();
         setLastSyncTime();
