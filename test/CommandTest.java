@@ -381,7 +381,7 @@ public class CommandTest {
         String expected = updateCommand.execute();
         String actual = ColorFormatter.format("You have input an invalid ID.",
                                               Color.RED);
-        assertEquals(expected, actual);
+        assertTrue(expected.contains(actual));
     }
 
     /**
