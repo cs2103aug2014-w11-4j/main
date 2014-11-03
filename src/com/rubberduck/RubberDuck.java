@@ -26,7 +26,7 @@ import java.util.logging.SimpleFormatter;
 //@author A0111736M
 public class RubberDuck {
 
-    /* Static variables used to store information about logging */
+    /* Static variables used to store information about logging in RubberDuck */
     private static final String DATESTAMP_FORMAT =
         "dd-MM-yyyy_HH-mm-ss";
     private static final String LOG_DIR =
@@ -58,7 +58,7 @@ public class RubberDuck {
         Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         logger.setLevel(Level.INFO);
 
-        /* Disable mortbay logging for GooManager*/
+        /* Disable mortbay/jetty logging for GooManager*/
         org.mortbay.log.Log.setLog(null);
 
         /* Setup file handler */
