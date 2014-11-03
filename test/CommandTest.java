@@ -222,6 +222,33 @@ public class CommandTest {
             "Please note that there are conflicting task(s).";
         assertTrue(actual.contains(expected));
     }
+    
+    /**
+     * add wrong task type with multiple deadlines
+     */
+    //@author A0119504L
+    @Test
+    public void addTaskWrongType() throws IOException {
+
+        ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+        Calendar date = Calendar.getInstance();
+        Calendar date2 = Calendar.getInstance();
+        date.add(Calendar.DAY_OF_YEAR, 1);
+        date2.add(Calendar.DAY_OF_YEAR, 2);
+        DatePair dp = new DatePair(date);
+        DatePair dp2 = new DatePair(date2);
+        datePairList.add(dp);
+        datePairList.add(dp2);
+
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                datePairList);
+        String actual = addCommand.execute();
+
+        String expected =
+                "You have input an invalid task type.";
+        assertTrue(actual.contains(expected));
+    }
 
     /**
      * Search for keyword in description
