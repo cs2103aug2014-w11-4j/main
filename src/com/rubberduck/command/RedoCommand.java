@@ -2,6 +2,7 @@ package com.rubberduck.command;
 
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Response;
 
 import java.io.IOException;
 
@@ -22,13 +23,13 @@ public class RedoCommand extends Command {
      * @throws IOException occurs when DatabaseManager has I/O issues
      */
     @Override
-    public String execute() throws IOException {
+    public Response execute() throws IOException {
         try {
-            return String.format(
+            return new Response(String.format(
                 ColorFormatter.format(JOURNAL_MESSAGE_REDONE, Color.YELLOW),
-                getDbManager().redo());
+                getDbManager().redo()), false);
         } catch (UnsupportedOperationException e) { /* Nothing to redo */
-            return e.getMessage();
+            return new Response(e.getMessage(), false);
         }
     }
 }

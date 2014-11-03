@@ -3,6 +3,7 @@ package com.rubberduck.command;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Response;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -22,8 +23,6 @@ public class SearchCommand extends Command {
         "--------------------------------[    TASKS    ]---------------------------------";
     private static final String DEADLINE_SEPERATOR =
         "--------------------------------[  DEADLINES  ]---------------------------------";
-
-    private static final int CONSOLE_MAX_WIDTH = 80;
 
     private static final int FLOATING_TASK = 0;
     private static final int DEADLINE_TASK = 1;
@@ -57,11 +56,8 @@ public class SearchCommand extends Command {
      * @return formatted string back to parent
      */
     @Override
-    public String execute() throws IOException {
+    public Response execute() throws IOException {
         setPreviousDisplayCommand(this);
-
-        StringBuilder responseBuilder = new StringBuilder();
-
         getDisplayedTasksList().clear();
 
         for (Long databaseId : getDbManager().getValidIdList()) {
@@ -76,16 +72,12 @@ public class SearchCommand extends Command {
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.RED
                                                               : Color.GREEN;
 
-        responseBuilder.append(ColorFormatter.format(
+        StringBuilder viewCount = new StringBuilder();
+        viewCount.append(ColorFormatter.format(
             String.format(MESSAGE_SEARCH_RESULT, getDisplayedTasksList().size(),
                           keyword), headerColor));
 
-        if (!getDisplayedTasksList().isEmpty()) {
-            responseBuilder.append(System.lineSeparator());
-            responseBuilder.append(formatTaskListOutput());
-        }
-
-        return responseBuilder.toString();
+        return new Response("", viewCount.toString(), formatTaskListOutput());
     }
 
     /**
@@ -98,40 +90,29 @@ public class SearchCommand extends Command {
     private String formatTaskListOutput() throws IOException {
         Collections.sort(getDisplayedTasksList(),
                          getDbManager().getInstanceIdComparator());
-
-        StringBuilder stringBuilder = new StringBuilder();
-        String header = String.format("%-7s%-6s%-43s%-24s", "ID", "Done",
-                                      "Task", "Date");
-        String border = "";
-        for (int i = 0; i < CONSOLE_MAX_WIDTH; i++) {
-            border += "-";
-        }
-
-        stringBuilder.append(border + System.lineSeparator() + header +
-                             System.lineSeparator() + border +
-                             System.lineSeparator());
+        StringBuilder taskData = new StringBuilder();
 
         int prevType = -1;
         for (int i = 0; i < getDisplayedTasksList().size(); i++) {
+            if (taskData.length() > 0) {
+                taskData.append(System.lineSeparator());
+            }
+
             int currentType = getTaskType(i);
             if (currentType != prevType) {
                 if (currentType == FLOATING_TASK) {
-                    stringBuilder.append(FLOATING_SEPERATOR);
-                    stringBuilder.append(System.lineSeparator());
+                    taskData.append(FLOATING_SEPERATOR);
                 } else if (currentType == DEADLINE_TASK) {
-                    stringBuilder.append(DEADLINE_SEPERATOR);
-                    stringBuilder.append(System.lineSeparator());
+                    taskData.append(DEADLINE_SEPERATOR);
                 } else if (currentType == TIMED_TASK) {
-                    stringBuilder.append(SCHEDULE_SEPERATOR);
-                    stringBuilder.append(System.lineSeparator());
+                    taskData.append(SCHEDULE_SEPERATOR);
                 }
+                taskData.append(System.lineSeparator());
             }
             prevType = currentType;
-            stringBuilder.append(formatTaskOutput(i));
-            stringBuilder.append(System.lineSeparator());
+            taskData.append(formatTaskOutput(i));
         }
-        stringBuilder.append(border);
-        return stringBuilder.toString();
+        return taskData.toString();
     }
 
     /**

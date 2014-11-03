@@ -2,6 +2,7 @@ package com.rubberduck.command;
 
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Response;
 
 import java.io.IOException;
 
@@ -20,9 +21,10 @@ public class ExitCommand extends Command {
      * application.
      */
     @Override
-    public String execute() throws IOException {
+    public Response execute() throws IOException {
         getDbManager().closeFile();
         System.exit(0);
-        return ColorFormatter.format(MESSAGE_EXIT, Color.RED);
+        return new Response(ColorFormatter.format(MESSAGE_EXIT, Color.RED),
+                            true);
     }
 }

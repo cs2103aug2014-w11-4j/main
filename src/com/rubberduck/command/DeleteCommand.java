@@ -3,6 +3,7 @@ package com.rubberduck.command;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Response;
 
 import java.io.IOException;
 
@@ -16,7 +17,7 @@ public class DeleteCommand extends Command {
     private static final String JOURNAL_MESSAGE_DELETE =
         "Deleted task \"%s\"";
     private static final String MESSAGE_DELETE =
-        "\"%s\" has been successfully deleted.";
+        "\"%s\" has been successfully deleted from RubberDuck.";
     private static final String MESSAGE_ERROR_WRONG_TASK_ID =
         "This is not a valid task ID to delete.";
 
@@ -49,15 +50,11 @@ public class DeleteCommand extends Command {
      */
     // @author A0119504L
     @Override
-    public String execute() throws IOException {
-        StringBuilder response = new StringBuilder();
-
+    public Response execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            response.append(ColorFormatter.
-                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED));
-            response.append(System.lineSeparator());
-            response.append(getPreviousDisplayCommand().execute());
-            return response.toString();
+            String errorMessage = ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return new Response(errorMessage, false);
         }
 
         long databaseId = getDisplayedTasksList().get(taskId - 1);
@@ -68,14 +65,11 @@ public class DeleteCommand extends Command {
                                             oldDescription));
         getDisplayedTasksList().set(taskId - 1, (long) -1);
 
-        response.append(ColorFormatter.format(
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter.format(
             String.format(MESSAGE_DELETE, oldDescription), Color.YELLOW));
-        response.append(System.lineSeparator());
-        response.append(ColorFormatter.format(
-            String.format(oldTask.formatOutput("-")), Color.RED));
-        response.append(System.lineSeparator());
-        response.append(getPreviousDisplayCommand().execute());
-
-        return response.toString();
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
     }
 }

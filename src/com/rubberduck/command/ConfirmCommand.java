@@ -4,6 +4,7 @@ import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class ConfirmCommand extends Command {
     private static final String JOURNAL_MESSAGE_CONFIRM =
         "Confirm task \"%s\"";
     private static final String MESSAGE_CONFIRM =
-        "\"%s\" has been confirmed.";
+        "\"%s\" has been confirmed from %s.";
     private static final String MESSAGE_ERROR_WRONG_TASK_ID =
         "You have input an invalid task ID.";
     private static final String MESSAGE_ERROR_NOT_TENTATIVE =
@@ -66,41 +67,30 @@ public class ConfirmCommand extends Command {
      */
     //@author A0119504L
     @Override
-    public String execute() throws IOException {
-        StringBuilder response = new StringBuilder();
-
+    public Response execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            response.append(ColorFormatter.
-                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED));
-            response.append(System.lineSeparator());
-            response.append(getPreviousDisplayCommand().execute());
-            return response.toString();
+            String errorMessage = ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return new Response(errorMessage, false);
         }
 
         long databaseId = getDisplayedTasksList().get(taskId - 1);
 
         Task task = getDbManager().getInstance(databaseId);
-        String oldTaskFormattedString = ColorFormatter.format(
-            String.format(task.formatOutput("-")), Color.RED);
         String oldDescription = task.getDescription();
-
         ArrayList<DatePair> dateList = task.getDateList();
 
         if (dateList.size() <= 1) {
-            response.append(ColorFormatter.format(
+            String errorMessage = ColorFormatter.format(
                 String.format(MESSAGE_ERROR_NOT_TENTATIVE, oldDescription),
-                Color.RED));
-            response.append(System.lineSeparator());
-            response.append(getPreviousDisplayCommand().execute());
-            return response.toString();
+                Color.RED);
+            return new Response(errorMessage, false);
         }
 
         if (dateList.size() < dateId) {
-            response.append(ColorFormatter.
-                format(MESSAGE_ERROR_WRONG_DATE_ID, Color.RED));
-            response.append(System.lineSeparator());
-            response.append(getPreviousDisplayCommand().execute());
-            return response.toString();
+            String errorMessage = ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_DATE_ID, Color.RED);
+            return new Response(errorMessage, false);
         }
 
         DatePair date = dateList.get(dateId - 1);
@@ -114,16 +104,13 @@ public class ConfirmCommand extends Command {
 
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
 
-        response.append(ColorFormatter.format(
-            String.format(MESSAGE_CONFIRM, oldDescription), Color.YELLOW));
-        response.append(System.lineSeparator());
-        response.append(oldTaskFormattedString);
-        response.append(System.lineSeparator());
-        response.append(ColorFormatter.format(task.formatOutput("+"),
-                                              Color.GREEN));
-        response.append(System.lineSeparator());
-        response.append(getPreviousDisplayCommand().execute());
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter.format(
+            String.format(MESSAGE_CONFIRM, oldDescription,
+                          task.getDateString()), Color.YELLOW));
 
-        return response.toString();
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
     }
 }

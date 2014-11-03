@@ -3,6 +3,7 @@ package com.rubberduck.command;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Response;
 
 import java.io.IOException;
 
@@ -54,14 +55,11 @@ public class MarkCommand extends Command {
      */
     // @author A0119504L
     @Override
-    public String execute() throws IOException {
+    public Response execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            StringBuilder errorResponse = new StringBuilder();
-            errorResponse.append(ColorFormatter.
-                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED));
-            errorResponse.append(System.lineSeparator());
-            errorResponse.append(getPreviousDisplayCommand().execute());
-            return errorResponse.toString();
+            String errorMessage = ColorFormatter.format(
+                MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return new Response(errorMessage, false);
         }
 
         if (isCompletedTask(taskId)) {
@@ -93,7 +91,7 @@ public class MarkCommand extends Command {
      * @throws IOException occurs when dbManager encounters a problem with file
      */
     //@author A0119504L
-    public String markTaskCompleted(int displayedId) throws IOException {
+    public Response markTaskCompleted(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
         assert !oldTask.getIsDone();
@@ -103,13 +101,14 @@ public class MarkCommand extends Command {
                 JOURNAL_MESSAGE_MARK_AS_COMPLETED,
                 oldTask.getDescription()));
         getDisplayedTasksList().set(displayedId - 1, newTaskId);
-        StringBuilder response = new StringBuilder();
-        response.append(ColorFormatter.format(
+
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter.format(
             String.format(MESSAGE_MARK_COMPLETED, oldTask.getDescription()),
             Color.GREEN));
-        response.append(System.lineSeparator());
-        response.append(getPreviousDisplayCommand().execute());
-        return response.toString();
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
 
     }
 
@@ -121,7 +120,7 @@ public class MarkCommand extends Command {
      * @throws IOException occurs when dbManager encounters a problem with file
      */
     //@author A0119504L
-    public String markTaskIncomplete(int displayedId) throws IOException {
+    public Response markTaskIncomplete(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
         assert oldTask.getIsDone();
@@ -131,12 +130,13 @@ public class MarkCommand extends Command {
                 JOURNAL_MESSAGE_MARK_AS_INCOMPLETE,
                 oldTask.getDescription()));
         getDisplayedTasksList().set(displayedId - 1, newTaskId);
-        StringBuilder response = new StringBuilder();
-        response.append(ColorFormatter.format(
+
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter.format(
             String.format(MESSAGE_MARK_INCOMPLETE, oldTask.getDescription()),
             Color.RED));
-        response.append(System.lineSeparator());
-        response.append(getPreviousDisplayCommand().execute());
-        return response.toString();
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
     }
 }

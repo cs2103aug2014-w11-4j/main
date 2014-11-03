@@ -2,6 +2,7 @@ package com.rubberduck.command;
 
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Response;
 
 import java.io.IOException;
 
@@ -43,13 +44,13 @@ public class InvalidCommand extends Command {
      * @return error message as String
      */
     @Override
-    public String execute() throws IOException {
+    public Response execute() throws IOException {
         StringBuilder response = new StringBuilder();
         response.append(ColorFormatter.format(errorMessage, Color.RED));
         if (showPrev) {
             response.append(System.lineSeparator());
-            response.append(getPreviousDisplayCommand().execute());
+            return new Response(response.toString(), true);
         }
-        return response.toString();
+        return new Response(response.toString(), false);
     }
 }

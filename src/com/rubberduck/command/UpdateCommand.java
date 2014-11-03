@@ -4,6 +4,7 @@ import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -79,25 +80,22 @@ public class UpdateCommand extends Command {
      */
     // @author A0119504L
     @Override
-    public String execute() throws IOException {
-        StringBuilder response = new StringBuilder();
+    public Response execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            response.append(ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_ID,
-                                                  Color.RED));
-            response.append(System.lineSeparator());
-            response.append(getPreviousDisplayCommand().execute());
-            return response.toString();
+            String errorMessage =
+                ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return new Response(errorMessage, false);
         }
 
         if (DatePair.isDateBeforeNow(datePairs)) {
-            return ColorFormatter.format(MESSAGE_UPDATE_PAST, Color.RED);
+            String errorMessage =
+                ColorFormatter.format(MESSAGE_UPDATE_PAST, Color.RED);
+            return new Response(errorMessage, false);
         }
 
         long databaseId = getDisplayedTasksList().get(taskId - 1);
 
         Task task = getDbManager().getInstance(databaseId);
-        String oldTaskFormattedString = ColorFormatter.
-            format(String.format(task.formatOutput("-")), Color.RED);
         String oldDescription = task.getDescription();
 
         if (!description.isEmpty()) {
@@ -119,11 +117,9 @@ public class UpdateCommand extends Command {
         }
 
         if (!task.checkValidity()) {
-            response.append(ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_TYPE,
-                                                  Color.RED));
-            response.append(System.lineSeparator());
-            response.append(getPreviousDisplayCommand().execute());
-            return response.toString();
+            String errorMessage =
+                ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_TYPE, Color.RED);
+            return new Response(errorMessage, false);
         }
 
         long newDatabaseId = getDbManager().
@@ -132,16 +128,11 @@ public class UpdateCommand extends Command {
 
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
 
-        response.append(ColorFormatter.format(
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter.format(
             String.format(MESSAGE_UPDATE, oldDescription), Color.YELLOW));
-        response.append(System.lineSeparator());
-        response.append(oldTaskFormattedString);
-        response.append(System.lineSeparator());
-        response.append(ColorFormatter.format(task.formatOutput("+"),
-                                              Color.GREEN));
-        response.append(System.lineSeparator());
-        response.append(getPreviousDisplayCommand().execute());
-
-        return response.toString();
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
     }
 }

@@ -2,6 +2,7 @@ package com.rubberduck.command;
 
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Response;
 
 import java.io.IOException;
 
@@ -21,13 +22,13 @@ public class UndoCommand extends Command {
      * @throws IOException occurs when DatabaseManager has I/O issues
      */
     @Override
-    public String execute() throws IOException {
+    public Response execute() throws IOException {
         try {
-            return String.format(ColorFormatter.format(JOURNAL_MESSAGE_UNDONE,
-                                                       Color.YELLOW),
-                                 getDbManager().undo());
+            return new Response(String.format(
+                ColorFormatter.format(JOURNAL_MESSAGE_UNDONE, Color.YELLOW),
+                getDbManager().undo()), false);
         } catch (UnsupportedOperationException e) { /* Nothing to undo */
-            return e.getMessage();
+            return new Response(e.getMessage(), false);
         }
 
     }

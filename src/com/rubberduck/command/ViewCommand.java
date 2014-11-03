@@ -4,6 +4,7 @@ import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Response;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -50,8 +51,6 @@ public class ViewCommand extends Command {
     private static final int FLOATING_TASK = 0;
     private static final int DEADLINE_TASK = 1;
     private static final int TIMED_TASK = 2;
-
-    private static final int CONSOLE_MAX_WIDTH = 80;
 
     private DatePair viewRange;
     private boolean viewAll;
@@ -113,7 +112,7 @@ public class ViewCommand extends Command {
      * @return the result of the view option
      */
     @Override
-    public String execute() throws IOException {
+    public Response execute() throws IOException {
         setPreviousDisplayCommand(this);
         if (isViewAll()) {
             return viewAll(isCompleted(), viewSelection);
@@ -130,10 +129,10 @@ public class ViewCommand extends Command {
      * @return list of tasks and their information in the database
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    private String viewAll(boolean isCompleted,
-                           ArrayList<ViewType> viewSelection)
+    private Response viewAll(boolean isCompleted,
+                             ArrayList<ViewType> viewSelection)
         throws IOException {
-        StringBuilder responseBuilder = new StringBuilder();
+
         getDisplayedTasksList().clear();
 
         for (int i = 0; i < getDbManager().getValidIdList().size(); i++) {
@@ -147,27 +146,22 @@ public class ViewCommand extends Command {
 
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
                                                               : Color.YELLOW;
-
+        StringBuilder viewCount = new StringBuilder();
         if (isCompleted) {
             String formattedString = String.format(MESSAGE_VIEWALL_CRESULT,
                                                    getDisplayedTasksList().
                                                        size());
-            responseBuilder.append(ColorFormatter.format(formattedString,
-                                                         headerColor));
+            viewCount.append(ColorFormatter.format(formattedString,
+                                                   headerColor));
         } else {
             String formattedString = String.format(MESSAGE_VIEWALL_RESULT,
                                                    getDisplayedTasksList().
                                                        size());
-            responseBuilder.append(ColorFormatter.format(formattedString,
-                                                         headerColor));
+            viewCount.append(ColorFormatter.format(formattedString,
+                                                   headerColor));
         }
 
-        if (!getDisplayedTasksList().isEmpty()) {
-            responseBuilder.append(System.lineSeparator());
-            responseBuilder.append(formatTaskListOutput());
-        }
-
-        return responseBuilder.toString();
+        return new Response("", viewCount.toString(), formatTaskListOutput());
     }
 
     /**
@@ -180,10 +174,9 @@ public class ViewCommand extends Command {
      * @return result of all the tasks that are within the period as queried
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    private String viewByPeriod(DatePair dateRange, boolean isCompleted,
-                                ArrayList<ViewType> viewSelection)
+    private Response viewByPeriod(DatePair dateRange, boolean isCompleted,
+                                  ArrayList<ViewType> viewSelection)
         throws IOException {
-        StringBuilder responseBuilder = new StringBuilder();
         getDisplayedTasksList().clear();
         for (Long databaseId : getDbManager().getValidIdList()) {
             Task task = getDbManager().getInstance(databaseId);
@@ -211,23 +204,18 @@ public class ViewCommand extends Command {
 
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
                                                               : Color.YELLOW;
-
+        StringBuilder viewCount = new StringBuilder();
         if (isCompleted) {
-            responseBuilder.append(ColorFormatter.format(String.format(
+            viewCount.append(ColorFormatter.format(String.format(
                 MESSAGE_VIEWDATE_CRESULT, getDisplayedTasksList().size(),
                 range), headerColor));
         } else {
-            responseBuilder.append(ColorFormatter.format(String.format(
+            viewCount.append(ColorFormatter.format(String.format(
                 MESSAGE_VIEWDATE_RESULT, getDisplayedTasksList().size(),
                 range), headerColor));
         }
 
-        if (!getDisplayedTasksList().isEmpty()) {
-            responseBuilder.append(System.lineSeparator());
-            responseBuilder.append(formatTaskListOutput());
-        }
-
-        return responseBuilder.toString();
+        return new Response("", viewCount.toString(), formatTaskListOutput());
     }
 
     /**
@@ -240,40 +228,29 @@ public class ViewCommand extends Command {
     private String formatTaskListOutput() throws IOException {
         Collections.sort(getDisplayedTasksList(),
                          getDbManager().getInstanceIdComparator());
-
-        StringBuilder stringBuilder = new StringBuilder();
-        String header = String.format("%-7s%-6s%-43s%-24s", "ID", "Done",
-                                      "Task", "Date");
-        String border = "";
-        for (int i = 0; i < CONSOLE_MAX_WIDTH; i++) {
-            border += "-";
-        }
-
-        stringBuilder.append(border + System.lineSeparator() + header +
-                             System.lineSeparator() + border +
-                             System.lineSeparator());
+        StringBuilder taskData = new StringBuilder();
 
         int prevType = -1;
         for (int i = 0; i < getDisplayedTasksList().size(); i++) {
+            if (taskData.length() > 0) {
+                taskData.append(System.lineSeparator());
+            }
+
             int currentType = getTaskType(i);
             if (currentType != prevType) {
                 if (currentType == FLOATING_TASK) {
-                    stringBuilder.append(FLOATING_SEPERATOR);
-                    stringBuilder.append(System.lineSeparator());
+                    taskData.append(FLOATING_SEPERATOR);
                 } else if (currentType == DEADLINE_TASK) {
-                    stringBuilder.append(DEADLINE_SEPERATOR);
-                    stringBuilder.append(System.lineSeparator());
+                    taskData.append(DEADLINE_SEPERATOR);
                 } else if (currentType == TIMED_TASK) {
-                    stringBuilder.append(SCHEDULE_SEPERATOR);
-                    stringBuilder.append(System.lineSeparator());
+                    taskData.append(SCHEDULE_SEPERATOR);
                 }
+                taskData.append(System.lineSeparator());
             }
             prevType = currentType;
-            stringBuilder.append(formatTaskOutput(i));
-            stringBuilder.append(System.lineSeparator());
+            taskData.append(formatTaskOutput(i));
         }
-        stringBuilder.append(border);
-        return stringBuilder.toString();
+        return taskData.toString();
     }
 
     /**

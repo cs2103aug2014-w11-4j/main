@@ -2,6 +2,7 @@ package com.rubberduck.command;
 
 import com.rubberduck.io.DatabaseManager;
 import com.rubberduck.logic.Task;
+import com.rubberduck.menu.Response;
 
 import java.io.File;
 import java.io.IOException;
@@ -189,25 +190,25 @@ public abstract class Command {
      * Execute the implemented execute in respective concrete class and catch
      * any exception if occur.
      *
-     * @return String response after execution
+     * @return response object after execution
      */
     //@author A0119504L
-    public String safeExecute() {
+    public Response safeExecute() {
         try {
             return execute();
         } catch (IOException e) {
             getLogger().
                 log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
-            return MESSAGE_ERROR_DATABASE_IOEXCEPTION;
+            return new Response(MESSAGE_ERROR_DATABASE_IOEXCEPTION, false);
         }
     }
 
     /**
      * Abstract method for implementation by concrete class to execute logic.
      *
-     * @return String response after execution
+     * @return response object after execution
      * @throws IOException thrown if DBManager encounter I/O problems
      */
     //@author A0119504L
-    protected abstract String execute() throws IOException;
+    protected abstract Response execute() throws IOException;
 }

@@ -4,6 +4,7 @@ import com.rubberduck.io.GooManager;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
 import com.rubberduck.menu.MenuInterface;
+import com.rubberduck.menu.Response;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -61,7 +62,7 @@ public class SyncCommand extends Command {
      * @return success or error message based on execution result
      */
     @Override
-    public String execute() throws IOException {
+    public Response execute() throws IOException {
         try {
             String response = MenuInterface.getInstance()
                 .requestPrompt(
@@ -75,42 +76,45 @@ public class SyncCommand extends Command {
                 switch (type) {
                     case PUSH:
                         GooManager.pushAll(getDbManager());
-                        return ColorFormatter.format(MESSAGE_PUSH_SUCCESS,
-                                                     Color.GREEN);
+                        return new Response(ColorFormatter.format(
+                            MESSAGE_PUSH_SUCCESS, Color.GREEN), true);
 
                     case PULL:
                         GooManager.pullAll(getDbManager());
-                        return ColorFormatter.format(MESSAGE_PULL_SUCCESS,
-                                                     Color.GREEN);
+                        return new Response(ColorFormatter.format(
+                            MESSAGE_PULL_SUCCESS, Color.GREEN), true);
 
                     case FORCE_PUSH:
                         GooManager.forcePushAll(getDbManager());
-                        return ColorFormatter.format(MESSAGE_FORCEPUSH_SUCCESS,
-                                                     Color.GREEN);
+                        return new Response(ColorFormatter.format(
+                            MESSAGE_FORCEPUSH_SUCCESS, Color.GREEN), true);
 
                     case FORCE_PULL:
                         GooManager.forcePullAll(getDbManager());
-                        return ColorFormatter.format(MESSAGE_FORCEPULL_SUCCESS,
-                                                     Color.GREEN);
+                        return new Response(ColorFormatter.format(
+                            MESSAGE_FORCEPULL_SUCCESS, Color.GREEN), true);
 
                     case TWO_WAY:
                         GooManager.twoWaySync(getDbManager());
-                        return ColorFormatter.format(MESSAGE_TWOWAY_SUCCESS,
-                                                     Color.GREEN);
+                        return new Response(ColorFormatter.format(
+                            MESSAGE_TWOWAY_SUCCESS, Color.GREEN), true);
 
                     default:
                         throw new UnsupportedOperationException(
                             EXCEPTION_UNSUPPORTED_TYPE);
                 }
             } else {
-                return ColorFormatter.format(MESSAGE_SYNC_CANCELLED, Color.RED);
+                return new Response(ColorFormatter.format(
+                    MESSAGE_SYNC_CANCELLED, Color.RED), true);
             }
         } catch (GeneralSecurityException e) {
-            return ColorFormatter.format(
-                MESSAGE_ERROR_UNABLE_TO_START_SAFE_CONNECTION, Color.RED);
+            return new Response(ColorFormatter.format(
+                MESSAGE_ERROR_UNABLE_TO_START_SAFE_CONNECTION, Color.RED),
+                                true);
         } catch (IOException e) {
-            return ColorFormatter.format(MESSAGE_ERROR_NETWORK_IOEXCEPTION,
-                                         Color.RED);
+            return new Response(ColorFormatter.format(
+                MESSAGE_ERROR_NETWORK_IOEXCEPTION, Color.RED),
+                                true);
         }
     }
 }

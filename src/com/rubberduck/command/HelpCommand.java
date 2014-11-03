@@ -2,6 +2,7 @@ package com.rubberduck.command;
 
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Response;
 
 import java.io.IOException;
 
@@ -68,7 +69,7 @@ public class HelpCommand extends Command {
      * @return a String object containing all the commands available
      */
     @Override
-    public String execute() throws IOException {
+    public Response execute() throws IOException {
         StringBuilder sb = new StringBuilder();
 
         if (isSpecific) {
@@ -96,6 +97,6 @@ public class HelpCommand extends Command {
                 }
             }
         }
-        return sb.toString();
+        return new Response(sb.toString(), true);
     }
 }
