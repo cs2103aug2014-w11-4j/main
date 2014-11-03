@@ -170,6 +170,44 @@ public class CommandTest {
     }
 
     /**
+     * add conflict task
+     * test the warning message came out
+     * 
+     */
+    //@author A0119504L
+    @Test
+    public void addConflictTask() throws IOException {
+        ArrayList<ViewCommand.ViewType> viewChoice =
+            new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
+        ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+        ArrayList<DatePair> datePairList2 = new ArrayList<DatePair>();
+        Calendar date = Calendar.getInstance();
+        Calendar date2 = Calendar.getInstance();
+
+        date.add(Calendar.DAY_OF_YEAR, 1);
+        date2.add(Calendar.DAY_OF_YEAR, 2);
+        DatePair dp = new DatePair(date, date2);
+        datePairList.add(dp);
+        datePairList2.add(dp);
+        
+        AddCommand addCommand = new AddCommand(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            datePairList);
+        addCommand.execute();
+        AddCommand addCommand2 = new AddCommand(
+            "Lonsectetur adipiscing elit.",
+            datePairList2);
+        String actual = addCommand2.execute();
+
+        String expected =
+            "Please note that there are conflicting task(s).";
+        assertTrue(actual.contains(expected));
+    }
+
+    /**
      * Search for keyword in description
      */
     //@author A0111794E
