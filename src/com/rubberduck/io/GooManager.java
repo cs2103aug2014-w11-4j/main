@@ -302,8 +302,8 @@ public class GooManager {
                     .getMessage()
                     .equals("Invalid Value"))
                     || (e.getDetails().getCode() == 404 && e.getDetails()
-                            .getMessage()
-                            .equals("Not Found"))) {
+                    .getMessage()
+                    .equals("Not Found"))) {
                 return null;
             } else {
                 throw e;
@@ -334,7 +334,7 @@ public class GooManager {
     }
 
     private static void prepareTask(Task task,
-            com.rubberduck.logic.Task originalTask) {
+                                    com.rubberduck.logic.Task originalTask) {
         task.setTitle(originalTask.getDescription());
         if (isLocalTaskUuid(originalTask.getUuid())) {
             task.setId(constructRemoteTaskId(originalTask.getUuid()));
@@ -351,7 +351,7 @@ public class GooManager {
     }
 
     private static void prepareEvent(Event event,
-            com.rubberduck.logic.Task originalTask) {
+                                     com.rubberduck.logic.Task originalTask) {
         event.setSummary(originalTask.getDescription());
         if (isLocalEventUuid(originalTask.getUuid())) {
             event.setId(constructRemoteEventId(originalTask.getUuid()));
@@ -477,9 +477,7 @@ public class GooManager {
         pushAll(dbManager);
     }
 
-    public static void pullAll(
-            DatabaseManager<com.rubberduck.logic.Task> dbManager)
-            throws IOException {
+    public static void pullAll(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
         HashMap<String, Long> uuidMap = new HashMap<String, Long>();
         for (Long databaseId : dbManager.getValidIdList()) {
             uuidMap.put(dbManager.getInstance(databaseId).getUuid(), databaseId);
@@ -509,10 +507,39 @@ public class GooManager {
         pullAll(dbManager);
     }
 
-    public static void twoWaySync(
-            DatabaseManager<com.rubberduck.logic.Task> dbManager)
-            throws IOException {
-
+    public static void twoWaySync(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
+        HashMap<String, Long> uuidMap = new HashMap<String, Long>();
+        ArrayList<com.rubberduck.logic.Task> localModifiedTasks = new ArrayList<com.rubberduck.logic.Task>();
+        ArrayList<com.rubberduck.logic.Task> localModifiedEvents = new ArrayList<com.rubberduck.logic.Task>();
+        Date lastSyncTime = getLastSyncTime();
+        for (Long databaseId : dbManager.getValidIdList()) {
+            com.rubberduck.logic.Task localTask = dbManager.getInstance(databaseId);
+            uuidMap.put(localTask.getUuid(), databaseId);
+            if (lastSyncTime == null || localTask.getLastUpdate().getTime().after(lastSyncTime)) {
+                if (!(localTask.getDateList().size() > 1)) {
+                    if (localTask.isDeadline() || localTask.isFloatingTask()) {
+                        localModifiedTasks.add(localTask);
+                    } else {
+                        localModifiedEvents.add(localTask);
+                    }
+                }
+            }
+        }
+        for (com.rubberduck.logic.Task task : localModifiedTasks) {
+            Task remoteTask = getRemoteTask(getRemoteUuid(task));
+            if (dateTimeToCalendar(remoteTask.getUpdated()).before(task.getLastUpdate())) {
+                pushTask(task);
+                dbManager.modify(uuidMap.get(task.getUuid()), task, null);
+            }
+        }
+        for (com.rubberduck.logic.Task task : localModifiedEvents) {
+            Event remoteEvent = getRemoteEvent(getRemoteUuid(task));
+            if (dateTimeToCalendar(remoteEvent.getUpdated()).before(task.getLastUpdate())) {
+                pushTask(task);
+                dbManager.modify(uuidMap.get(task.getUuid()), task, null);
+            }
+        }
+        pullAll(dbManager);
     }
 
     public static void main(String[] args) throws Exception {
