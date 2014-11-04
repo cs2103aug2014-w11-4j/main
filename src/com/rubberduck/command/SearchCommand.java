@@ -3,6 +3,7 @@ package com.rubberduck.command;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Formatter;
 import com.rubberduck.menu.Response;
 
 import java.io.IOException;
@@ -50,10 +51,10 @@ public class SearchCommand extends Command {
     }
 
     /**
-     * Search for task based on description and return formatted string of tasks
-     * back to parent.
+     * Search for task based on description and return a Response containing
+     * formatted string of tasks back to parent.
      *
-     * @return formatted string back to parent
+     * @return Response object containing formatted tasks
      */
     @Override
     public Response execute() throws IOException {
@@ -125,7 +126,7 @@ public class SearchCommand extends Command {
     private String formatTaskOutput(int displayingId) throws IOException {
         Task task = getDbManager().
             getInstance(getDisplayedTasksList().get(displayingId));
-        return task.formatOutput(displayingId + 1 + "");
+        return Formatter.formatTask(task, displayingId + 1 + "");
     }
 
     /**

@@ -7,8 +7,8 @@ import com.rubberduck.menu.Response;
 import java.io.IOException;
 
 /**
- * Concrete Command Class that can be executed to return an invalid message back
- * to the user.
+ * Concrete Command Class that can be executed to return an invalid response
+ * back to the user.
  */
 //@author A0111736M
 public class InvalidCommand extends Command {
@@ -39,9 +39,9 @@ public class InvalidCommand extends Command {
     }
 
     /**
-     * Returns error message provided by application back to user.
+     * Returns error response provided by application back to user.
      *
-     * @return error message as String
+     * @return Response object containing the error message
      */
     @Override
     public Response execute() throws IOException {
@@ -49,8 +49,8 @@ public class InvalidCommand extends Command {
         response.append(ColorFormatter.format(errorMessage, Color.RED));
         if (showPrev) {
             response.append(System.lineSeparator());
-            return new Response(response.toString(), true);
+            return new Response(response.toString(), false);
         }
-        return new Response(response.toString(), false);
+        return new Response(response.toString(), true);
     }
 }

@@ -37,9 +37,9 @@ public class UnixInterface extends MenuInterface {
 
 
     /**
-     * Handles the interface of the program. It prompts from user and calls the
-     * parser to determine the command to be executed. It then proceed to
-     * execute the returned command.
+     * Handles the interface of the program. It prompts from user and passes to
+     * the parser to determine the command to be executed. It then proceed to
+     * execute the returned command and print the returned string to the user.
      */
     @Override
     public void handleInterface() {
@@ -115,19 +115,6 @@ public class UnixInterface extends MenuInterface {
         }
         */
     }
-
-    /**
-     * Clear the screen of the UNIX/Mac Terminal via consoleInstance.
-     */
-    @Override
-    public void clearScreen() {
-        try {
-            consoleInstance.clearScreen();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
-        }
-    }
-
 
     /**
      * Displays a prompt midway through an execution of a command and request an

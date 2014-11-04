@@ -35,7 +35,9 @@ public class RubberDuck {
         "%s.log";
 
     /**
-     * Main method of application as well as the entry point.
+     * Main method of application as well as the entry point. It setups the
+     * logger, starts the database and finally getting a MenuInterface object
+     * and handle the user's input/output.
      */
     public static void main(String[] args) {
         setupGlobalLogger();

@@ -16,8 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Class that represents a command object where it stores the type of command it
- * is and all its arguments.
+ * Abstract Class that represents a command object which can be executed in a
+ * concrete command class.
  */
 //@author A0111736M
 public abstract class Command {
@@ -116,21 +116,12 @@ public abstract class Command {
             dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
                                                   + File.separator
                                                   + DATABASE_NAME);
+            return true;
         } catch (IOException e) {
-            getLogger().
-                log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
+            getLogger().log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION,
+                            e);
             return false;
         }
-        return true;
-    }
-
-    /**
-     * Getter method for LOGGER.
-     *
-     * @return Logger instance
-     */
-    private static Logger getLogger() {
-        return LOGGER;
     }
 
     /**
@@ -160,9 +151,9 @@ public abstract class Command {
     public static void setPreviousDisplayCommand(Command c) {
         if (c instanceof ViewCommand || c instanceof SearchCommand) {
             previousDisplayCommand = c;
+        } else {
+            assert false : "Must only be VIEW or SEARCH.";
         }
-
-        assert false : "Must only be VIEW or SEARCH.";
     }
 
     /**
@@ -184,6 +175,16 @@ public abstract class Command {
     public static boolean isValidDisplayedId(int displayedId) {
         return !(displayedId > displayedTasksList.size() || displayedId <= 0 ||
                  displayedTasksList.get(displayedId - 1) == -1);
+    }
+
+    /**
+     * Getter method for LOGGER.
+     *
+     * @return Logger instance
+     */
+    //@author A0111736M
+    private static Logger getLogger() {
+        return LOGGER;
     }
 
     /**

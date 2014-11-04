@@ -17,17 +17,22 @@ public class RedoCommand extends Command {
         "Redone action \"%s\".";
 
     /**
-     * Redo previous action that was undone in the journal by the user. Will
-     * return error message if there is nothing to redo.
+     * Redo previous action that was undone in the journal by the user. Returns
+     * a response back with the appropriate response message and updated view
+     * data of previously executed view/search.
      *
+     * @return Response object with appropriate messages
      * @throws IOException occurs when DatabaseManager has I/O issues
      */
     @Override
     public Response execute() throws IOException {
         try {
-            return new Response(String.format(
+            String redoMessage = getDbManager().redo();
+            Response res = getPreviousDisplayCommand().execute();
+            res.setMessages(String.format(
                 ColorFormatter.format(JOURNAL_MESSAGE_REDONE, Color.YELLOW),
-                getDbManager().redo()), false);
+                redoMessage));
+            return res;
         } catch (UnsupportedOperationException e) { /* Nothing to redo */
             return new Response(e.getMessage(), false);
         }

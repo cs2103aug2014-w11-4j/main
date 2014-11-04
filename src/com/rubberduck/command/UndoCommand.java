@@ -16,17 +16,22 @@ public class UndoCommand extends Command {
         "Undone previous action \"%s\".";
 
     /**
-     * Undo the operation done by the user. Will return error message when there
-     * is nothing to undo.
+     * Undo the operation done by the user. Returns a response back with the
+     * appropriate response message and updated view data of previously executed
+     * view/search.
      *
+     * @return Response object with appropriate messages
      * @throws IOException occurs when DatabaseManager has I/O issues
      */
     @Override
     public Response execute() throws IOException {
         try {
-            return new Response(String.format(
+            String undoMessage = getDbManager().undo();
+            Response res = getPreviousDisplayCommand().execute();
+            res.setMessages(String.format(
                 ColorFormatter.format(JOURNAL_MESSAGE_UNDONE, Color.YELLOW),
-                getDbManager().undo()), false);
+                undoMessage));
+            return res;
         } catch (UnsupportedOperationException e) { /* Nothing to undo */
             return new Response(e.getMessage(), false);
         }

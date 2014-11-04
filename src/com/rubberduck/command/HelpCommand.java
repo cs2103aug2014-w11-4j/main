@@ -66,12 +66,11 @@ public class HelpCommand extends Command {
     /**
      * Shows the available commands for the end user in the system.
      *
-     * @return a String object containing all the commands available
+     * @return a Response object containing the command information requested
      */
     @Override
     public Response execute() throws IOException {
         StringBuilder sb = new StringBuilder();
-
         if (isSpecific) {
             CommandType ct = Command.CommandType.getCommandType(type);
             if (ct == CommandType.INVALID) {

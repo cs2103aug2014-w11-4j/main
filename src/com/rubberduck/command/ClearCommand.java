@@ -2,7 +2,6 @@ package com.rubberduck.command;
 
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
-import com.rubberduck.menu.MenuInterface;
 import com.rubberduck.menu.Response;
 
 import java.io.IOException;
@@ -18,14 +17,12 @@ public class ClearCommand extends Command {
         "Screen cleared.";
 
     /**
-     * Clear the screen of the current terminal by calling the clearScreen
-     * method in the current ConsoleReader instance. Return response message
-     * when cleared.
+     * Clear the screen of the current terminal by returning an appropriate
+     * response back to the caller.
      */
     @Override
     public Response execute() throws IOException {
-        MenuInterface.getInstance().clearScreen();
-        return new Response(ColorFormatter.format(MESSAGE_CLEAR, Color.YELLOW),
-                            false);
+        String response = ColorFormatter.format(MESSAGE_CLEAR, Color.YELLOW);
+        return new Response(response, true);
     }
 }

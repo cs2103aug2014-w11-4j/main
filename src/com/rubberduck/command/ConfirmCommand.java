@@ -4,6 +4,7 @@ import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Formatter;
 import com.rubberduck.menu.Response;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 public class ConfirmCommand extends Command {
 
     private static final String JOURNAL_MESSAGE_CONFIRM =
-        "Confirm task \"%s\"";
+        "Confirmed task \"%s\"";
     private static final String MESSAGE_CONFIRM =
         "\"%s\" has been confirmed from %s.";
     private static final String MESSAGE_ERROR_WRONG_TASK_ID =
@@ -61,9 +62,9 @@ public class ConfirmCommand extends Command {
     }
 
     /**
-     * Confirm the date of task to the database.
+     * Confirm the date of the tentative task to the database.
      *
-     * @return confirm message with the displayed id
+     * @return Response object with appropriate feedback to the user
      */
     //@author A0119504L
     @Override
@@ -77,12 +78,12 @@ public class ConfirmCommand extends Command {
         long databaseId = getDisplayedTasksList().get(taskId - 1);
 
         Task task = getDbManager().getInstance(databaseId);
-        String oldDescription = task.getDescription();
+        String description = Formatter.limitDescription(task.getDescription());
         ArrayList<DatePair> dateList = task.getDateList();
 
-        if (dateList.size() <= 1) {
+        if (!task.isTentative()) {
             String errorMessage = ColorFormatter.format(
-                String.format(MESSAGE_ERROR_NOT_TENTATIVE, oldDescription),
+                String.format(MESSAGE_ERROR_NOT_TENTATIVE, description),
                 Color.RED);
             return new Response(errorMessage, false);
         }
@@ -100,13 +101,13 @@ public class ConfirmCommand extends Command {
 
         long newDatabaseId = getDbManager().
             modify(databaseId, task, String.format(JOURNAL_MESSAGE_CONFIRM,
-                                                   oldDescription));
+                                                   description));
 
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
 
         StringBuilder messages = new StringBuilder();
         messages.append(ColorFormatter.format(
-            String.format(MESSAGE_CONFIRM, oldDescription,
+            String.format(MESSAGE_CONFIRM, description,
                           task.getDateString()), Color.YELLOW));
 
         Response res = getPreviousDisplayCommand().execute();

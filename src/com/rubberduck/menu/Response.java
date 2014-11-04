@@ -6,7 +6,7 @@ package com.rubberduck.menu;
  */
 public class Response {
 
-    private String messages;
+    private String[] messages;
     private String viewCount;
     private String viewData;
     private boolean isOverwrite;
@@ -24,7 +24,7 @@ public class Response {
         assert viewCount != null : "viewCount cannot be null";
         assert viewData != null : "viewData cannot be null";
 
-        this.messages = messages;
+        setMessages(messages);
         this.viewCount = viewCount;
         this.viewData = viewData;
     }
@@ -36,7 +36,7 @@ public class Response {
     public Response(String messages, boolean isOverwrite) {
         assert messages != null : "messages cannot be null";
 
-        this.messages = messages;
+        setMessages(messages);
         this.isOverwrite = isOverwrite;
     }
 
@@ -45,7 +45,7 @@ public class Response {
      *
      * @return messages as String array
      */
-    public String getMessages() {
+    public String[] getMessages() {
         return messages;
     }
 
@@ -55,7 +55,7 @@ public class Response {
      * @param messages to overwrite
      */
     public void setMessages(String messages) {
-        this.messages = messages;
+        this.messages = Formatter.formatMessage(messages);
     }
 
     /**

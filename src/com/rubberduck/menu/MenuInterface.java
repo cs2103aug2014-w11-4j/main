@@ -27,8 +27,6 @@ public abstract class MenuInterface {
     protected static final String WELCOME_EXECUTE =
         "view today";
 
-    public static final int CONSOLE_MAX_WIDTH = 80;
-
     private static MenuInterface menuInstance;
 
     /**
@@ -49,11 +47,6 @@ public abstract class MenuInterface {
         }
         return menuInstance;
     }
-
-    /**
-     * Clear the screen of the terminal.
-     */
-    public abstract void clearScreen();
 
     /**
      * Handle the interface of RubberDuck involving receiving inputs and outputs

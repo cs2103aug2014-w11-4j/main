@@ -21,7 +21,7 @@ public class SyncCommand extends Command {
     private static final String MESSAGE_ERROR_NETWORK_IOEXCEPTION =
         "Failed to connect to the server.";
     private static final String MESSAGE_UNDO_WARNING =
-        "Note that once synchronization is done, you cannot undo your previous actions.";
+        "Note that once synchronization is done, you cannot undo previous actions.";
     private static final String MESSAGE_CONFIRM_PROMPT =
         "Are you sure you want to continue with the operation? (Y/N)";
     private static final String MESSAGE_SYNC_CANCELLED =
@@ -57,19 +57,20 @@ public class SyncCommand extends Command {
     }
 
     /**
-     * Synchronize with Google based on the type user specified.
+     * Synchronize with Google based on the type user specified. A warning will
+     * be given first as undo/redo operation will be reset and a confirmation
+     * will be asked from the user.
      *
-     * @return success or error message based on execution result
+     * @return Response containing success or error message based on execution
      */
     @Override
     public Response execute() throws IOException {
         try {
-            String response = MenuInterface.getInstance()
-                .requestPrompt(
-                    ColorFormatter.format(MESSAGE_UNDO_WARNING,
-                                          Color.YELLOW),
-                    ColorFormatter.format(MESSAGE_CONFIRM_PROMPT,
-                                          Color.YELLOW));
+            String response = MenuInterface.getInstance().requestPrompt(
+                ColorFormatter.format(MESSAGE_UNDO_WARNING,
+                                      Color.YELLOW),
+                ColorFormatter.format(MESSAGE_CONFIRM_PROMPT,
+                                      Color.YELLOW));
 
             if (response.contains("y")) {
                 GooManager.initialize();

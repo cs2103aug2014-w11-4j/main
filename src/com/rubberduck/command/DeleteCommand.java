@@ -3,6 +3,7 @@ package com.rubberduck.command;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Formatter;
 import com.rubberduck.menu.Response;
 
 import java.io.IOException;
@@ -45,8 +46,9 @@ public class DeleteCommand extends Command {
     /**
      * Delete given task from database if it exist.
      *
-     * @return success message and previous view list or error if invalid id
-     * @throws IOException DBManager has encountered an IO Error
+     * @return Response with success message and updated table if delete is
+     * successful. else Response with error message.
+     * @throws IOException occurs when DBManager has encountered an I/O Error
      */
     // @author A0119504L
     @Override
@@ -59,15 +61,15 @@ public class DeleteCommand extends Command {
 
         long databaseId = getDisplayedTasksList().get(taskId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
-        String oldDescription = oldTask.getDescription();
+        String oldDesc = Formatter.limitDescription(oldTask.getDescription());
         getDbManager().modify(databaseId, null,
                               String.format(JOURNAL_MESSAGE_DELETE,
-                                            oldDescription));
+                                            oldDesc));
         getDisplayedTasksList().set(taskId - 1, (long) -1);
 
         StringBuilder messages = new StringBuilder();
         messages.append(ColorFormatter.format(
-            String.format(MESSAGE_DELETE, oldDescription), Color.YELLOW));
+            String.format(MESSAGE_DELETE, oldDesc), Color.YELLOW));
         Response res = getPreviousDisplayCommand().execute();
         res.setMessages(messages.toString());
         return res;

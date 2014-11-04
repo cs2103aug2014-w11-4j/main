@@ -4,6 +4,7 @@ import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Formatter;
 import com.rubberduck.menu.Response;
 
 import java.io.IOException;
@@ -76,7 +77,7 @@ public class UpdateCommand extends Command {
     /**
      * Update the task with provided arguments to the database.
      *
-     * @return updated message with the displayed id
+     * @return Response containing updated message with the displayed id
      */
     // @author A0119504L
     @Override
@@ -96,7 +97,7 @@ public class UpdateCommand extends Command {
         long databaseId = getDisplayedTasksList().get(taskId - 1);
 
         Task task = getDbManager().getInstance(databaseId);
-        String oldDescription = task.getDescription();
+        String oldDesc = Formatter.limitDescription(task.getDescription());
 
         if (!description.isEmpty()) {
             task.setDescription(description);
@@ -124,13 +125,13 @@ public class UpdateCommand extends Command {
 
         long newDatabaseId = getDbManager().
             modify(databaseId, task, String.format(JOURNAL_MESSAGE_UPDATE,
-                                                   oldDescription));
+                                                   oldDesc));
 
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
 
         StringBuilder messages = new StringBuilder();
         messages.append(ColorFormatter.format(
-            String.format(MESSAGE_UPDATE, oldDescription), Color.YELLOW));
+            String.format(MESSAGE_UPDATE, oldDesc), Color.YELLOW));
         Response res = getPreviousDisplayCommand().execute();
         res.setMessages(messages.toString());
         return res;

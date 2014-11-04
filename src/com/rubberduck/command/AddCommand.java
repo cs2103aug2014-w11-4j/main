@@ -4,6 +4,7 @@ import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Formatter;
 import com.rubberduck.menu.Response;
 
 import java.io.IOException;
@@ -11,15 +12,21 @@ import java.util.ArrayList;
 
 /**
  * Concrete Command Class that can be executed to add a new task (floating,
- * deadline, schedule) into the database.
+ * deadline, schedule and tentative) into the database.
  */
 //@author A0111794E
 public class AddCommand extends Command {
 
-    private static final String MESSAGE_ADD_SUCCESS =
-        "\"%s\" has been successfully added%s.";
+    private static final String MESSAGE_ADD_TASK_SUCCESS =
+        "\"%s\" has been successfully added.";
+    private static final String MESSAGE_ADD_DEADLINE_SUCCESS =
+        "\"%s\" has been successfully added on %s.";
+    private static final String MESSAGE_ADD_TIMED_SUCCESS =
+        "\"%s\" has been successfully added from %s.";
+    private static final String MESSAGE_ADD_TENTATIVE_SUCCESS =
+        "\"%s\" has been successfully added tentatively on your specified dates.";
     private static final String MESSAGE_SCHEDULE_CONFLICT =
-        "Please note that there are conflicting schedule(s).";
+        "Please note that there are conflicting schedule(s). Plan well!";
     private static final String MESSAGE_ADD_PAST =
         "\"%s\" cannot be added as the end date has already passed.";
     private static final String JOURNAL_MESSAGE_ADD =
@@ -79,6 +86,7 @@ public class AddCommand extends Command {
         }
 
         Task task = new Task(description, datePairs);
+
         if (!task.checkValidity()) {
             String errorMessage = ColorFormatter.format(
                 MESSAGE_ERROR_WRONG_TASK_TYPE, Color.RED);
@@ -86,35 +94,37 @@ public class AddCommand extends Command {
         }
 
         boolean hasConflict = task.checkConflictWithDB(getDbManager());
+        String recordDesc = Formatter.limitDescription(task.getDescription());
 
         long id = getDbManager().modify(null, task,
                                         String.format(JOURNAL_MESSAGE_ADD,
-                                                      task.getDescription()));
+                                                      recordDesc));
         assert id >= 0 : "ID should never be a negative number.";
 
+        /* Build Response to the User */
         StringBuilder messages = new StringBuilder();
+
         if (task.isFloatingTask()) {
             messages.append(ColorFormatter.format(
-                String.format(MESSAGE_ADD_SUCCESS, description, ""),
+                String.format(MESSAGE_ADD_TASK_SUCCESS, recordDesc),
                 Color.YELLOW));
         } else if (task.isDeadline()) {
             messages.append(ColorFormatter.format(String.format(
-                MESSAGE_ADD_SUCCESS, description,
-                " on " + task.getDateString()), Color.YELLOW));
+                MESSAGE_ADD_DEADLINE_SUCCESS, recordDesc,
+                task.getDateString()), Color.YELLOW));
         } else if (task.isTimedTask()) {
             messages.append(ColorFormatter.format(String.format(
-                MESSAGE_ADD_SUCCESS, description,
-                " from " + task.getDateString()), Color.YELLOW));
-        } else {
+                MESSAGE_ADD_TIMED_SUCCESS, recordDesc,
+                task.getDateString()), Color.YELLOW));
+        } else if (task.isTentative()) {
             messages.append(ColorFormatter.format(String.format(
-                MESSAGE_ADD_SUCCESS, description,
-                " tentatively on your specified dates"), Color.YELLOW));
+                MESSAGE_ADD_TENTATIVE_SUCCESS, recordDesc), Color.YELLOW));
         }
 
         if (hasConflict) {
             messages.append(System.lineSeparator());
             messages.append(ColorFormatter.format(MESSAGE_SCHEDULE_CONFLICT,
-                                                  Color.YELLOW));
+                                                  Color.RED));
         }
 
         Response res = getPreviousDisplayCommand().execute();
