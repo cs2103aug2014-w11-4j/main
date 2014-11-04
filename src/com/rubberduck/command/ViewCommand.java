@@ -4,6 +4,7 @@ import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Formatter;
 import com.rubberduck.menu.Response;
 
 import java.io.IOException;
@@ -30,13 +31,17 @@ public class ViewCommand extends Command {
         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private static final String MESSAGE_VIEWALL_RESULT =
-        "You have %s uncompleted task(s).";
+        "You have %s uncompleted task(s) in total.";
     private static final String MESSAGE_VIEWDATE_RESULT =
         "You have %s uncompleted task(s) %s.";
     private static final String MESSAGE_VIEWALL_CRESULT =
-        "You have %s completed task(s).";
+        "You have %s completed task(s) in total.";
     private static final String MESSAGE_VIEWDATE_CRESULT =
         "You have %s completed task(s) %s.";
+    private static final String MESSAGE_DATE_RANGE =
+        "from %s to %s";
+    private static final String MESSAGE_ONE_DAY =
+        "on %s";
     private static final String SCHEDULE_SEPERATOR =
         "--------------------------------[  SCHEDULES  ]---------------------------------";
     private static final String FLOATING_SEPERATOR =
@@ -109,7 +114,7 @@ public class ViewCommand extends Command {
     /**
      * Check the type of view method requested by user.
      *
-     * @return the result of the view option
+     * @return Response object containing the result of the view option
      */
     @Override
     public Response execute() throws IOException {
@@ -126,7 +131,7 @@ public class ViewCommand extends Command {
      *
      * @param isCompleted   true if completed tasks should be displayed
      * @param viewSelection specified view scope from user
-     * @return list of tasks and their information in the database
+     * @return Response object containing result of all tasks
      * @throws IOException occurs when dbManager encounters a problem with file
      */
     private Response viewAll(boolean isCompleted,
@@ -146,13 +151,16 @@ public class ViewCommand extends Command {
 
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
                                                               : Color.YELLOW;
+
+        Color cHeaderColor = getDisplayedTasksList().isEmpty() ? Color.YELLOW
+                                                               : Color.GREEN;
         StringBuilder viewCount = new StringBuilder();
         if (isCompleted) {
             String formattedString = String.format(MESSAGE_VIEWALL_CRESULT,
                                                    getDisplayedTasksList().
                                                        size());
             viewCount.append(ColorFormatter.format(formattedString,
-                                                   headerColor));
+                                                   cHeaderColor));
         } else {
             String formattedString = String.format(MESSAGE_VIEWALL_RESULT,
                                                    getDisplayedTasksList().
@@ -168,10 +176,11 @@ public class ViewCommand extends Command {
      * Searches the Database for a related task that coincides with the
      * dateRange requested.
      *
-     * @param dateRange   DatePair object containing the start date and end
-     *                    date
-     * @param isCompleted true if completed tasks should be displayed
-     * @return result of all the tasks that are within the period as queried
+     * @param dateRange     DatePair object containing the start date and end
+     *                      date
+     * @param isCompleted   true if completed tasks should be displayed
+     * @param viewSelection specified view scope from user
+     * @return Response object containing result of all tasks within range
      * @throws IOException occurs when dbManager encounters a problem with file
      */
     private Response viewByPeriod(DatePair dateRange, boolean isCompleted,
@@ -185,19 +194,22 @@ public class ViewCommand extends Command {
                 if (task.isWithinPeriod(dateRange)) {
                     getDisplayedTasksList().add(databaseId);
                 }
-
             }
         }
 
         String range = "";
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM", Locale.US);
         if (dateRange.hasDateRange()) {
-            range = "from " +
-                    dateFormat.format(dateRange.getStartDate().getTime()) +
-                    " to " +
-                    dateFormat.format(dateRange.getEndDate().getTime());
-        } else if (dateRange.hasEndDate()) {
-            range = "on " + dateFormat.format(dateRange.getEndDate().getTime());
+            String startDate =
+                dateFormat.format(dateRange.getStartDate().getTime());
+            String endDate =
+                dateFormat.format(dateRange.getEndDate().getTime());
+
+            if (!startDate.equals(endDate)) {
+                range = String.format(MESSAGE_DATE_RANGE, startDate, endDate);
+            } else {
+                range = String.format(MESSAGE_ONE_DAY, endDate);
+            }
         } else {
             assert false : "This should not occur as there must be a date.";
         }
@@ -263,7 +275,7 @@ public class ViewCommand extends Command {
     private String formatTaskOutput(int displayingId) throws IOException {
         Task task = getDbManager().
             getInstance(getDisplayedTasksList().get(displayingId));
-        return task.formatOutput(displayingId + 1 + "");
+        return Formatter.formatTask(task, displayingId + 1 + "");
     }
 
     /**

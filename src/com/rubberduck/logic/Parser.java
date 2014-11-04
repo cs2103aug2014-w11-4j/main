@@ -60,7 +60,7 @@ public class Parser {
     private static final String MESSAGE_SYNC_INVALID =
         "Please enter a valid sync type.";
     private static final String MESSAGE_INVALID_COMMAND =
-        "Please enter a valid command.";
+        "Please enter a valid command. Press <Tab> or Enter ? for help.";
 
     private static final int DEFAULT_START_HOUR = 0;
     private static final int DEFAULT_START_MINUTE = 0;
@@ -181,7 +181,7 @@ public class Parser {
                 return parseExit(args);
 
             case INVALID:
-                return new InvalidCommand(MESSAGE_INVALID_COMMAND);
+                return new InvalidCommand(MESSAGE_INVALID_COMMAND, true);
 
             default: /* all unrecognized command are invalid commands */
                 throw new AssertionError(userCommand);
@@ -233,16 +233,58 @@ public class Parser {
 
         /* If no matched dates, return invalid command */
         if (groups.isEmpty()) {
-            return new InvalidCommand(MESSAGE_VIEW_ERROR_EMPTY);
+            return new InvalidCommand(MESSAGE_VIEW_ERROR_EMPTY, true);
         }
 
         /* Extract up to two dates from user's input */
         for (DateGroup group : groups) {
             List<Date> dates = group.getDates();
-            if (dates.size() == 2) {
-                date.setStartDate(dateToCalendar(dates.get(0)));
-                date.setEndDate(dateToCalendar(dates.get(1)));
+
+            /* If date range is parsed */
+            if (dates.size() >= 2) {
+                Calendar startDate = dateToCalendar(dates.get(0));
+                Calendar endDate = dateToCalendar(dates.get(1));
+
+                /* Swap date if necessary */
+                if (startDate.after(endDate)) {
+                    Calendar temp = endDate;
+                    endDate = startDate;
+                    startDate = temp;
+                }
+
+                /* If no time specified, set default timings */
+                if (group.isTimeInferred()) {
+                    startDate.set(Calendar.HOUR_OF_DAY,
+                                  DEFAULT_START_HOUR);
+                    startDate.set(Calendar.MINUTE,
+                                  DEFAULT_START_MINUTE);
+                    startDate.set(Calendar.SECOND,
+                                  DEFAULT_START_SECOND);
+                    startDate.set(Calendar.MILLISECOND,
+                                  DEFAULT_START_MILLISECOND);
+
+                    endDate.set(Calendar.HOUR_OF_DAY,
+                                DEFAULT_END_HOUR);
+                    endDate.set(Calendar.MINUTE,
+                                DEFAULT_END_MINUTE);
+                    endDate.set(Calendar.SECOND,
+                                DEFAULT_END_SECOND);
+                    endDate.set(Calendar.MILLISECOND,
+                                DEFAULT_END_MILLISECOND);
+                }
+
+                date.setStartDate(startDate);
+                date.setEndDate(endDate);
             } else if (dates.size() == 1) {
+                date.setStartDate(dateToCalendar(dates.get(0)));
+                date.getStartDate().set(Calendar.HOUR_OF_DAY,
+                                        DEFAULT_START_HOUR);
+                date.getStartDate().set(Calendar.MINUTE,
+                                        DEFAULT_START_MINUTE);
+                date.getStartDate().set(Calendar.SECOND,
+                                        DEFAULT_START_SECOND);
+                date.getStartDate().set(Calendar.MILLISECOND,
+                                        DEFAULT_START_MILLISECOND);
                 date.setEndDate(dateToCalendar(dates.get(0)));
             }
         }
@@ -259,7 +301,7 @@ public class Parser {
      */
     private Command parseSearch(String args) {
         if (args.trim().isEmpty()) {
-            return new InvalidCommand(MESSAGE_SEARCH_ERROR_EMPTY);
+            return new InvalidCommand(MESSAGE_SEARCH_ERROR_EMPTY, true);
         } else {
             return new SearchCommand(args);
         }
@@ -356,7 +398,7 @@ public class Parser {
 
         String descString = desc.toString().trim();
         if (descString.isEmpty()) {
-            return new InvalidCommand(MESSAGE_ADD_ERROR_NO_DESC);
+            return new InvalidCommand(MESSAGE_ADD_ERROR_NO_DESC, true);
         } else {
             return new AddCommand(descString, datePairs);
         }
@@ -674,7 +716,7 @@ public class Parser {
 
         /* Check if any usage of next week */
         String weekTerm = "\\b(next\\s+week)\\b";
-        String weekFormat = "%s 00:00 to %s 23:59";
+        String weekFormat = "%s to %s";
         textPattern = Pattern.compile(weekTerm);
         textMatcher = textPattern.matcher(input);
 
@@ -705,7 +747,7 @@ public class Parser {
 
         /* Check if any usage of next month */
         String monthTerm = "\\b(next\\s+month)\\b";
-        String monthFormat = "%s 00:00 to %s 23:59";
+        String monthFormat = "%s to %s";
         textPattern = Pattern.compile(monthTerm);
         textMatcher = textPattern.matcher(input);
 
@@ -733,7 +775,7 @@ public class Parser {
 
         /* Check if any usage of next year */
         String yearTerm = "\\b(next\\s+year)\\b";
-        String yearFormat = "1 Jan %s 00:00 to 31 Dec %s 23:59";
+        String yearFormat = "1 Jan %s to 31 Dec %s";
         textPattern = Pattern.compile(yearTerm);
         textMatcher = textPattern.matcher(input);
 

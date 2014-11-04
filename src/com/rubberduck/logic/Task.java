@@ -1,8 +1,6 @@
 package com.rubberduck.logic;
 
 import com.rubberduck.io.DatabaseManager;
-import com.rubberduck.menu.ColorFormatter;
-import com.rubberduck.menu.ColorFormatter.Color;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -10,7 +8,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.LinkedList;
 import java.util.Locale;
 
 /**
@@ -220,21 +217,20 @@ public class Task implements Serializable, Comparable<Task> {
 
     /**
      * Test whether current Task object has conflict with given Task object.
+     * Only applicable for schedules and tentative schedules.
      *
      * @param t another Task object to compare
      * @return true if conflict else false
      */
     public boolean hasConflictWith(Task t) {
-        ArrayList<DatePair> dp = t.getDateList();
-        for (int j = 0; j < dp.size(); j++) {
-            if (!isDeadline()) {
-                if (!t.isDeadline() && isWithinPeriod(dp.get(j))) {
-                    return true;
-                }
-            } else {
-                if (getEarliestDate().compareTo(dp.get(j).getEndDate()) == 0) {
-                    return true;
-                }
+        if (isDeadline() || isFloatingTask()) {
+            return false;
+        }
+
+        ArrayList<DatePair> dpList = t.getDateList();
+        for (DatePair dp : dpList) {
+            if (!t.isDeadline() && isWithinPeriod(dp)) {
+                return true;
             }
         }
 
@@ -247,110 +243,6 @@ public class Task implements Serializable, Comparable<Task> {
     public void resetUuid() {
         this.uuid = "";
         updateLastUpdate();
-    }
-
-    /**
-     * Format individual task into output format for display.
-     *
-     * @param displayingId the id of the task
-     * @return the formatted string of the task
-     */
-    //@author A0111736M
-    public String formatOutput(String displayingId) {
-        boolean overdue = false;
-        final int maxDescLength = 41;
-        StringBuilder stringBuilder = new StringBuilder();
-        String description = getDescription();
-        ArrayList<DatePair> dates = getDateList();
-        char isDone = getIsDone() ? 'Y' : 'N';
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa",
-                                                           Locale.US);
-        boolean isTentative = dates.size() > 1;
-
-        if (isTentative) {
-            description += " (tentative)";
-        }
-
-        /* Used to store fragments of description and dates */
-        LinkedList<String> wordWrapList = new LinkedList<String>();
-        LinkedList<String> dateList = new LinkedList<String>();
-
-        /* Break sentences into multiple lines and add into list */
-        while (!description.isEmpty()) {
-            if (description.length() <= maxDescLength) {
-                wordWrapList.add(description);
-                description = "";
-            } else {
-                int i = description.lastIndexOf(" ", maxDescLength);
-                /* if there's a word with more than 41 characters long */
-                if (i == -1) {
-                    i = maxDescLength;
-                }
-                wordWrapList.add(description.substring(0, i));
-                description = description.substring(i + 1);
-            }
-        }
-
-        /* Support for multiple dates for tentative tasks */
-        for (int i = 0; i < dates.size(); i++) {
-            DatePair dp = dates.get(i);
-            if (dp.hasDateRange()) {
-                dateList.add(dateFormat.format(dp.getStartDate().getTime())
-                             + " to");
-                dateList.add(dateFormat.format(dp.getEndDate().getTime()));
-            } else if (dp.hasEndDate()) {
-                dateList.add(dateFormat.format(dp.getEndDate().getTime()));
-            }
-            if (dp.getEndDate().before(Calendar.getInstance())) {
-                overdue = true;
-            }
-        }
-
-        /* Format all fragments in desc and date into multiple lines */
-
-        int dateId = 1;
-        boolean rangeTicker = true;
-        while (!wordWrapList.isEmpty() || !dateList.isEmpty()) {
-            String desc = wordWrapList.isEmpty() ? ""
-                                                 : wordWrapList.removeFirst();
-
-            String date = dateList.isEmpty() ? "" : dateList.removeFirst();
-            if (isTentative && rangeTicker) {
-                if (stringBuilder.length() != 0) {
-                    stringBuilder.append(System.lineSeparator());
-                    stringBuilder.
-                        append(String.format("%-7s%-6s%-43s%-19s%-5s", "", "",
-                                             desc, date, "[" + dateId++ + "]"));
-                } else {
-                    stringBuilder.
-                        append(String.format("%-7s%-6s%-43s%-19s%-5s",
-                                             displayingId, isDone,
-                                             desc, date, "[" + dateId++ + "]"));
-                }
-
-                if (date.contains("to")) {
-                    rangeTicker = false;
-                }
-            } else {
-                if (stringBuilder.length() != 0) {
-                    stringBuilder.append(System.lineSeparator());
-                    stringBuilder.append(String.format("%-7s%-6s%-43s%-24s",
-                                                       "", "", desc, date));
-                } else {
-                    stringBuilder.append(String.format("%-7s%-6s%-43s%-24s",
-                                                       displayingId, isDone,
-                                                       desc, date));
-                }
-
-                rangeTicker = true;
-            }
-        }
-
-        String output = stringBuilder.toString().trim();
-        if (overdue) {
-            output = ColorFormatter.format(output, Color.RED);
-        }
-        return output;
     }
 
     /**
@@ -403,7 +295,7 @@ public class Task implements Serializable, Comparable<Task> {
             DatePair dp = dateList.get(0);
             if (dp.hasDateRange()) {
                 return dateFormat.format(dp.getStartDate().getTime())
-                       + " to" + dateFormat.format(dp.getEndDate().getTime());
+                       + " to " + dateFormat.format(dp.getEndDate().getTime());
             } else {
                 return dateFormat.format(dp.getEndDate().getTime());
             }
@@ -425,10 +317,7 @@ public class Task implements Serializable, Comparable<Task> {
      * @return the earliest Date of the task
      */
     public Calendar getEarliestDate() {
-        if (isFloatingTask()) {
-            throw new UnsupportedOperationException(
-                "No date in a floating task.");
-        }
+        assert !isFloatingTask() : "No date in a floating task.";
 
         Calendar earliestDate = null;
 
@@ -477,8 +366,8 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     /**
-     * Method used to check whether a task has any potential conflict in current
-     * database.
+     * Method used to check whether a task has any potential conflicting
+     * schedule in current database.
      *
      * @param dbManager DatabaseManager object to interact with
      * @return true if there is a conflict else false
@@ -486,18 +375,20 @@ public class Task implements Serializable, Comparable<Task> {
      */
     public boolean checkConflictWithDB(DatabaseManager<Task> dbManager)
         throws IOException {
-        boolean isConflict = false;
-        if (isFloatingTask()) {
-            return isConflict;
+        if (isFloatingTask() || isDeadline()) {
+            return false;
         }
+
         ArrayList<Long> validIDList = dbManager.getValidIdList();
-        for (int i = 0; i < validIDList.size(); i++) {
-            Task storedTask = dbManager.getInstance(validIDList.get(i));
-            if (!storedTask.getIsDone() && !storedTask.isFloatingTask()) {
-                isConflict = hasConflictWith(storedTask);
+        for (Long i : validIDList) {
+            Task storedTask = dbManager.getInstance(i);
+            if (!storedTask.getIsDone()) {
+                if (hasConflictWith(storedTask)) {
+                    return true;
+                }
             }
         }
 
-        return isConflict;
+        return false;
     }
 }
