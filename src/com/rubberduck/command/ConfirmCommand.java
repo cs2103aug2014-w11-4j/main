@@ -36,7 +36,6 @@ public class ConfirmCommand extends Command {
      *
      * @return taskId as int
      */
-    //@author A0119504L-reused
     public int getTaskId() {
         return taskId;
     }

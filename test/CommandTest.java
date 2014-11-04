@@ -2,6 +2,8 @@ import com.rubberduck.command.AddCommand;
 import com.rubberduck.command.Command;
 import com.rubberduck.command.ConfirmCommand;
 import com.rubberduck.command.DeleteCommand;
+import com.rubberduck.command.HelpCommand;
+import com.rubberduck.command.InvalidCommand;
 import com.rubberduck.command.MarkCommand;
 import com.rubberduck.command.RedoCommand;
 import com.rubberduck.command.SearchCommand;
@@ -124,6 +126,131 @@ public class CommandTest {
             "lorem ipsum dolor sit amet, consectetur adipiscing elit.";
         assertEquals(expected, actual);
     }
+    
+    /**
+     * add tentative task
+     */
+    //@author A0119504L
+    @Test
+    public void addTentativeTask() throws IOException {
+ 
+        ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+        Calendar date = Calendar.getInstance();
+        Calendar date2 = Calendar.getInstance();
+
+        date.add(Calendar.DAY_OF_YEAR, 1);
+        date2.add(Calendar.DAY_OF_YEAR, 2);
+        DatePair dp = new DatePair(date, date2);
+        datePairList.add(dp);
+
+        Calendar date3 = Calendar.getInstance();
+        Calendar date4 = Calendar.getInstance();
+        date3.add(Calendar.DAY_OF_YEAR, 2);
+        date4.add(Calendar.DAY_OF_YEAR, 3);
+        DatePair dp2 = new DatePair(date3, date4);
+        datePairList.add(dp2);
+
+        Calendar date5 = Calendar.getInstance();
+        Calendar date6 = Calendar.getInstance();
+        date5.add(Calendar.DAY_OF_YEAR, 3);
+        date6.add(Calendar.DAY_OF_YEAR, 4);
+        DatePair dp3 = new DatePair(date5, date6);
+        datePairList.add(dp3);
+
+        AddCommand addCommand = new AddCommand(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            datePairList);
+        String actual = addCommand.execute();
+
+        String expected =
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+        assertTrue(actual.contains(expected));
+    }
+    
+    /**
+     * add task which deadline have passed
+     * 
+     */
+    //@author A0119504L
+    @Test
+    public void addTaskPassed() throws IOException {
+        
+        ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+        Calendar date = Calendar.getInstance();
+        date.add(Calendar.DAY_OF_MONTH, -5);
+        DatePair dp = new DatePair(date);
+        datePairList.add(dp);
+
+        AddCommand addCommand = new AddCommand(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            datePairList);
+        String actual = addCommand.execute();
+
+        String expected =
+            "cannot be added as the end date has already passed.";
+        assertTrue(actual.contains(expected));
+    }
+
+    /**
+     * add conflict task
+     * test the warning message came out
+     * 
+     */
+    //@author A0119504L
+    @Test
+    public void addConflictTask() throws IOException {
+
+        ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+        ArrayList<DatePair> datePairList2 = new ArrayList<DatePair>();
+        Calendar date = Calendar.getInstance();
+        Calendar date2 = Calendar.getInstance();
+
+        date.add(Calendar.DAY_OF_YEAR, 1);
+        date2.add(Calendar.DAY_OF_YEAR, 2);
+        DatePair dp = new DatePair(date, date2);
+        datePairList.add(dp);
+        datePairList2.add(dp);
+        
+        AddCommand addCommand = new AddCommand(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            datePairList);
+        addCommand.execute();
+        AddCommand addCommand2 = new AddCommand(
+            "Lonsectetur adipiscing elit.",
+            datePairList2);
+        String actual = addCommand2.execute();
+
+        String expected =
+            "Please note that there are conflicting task(s).";
+        assertTrue(actual.contains(expected));
+    }
+    
+    /**
+     * add wrong task type with multiple deadlines
+     */
+    //@author A0119504L
+    @Test
+    public void addTaskWrongType() throws IOException {
+
+        ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+        Calendar date = Calendar.getInstance();
+        Calendar date2 = Calendar.getInstance();
+        date.add(Calendar.DAY_OF_YEAR, 1);
+        date2.add(Calendar.DAY_OF_YEAR, 2);
+        DatePair dp = new DatePair(date);
+        DatePair dp2 = new DatePair(date2);
+        datePairList.add(dp);
+        datePairList.add(dp2);
+
+        AddCommand addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                datePairList);
+        String actual = addCommand.execute();
+
+        String expected =
+                "You have input an invalid task type.";
+        assertTrue(actual.contains(expected));
+    }
 
     /**
      * Search for keyword in description
@@ -142,6 +269,25 @@ public class CommandTest {
         //String actual = searchCommand.execute();
         String expected = "1 task with \"Lorem\" has been found.";
         //assertTrue(actual.contains(expected));
+    }
+    
+    /**
+     * Search for keyword not exist
+     */
+    //@author A0119504L
+    @Test
+    public void searchKeywordNotExistTest() throws IOException {
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+
+        AddCommand addCommand = new AddCommand(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            dpList);
+        addCommand.execute();
+
+        SearchCommand searchCommand = new SearchCommand("apple");
+        String actual = searchCommand.execute();
+        String expected = "0 task with \"apple\" has been found.";
+        assertTrue(actual.contains(expected));
     }
 
     /**
@@ -195,6 +341,56 @@ public class CommandTest {
     }
 
     /**
+     * Test help command
+     */
+    //@author A0119504L
+    @Test
+    public void helpTest() throws IOException {
+        HelpCommand command = new HelpCommand(false, null);
+        String actual = command.execute();
+        String expected = "Here are for the available commands in RubberDuck.";
+        assertTrue(actual.contains(expected));
+    }
+    
+    /**
+     * Test specific help command
+     */
+    //@author A0119504L
+    @Test
+    public void helpSpecificTest() throws IOException {
+        HelpCommand command = new HelpCommand(true, "add");
+        String actual = command.execute();
+        String expected = "More information about your queried command.";
+        assertTrue(actual.contains(expected));
+    }
+    
+    /**
+     * Test invalid help command
+     */
+    //@author A0119504L
+    @Test
+    public void helpInvalidCommandTest() throws IOException {
+        HelpCommand command = new HelpCommand(true, "abc");
+        String actual = command.execute();
+        String expected = "No such command/alias.";
+        assertTrue(actual.contains(expected));
+        
+    }
+    
+    /**
+     * Test invalid command
+     */
+    //@author A0119504L
+    @Test
+    public void InvalidCommandTest() throws IOException {
+        InvalidCommand command = new InvalidCommand("abc");
+        String actual = command.execute();
+        String expected = "abc";
+        assertTrue(actual.contains(expected));
+        
+    }
+
+    /**
      * Delete exist task
      */
     //@author A0119504L
@@ -238,9 +434,10 @@ public class CommandTest {
             new ViewCommand(true, false, null, viewChoice);
         viewCommand.execute();
         DeleteCommand deleteCommand = new DeleteCommand(2);
-        //String expected = deleteCommand.execute();
-        //assertEquals(expected, ColorFormatter.
-            //format("This is not a valid task ID to delete.", Color.RED));
+
+        String expected = deleteCommand.execute();
+        assertTrue(expected.contains( ColorFormatter.
+            format("This is not a valid task ID to delete.", Color.RED)));
     }
 
     /**
@@ -337,7 +534,8 @@ public class CommandTest {
         //String expected = updateCommand.execute();
         String actual = ColorFormatter.format("You have input an invalid ID.",
                                               Color.RED);
-        //assertEquals(expected, actual);
+        
+        assertTrue(expected.contains(actual));
     }
 
     /**
@@ -377,7 +575,8 @@ public class CommandTest {
         String expected =
             ColorFormatter.format("You have input an invalid task type.",
                                   Color.RED);
-        //assertEquals(expected, actual);
+        
+        assertTrue(actual.contains(expected));
     }
 
     /**
@@ -516,7 +715,7 @@ public class CommandTest {
 
         String expected = ColorFormatter.
             format("You have input an invalid ID.", Color.RED);
-        //assertEquals(actual, expected);
+        assertTrue(actual.contains(expected));
     }
 
     /**
@@ -620,7 +819,7 @@ public class CommandTest {
         String expected = ColorFormatter.
             format("You have input an invalid task ID.", Color.RED);
 
-        //assertEquals(expected, actual);
+        assertTrue(actual.contains(expected));
     }
 
     /**
@@ -658,7 +857,7 @@ public class CommandTest {
                 "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" is not tentative and does not need confirmation.",
                 Color.RED);
 
-        //assertEquals(expected, actual);
+        assertTrue(actual.contains(expected));
     }
 
     /**
@@ -708,7 +907,7 @@ public class CommandTest {
         String expected = ColorFormatter.
             format("You have input an invalid date ID.", Color.RED);
 
-        //assertEquals(expected, actual);
+        assertTrue(actual.contains(expected));
     }
 
 }
