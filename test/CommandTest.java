@@ -133,7 +133,12 @@ public class CommandTest {
     //@author A0119504L
     @Test
     public void addTentativeTask() throws IOException {
- 
+    	ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+		viewChoice.add(ViewCommand.ViewType.DEADLINE);
+		viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+		viewChoice.add(ViewCommand.ViewType.TASK);
+		ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+		viewCommand.execute();
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
@@ -160,11 +165,11 @@ public class CommandTest {
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             datePairList);
-/*        String actual = addCommand.execute();
+        String actual = addCommand.execute().getMessages()[0];
 
         String expected =
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
-        assertTrue(actual.contains(expected));*/
+        assertTrue(actual.contains(expected));
     }
     
     /**
@@ -174,7 +179,13 @@ public class CommandTest {
     //@author A0119504L
     @Test
     public void addTaskPassed() throws IOException {
-        
+		ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+		viewChoice.add(ViewCommand.ViewType.DEADLINE);
+		viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+		viewChoice.add(ViewCommand.ViewType.TASK);
+		ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+		viewCommand.execute();
+		Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         date.add(Calendar.DAY_OF_MONTH, -5);
@@ -184,11 +195,11 @@ public class CommandTest {
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             datePairList);
-/*        String actual = addCommand.execute();
+        String actual = addCommand.execute().getMessages()[1];
 
         String expected =
-            "cannot be added as the end date has already passed.";
-        assertTrue(actual.contains(expected));*/
+            "the end date has already passed.";
+        assertTrue(actual.contains(expected));
     }
 
     /**
@@ -199,7 +210,13 @@ public class CommandTest {
     //@author A0119504L
     @Test
     public void addConflictTask() throws IOException {
-
+    	ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+		viewChoice.add(ViewCommand.ViewType.DEADLINE);
+		viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+		viewChoice.add(ViewCommand.ViewType.TASK);
+		ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+		viewCommand.execute();
+		Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         ArrayList<DatePair> datePairList2 = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
@@ -218,11 +235,11 @@ public class CommandTest {
         AddCommand addCommand2 = new AddCommand(
             "Lonsectetur adipiscing elit.",
             datePairList2);
-/*        String actual = addCommand2.execute();
-
+        String actual = addCommand2.execute().getMessages()[2];
+ 
         String expected =
-            "Please note that there are conflicting task(s).";
-        assertTrue(actual.contains(expected));*/
+            "Please note that there are conflicting schedule(s)";
+        assertTrue(actual.contains(expected));
     }
     
     /**
@@ -231,7 +248,13 @@ public class CommandTest {
     //@author A0119504L
     @Test
     public void addTaskWrongType() throws IOException {
-
+    	ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+		viewChoice.add(ViewCommand.ViewType.DEADLINE);
+		viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+		viewChoice.add(ViewCommand.ViewType.TASK);
+		ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+		viewCommand.execute();
+		Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
@@ -245,11 +268,11 @@ public class CommandTest {
         AddCommand addCommand = new AddCommand(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 datePairList);
-  /*      String actual = addCommand.execute();
+        String actual = addCommand.execute().getMessages()[0];
 
         String expected =
                 "You have input an invalid task type.";
-        assertTrue(actual.contains(expected));*/
+        assertTrue(actual.contains(expected));
     }
 
     /**
@@ -258,6 +281,13 @@ public class CommandTest {
     //@author A0111794E
     @Test
     public void searchKeywordTest() throws IOException {
+    	ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+		viewChoice.add(ViewCommand.ViewType.DEADLINE);
+		viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+		viewChoice.add(ViewCommand.ViewType.TASK);
+		ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+		viewCommand.execute();
+		Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
         AddCommand addCommand = new AddCommand(
@@ -266,9 +296,9 @@ public class CommandTest {
         addCommand.execute();
 
         SearchCommand searchCommand = new SearchCommand("Lorem");
-        //String actual = searchCommand.execute();
+        String actual = searchCommand.execute().getViewCount();
         String expected = "1 task with \"Lorem\" has been found.";
-        //assertTrue(actual.contains(expected));
+        assertTrue(actual.contains(expected));
     }
     
     /**
@@ -277,6 +307,13 @@ public class CommandTest {
     //@author A0119504L
     @Test
     public void searchKeywordNotExistTest() throws IOException {
+    	ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+		viewChoice.add(ViewCommand.ViewType.DEADLINE);
+		viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+		viewChoice.add(ViewCommand.ViewType.TASK);
+		ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+		viewCommand.execute();
+		Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
         AddCommand addCommand = new AddCommand(
@@ -285,9 +322,9 @@ public class CommandTest {
         addCommand.execute();
 
         SearchCommand searchCommand = new SearchCommand("apple");
-/*        String actual = searchCommand.execute();
+        String actual = searchCommand.execute().getViewCount();
         String expected = "0 task with \"apple\" has been found.";
-        assertTrue(actual.contains(expected));*/
+        assertTrue(actual.contains(expected));
     }
 
     /**
@@ -347,9 +384,10 @@ public class CommandTest {
     @Test
     public void helpTest() throws IOException {
         HelpCommand command = new HelpCommand(false, null);
-/*        String actual = command.execute();
+        String actual = command.execute().getMessages()[0];
+
         String expected = "Here are for the available commands in RubberDuck.";
-        assertTrue(actual.contains(expected));*/
+        assertTrue(actual.contains(expected));
     }
     
     /**
@@ -359,9 +397,9 @@ public class CommandTest {
     @Test
     public void helpSpecificTest() throws IOException {
         HelpCommand command = new HelpCommand(true, "add");
-/*        String actual = command.execute();
+        String actual = command.execute().getMessages()[0];
         String expected = "More information about your queried command.";
-        assertTrue(actual.contains(expected));*/
+        assertTrue(actual.contains(expected));
     }
     
     /**
@@ -371,9 +409,9 @@ public class CommandTest {
     @Test
     public void helpInvalidCommandTest() throws IOException {
         HelpCommand command = new HelpCommand(true, "abc");
-/*        String actual = command.execute();
+        String actual = command.execute().getMessages()[0];
         String expected = "No such command/alias.";
-        assertTrue(actual.contains(expected));*/
+        assertTrue(actual.contains(expected));
         
     }
     
@@ -384,9 +422,9 @@ public class CommandTest {
     @Test
     public void InvalidCommandTest() throws IOException {
         InvalidCommand command = new InvalidCommand("abc");
-/*        String actual = command.execute();
+        String actual = command.execute().getMessages()[0];
         String expected = "abc";
-        assertTrue(actual.contains(expected));*/
+        assertTrue(actual.contains(expected));
         
     }
 
@@ -396,19 +434,19 @@ public class CommandTest {
     //@author A0119504L
     @Test
     public void deleteExistTask() throws IOException {
+    	ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+		viewChoice.add(ViewCommand.ViewType.DEADLINE);
+		viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+		viewChoice.add(ViewCommand.ViewType.TASK);
+		ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+		viewCommand.execute();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        ArrayList<ViewCommand.ViewType> viewChoice =
-            new ArrayList<ViewCommand.ViewType>();
-        viewChoice.add(ViewCommand.ViewType.DEADLINE);
-        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewType.TASK);
+ 
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
         addCommand.execute();
-        ViewCommand viewCommand =
-            new ViewCommand(true, false, null, viewChoice);
-        viewCommand.execute();
+
         DeleteCommand deleteCommand = new DeleteCommand(1);
         deleteCommand.execute();
         assertEquals(0, Command.getDbManager().getValidIdList().size());
@@ -420,24 +458,24 @@ public class CommandTest {
     //@author A0119504L
     @Test
     public void deleteNotExistTask() throws IOException {
+    	ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+		viewChoice.add(ViewCommand.ViewType.DEADLINE);
+		viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+		viewChoice.add(ViewCommand.ViewType.TASK);
+		ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+		viewCommand.execute();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        ArrayList<ViewCommand.ViewType> viewChoice =
-            new ArrayList<ViewCommand.ViewType>();
-        viewChoice.add(ViewCommand.ViewType.DEADLINE);
-        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewType.TASK);
+       
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
         addCommand.execute();
-        ViewCommand viewCommand =
-            new ViewCommand(true, false, null, viewChoice);
-        viewCommand.execute();
+     
         DeleteCommand deleteCommand = new DeleteCommand(2);
 
-/*        String expected = deleteCommand.execute();
+        String expected = deleteCommand.execute().getMessages()[0];
         assertTrue(expected.contains( ColorFormatter.
-            format("This is not a valid task ID to delete.", Color.RED)));*/
+            format("This is not a valid task ID to delete.", Color.RED)));
     }
 
     /**
@@ -452,13 +490,15 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewType.DEADLINE);
         viewChoice.add(ViewCommand.ViewType.SCHEDULE);
         viewChoice.add(ViewCommand.ViewType.TASK);
+        ViewCommand viewCommand =
+                new ViewCommand(true, false, null, viewChoice);
+
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
         addCommand.execute();
-        ViewCommand viewCommand =
-            new ViewCommand(true, false, null, viewChoice);
-        viewCommand.execute();
         UpdateCommand updateCommand = new UpdateCommand(1,
                                                         "Lorem ipsum dolor sit amet.",
                                                         dpList);
@@ -485,10 +525,11 @@ public class CommandTest {
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
-        addCommand.execute();
         ViewCommand viewCommand =
-            new ViewCommand(true, false, null, viewChoice);
+                new ViewCommand(true, false, null, viewChoice);
         viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
+        addCommand.execute();
 
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
@@ -524,18 +565,19 @@ public class CommandTest {
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
-        addCommand.execute();
         ViewCommand viewCommand =
-            new ViewCommand(true, false, null, viewChoice);
+                new ViewCommand(true, false, null, viewChoice);
         viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
+        addCommand.execute();
         UpdateCommand updateCommand = new UpdateCommand(2,
                                                         "Lorem ipsum dolor sit amet.",
                                                         dpList);
-        //String expected = updateCommand.execute();
+        String expected = updateCommand.execute().getMessages()[0];
         String actual = ColorFormatter.format("You have input an invalid ID.",
                                               Color.RED);
-/*
-        assertTrue(expected.contains(actual));*/
+
+        assertTrue(expected.contains(actual));
     }
 
     /**
@@ -550,13 +592,14 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewType.DEADLINE);
         viewChoice.add(ViewCommand.ViewType.SCHEDULE);
         viewChoice.add(ViewCommand.ViewType.TASK);
+        ViewCommand viewCommand =
+                new ViewCommand(true, false, null, viewChoice);
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
         addCommand.execute();
-        ViewCommand viewCommand =
-            new ViewCommand(true, false, null, viewChoice);
-        viewCommand.execute();
 
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
@@ -571,12 +614,12 @@ public class CommandTest {
         UpdateCommand updateCommand = new UpdateCommand(1,
                                                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                                                         datePairList);
-        //String actual = updateCommand.execute();
+        String actual = updateCommand.execute().getMessages()[0];
         String expected =
             ColorFormatter.format("You have input an invalid task type.",
                                   Color.RED);
-/*
-        assertTrue(actual.contains(expected));*/
+
+        assertTrue(actual.contains(expected));
     }
 
     /**
@@ -591,14 +634,15 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewType.DEADLINE);
         viewChoice.add(ViewCommand.ViewType.SCHEDULE);
         viewChoice.add(ViewCommand.ViewType.TASK);
+        ViewCommand viewCommand =
+                new ViewCommand(true, false, null, viewChoice);
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
         addCommand.execute();
-        ViewCommand viewCommand =
-            new ViewCommand(true, false, null, viewChoice);
-        viewCommand.execute();
-
+      
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         date.add(Calendar.DAY_OF_MONTH, -5);
@@ -608,11 +652,11 @@ public class CommandTest {
         UpdateCommand updateCommand = new UpdateCommand(1,
                                                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                                                         datePairList);
-        //String actual = updateCommand.execute();
+        String actual = updateCommand.execute().getMessages()[0];
         String expected = ColorFormatter.format(
             "You cannot update the end date that has already passed.",
             Color.RED);
-        //assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     /**
@@ -627,14 +671,15 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewType.DEADLINE);
         viewChoice.add(ViewCommand.ViewType.SCHEDULE);
         viewChoice.add(ViewCommand.ViewType.TASK);
+        ViewCommand viewCommand =
+                new ViewCommand(true, false, null, viewChoice);
+            viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
         addCommand.execute();
-        ViewCommand viewCommand =
-            new ViewCommand(true, false, null, viewChoice);
-        viewCommand.execute();
-
+       
         MarkCommand markCommand = new MarkCommand(1);
         markCommand.execute();
 
@@ -668,14 +713,16 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewType.SCHEDULE);
         viewChoice.add(ViewCommand.ViewType.TASK);
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+        
+        ViewCommand viewCommand =
+                new ViewCommand(true, false, null, viewChoice);
+            viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
         addCommand.execute();
-        ViewCommand viewCommand =
-            new ViewCommand(true, false, null, viewChoice);
-        viewCommand.execute();
-
+        
         MarkCommand markCommand = new MarkCommand(1);
         markCommand.execute();
 
@@ -701,21 +748,21 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewType.DEADLINE);
         viewChoice.add(ViewCommand.ViewType.SCHEDULE);
         viewChoice.add(ViewCommand.ViewType.TASK);
+        ViewCommand viewCommand =
+                new ViewCommand(true, false, null, viewChoice);
+            viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
         addCommand.execute();
-        ViewCommand viewCommand =
-            new ViewCommand(true, false, null, viewChoice);
-        viewCommand.execute();
-
         MarkCommand markCommand = new MarkCommand(2);
-        //String actual = markCommand.execute();
-/*
+        String actual = markCommand.execute().getMessages()[0];
+
         String expected = ColorFormatter.
             format("You have input an invalid ID.", Color.RED);
-        assertTrue(actual.contains(expected));*/
+        assertTrue(actual.contains(expected));
     }
 
     /**
@@ -729,6 +776,10 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewType.DEADLINE);
         viewChoice.add(ViewCommand.ViewType.SCHEDULE);
         viewChoice.add(ViewCommand.ViewType.TASK);
+        ViewCommand viewCommand =
+                new ViewCommand(true, false, null, viewChoice);
+            viewCommand.execute();
+            Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
@@ -756,9 +807,7 @@ public class CommandTest {
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             datePairList);
         addCommand.execute();
-        ViewCommand viewCommand =
-            new ViewCommand(true, false, null, viewChoice);
-        viewCommand.execute();
+
         ConfirmCommand confirmCommand = new ConfirmCommand(1, 2);
         confirmCommand.execute();
 
@@ -783,6 +832,10 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewType.DEADLINE);
         viewChoice.add(ViewCommand.ViewType.SCHEDULE);
         viewChoice.add(ViewCommand.ViewType.TASK);
+        ViewCommand viewCommand =
+                new ViewCommand(true, false, null, viewChoice);
+            viewCommand.execute();
+            Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
@@ -810,16 +863,14 @@ public class CommandTest {
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             datePairList);
         addCommand.execute();
-        ViewCommand viewCommand =
-            new ViewCommand(true, false, null, viewChoice);
-        viewCommand.execute();
+       
         ConfirmCommand confirmCommand = new ConfirmCommand(2, 2);
-        //String actual = confirmCommand.execute();
+        String actual = confirmCommand.execute().getMessages()[0];
 
         String expected = ColorFormatter.
             format("You have input an invalid task ID.", Color.RED);
-/*
-        assertTrue(actual.contains(expected));*/
+
+        assertTrue(actual.contains(expected));
     }
 
     /**
@@ -833,6 +884,10 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewType.DEADLINE);
         viewChoice.add(ViewCommand.ViewType.SCHEDULE);
         viewChoice.add(ViewCommand.ViewType.TASK);
+        ViewCommand viewCommand =
+                new ViewCommand(true, false, null, viewChoice);
+            viewCommand.execute();
+            Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
@@ -846,18 +901,14 @@ public class CommandTest {
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             datePairList);
         addCommand.execute();
-        ViewCommand viewCommand =
-            new ViewCommand(true, false, null, viewChoice);
-        viewCommand.execute();
+        
         ConfirmCommand confirmCommand = new ConfirmCommand(1, 2);
-        //String actual = confirmCommand.execute();
+        String actual = confirmCommand.execute().getMessages()[0];
 
-        String expected = ColorFormatter.
-            format(
-                "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" is not tentative and does not need confirmation.",
-                Color.RED);
-/*
-        assertTrue(actual.contains(expected));*/
+
+        String expected ="is not tentative";
+
+        assertTrue(actual.contains(expected));
     }
 
     /**
@@ -871,6 +922,10 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewType.DEADLINE);
         viewChoice.add(ViewCommand.ViewType.SCHEDULE);
         viewChoice.add(ViewCommand.ViewType.TASK);
+        ViewCommand viewCommand =
+                new ViewCommand(true, false, null, viewChoice);
+            viewCommand.execute();
+            Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
@@ -898,16 +953,14 @@ public class CommandTest {
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             datePairList);
         addCommand.execute();
-        ViewCommand viewCommand =
-            new ViewCommand(true, false, null, viewChoice);
-        viewCommand.execute();
+      
         ConfirmCommand confirmCommand = new ConfirmCommand(1, 4);
-        //String actual = confirmCommand.execute();
+        String actual = confirmCommand.execute().getMessages()[0];
 
         String expected = ColorFormatter.
             format("You have input an invalid date ID.", Color.RED);
-/*
-        assertTrue(actual.contains(expected));*/
+
+        assertTrue(actual.contains(expected));
     }
 
 }
