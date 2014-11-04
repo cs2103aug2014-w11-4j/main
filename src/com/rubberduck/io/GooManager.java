@@ -522,35 +522,33 @@ public class GooManager {
     }
 
     public static void twoWaySync(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
-        HashMap<String, Long> uuidMap = new HashMap<String, Long>();
-        ArrayList<com.rubberduck.logic.Task> localModifiedTasks = new ArrayList<com.rubberduck.logic.Task>();
-        ArrayList<com.rubberduck.logic.Task> localModifiedEvents = new ArrayList<com.rubberduck.logic.Task>();
+        HashMap<Long, com.rubberduck.logic.Task> localModifiedTasks = new HashMap<Long, com.rubberduck.logic.Task>();
+        HashMap<Long, com.rubberduck.logic.Task> localModifiedEvents = new HashMap<Long, com.rubberduck.logic.Task>();
         Date lastSyncTime = getLastSyncTime();
         for (Long databaseId : dbManager.getValidIdList()) {
             com.rubberduck.logic.Task localTask = dbManager.getInstance(databaseId);
-            uuidMap.put(localTask.getUuid(), databaseId);
             if (lastSyncTime == null || localTask.getLastUpdate().getTime().after(lastSyncTime)) {
                 if (!(localTask.getDateList().size() > 1)) {
                     if (localTask.isDeadline() || localTask.isFloatingTask()) {
-                        localModifiedTasks.add(localTask);
+                        localModifiedTasks.put(databaseId, localTask);
                     } else {
-                        localModifiedEvents.add(localTask);
+                        localModifiedEvents.put(databaseId, localTask);
                     }
                 }
             }
         }
-        for (com.rubberduck.logic.Task task : localModifiedTasks) {
-            Task remoteTask = getRemoteTask(getRemoteUuid(task));
-            if (dateTimeToCalendar(remoteTask.getUpdated()).before(task.getLastUpdate())) {
+        for (Long databaseId : localModifiedTasks.keySet()) {
+            com.rubberduck.logic.Task task = localModifiedTasks.get(databaseId);
+            if (!isPushed(task) || dateTimeToCalendar(getRemoteTask(getRemoteUuid(task)).getUpdated()).before(task.getLastUpdate())) {
                 pushTask(task);
-                dbManager.modify(uuidMap.get(task.getUuid()), task, null);
+                dbManager.modify(databaseId, task, null);
             }
         }
-        for (com.rubberduck.logic.Task task : localModifiedEvents) {
-            Event remoteEvent = getRemoteEvent(getRemoteUuid(task));
-            if (dateTimeToCalendar(remoteEvent.getUpdated()).before(task.getLastUpdate())) {
+        for (Long databaseId : localModifiedEvents.keySet()) {
+            com.rubberduck.logic.Task task = localModifiedEvents.get(databaseId);
+            if (!isPushed(task) || dateTimeToCalendar(getRemoteEvent(getRemoteUuid(task)).getUpdated()).before(task.getLastUpdate())) {
                 pushTask(task);
-                dbManager.modify(uuidMap.get(task.getUuid()), task, null);
+                dbManager.modify(databaseId, task, null);
             }
         }
         pullAll(dbManager);
