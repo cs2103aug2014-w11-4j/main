@@ -167,7 +167,7 @@ public class GooManager {
     private static Date getLastSyncTime() throws IOException {
         Calendar calendar = calendarClient.calendars().get(calendarId).execute();
         String line = calendar.getDescription();
-        if (line.startsWith(REMOTE_SYNC_FLAG_FORMAT)) {
+        if (line != null && line.startsWith(REMOTE_SYNC_FLAG_FORMAT)) {
             try {
                 return DATE_FORMAT.parse(line.replace(REMOTE_SYNC_FLAG_FORMAT, ""));
             } catch (ParseException e) {
@@ -362,9 +362,17 @@ public class GooManager {
         event.setStart(calendarToEventDateTime(datePair.getStartDate()));
         event.setEnd(calendarToEventDateTime(datePair.getEndDate()));
         if (originalTask.getIsDone()) {
-            event.setDescription(REMOTE_FLAG_COMPLETED + event.getDescription());
+            if (event.getDescription() == null) {
+                event.setDescription(REMOTE_FLAG_COMPLETED);
+            } else {
+                event.setDescription(REMOTE_FLAG_COMPLETED + event.getDescription());
+            }
         } else {
-            event.setDescription(event.getDescription().replaceAll(REMOTE_FLAG_COMPLETED, ""));
+            if (event.getDescription() == null) {
+                event.setDescription("");
+            } else {
+                event.setDescription(event.getDescription().replaceAll(REMOTE_FLAG_COMPLETED, ""));
+            }
         }
     }
 
@@ -396,7 +404,7 @@ public class GooManager {
                 eventDateTimeToCalendar(remoteEvent.getStart()),
                 eventDateTimeToCalendar(remoteEvent.getEnd())));
         task.setDateList(dateList);
-        if (remoteEvent.getDescription().contains(REMOTE_FLAG_COMPLETED)) {
+        if (remoteEvent.getDescription() != null && remoteEvent.getDescription().contains(REMOTE_FLAG_COMPLETED)) {
             task.setIsDone(true);
         } else {
             task.setIsDone(false);
@@ -428,7 +436,9 @@ public class GooManager {
                     .list(taskListId)
                     .setPageToken(pageToken)
                     .execute();
-            remoteTaskList.addAll(tasks.getItems());
+            if (tasks != null && tasks.getItems() != null) {
+                remoteTaskList.addAll(tasks.getItems());
+            }
             pageToken = tasks.getNextPageToken();
         } while (pageToken != null);
 
