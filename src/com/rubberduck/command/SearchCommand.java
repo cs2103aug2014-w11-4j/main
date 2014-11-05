@@ -66,9 +66,9 @@ public class SearchCommand extends Command {
             String taskInDb =
                 getDbManager().getInstance(databaseId).getDescription();
             taskInDb = taskInDb.toLowerCase();
-            StringTokenizer st = new StringTokenizer(taskInDb);
-            while(st.hasMoreElements()){
-                if(st.nextToken().contains(keyword.toLowerCase())){
+            StringTokenizer taskDescriptions = new StringTokenizer(taskInDb);
+            while(taskDescriptions.hasMoreElements()){
+                if(taskDescriptions.nextToken().contains(keyword.toLowerCase())){
                     getDisplayedTasksList().add(databaseId);
                     break;
                 }
