@@ -5,9 +5,13 @@ import com.rubberduck.logic.Parser;
 import com.rubberduck.menu.ColorFormatter.Color;
 
 import jline.console.ConsoleReader;
+import jline.console.completer.AggregateCompleter;
+import jline.console.completer.ArgumentCompleter;
 import jline.console.completer.StringsCompleter;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -70,8 +74,30 @@ public class UnixInterface extends MenuInterface {
         ConsoleReader cr = new ConsoleReader();
         cr.clearScreen();
         cr.setPrompt(DEFAULT_PROMPT);
-        cr.addCompleter(new StringsCompleter(Command.CommandType.getAlias()));
+        setCompleter(cr);
         return cr;
+    }
+
+    /**
+     * Set up the auto-complete feature by specifying the required completers
+     * into the consoleReader.
+     *
+     * @param cr ConsoleReader object
+     */
+    private void setCompleter(ConsoleReader cr) {
+        Set<String> viewAliasSet =
+            Command.CommandType.getAlias(Command.CommandType.VIEW);
+        Set<String> otherAliasSet =
+            new HashSet<String>(Command.CommandType.getAlias());
+
+        String[] viewArguments =
+            new String[]{"all", "deadline", "task", "schedule", "completed"};
+        otherAliasSet.removeAll(viewAliasSet);
+        cr.addCompleter(
+            new AggregateCompleter(new StringsCompleter(otherAliasSet),
+                                   new ArgumentCompleter(
+                                       new StringsCompleter(viewAliasSet),
+                                       new StringsCompleter(viewArguments))));
     }
 
     /**
