@@ -17,15 +17,19 @@ import java.util.Locale;
 //@author A0111736M
 public class Formatter {
 
+    protected static final String FORMAT_TABLE = "%-7s%-6s%-43s%-24s";
+    protected static final String FORMAT_TENTATIVE = "%-7s%-6s%-43s%-19s%-5s";
+
+    private static final String ANSI_PREFIX = "\u001b[30";
     private static final int DESC_MAX_WIDTH = 200;
     private static final int DESC_TABLE_MAX_WIDTH = 41;
     private static final int SENTENCE_WIDTH = 80;
     private static final int WORD_LONGER_THAN_MAX = -1;
 
-    protected static final String FORMAT_TABLE = "%-7s%-6s%-43s%-24s";
-    protected static final String FORMAT_TENTATIVE = "%-7s%-6s%-43s%-19s%-5s";
+    private static final String DATE_12HOUR_FORMAT = "dd MMM hh:mm aa";
+    private static final String DATE_24HOUR_FORMAT = "dd MMM kk:mm";
 
-    private static final String ANSI_PREFIX = "\u001b[";
+    private static String currentTimeFormat = DATE_24HOUR_FORMAT;
 
     /**
      * Private constructor as Formatter is a utility class and cannot be
@@ -34,6 +38,23 @@ public class Formatter {
     private Formatter() {
     }
 
+    /**
+     * Toggle the time format within formatter between 12 hours and 24 hours.
+     * Default for Formatter will always start at 24 hours.
+     */
+    public static void toggleTimeFormat() {
+        currentTimeFormat =
+            is12HourFormat() ? DATE_24HOUR_FORMAT : DATE_12HOUR_FORMAT;
+    }
+
+    /**
+     * Return boolean if formatter is set to 12 hour date format.
+     *
+     * @return true if formatter is set to 12 hour date format else 24 hour.
+     */
+    public static boolean is12HourFormat() {
+        return currentTimeFormat.equals(DATE_12HOUR_FORMAT);
+    }
 
     /**
      * Accepts a String representation of a task description and truncate to the
@@ -75,19 +96,19 @@ public class Formatter {
      * Format the task information provided into a buffer-friendly and organised
      * output.
      *
-     * @param t            the Task object to format
-     * @param displayingId the display ID it should display
+     * @param t  the Task object to format
+     * @param id the display ID it should display
      * @return Buffer acceptable String of Task
      */
-    public static String formatTask(Task t, String displayingId) {
+    public static String formatTask(Task t, String id) {
+        /* Setup variables and information about the task provided */
+        StringBuilder taskBuilder = new StringBuilder();
         boolean overdue = false;
-        StringBuilder stringBuilder = new StringBuilder();
         String description = t.getDescription();
         ArrayList<DatePair> dates = t.getDateList();
         char isDone = t.getIsDone() ? 'Y' : 'N';
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM hh:mm aa",
+        SimpleDateFormat dateFormat = new SimpleDateFormat(currentTimeFormat,
                                                            Locale.US);
-
         if (t.isTentative()) {
             description += " (tentative)";
         }
@@ -123,38 +144,36 @@ public class Formatter {
             String date = dateList.isEmpty() ? "" : dateList.removeFirst();
 
             if (t.isTentative() && rangeFlag) {
-                if (stringBuilder.length() != 0) {
-                    stringBuilder.append(System.lineSeparator());
-                    stringBuilder.
+                if (taskBuilder.length() != 0) {
+                    taskBuilder.append(System.lineSeparator());
+                    taskBuilder.
                         append(
                             String.format(FORMAT_TENTATIVE, "", "",
                                           desc, date, "[" + dateId++ + "]"));
                 } else {
-                    stringBuilder.
-                        append(String.format(FORMAT_TENTATIVE, displayingId,
-                                             isDone, desc, date,
-                                             "[" + dateId++ + "]"));
+                    taskBuilder.
+                        append(String.format(FORMAT_TENTATIVE, id, isDone, desc,
+                                             date, "[" + dateId++ + "]"));
                 }
 
                 if (date.contains("to")) {
                     rangeFlag = false;
                 }
             } else {
-                if (stringBuilder.length() != 0) {
-                    stringBuilder.append(System.lineSeparator());
-                    stringBuilder.append(String.format(FORMAT_TABLE, "", "",
-                                                       desc, date));
+                if (taskBuilder.length() != 0) {
+                    taskBuilder.append(System.lineSeparator());
+                    taskBuilder.append(String.format(FORMAT_TABLE, "", "", desc,
+                                                     date));
                 } else {
-                    stringBuilder.append(String.format(FORMAT_TABLE,
-                                                       displayingId, isDone,
-                                                       desc, date));
+                    taskBuilder.append(String.format(FORMAT_TABLE,
+                                                     id, isDone, desc, date));
                 }
 
                 rangeFlag = true;
             }
         }
 
-        String output = stringBuilder.toString().trim();
+        String output = taskBuilder.toString().trim();
 
         if (overdue) {
             output = ColorFormatter.format(output, Color.RED);

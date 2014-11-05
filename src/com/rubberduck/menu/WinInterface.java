@@ -25,6 +25,10 @@ public class WinInterface extends MenuInterface {
 
     private static final String COMMAND_SET_CONSOLE =
         "mode.com con cols=81 lines=41";
+    private static final String MESSAGE_SET_24HOUR =
+        "Successfully toggled time formatting to 24 hour format.";
+    private static final String MESSAGE_SET_12HOUR =
+        "Successfully toggled time formatting to 12 hour format.";
     protected static final String MESSAGE_ERROR_CMD =
         "Interrupted when executing console setup command.";
 
@@ -124,6 +128,7 @@ public class WinInterface extends MenuInterface {
     private void setKeybinding(ConsoleReader cr) {
         final String pageUp = "\033[5~";
         final String pageDown = "\033[6~";
+        final String f1 = "\033OP";
 
         cr.getKeys().bind(pageUp, new ActionListener() {
             @Override
@@ -138,7 +143,15 @@ public class WinInterface extends MenuInterface {
                 scrollTaskDown();
             }
         });
+
+        cr.getKeys().bind(f1, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                toggleTimeFormat();
+            }
+        });
     }
+
 
     /**
      * Scroll the task area upwards if possible.
@@ -181,6 +194,25 @@ public class WinInterface extends MenuInterface {
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
             }
+        }
+    }
+
+    /**
+     * Toggles the formatter datestamp between 12 hour and 24 hour format.
+     */
+    private void toggleTimeFormat() {
+        Formatter.toggleTimeFormat();
+        Response r = Command.getPreviousDisplayCommand().safeExecute();
+        String toggleMessage = Formatter.is12HourFormat() ? MESSAGE_SET_12HOUR
+                                                          : MESSAGE_SET_24HOUR;
+        r.setMessages(ColorFormatter.format(toggleMessage, Color.CYAN));
+        try {
+            printOutput(r);
+            consoleInstance.restoreLine(consoleInstance.getPrompt(),
+                                        consoleInstance.getCursorBuffer().
+                                            current());
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
         }
     }
 

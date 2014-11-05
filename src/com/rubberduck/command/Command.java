@@ -138,7 +138,7 @@ public abstract class Command {
      *
      * @return Command object of type ViewCommand or SearchCommand
      */
-    protected static Command getPreviousDisplayCommand() {
+    public static Command getPreviousDisplayCommand() {
         assert previousDisplayCommand != null : "Should not be null";
         return previousDisplayCommand;
     }
