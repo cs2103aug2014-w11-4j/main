@@ -8,6 +8,7 @@ import com.rubberduck.menu.Response;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.StringTokenizer;
 
 /**
  * Concrete Command Class that can be executed to search the data store for
@@ -65,9 +66,13 @@ public class SearchCommand extends Command {
             String taskInDb =
                 getDbManager().getInstance(databaseId).getDescription();
             taskInDb = taskInDb.toLowerCase();
-            if (taskInDb.contains(keyword.toLowerCase())) {
-                getDisplayedTasksList().add(databaseId);
-            }
+            StringTokenizer st = new StringTokenizer(taskInDb);
+            while(st.hasMoreElements()){
+                if(st.nextToken().contains(keyword.toLowerCase())){
+                    getDisplayedTasksList().add(databaseId);
+                    break;
+                }
+            }           
         }
 
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.RED
