@@ -63,16 +63,22 @@ public class SearchCommand extends Command {
         getDisplayedTasksList().clear();
 
         for (Long databaseId : getDbManager().getValidIdList()) {
-            String taskInDb =
+            boolean isFound=false;
+            String taskDescription =
                 getDbManager().getInstance(databaseId).getDescription();
-            taskInDb = taskInDb.toLowerCase();
-            StringTokenizer taskDescriptions = new StringTokenizer(taskInDb);
-            while(taskDescriptions.hasMoreElements()){
-                if(taskDescriptions.nextToken().contains(keyword.toLowerCase())){
-                    getDisplayedTasksList().add(databaseId);
-                    break;
-                }
-            }           
+            taskDescription = taskDescription.toLowerCase();                       
+            StringTokenizer taskDescriptions = new StringTokenizer(taskDescription);
+            StringTokenizer keywords = new StringTokenizer(keyword.toLowerCase());
+            if(keywords.countTokens()==1){
+                isFound = searchSingleKeyword(keyword, taskDescription);
+            }else{
+                isFound = searchMultipleKeyword(keywords, taskDescriptions);                
+            }
+            if(isFound){
+                getDisplayedTasksList().add(databaseId);
+            }
+            
+                     
         }
 
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.RED
@@ -85,6 +91,55 @@ public class SearchCommand extends Command {
 
         return new Response("", viewCount.toString(), formatTaskListOutput());
     }
+    
+    /**
+     * Complementing searchMultipleKeyword.
+     * <p>When search are being called, if keyword used in search contains only a single word, this method will be called.</p>
+     * <p>This will actually check if the description itself contains the word and return the value immediately</p>
+     * <p>To eliminate the getting unwanted result due to searching with meaningless keywords</p>
+     * @param keyword
+     * @param taskDescription
+     * @return if the description of the task contains the keyword.
+     */
+    private boolean searchSingleKeyword(String keyword, String taskDescription){
+        if(taskDescription.toLowerCase().contains(keyword.toLowerCase())){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    /**
+     * Complementing searchSingleKeyword.
+     * <p>When search are being called, if keyword used in search contains more than a word, this method will be called.</p>
+     * <p>This will actually check if the description itself contains exactly all the keyword as entered by the user</p>
+     * <p>To eliminate the getting unwanted result due to searching with meaningless keywords</p>
+     * @param keyword
+     * @param taskDescription
+     * @return if the description of the task contains the keyword.
+     */
+    private boolean searchMultipleKeyword(StringTokenizer keywords,StringTokenizer taskDescriptions){        
+        String firstKeyword = keywords.nextToken();
+        while (taskDescriptions.hasMoreElements()) {
+            if (taskDescriptions.nextToken().equals(firstKeyword)) {
+                if (keywords.countTokens() <= taskDescriptions.countTokens()) {
+                    // check remaining keyword
+                    boolean stillValid = true;
+                    while (keywords.hasMoreElements() && stillValid == true) {
+                        if(!keywords.nextToken().equals(taskDescriptions.nextToken())){
+                            stillValid = false;
+                            return false;
+                        }
+                    }    
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Format the list of tasks into a String output and return.
