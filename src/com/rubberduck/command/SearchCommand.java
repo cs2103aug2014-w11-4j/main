@@ -92,6 +92,15 @@ public class SearchCommand extends Command {
         return new Response("", viewCount.toString(), formatTaskListOutput());
     }
     
+    /**
+     * Complementing searchMultipleKeyword.
+     * <p>When search are being called, if keyword used in search contains only a single word, this method will be called.</p>
+     * <p>This will actually check if the description itself contains the word and return the value immediately</p>
+     * <p>To eliminate the getting unwanted result due to searching with meaningless keywords</p>
+     * @param keyword
+     * @param taskDescription
+     * @return if the description of the task contains the keyword.
+     */
     private boolean searchSingleKeyword(String keyword, String taskDescription){
         if(taskDescription.toLowerCase().contains(keyword.toLowerCase())){
             return true;
@@ -100,6 +109,15 @@ public class SearchCommand extends Command {
         }
     }
     
+    /**
+     * Complementing searchSingleKeyword.
+     * <p>When search are being called, if keyword used in search contains more than a word, this method will be called.</p>
+     * <p>This will actually check if the description itself contains exactly all the keyword as entered by the user</p>
+     * <p>To eliminate the getting unwanted result due to searching with meaningless keywords</p>
+     * @param keyword
+     * @param taskDescription
+     * @return if the description of the task contains the keyword.
+     */
     private boolean searchMultipleKeyword(StringTokenizer keywords,StringTokenizer taskDescriptions){        
         String firstKeyword = keywords.nextToken();
         while (taskDescriptions.hasMoreElements()) {
