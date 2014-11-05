@@ -18,8 +18,10 @@ import java.util.logging.Level;
 //@author A0111736M
 public class UnixInterface extends MenuInterface {
 
-    private static final String MESSAGE_PROMPT =
+    private static final String MESSAGE_PAGE_PROMPT =
         "Press [Enter] to continue...";
+    private static final String SEPARATOR_BORDER =
+        "--------------------------------------------------------------------------------";
 
     private ConsoleReader consoleInstance;
 
@@ -39,12 +41,13 @@ public class UnixInterface extends MenuInterface {
     /**
      * Handles the interface of the program. It prompts from user and passes to
      * the parser to determine the command to be executed. It then proceed to
-     * execute the returned command and print the returned string to the user.
+     * execute the returned command and print the returned response to the
+     * user.
      */
     @Override
     public void handleInterface() {
         try {
-            //showToUser(getWelcomeMessage());
+            showToUser(getWelcomeMessage());
             while (true) {
                 String line = consoleInstance.readLine(DEFAULT_PROMPT);
                 Command userCommand = Parser.getInstance().parse(line);
@@ -72,48 +75,87 @@ public class UnixInterface extends MenuInterface {
     }
 
     /**
-     * Used to show the welcome screen and relevant information when user first
-     * execute the program.
+     * Returns messages and information to display on startup when user opens
+     * application for the first time.
      *
-     * @return String to display as welcome message
+     * @return Response object that contains the welcome message
      */
     //@author A0111736M
-    private String getWelcomeMessage() {
+    private Response getWelcomeMessage() {
         StringBuilder sb = new StringBuilder();
         sb.append(MESSAGE_WELCOME);
         sb.append(System.lineSeparator());
-
-        Command userCommand = Parser.getInstance().parse(WELCOME_EXECUTE);
-        sb.append(userCommand.safeExecute());
-        sb.append(System.lineSeparator());
-
         sb.append(ColorFormatter.format(MESSAGE_HELP, Color.YELLOW));
 
-        return sb.toString();
+        Command viewCommand = Parser.getInstance().parse(WELCOME_EXECUTE);
+        Response res = viewCommand.safeExecute();
+        res.setMessages(sb.toString());
+        return res;
     }
 
     /**
-     * Outputs a string object to the ConsoleReader instance which will be
-     * visible to the user.
+     * Format and output a Response object given by Command to the ConsoleReader
+     * instance which will be visible to the user.
      *
-     * @param s String object to be displayed
+     * @param res Response object to be displayed
      * @throws IOException occurs when ConsoleReader has problem with output
      */
-    private void showToUser(Response s) throws IOException {
+    private void showToUser(Response res) throws IOException {
         consoleInstance.clearScreen();
-        /*
-        String[] buffer = s.split(System.lineSeparator());
+        String[] messages = res.getMessages();
+        String viewCount = res.getViewCount();
+        String viewData = res.getViewData();
+
+        String header = String.format(Formatter.FORMAT_TABLE, "ID",
+                                      "Done", "Task", "Date");
+
+        StringBuilder collatedBuilder = new StringBuilder();
+
+        for (String m : messages) {
+            if (collatedBuilder.length() > 0) {
+                collatedBuilder.append(System.lineSeparator());
+            }
+            collatedBuilder.append(m);
+        }
+
+        if (viewCount != null) {
+            if (collatedBuilder.length() > 0) {
+                collatedBuilder.append(System.lineSeparator());
+            }
+            collatedBuilder.append(viewCount);
+        }
+
+        if (viewData != null && !viewData.trim().isEmpty()) {
+            collatedBuilder.append(System.lineSeparator());
+            collatedBuilder.append(SEPARATOR_BORDER);
+            collatedBuilder.append(System.lineSeparator());
+            collatedBuilder.append(header);
+            collatedBuilder.append(System.lineSeparator());
+            collatedBuilder.append(SEPARATOR_BORDER);
+
+            String[] taskArray = viewData.split(System.lineSeparator());
+            for (String task : taskArray) {
+                collatedBuilder.append(System.lineSeparator());
+                collatedBuilder.append(task);
+            }
+
+            collatedBuilder.append(System.lineSeparator());
+            collatedBuilder.append(SEPARATOR_BORDER);
+        }
+
+        /* Additional one way paging to not overwhelm the user at one go. */
+        String collatedResponse = collatedBuilder.toString();
+        String[] pageBuffer = collatedResponse.split(System.lineSeparator());
         int bufferHeight = consoleInstance.getTerminal().getHeight() - 2;
-        for (int i = 0; i < buffer.length; i++) {
-            consoleInstance.println(buffer[i]);
+        for (int i = 0; i < pageBuffer.length; i++) {
+            consoleInstance.println(pageBuffer[i]);
             if (i >= bufferHeight) {
-                consoleInstance.readLine(ColorFormatter.format(MESSAGE_PROMPT,
-                                                               Color.CYAN));
+                consoleInstance.readLine(
+                    ColorFormatter.format(MESSAGE_PAGE_PROMPT, Color.CYAN));
                 consoleInstance.clearScreen();
                 bufferHeight += bufferHeight + 1;
             }
         }
-        */
     }
 
     /**
@@ -134,7 +176,7 @@ public class UnixInterface extends MenuInterface {
                 }
                 sb.append(p);
             }
-            //showToUser(sb.toString());
+            showToUser(new Response(sb.toString(), true));
             return consoleInstance.readLine(DEFAULT_PROMPT);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);

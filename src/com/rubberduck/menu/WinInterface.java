@@ -256,9 +256,8 @@ public class WinInterface extends MenuInterface {
                         new ArrayList<String>(Arrays.asList(viewSplit));
                 }
 
-                String header =
-                    String.format("%-7s%-6s%-43s%-24s", "ID", "Done", "Task",
-                                  "Date");
+                String header = String.format(Formatter.FORMAT_TABLE, "ID",
+                                              "Done", "Task", "Date");
 
                 /* Format the table header portion of the GUI */
                 consoleBuffer[INDEX_HEADER_START] = SEPARATOR_BORDER;
@@ -300,7 +299,7 @@ public class WinInterface extends MenuInterface {
     /**
      * Returns a boolean that represents whether a scroll up function can be
      * done.
-     *
+     * <p/>
      * return true if task data can be scrolled up else false
      */
     private boolean canScrollUp() {

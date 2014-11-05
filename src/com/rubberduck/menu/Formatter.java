@@ -22,8 +22,8 @@ public class Formatter {
     private static final int SENTENCE_WIDTH = 80;
     private static final int WORD_LONGER_THAN_MAX = -1;
 
-    private static final String FORMAT_TABLE = "%-7s%-6s%-43s%-24s";
-    private static final String FORMAT_TENTATIVE = "%-7s%-6s%-43s%-19s%-5s";
+    protected static final String FORMAT_TABLE = "%-7s%-6s%-43s%-24s";
+    protected static final String FORMAT_TENTATIVE = "%-7s%-6s%-43s%-19s%-5s";
 
     private static final String ANSI_PREFIX = "\u001b[";
 
