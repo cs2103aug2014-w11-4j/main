@@ -326,6 +326,33 @@ public class CommandTest {
         String expected = "0 task with \"apple\" has been found.";
         assertTrue(actual.contains(expected));
     }
+    
+    /**
+     * Search for keyword not exist
+     * Applying new enchance search function where description are tokenie before being searched.
+     */
+    //@author A0111794E
+    @Test
+    public void searchKeywordNotExistTest2() throws IOException {
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+
+        AddCommand addCommand = new AddCommand(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            dpList);
+        addCommand.execute();
+
+        SearchCommand searchCommand = new SearchCommand("r a");
+        String actual = searchCommand.execute().getViewCount();
+        String expected = "0 task with \"r a\" has been found.";
+        assertTrue(actual.contains(expected));
+    }
 
     /**
      * Test undo function on Journal Add in a task, and call undo, Expected:
