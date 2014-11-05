@@ -128,7 +128,7 @@ public class WinInterface extends MenuInterface {
     private void setKeybinding(ConsoleReader cr) {
         final String pageUp = "\033[5~";
         final String pageDown = "\033[6~";
-        final String f1 = "\033OP";
+        final String insert = "\033[2~";
 
         cr.getKeys().bind(pageUp, new ActionListener() {
             @Override
@@ -144,7 +144,7 @@ public class WinInterface extends MenuInterface {
             }
         });
 
-        cr.getKeys().bind(f1, new ActionListener() {
+        cr.getKeys().bind(insert, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 toggleTimeFormat();
@@ -330,9 +330,7 @@ public class WinInterface extends MenuInterface {
 
     /**
      * Returns a boolean that represents whether a scroll up function can be
-     * done.
-     * <p/>
-     * return true if task data can be scrolled up else false
+     * done. <p/> return true if task data can be scrolled up else false
      */
     private boolean canScrollUp() {
         return lastTaskIndex != NOT_IN_BUFFER &&
