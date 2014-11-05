@@ -63,37 +63,22 @@ public class SearchCommand extends Command {
         getDisplayedTasksList().clear();
 
         for (Long databaseId : getDbManager().getValidIdList()) {
-            String taskInDb =
+            boolean isFound=false;
+            String taskDescription =
                 getDbManager().getInstance(databaseId).getDescription();
-            taskInDb = taskInDb.toLowerCase();
-            
+            taskDescription = taskDescription.toLowerCase();                       
+            StringTokenizer taskDescriptions = new StringTokenizer(taskDescription);
             StringTokenizer keywords = new StringTokenizer(keyword.toLowerCase());
-            StringTokenizer taskDescriptions = new StringTokenizer(taskInDb);
-                        
-            String firstKeyword = keywords.nextToken();
-
-            while (taskDescriptions.hasMoreElements()) {
-                if (taskDescriptions.nextToken().equals(firstKeyword)) {
-                    if (keywords.countTokens() <= taskDescriptions.countTokens()) {
-                        // check remaining keyword
-                        boolean stillValid = true;
-                        while (keywords.hasMoreElements()) {
-                            if(!keywords.nextToken().equals(taskDescriptions.nextToken())){
-                                stillValid = false;
-                                break;
-                            }
-                        }
-                        if (stillValid) {
-                            getDisplayedTasksList().add(databaseId);
-                            //already proven, do not have to check remaining descriptions 
-                            break;
-                        }
-                    } else {
-                        break;
-                    }
-                }
-
-            }          
+            if(keywords.countTokens()==1){
+                isFound = searchSingleKeyword(keyword, taskDescription);
+            }else{
+                isFound = searchMultipleKeyword(keywords, taskDescriptions);                
+            }
+            if(isFound){
+                getDisplayedTasksList().add(databaseId);
+            }
+            
+                     
         }
 
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.RED
@@ -105,6 +90,36 @@ public class SearchCommand extends Command {
                           keyword), headerColor));
 
         return new Response("", viewCount.toString(), formatTaskListOutput());
+    }
+    
+    private boolean searchSingleKeyword(String keyword, String taskDescription){
+        if(taskDescription.toLowerCase().contains(keyword.toLowerCase())){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    private boolean searchMultipleKeyword(StringTokenizer keywords,StringTokenizer taskDescriptions){        
+        String firstKeyword = keywords.nextToken();
+        while (taskDescriptions.hasMoreElements()) {
+            if (taskDescriptions.nextToken().equals(firstKeyword)) {
+                if (keywords.countTokens() <= taskDescriptions.countTokens()) {
+                    // check remaining keyword
+                    boolean stillValid = true;
+                    while (keywords.hasMoreElements() && stillValid == true) {
+                        if(!keywords.nextToken().equals(taskDescriptions.nextToken())){
+                            stillValid = false;
+                            return false;
+                        }
+                    }    
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 
 
