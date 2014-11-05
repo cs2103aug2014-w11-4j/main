@@ -66,13 +66,34 @@ public class SearchCommand extends Command {
             String taskInDb =
                 getDbManager().getInstance(databaseId).getDescription();
             taskInDb = taskInDb.toLowerCase();
+            
+            StringTokenizer keywords = new StringTokenizer(keyword.toLowerCase());
             StringTokenizer taskDescriptions = new StringTokenizer(taskInDb);
-            while(taskDescriptions.hasMoreElements()){
-                if(taskDescriptions.nextToken().contains(keyword.toLowerCase())){
-                    getDisplayedTasksList().add(databaseId);
-                    break;
+                        
+            String firstKeyword = keywords.nextToken();
+
+            while (taskDescriptions.hasMoreElements()) {
+                if (taskDescriptions.nextToken().equals(firstKeyword)) {
+                    if (keywords.countTokens() <= taskDescriptions.countTokens()) {
+                        // check remaining keyword
+                        boolean stillValid = true;
+                        while (keywords.hasMoreElements()) {
+                            if(!keywords.nextToken().equals(taskDescriptions.nextToken())){
+                                stillValid = false;
+                                break;
+                            }
+                        }
+                        if (stillValid) {
+                            getDisplayedTasksList().add(databaseId);
+                            //already proven, do not have to check remaining descriptions 
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
                 }
-            }           
+
+            }          
         }
 
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.RED
@@ -85,6 +106,7 @@ public class SearchCommand extends Command {
 
         return new Response("", viewCount.toString(), formatTaskListOutput());
     }
+
 
     /**
      * Format the list of tasks into a String output and return.
