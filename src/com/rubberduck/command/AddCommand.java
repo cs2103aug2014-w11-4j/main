@@ -25,8 +25,6 @@ public class AddCommand extends Command {
         "\"%s\" has been successfully added from %s.";
     private static final String MESSAGE_ADD_TENTATIVE_SUCCESS =
         "\"%s\" has been successfully added tentatively on your specified dates.";
-    private static final String MESSAGE_SCHEDULE_CONFLICT =
-        "Please note that there are conflicting schedule(s). Plan well!";
     private static final String MESSAGE_ADD_PAST =
         "\"%s\" cannot be added as the end date has already passed.";
     private static final String JOURNAL_MESSAGE_ADD =
@@ -142,25 +140,7 @@ public class AddCommand extends Command {
         return messages;
     }
     
-    /**
-     * Check if there is conflict in the new task that has been added, and provide 
-     * appropriate message to warn user of conflict.
-     * 
-     * @param messages StringBuilder that modifies the messages to be shown to user
-     * @param task the task that is being check for the status
-     * @return Stringbuilder that contains the modified messages with color
-     * @throws IOException
-     */
-    private static StringBuilder conflictCheck(StringBuilder messages, Task task) throws IOException{
-        boolean hasConflict = task.checkConflictWithDB(getDbManager());
 
-        if (hasConflict) {
-            messages.append(System.lineSeparator());
-            messages.append(ColorFormatter.format(MESSAGE_SCHEDULE_CONFLICT,
-                                                  Color.RED));
-        }
-        return messages;
-    }
     
 
 }
