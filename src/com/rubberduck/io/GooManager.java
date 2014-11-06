@@ -466,7 +466,7 @@ public class GooManager {
     }
 
     public static void clearRemoteTasks() throws IOException {
-        tasksClient.tasks().clear(taskListId);
+        tasksClient.tasks().clear(taskListId).execute();
     }
 
     public static void pushAll(
