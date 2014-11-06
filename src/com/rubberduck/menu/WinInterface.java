@@ -5,6 +5,8 @@ import com.rubberduck.logic.Parser;
 import com.rubberduck.menu.ColorFormatter.Color;
 
 import jline.console.ConsoleReader;
+import jline.console.completer.AggregateCompleter;
+import jline.console.completer.ArgumentCompleter;
 import jline.console.completer.StringsCompleter;
 
 import java.awt.event.ActionEvent;
@@ -13,6 +15,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -29,8 +33,10 @@ public class WinInterface extends MenuInterface {
         "Successfully toggled time formatting to 24 hour format.";
     private static final String MESSAGE_SET_12HOUR =
         "Successfully toggled time formatting to 12 hour format.";
-    protected static final String MESSAGE_ERROR_CMD =
+    private static final String MESSAGE_ERROR_CMD =
         "Interrupted when executing console setup command.";
+    private static final String[] ARGUMENTS_VIEW =
+        new String[]{"all", "deadline", "task", "schedule", "completed"};
 
     /* Separator Strings to format mock GUI */
     private static final String SEPARATOR_BORDER =
@@ -114,9 +120,29 @@ public class WinInterface extends MenuInterface {
         ConsoleReader cr = new ConsoleReader();
         cr.clearScreen();
         cr.setPrompt(DEFAULT_PROMPT);
-        cr.addCompleter(new StringsCompleter(Command.CommandType.getAlias()));
+        setCompleter(cr);
         setKeybinding(cr);
         return cr;
+    }
+
+    /**
+     * Set up the auto-complete feature by specifying the required completers
+     * into the consoleReader.
+     *
+     * @param cr ConsoleReader object
+     */
+    private void setCompleter(ConsoleReader cr) {
+        Set<String> viewAliasSet =
+            Command.CommandType.getAlias(Command.CommandType.VIEW);
+        Set<String> otherAliasSet =
+            new HashSet<String>(Command.CommandType.getAlias());
+        otherAliasSet.removeAll(viewAliasSet);
+
+        StringsCompleter otherCompleter = new StringsCompleter(otherAliasSet);
+        ArgumentCompleter viewCompleter = new ArgumentCompleter(
+            new StringsCompleter(viewAliasSet),
+            new StringsCompleter(ARGUMENTS_VIEW));
+        cr.addCompleter(new AggregateCompleter(otherCompleter, viewCompleter));
     }
 
     /**

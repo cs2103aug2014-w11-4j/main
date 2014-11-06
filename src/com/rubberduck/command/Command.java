@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,6 +90,21 @@ public abstract class Command {
             return ALIAS_MAP.keySet();
         }
 
+        /**
+         * Retrieve all available alias found in the specific CommandType.
+         *
+         * @param type
+         * @return
+         */
+        public static Set<String> getAlias(CommandType type) {
+            Set<String> set = new HashSet<String>();
+            for (Map.Entry<String, CommandType> entry : ALIAS_MAP.entrySet()) {
+                if (entry.getValue().equals(type)) {
+                    set.add(entry.getKey());
+                }
+            }
+            return set;
+        }
     }
 
     /* Details about the DataStore/DatabaseManager */
