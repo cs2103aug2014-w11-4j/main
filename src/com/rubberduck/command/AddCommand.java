@@ -110,6 +110,15 @@ public class AddCommand extends Command {
         return res;
     }
     
+    /**
+     * 
+     * @param messages StringBuilder that modifies the messages to be shown to user
+     * @param task the task that is being check for the status
+     * @param recordDesc description of the task
+     * @return StringBuilder containing the modified message to be shown to user
+     * @throws IOException
+     */
+    
     private static StringBuilder getColorFeedback(StringBuilder messages, Task task,String recordDesc) throws IOException{
         if (task.isFloatingTask()) {
             messages.append(ColorFormatter.format(
@@ -137,5 +146,5 @@ public class AddCommand extends Command {
         
         return messages;
     }
-    
+
 }
