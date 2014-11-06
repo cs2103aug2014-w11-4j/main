@@ -685,6 +685,51 @@ public class CommandTest {
             Color.RED);
         assertEquals(expected, actual);
     }
+    
+    /**
+     * update task with conflict date
+     */
+    //@author A0119504L
+    @Test
+    public void updateTaskConflict() throws IOException {
+        
+        ArrayList<ViewCommand.ViewType> viewChoice =
+            new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
+        ViewCommand viewCommand =
+                new ViewCommand(true, false, null, viewChoice);
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
+
+        ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+        ArrayList<DatePair> datePairList2 = new ArrayList<DatePair>();
+        Calendar date = Calendar.getInstance();
+        Calendar date2 = Calendar.getInstance();
+
+        date.add(Calendar.DAY_OF_YEAR, 1);
+        date2.add(Calendar.DAY_OF_YEAR, 2);
+        DatePair dp = new DatePair(date, date2);
+        datePairList.add(dp);
+        
+        AddCommand addCommand = new AddCommand(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            datePairList);
+        addCommand.execute();
+        AddCommand addCommand2 = new AddCommand(
+            "Lonsectetur adipiscing elit.",
+            datePairList2);
+        addCommand2.execute();
+        datePairList2.add(dp);
+        UpdateCommand updateCommand = new UpdateCommand(2,
+                                                        "Lorem ipsum dolor sit amet.",
+                                                        datePairList2);
+        String actual = updateCommand.execute().getMessages()[1];
+        String expected =
+            "Please note that there are conflicting schedule(s).";
+        assertTrue(actual.contains(expected));
+    }
 
     /**
      * mark task as completed
