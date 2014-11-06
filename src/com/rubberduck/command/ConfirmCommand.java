@@ -27,6 +27,8 @@ public class ConfirmCommand extends Command {
         "\"%s\" is not tentative and does not need confirmation.";
     private static final String MESSAGE_ERROR_WRONG_DATE_ID =
         "You have input an invalid date ID.";
+    private static final String MESSAGE_SCHEDULE_CONFLICT =
+            "Please note that there are conflicting schedule(s). Plan well!";
 
     private int taskId;
     private int dateId;
@@ -97,7 +99,8 @@ public class ConfirmCommand extends Command {
         ArrayList<DatePair> newDateList = new ArrayList<DatePair>();
         newDateList.add(date);
         task.setDateList(newDateList);
-
+        boolean hasConflict = task.checkConflictWithDB(getDbManager());
+        
         long newDatabaseId = getDbManager().
             modify(databaseId, task, String.format(JOURNAL_MESSAGE_CONFIRM,
                                                    description));
@@ -108,7 +111,11 @@ public class ConfirmCommand extends Command {
         messages.append(ColorFormatter.format(
             String.format(MESSAGE_CONFIRM, description,
                           task.getDateString()), Color.YELLOW));
-        messages = conflictCheck(messages, task); 
+        if (hasConflict) {
+            messages.append(System.lineSeparator());
+            messages.append(ColorFormatter.format(MESSAGE_SCHEDULE_CONFLICT,
+                                                  Color.RED));
+        }
         Response res = getPreviousDisplayCommand().execute();
         res.setMessages(messages.toString());
         return res;
