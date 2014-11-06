@@ -11,8 +11,10 @@ import com.rubberduck.command.UndoCommand;
 import com.rubberduck.command.UpdateCommand;
 import com.rubberduck.command.ViewCommand;
 import com.rubberduck.logic.DatePair;
+import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Response;
 
 import org.junit.After;
 import org.junit.Before;
@@ -41,9 +43,9 @@ public class CommandTest {
     /**
      * Test adding of task with todays date
      *
-     * Add a task with todays date and current runtime Call display to display
-     * specified task via id Store both actual and expected values Mark recent
-     * created task as invalid Execute comparison
+     * Add a task with todays date and current time
+     * Response from command will be check to make sure it produces the appropriate message,
+     * Signifying that task added successfully
      */
     //@author A0111794E
     @Test
@@ -55,8 +57,10 @@ public class CommandTest {
         AddCommand command = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             datePairList);
-        command.execute();
-        assertEquals(1, Command.getDbManager().getValidIdList().size());
+        Response s = command.execute();
+        String actual = s.getMessages()[0];
+        String expected = "[33m\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been";
+        assertEquals(expected,actual);
     }
 
     /**
@@ -67,28 +71,14 @@ public class CommandTest {
      */
     //@author A0111794E
     @Test
-    public void addNoDateTask() throws IOException {
-        String keyword =
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit";
-        String actual = "";
+    public void addNoDateTask() throws IOException {        
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-
         AddCommand command = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
-        command.execute();
-
-        for (Long databaseId : Command.getDbManager().getValidIdList()) {
-            String taskInDb = Command.getDbManager()
-                .getInstance(databaseId)
-                .getDescription();
-            taskInDb = taskInDb.toLowerCase();
-            if (taskInDb.contains(keyword.toLowerCase())) {
-                actual = taskInDb;
-            }
-        }
-        String expected =
-            "lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+        Response r = command.execute();
+        String actual = r.getMessages()[0];        
+        String expected = "[33m\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been";
         assertEquals(expected, actual);
     }
 
@@ -102,28 +92,15 @@ public class CommandTest {
     @Test
     public void addNoStartDateTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        String actual = "";
+        
         DatePair dp = new DatePair(Calendar.getInstance());
         dpList.add(dp);
-        String keyword =
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
         AddCommand command = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
-        command.execute();
-
-        for (Long databaseId : Command.getDbManager().getValidIdList()) {
-            String taskInDb = Command.getDbManager()
-                .getInstance(databaseId)
-                .getDescription();
-            taskInDb = taskInDb.toLowerCase();
-            if (taskInDb.contains(keyword.toLowerCase())) {
-                actual = taskInDb;
-            }
-        }
-
-        String expected =
-            "lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+        Response r = command.execute();
+        String actual = r.getMessages()[0];
+        String expected = "[33m\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been";
         assertEquals(expected, actual);
     }
     
