@@ -99,12 +99,11 @@ public class ConfirmCommand extends Command {
         ArrayList<DatePair> newDateList = new ArrayList<DatePair>();
         newDateList.add(date);
         task.setDateList(newDateList);
-        boolean hasConflict = task.checkConflictWithDB(getDbManager());
         
         long newDatabaseId = getDbManager().
             modify(databaseId, task, String.format(JOURNAL_MESSAGE_CONFIRM,
                                                    description));
-
+        boolean hasConflict = task.checkConflictWithDB(getDbManager(), newDatabaseId);
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
 
         StringBuilder messages = new StringBuilder();

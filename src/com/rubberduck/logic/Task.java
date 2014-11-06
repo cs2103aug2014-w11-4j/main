@@ -373,7 +373,7 @@ public class Task implements Serializable, Comparable<Task> {
      * @return true if there is a conflict else false
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    public boolean checkConflictWithDB(DatabaseManager<Task> dbManager)
+    public boolean checkConflictWithDB(DatabaseManager<Task> dbManager, long thisTaskId)
         throws IOException {
         if (isFloatingTask() || isDeadline()) {
             return false;
@@ -382,7 +382,7 @@ public class Task implements Serializable, Comparable<Task> {
         ArrayList<Long> validIDList = dbManager.getValidIdList();
         for (Long i : validIDList) {
             Task storedTask = dbManager.getInstance(i);
-            if (!storedTask.getIsDone()) {
+            if (i != thisTaskId && !storedTask.getIsDone()) {
                 if (hasConflictWith(storedTask)) {
                     return true;
                 }

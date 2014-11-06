@@ -95,13 +95,13 @@ public class AddCommand extends Command {
 
         
         String recordDesc = Formatter.limitDescription(task.getDescription());
-        
-        boolean hasConflict = task.checkConflictWithDB(getDbManager());
 
         long id = getDbManager().modify(null, task,
                                         String.format(JOURNAL_MESSAGE_ADD,
                                                       recordDesc));
         assert id >= 0 : "ID should never be a negative number.";
+        
+        boolean hasConflict = task.checkConflictWithDB(getDbManager(), id);
 
         /* Build Response to the User */
         StringBuilder messages = new StringBuilder();

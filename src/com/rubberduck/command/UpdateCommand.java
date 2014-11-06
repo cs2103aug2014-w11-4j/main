@@ -125,11 +125,10 @@ public class UpdateCommand extends Command {
             return new Response(errorMessage, false);
         }
         
-        boolean hasConflict = task.checkConflictWithDB(getDbManager());
-
         long newDatabaseId = getDbManager().
             modify(databaseId, task, String.format(JOURNAL_MESSAGE_UPDATE,
                                                    oldDesc));
+        boolean hasConflict = task.checkConflictWithDB(getDbManager(), newDatabaseId);
 
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
 
