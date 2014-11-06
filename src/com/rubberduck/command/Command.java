@@ -109,8 +109,6 @@ public abstract class Command {
         }
     }
 
-    private static final String MESSAGE_SCHEDULE_CONFLICT =
-            "Please note that there are conflicting schedule(s). Plan well!";
     /* Details about the DataStore/DatabaseManager */
     private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION =
         "Exception has occured when accessing local storage.";
@@ -207,26 +205,6 @@ public abstract class Command {
         return LOGGER;
     }
     
-    /**
-     * Check if there is conflict in the new task that has been added, and provide 
-     * appropriate message to warn user of conflict.
-     * 
-     * @param messages StringBuilder that modifies the messages to be shown to user
-     * @param task the task that is being check for the status
-     * @return Stringbuilder that contains the modified messages with color
-     * @throws IOException
-     */
-  //@author A0111794E
-    protected static StringBuilder conflictCheck(StringBuilder messages, Task task) throws IOException{
-        boolean hasConflict = task.checkConflictWithDB(getDbManager());
-
-        if (hasConflict) {
-            messages.append(System.lineSeparator());
-            messages.append(ColorFormatter.format(MESSAGE_SCHEDULE_CONFLICT,
-                                                  Color.RED));
-        }
-        return messages;
-    }
     /**
      * Execute the implemented execute in respective concrete class and catch
      * any exception if occur.

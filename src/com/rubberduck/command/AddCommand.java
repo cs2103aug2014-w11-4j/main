@@ -31,6 +31,8 @@ public class AddCommand extends Command {
         "Added task \"%s\"";
     private static final String MESSAGE_ERROR_WRONG_TASK_TYPE =
         "You have input an invalid task type.";
+    private static final String MESSAGE_SCHEDULE_CONFLICT =
+            "Please note that there are conflicting schedule(s). Plan well!";
 
     private String description;
     private ArrayList<DatePair> datePairs;
@@ -93,6 +95,8 @@ public class AddCommand extends Command {
 
         
         String recordDesc = Formatter.limitDescription(task.getDescription());
+        
+        boolean hasConflict = task.checkConflictWithDB(getDbManager());
 
         long id = getDbManager().modify(null, task,
                                         String.format(JOURNAL_MESSAGE_ADD,
@@ -101,25 +105,6 @@ public class AddCommand extends Command {
 
         /* Build Response to the User */
         StringBuilder messages = new StringBuilder();
-        messages = getSpecifiedMessages(messages, task, recordDesc);
-     
-        Response res = getPreviousDisplayCommand().execute();
-        res.setMessages(messages.toString());
-        return res;
-    }
-    
-    /**
-     * When task are added, they are check for tasktype and modify the appropriate feedback to user,
-     * to show what type of task has beed added successfully
-     * 
-     * @param messages StringBuilder that modifies the messages to be shown to user
-     * @param task the task that is being check for the status
-     * @param recordDesc description of the task
-     * @return StringBuilder containing the modified message to be shown to user
-     * @throws IOException
-     */
-    
-    private static StringBuilder getSpecifiedMessages(StringBuilder messages, Task task,String recordDesc) throws IOException{
         if (task.isFloatingTask()) {
             messages.append(ColorFormatter.format(
                 String.format(MESSAGE_ADD_TASK_SUCCESS, recordDesc),
@@ -135,12 +120,16 @@ public class AddCommand extends Command {
         } else if (task.isTentative()) {
             messages.append(ColorFormatter.format(String.format(
                 MESSAGE_ADD_TENTATIVE_SUCCESS, recordDesc), Color.YELLOW));
-        }        
-        messages = conflictCheck(messages, task);       
-        return messages;
+        } 
+        
+        if (hasConflict) {
+            messages.append(System.lineSeparator());
+            messages.append(ColorFormatter.format(MESSAGE_SCHEDULE_CONFLICT,
+                                                  Color.RED));
+        }
+     
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
     }
-    
-
-    
-
 }
