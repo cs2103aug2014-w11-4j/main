@@ -103,7 +103,7 @@ public class AddCommand extends Command {
 
         /* Build Response to the User */
         StringBuilder messages = new StringBuilder();
-        messages = getColorFeedback(messages, task, recordDesc);
+        messages = getSpecifiedMessages(messages, task, recordDesc);
      
         Response res = getPreviousDisplayCommand().execute();
         res.setMessages(messages.toString());
@@ -111,6 +111,8 @@ public class AddCommand extends Command {
     }
     
     /**
+     * When task are added, they are check for tasktype and modify the appropriate feedback to user,
+     * to show what type of task has beed added successfully
      * 
      * @param messages StringBuilder that modifies the messages to be shown to user
      * @param task the task that is being check for the status
@@ -119,7 +121,7 @@ public class AddCommand extends Command {
      * @throws IOException
      */
     
-    private static StringBuilder getColorFeedback(StringBuilder messages, Task task,String recordDesc) throws IOException{
+    private static StringBuilder getSpecifiedMessages(StringBuilder messages, Task task,String recordDesc) throws IOException{
         if (task.isFloatingTask()) {
             messages.append(ColorFormatter.format(
                 String.format(MESSAGE_ADD_TASK_SUCCESS, recordDesc),
@@ -136,12 +138,20 @@ public class AddCommand extends Command {
             messages.append(ColorFormatter.format(String.format(
                 MESSAGE_ADD_TENTATIVE_SUCCESS, recordDesc), Color.YELLOW));
         }        
-        messages = conflictColorFeedbackModifier(messages, task);       
+        messages = conflictCheck(messages, task);       
         return messages;
     }
     
-    
-    private static StringBuilder conflictColorFeedbackModifier(StringBuilder messages, Task task) throws IOException{
+    /**
+     * Check if there is conflict in the new task that has been added, and provide 
+     * appropriate message to warn user of conflict.
+     * 
+     * @param messages StringBuilder that modifies the messages to be shown to user
+     * @param task the task that is being check for the status
+     * @return Stringbuilder that contains the modified messages with color
+     * @throws IOException
+     */
+    private static StringBuilder conflictCheck(StringBuilder messages, Task task) throws IOException{
         boolean hasConflict = task.checkConflictWithDB(getDbManager());
 
         if (hasConflict) {
