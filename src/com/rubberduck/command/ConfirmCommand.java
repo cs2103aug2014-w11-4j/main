@@ -108,9 +108,10 @@ public class ConfirmCommand extends Command {
         messages.append(ColorFormatter.format(
             String.format(MESSAGE_CONFIRM, description,
                           task.getDateString()), Color.YELLOW));
-
+        messages = conflictCheck(messages, task); 
         Response res = getPreviousDisplayCommand().execute();
         res.setMessages(messages.toString());
         return res;
     }
+    
 }

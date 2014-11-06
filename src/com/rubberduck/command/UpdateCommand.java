@@ -27,6 +27,7 @@ public class UpdateCommand extends Command {
         "You have input an invalid ID.";
     private static final String MESSAGE_ERROR_WRONG_TASK_TYPE =
         "You have input an invalid task type.";
+   
 
     private int taskId;
     private String description;
@@ -131,8 +132,11 @@ public class UpdateCommand extends Command {
         StringBuilder messages = new StringBuilder();
         messages.append(ColorFormatter.format(
             String.format(MESSAGE_UPDATE, oldDesc), Color.YELLOW));
+        messages = conflictCheck(messages, task); 
         Response res = getPreviousDisplayCommand().execute();
         res.setMessages(messages.toString());
         return res;
     }
+    
+
 }
