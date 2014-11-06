@@ -136,6 +136,12 @@ public class AddCommand extends Command {
             messages.append(ColorFormatter.format(String.format(
                 MESSAGE_ADD_TENTATIVE_SUCCESS, recordDesc), Color.YELLOW));
         }        
+        messages = conflictColorFeedbackModifier(messages, task);       
+        return messages;
+    }
+    
+    
+    private static StringBuilder conflictColorFeedbackModifier(StringBuilder messages, Task task) throws IOException{
         boolean hasConflict = task.checkConflictWithDB(getDbManager());
 
         if (hasConflict) {
@@ -143,8 +149,8 @@ public class AddCommand extends Command {
             messages.append(ColorFormatter.format(MESSAGE_SCHEDULE_CONFLICT,
                                                   Color.RED));
         }
-        
         return messages;
     }
+    
 
 }
