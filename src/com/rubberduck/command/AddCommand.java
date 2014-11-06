@@ -93,7 +93,7 @@ public class AddCommand extends Command {
             return new Response(errorMessage, false);
         }
 
-        boolean hasConflict = task.checkConflictWithDB(getDbManager());
+        
         String recordDesc = Formatter.limitDescription(task.getDescription());
 
         long id = getDbManager().modify(null, task,
@@ -103,7 +103,14 @@ public class AddCommand extends Command {
 
         /* Build Response to the User */
         StringBuilder messages = new StringBuilder();
-
+        messages = getColorFeedback(messages, task, recordDesc);
+     
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
+    }
+    
+    private static StringBuilder getColorFeedback(StringBuilder messages, Task task,String recordDesc) throws IOException{
         if (task.isFloatingTask()) {
             messages.append(ColorFormatter.format(
                 String.format(MESSAGE_ADD_TASK_SUCCESS, recordDesc),
@@ -119,16 +126,16 @@ public class AddCommand extends Command {
         } else if (task.isTentative()) {
             messages.append(ColorFormatter.format(String.format(
                 MESSAGE_ADD_TENTATIVE_SUCCESS, recordDesc), Color.YELLOW));
-        }
+        }        
+        boolean hasConflict = task.checkConflictWithDB(getDbManager());
 
         if (hasConflict) {
             messages.append(System.lineSeparator());
             messages.append(ColorFormatter.format(MESSAGE_SCHEDULE_CONFLICT,
                                                   Color.RED));
         }
-
-        Response res = getPreviousDisplayCommand().execute();
-        res.setMessages(messages.toString());
-        return res;
+        
+        return messages;
     }
+    
 }
