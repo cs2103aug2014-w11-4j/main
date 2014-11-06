@@ -33,8 +33,10 @@ public class WinInterface extends MenuInterface {
         "Successfully toggled time formatting to 24 hour format.";
     private static final String MESSAGE_SET_12HOUR =
         "Successfully toggled time formatting to 12 hour format.";
-    protected static final String MESSAGE_ERROR_CMD =
+    private static final String MESSAGE_ERROR_CMD =
         "Interrupted when executing console setup command.";
+    private static final String[] ARGUMENTS_VIEW =
+        new String[]{"all", "deadline", "task", "schedule", "completed"};
 
     /* Separator Strings to format mock GUI */
     private static final String SEPARATOR_BORDER =
@@ -118,7 +120,7 @@ public class WinInterface extends MenuInterface {
         ConsoleReader cr = new ConsoleReader();
         cr.clearScreen();
         cr.setPrompt(DEFAULT_PROMPT);
-        setCompleter(setupConsoleReader());
+        setCompleter(cr);
         setKeybinding(cr);
         return cr;
     }
@@ -134,15 +136,13 @@ public class WinInterface extends MenuInterface {
             Command.CommandType.getAlias(Command.CommandType.VIEW);
         Set<String> otherAliasSet =
             new HashSet<String>(Command.CommandType.getAlias());
-
-        String[] viewArguments =
-            new String[]{"all", "deadline", "task", "schedule", "completed"};
         otherAliasSet.removeAll(viewAliasSet);
-        cr.addCompleter(
-            new AggregateCompleter(new StringsCompleter(otherAliasSet),
-                                   new ArgumentCompleter(
-                                       new StringsCompleter(viewAliasSet),
-                                       new StringsCompleter(viewArguments))));
+
+        StringsCompleter otherCompleter = new StringsCompleter(otherAliasSet);
+        ArgumentCompleter viewCompleter = new ArgumentCompleter(
+            new StringsCompleter(viewAliasSet),
+            new StringsCompleter(ARGUMENTS_VIEW));
+        cr.addCompleter(new AggregateCompleter(otherCompleter, viewCompleter));
     }
 
     /**

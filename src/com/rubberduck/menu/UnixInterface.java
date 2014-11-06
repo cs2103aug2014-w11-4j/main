@@ -9,6 +9,8 @@ import jline.console.completer.AggregateCompleter;
 import jline.console.completer.ArgumentCompleter;
 import jline.console.completer.StringsCompleter;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,6 +26,12 @@ public class UnixInterface extends MenuInterface {
 
     private static final String MESSAGE_PAGE_PROMPT =
         "Press [Enter] to continue...";
+    private static final String MESSAGE_SET_24HOUR =
+        "Successfully toggled time formatting to 24 hour format.";
+    private static final String MESSAGE_SET_12HOUR =
+        "Successfully toggled time formatting to 12 hour format.";
+    private static final String[] ARGUMENTS_VIEW =
+        new String[]{"all", "deadline", "task", "schedule", "completed"};
     private static final String SEPARATOR_BORDER =
         "--------------------------------------------------------------------------------";
 
@@ -75,7 +83,44 @@ public class UnixInterface extends MenuInterface {
         cr.clearScreen();
         cr.setPrompt(DEFAULT_PROMPT);
         setCompleter(cr);
+        setKeybinding(cr);
         return cr;
+    }
+
+    /**
+     * Map the required keyboard keys to perform the required function when
+     * triggered.
+     *
+     * @param cr ConsoleReader object
+     */
+    private void setKeybinding(ConsoleReader cr) {
+        final String insert = "\033[2~";
+
+        cr.getKeys().bind(insert, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                toggleTimeFormat();
+            }
+        });
+    }
+
+    /**
+     * Toggles the formatter datestamp between 12 hour and 24 hour format.
+     */
+    private void toggleTimeFormat() {
+        Formatter.toggleTimeFormat();
+        Response r = Command.getPreviousDisplayCommand().safeExecute();
+        String toggleMessage = Formatter.is12HourFormat() ? MESSAGE_SET_12HOUR
+                                                          : MESSAGE_SET_24HOUR;
+        r.setMessages(ColorFormatter.format(toggleMessage, Color.CYAN));
+        try {
+            showToUser(r);
+            consoleInstance.restoreLine(consoleInstance.getPrompt(),
+                                        consoleInstance.getCursorBuffer().
+                                            current());
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
+        }
     }
 
     /**
@@ -89,15 +134,13 @@ public class UnixInterface extends MenuInterface {
             Command.CommandType.getAlias(Command.CommandType.VIEW);
         Set<String> otherAliasSet =
             new HashSet<String>(Command.CommandType.getAlias());
-
-        String[] viewArguments =
-            new String[]{"all", "deadline", "task", "schedule", "completed"};
         otherAliasSet.removeAll(viewAliasSet);
-        cr.addCompleter(
-            new AggregateCompleter(new StringsCompleter(otherAliasSet),
-                                   new ArgumentCompleter(
-                                       new StringsCompleter(viewAliasSet),
-                                       new StringsCompleter(viewArguments))));
+
+        StringsCompleter otherCompleter = new StringsCompleter(otherAliasSet);
+        ArgumentCompleter viewCompleter = new ArgumentCompleter(
+            new StringsCompleter(viewAliasSet),
+            new StringsCompleter(ARGUMENTS_VIEW));
+        cr.addCompleter(new AggregateCompleter(otherCompleter, viewCompleter));
     }
 
     /**
