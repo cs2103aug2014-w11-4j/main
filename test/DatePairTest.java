@@ -1,16 +1,17 @@
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.rubberduck.logic.DatePair;
+import com.rubberduck.logic.Task;
+
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import com.rubberduck.logic.DatePair;
-import com.rubberduck.logic.Task;
-
+//@author A0111794E
 public class DatePairTest {
 
     /**
@@ -126,7 +127,7 @@ public class DatePairTest {
     /**
      * Task Boundary test : 20 aug 2014 View Scope :19 aug 2014 - 30 aug 2014
      * Expected: true
-     * 
+     *
      * Range = 19 - 30 Test Value 20
      */
 
@@ -154,7 +155,7 @@ public class DatePairTest {
     /**
      * Task Boundary Test: 19 aug 2014 View Scope :19 aug 2014 - 30 aug 2014
      * Expected: true
-     * 
+     *
      * Range = 19 - 30 Test Value 19
      */
 
@@ -181,7 +182,7 @@ public class DatePairTest {
     /**
      * Task Boundary Test : 18 aug 2014 View Scope :19 aug 2014 - 30 aug 2014
      * Expected: false
-     * 
+     *
      * Range = 19 - 30 Test Value 18
      */
 
@@ -208,7 +209,7 @@ public class DatePairTest {
     /**
      * Task Boundary Test : 24 aug 2014 View Scope :19 aug 2014 - 25 aug 2014
      * Expected: true
-     * 
+     *
      * Range = 19 - 25 Test Value 24
      */
 
@@ -235,7 +236,7 @@ public class DatePairTest {
     /**
      * Task Boundary Test: 24 aug 2014 View Scope :19 aug 2014 - 25 aug 2014
      * Expected: true
-     * 
+     *
      * Range = 19 - 25 Test Value 24
      */
 
@@ -262,7 +263,7 @@ public class DatePairTest {
     /**
      * Task Boundary Test : 26 aug 2014 27 aug 2014 View Scope : 19 aug 2014 -
      * 25 aug 2014 Expected: false
-     * 
+     *
      * Range = 19 - 25 Test Value 26 start, 27 end; need to have 2 dates, as
      * those with no start date = infinite early
      */
@@ -302,41 +303,46 @@ public class DatePairTest {
         DatePair datePairDoubleNull = new DatePair(); // null-null
         DatePair datePairStartNull = new DatePair(tempDate); // null-20/08
         DatePair datePairEndNull = new DatePair(tempDate, null); // 20/08-null
-        DatePair datePairDoubleNotNull = new DatePair(tempDate, tempDate); // 20/08-20/08
+        DatePair datePairDoubleNotNull =
+            new DatePair(tempDate, tempDate); // 20/08-20/08
 
         // If one of DatePair has null start & end, always true.
-        assertTrue(datePairDoubleNull.isWithinPeriod(datePairDoubleNotNull)); // null-null
-                                                                              // against
-                                                                              // 20/08-20/08
-        assertTrue(datePairStartNull.isWithinPeriod(datePairDoubleNull)); // 20/08-null
-                                                                          // against
-                                                                          // null-null
+        assertTrue(datePairDoubleNull
+                       .isWithinPeriod(datePairDoubleNotNull)); // null-null
+        // against
+        // 20/08-20/08
+        assertTrue(
+            datePairStartNull.isWithinPeriod(datePairDoubleNull)); // 20/08-null
+        // against
+        // null-null
 
         // If one of DatePair has null start, as long as the other one does not
         // start after its endDate, should be true.
-        assertTrue(datePairStartNull.isWithinPeriod(datePairEndNull)); // null-20/08
-                                                                       // against
-                                                                       // 20/08-null
+        assertTrue(
+            datePairStartNull.isWithinPeriod(datePairEndNull)); // null-20/08
+        // against
+        // 20/08-null
         // Construct one DatePair start after its endDate
         tempDate = Calendar.getInstance();
         tempDate.set(2014, Calendar.AUGUST, 21);
         tempDatePair = new DatePair(tempDate, null); // 21/08-null
-        assertFalse(tempDatePair.isWithinPeriod(datePairStartNull)); // 21/08-null
-                                                                     // against
-                                                                     // null-20/08
+        assertFalse(
+            tempDatePair.isWithinPeriod(datePairStartNull)); // 21/08-null
+        // against
+        // null-20/08
 
         // If one of DatePair has null end, as long as the other one does not
         // end before its startDate, should be true.
         assertTrue(datePairEndNull.isWithinPeriod(tempDatePair)); // 20/08-null
-                                                                  // against
-                                                                  // 21/08-null
+        // against
+        // 21/08-null
         // Construct one DatePair end before its startDate
         tempDate = Calendar.getInstance();
         tempDate.set(2014, Calendar.AUGUST, 19);
         tempDatePair = new DatePair(tempDate); // null-19/08
         assertFalse(tempDatePair.isWithinPeriod(datePairEndNull)); // null-19/08
-                                                                   // against
-                                                                   // 20/08-null
+        // against
+        // 20/08-null
     }
 
 }

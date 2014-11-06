@@ -1,21 +1,31 @@
-import static org.junit.Assert.assertEquals;
-
-import java.util.Calendar;
-import java.util.Date;
+import com.rubberduck.command.AddCommand;
+import com.rubberduck.command.Command;
+import com.rubberduck.command.ConfirmCommand;
+import com.rubberduck.command.DeleteCommand;
+import com.rubberduck.command.ExitCommand;
+import com.rubberduck.command.InvalidCommand;
+import com.rubberduck.command.MarkCommand;
+import com.rubberduck.command.RedoCommand;
+import com.rubberduck.command.SearchCommand;
+import com.rubberduck.command.UndoCommand;
+import com.rubberduck.command.UpdateCommand;
+import com.rubberduck.command.ViewCommand;
+import com.rubberduck.logic.Parser;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.rubberduck.command.*;
-import com.rubberduck.logic.Parser;
+import java.util.Calendar;
+import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test Cases used in Unit Testing for Parser class
- *
- * @author hooitong
- *
  */
+//@author A0111736M
 public class ParserTest {
+
     public Parser parser;
 
     @Before
@@ -30,43 +40,44 @@ public class ParserTest {
         String noArgument = "view";
         Command noCommand = parser.parse(noArgument);
         assertEquals("will return INVALID command due to argument", true,
-                noCommand instanceof InvalidCommand);
+                     noCommand instanceof InvalidCommand);
 
         /* Boundary case for date only partition */
         String dateArgument = "view 25 Oct";
         Command dateCommand = parser.parse(dateArgument);
         assertEquals("must be VIEW command", true,
-                dateCommand instanceof ViewCommand);
+                     dateCommand instanceof ViewCommand);
         assertEquals("must have a view date", true,
-                ((ViewCommand) dateCommand).getViewRange().hasEndDate());
+                     ((ViewCommand) dateCommand).getViewRange().hasEndDate());
 
         /* Boundary case for date range partition */
         String rangeArgument = "view 25 Oct - 30 Oct";
         Command rangeCommand = parser.parse(rangeArgument);
         assertEquals("must be VIEW command", true,
-                rangeCommand instanceof ViewCommand);
+                     rangeCommand instanceof ViewCommand);
         assertEquals("must have a view range", true,
-                ((ViewCommand) rangeCommand).getViewRange().hasDateRange());
+                     ((ViewCommand) rangeCommand).getViewRange()
+                         .hasDateRange());
 
         /* Boundary case for 'all' partition */
         String allArgument = "view all";
         Command allCommand = parser.parse(allArgument);
         assertEquals("must be VIEW command", true,
-                allCommand instanceof ViewCommand);
+                     allCommand instanceof ViewCommand);
         assertEquals("boolean for viewAll should be true", true,
-                ((ViewCommand) allCommand).isViewAll());
+                     ((ViewCommand) allCommand).isViewAll());
 
         /* Boundary case for other String input partition */
         String otherArgument = "view randomstring";
         Command otherCommand = parser.parse(otherArgument);
         assertEquals("will return INVALID command due to no valid argument",
-                true, otherCommand instanceof InvalidCommand);
+                     true, otherCommand instanceof InvalidCommand);
 
         /* Testing for different alias with valid input */
         assertEquals(true,
-                parser.parse("view 25 oct 2014") instanceof ViewCommand);
+                     parser.parse("view 25 oct 2014") instanceof ViewCommand);
         assertEquals(true,
-                parser.parse("display this week") instanceof ViewCommand);
+                     parser.parse("display this week") instanceof ViewCommand);
     }
 
     @Test
@@ -76,19 +87,20 @@ public class ParserTest {
         String noArgument = "search";
         Command noCommand = parser.parse(noArgument);
         assertEquals("will return INVALID command due to no argument", true,
-                noCommand instanceof InvalidCommand);
+                     noCommand instanceof InvalidCommand);
 
         /* Boundary case for valid argument (String) partition */
         String stringArgument = "search meeting with boss";
         Command stringCommand = parser.parse(stringArgument);
         assertEquals("must be SEARCH command", true,
-                stringCommand instanceof SearchCommand);
+                     stringCommand instanceof SearchCommand);
         assertEquals("keyword must be properly stored", "meeting with boss",
-                ((SearchCommand) stringCommand).getKeyword());
+                     ((SearchCommand) stringCommand).getKeyword());
 
         /* Testing for different alias with valid input */
         assertEquals(true, parser.parse("search me") instanceof SearchCommand);
-        assertEquals(true, parser.parse("find urgent") instanceof SearchCommand);
+        assertEquals(true,
+                     parser.parse("find urgent") instanceof SearchCommand);
         assertEquals(true, parser.parse("lookup hw") instanceof SearchCommand);
     }
 
@@ -99,35 +111,36 @@ public class ParserTest {
         String noArgument = "add";
         Command noCommand = parser.parse(noArgument);
         assertEquals("will return INVALID command due to no argument", true,
-                noCommand instanceof InvalidCommand);
+                     noCommand instanceof InvalidCommand);
 
         /* Boundary case for date only partition */
         String dateArgument = "add today";
         Command dateCommand = parser.parse(dateArgument);
         assertEquals("will return INVALID command due to lack of description",
-                true, dateCommand instanceof InvalidCommand);
+                     true, dateCommand instanceof InvalidCommand);
 
         /* Boundary case for description only partition */
         String descArgument = "add meeting";
         Command descCommand = parser.parse(descArgument);
         assertEquals("must be ADD command", true,
-                descCommand instanceof AddCommand);
+                     descCommand instanceof AddCommand);
         assertEquals("description must be assigned", "meeting",
-                ((AddCommand) descCommand).getDescription());
+                     ((AddCommand) descCommand).getDescription());
 
         /* Boundary case for date and description partition */
         String descDateArgument = "add meeting today";
         Command descDateCommand = parser.parse(descDateArgument);
         assertEquals("must be ADD command", true,
-                descDateCommand instanceof AddCommand);
+                     descDateCommand instanceof AddCommand);
         assertEquals("description must be assigned", "meeting",
-                ((AddCommand) descDateCommand).getDescription());
+                     ((AddCommand) descDateCommand).getDescription());
         assertEquals("date must be assigned", false,
-                ((AddCommand) descDateCommand).getDatePairs().isEmpty());
+                     ((AddCommand) descDateCommand).getDatePairs().isEmpty());
 
         /* Testing for different alias with valid input */
         assertEquals(true, parser.parse("add meeting") instanceof AddCommand);
-        assertEquals(true, parser.parse("insert meeting") instanceof AddCommand);
+        assertEquals(true,
+                     parser.parse("insert meeting") instanceof AddCommand);
         assertEquals(true, parser.parse("ins meeting") instanceof AddCommand);
         assertEquals(true, parser.parse("new meeting") instanceof AddCommand);
     }
@@ -139,29 +152,29 @@ public class ParserTest {
         String noArgument = "delete";
         Command noCommand = parser.parse(noArgument);
         assertEquals("will return INVALID command due to no argument", true,
-                noCommand instanceof InvalidCommand);
+                     noCommand instanceof InvalidCommand);
 
         /* Boundary case for > 1 argument partition */
         String twoArgument = "delete 1 2";
         Command twoCommand = parser.parse(twoArgument);
         assertEquals("must be DELETE command", true,
-                twoCommand instanceof DeleteCommand);
+                     twoCommand instanceof DeleteCommand);
         assertEquals("Only first argument will be parsed and assigned", 1,
-                ((DeleteCommand) twoCommand).getTaskId());
+                     ((DeleteCommand) twoCommand).getTaskId());
 
         /* Boundary case for 1 valid argument partition */
         String oneArgument = "delete 4";
         Command oneCommand = parser.parse(oneArgument);
         assertEquals("must be DELETE command", true,
-                oneCommand instanceof DeleteCommand);
+                     oneCommand instanceof DeleteCommand);
         assertEquals("Task ID should be properly assigned", 4,
-                ((DeleteCommand) oneCommand).getTaskId());
+                     ((DeleteCommand) oneCommand).getTaskId());
 
         /* Testing for invalid arguments in input */
         String notInteger = "delete notinteger";
         Command notIntCommand = parser.parse(notInteger);
         assertEquals("will return INVALID command due to String argument",
-                true, notIntCommand instanceof InvalidCommand);
+                     true, notIntCommand instanceof InvalidCommand);
 
         /* Testing for different alias with valid input */
         assertEquals(true, parser.parse("delete 1") instanceof DeleteCommand);
@@ -175,31 +188,31 @@ public class ParserTest {
         String noIdArgument = "update no meeting";
         Command noIdCommand = parser.parse(noIdArgument);
         assertEquals("will return INVALID command due to no task ID", true,
-                noIdCommand instanceof InvalidCommand);
+                     noIdCommand instanceof InvalidCommand);
 
         /* Boundary case for task ID w/o argument partition */
         String noArgument = "update 2";
         Command noCommand = parser.parse(noArgument);
         assertEquals("will return INVALID command due to no task ID", true,
-                noCommand instanceof InvalidCommand);
+                     noCommand instanceof InvalidCommand);
 
         /* Boundary case for task ID w/ argument */
         String haveArgument = "update 2 desc today";
         Command haveCommand = parser.parse(haveArgument);
         assertEquals("will return UPDATE command since valid", true,
-                haveCommand instanceof UpdateCommand);
+                     haveCommand instanceof UpdateCommand);
         assertEquals("description must be assigned", "desc",
-                ((UpdateCommand) haveCommand).getDescription());
+                     ((UpdateCommand) haveCommand).getDescription());
         assertEquals("date must be assigned", false,
-                ((UpdateCommand) haveCommand).getDatePairs().isEmpty());
+                     ((UpdateCommand) haveCommand).getDatePairs().isEmpty());
 
         /* Testing for different alias with valid input */
         assertEquals(true,
-                parser.parse("change 1 desc") instanceof UpdateCommand);
+                     parser.parse("change 1 desc") instanceof UpdateCommand);
         assertEquals(true,
-                parser.parse("update 2 desc") instanceof UpdateCommand);
+                     parser.parse("update 2 desc") instanceof UpdateCommand);
         assertEquals(true,
-                parser.parse("edit 2 25 Nov") instanceof UpdateCommand);
+                     parser.parse("edit 2 25 Nov") instanceof UpdateCommand);
     }
 
     @Test
@@ -223,45 +236,45 @@ public class ParserTest {
         String noArgument = "mark";
         Command noCommand = parser.parse(noArgument);
         assertEquals("Will return INVALID command due to lack of arguments",
-                true, noCommand instanceof InvalidCommand);
+                     true, noCommand instanceof InvalidCommand);
 
         /* Boundary case for >1 arguments partition */
         String twoArgument = "mark 1 2";
         Command twoCommand = parser.parse(twoArgument);
         assertEquals("Must be a MARK command", true,
-                twoCommand instanceof MarkCommand);
+                     twoCommand instanceof MarkCommand);
         assertEquals("Will only accept the first argument to be the valid one",
-                1, ((MarkCommand) twoCommand).getTaskId());
+                     1, ((MarkCommand) twoCommand).getTaskId());
 
         /* Boundary case for 1 argument partition */
         String oneArgument = "mark 4";
         Command oneCommand = parser.parse(oneArgument);
         assertEquals("Must be a MARK command", true,
-                oneCommand instanceof MarkCommand);
+                     oneCommand instanceof MarkCommand);
         assertEquals("Task ID should be properly recorded", 4,
-                ((MarkCommand) oneCommand).getTaskId());
+                     ((MarkCommand) oneCommand).getTaskId());
 
         /* Testing for invalid arguments in input */
         String notInteger = "mark asamplestring";
         Command notIntCommand = parser.parse(notInteger);
         assertEquals("Will return INVALID command due to invalid task id",
-                true, notIntCommand instanceof InvalidCommand);
+                     true, notIntCommand instanceof InvalidCommand);
 
         /* Testing for different alias with valid input */
         String markAlias = "mark 2";
         Command markCommand = parser.parse(markAlias);
         assertEquals("Must be a MARK command", true,
-                markCommand instanceof MarkCommand);
+                     markCommand instanceof MarkCommand);
 
         String completedAlias = "completed 5";
         Command completedCommand = parser.parse(completedAlias);
         assertEquals("Must be a MARK command", true,
-                completedCommand instanceof MarkCommand);
+                     completedCommand instanceof MarkCommand);
 
         String doneAlias = "done 3";
         Command doneCommand = parser.parse(doneAlias);
         assertEquals("Must be a MARK command", true,
-                doneCommand instanceof MarkCommand);
+                     doneCommand instanceof MarkCommand);
     }
 
     @Test
@@ -271,33 +284,33 @@ public class ParserTest {
         String oneArgument = "confirm 1";
         Command oneCommand = parser.parse(oneArgument);
         assertEquals("Will return INVALID command due to lack of arguments",
-                true, oneCommand instanceof InvalidCommand);
+                     true, oneCommand instanceof InvalidCommand);
 
         /* Boundary case for > 2 arguments partition */
         String threeArgument = "confirm 1 2 3";
         Command threeCommand = parser.parse(threeArgument);
         assertEquals("Must be a CONFIRM command", true,
-                threeCommand instanceof ConfirmCommand);
+                     threeCommand instanceof ConfirmCommand);
         assertEquals("Will only accept first two arguments", 1,
-                ((ConfirmCommand) threeCommand).getTaskId());
+                     ((ConfirmCommand) threeCommand).getTaskId());
         assertEquals("Will only accept first two arguments", 2,
-                ((ConfirmCommand) threeCommand).getDateId());
+                     ((ConfirmCommand) threeCommand).getDateId());
 
         /* Boundary case for 2 arguments partition */
         String twoArgument = "confirm 1 2";
         Command twoCommand = parser.parse(twoArgument);
         assertEquals("Must be a CONFIRM command", true,
-                twoCommand instanceof ConfirmCommand);
+                     twoCommand instanceof ConfirmCommand);
         assertEquals("Task ID should be the first argument",
-                ((ConfirmCommand) twoCommand).getTaskId(), 1);
+                     ((ConfirmCommand) twoCommand).getTaskId(), 1);
         assertEquals("Date ID should be the second argument",
-                ((ConfirmCommand) twoCommand).getDateId(), 2);
+                     ((ConfirmCommand) twoCommand).getDateId(), 2);
 
         /* Testing for invalid arguments in input */
         String notInteger = "mark asamplestring";
         Command notIntCommand = parser.parse(notInteger);
         assertEquals("Will return INVALID command due to invalid task id",
-                true, notIntCommand instanceof InvalidCommand);
+                     true, notIntCommand instanceof InvalidCommand);
     }
 
     @Test

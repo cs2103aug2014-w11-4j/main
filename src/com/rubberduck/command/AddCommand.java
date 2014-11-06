@@ -1,25 +1,36 @@
 package com.rubberduck.command;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Formatter;
+import com.rubberduck.menu.Response;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Concrete Command Class that can be executed to add a new task (floating,
- * deadline, schedule) into the database.
- *
- * @author Jason Sia
+ * deadline, schedule and tentative) into the database.
  */
+//@author A0111794E
 public class AddCommand extends Command {
-    private static final String MESSAGE_ADD = "\"%s\" has been successfully added.";
-    private static final String MESSAGE_ADD_CONFLICT = "\"%s\" has been successfully added.\nPlease note that there are conflicting task(s).";
-    private static final String MESSAGE_ADD_PAST = "\"%s\" cannot be added as the end date has already passed.";
-    private static final String JOURNAL_MESSAGE_ADD = "Added task \"%s\"";
-    private static final String MESSAGE_ERROR_WRONG_TASK_TYPE = "You have input an invalid task type.";
+
+    private static final String MESSAGE_ADD_TASK_SUCCESS =
+        "\"%s\" has been successfully added.";
+    private static final String MESSAGE_ADD_DEADLINE_SUCCESS =
+        "\"%s\" has been successfully added on %s.";
+    private static final String MESSAGE_ADD_TIMED_SUCCESS =
+        "\"%s\" has been successfully added from %s.";
+    private static final String MESSAGE_ADD_TENTATIVE_SUCCESS =
+        "\"%s\" has been successfully added tentatively on your specified dates.";
+    private static final String MESSAGE_ADD_PAST =
+        "\"%s\" cannot be added as the end date has already passed.";
+    private static final String JOURNAL_MESSAGE_ADD =
+        "Added task \"%s\"";
+    private static final String MESSAGE_ERROR_WRONG_TASK_TYPE =
+        "You have input an invalid task type.";
 
     private String description;
     private ArrayList<DatePair> datePairs;
@@ -47,7 +58,7 @@ public class AddCommand extends Command {
      * of DatePairs.
      *
      * @param description of the task
-     * @param list of datePairs if any
+     * @param datePairs   list of datePairs if any
      */
     public AddCommand(String description, ArrayList<DatePair> datePairs) {
         this.description = description;
@@ -59,44 +70,77 @@ public class AddCommand extends Command {
      *
      * @return the correct response back to the user
      * @throws IOException DBManager has encountered an IO Error
-     * @author Jason Sia
-     * @author hooitong ANSI & Response
      */
     @Override
-    public String execute() throws IOException {
+    public Response execute() throws IOException {
         assert datePairs != null;
         assert description != null;
         assert !description.equals("");
 
         if (DatePair.isDateBeforeNow(datePairs)) {
-            return ColorFormatter.format(
-                    String.format(MESSAGE_ADD_PAST, description), Color.RED);
+            String errorMessage = ColorFormatter.format(
+                String.format(MESSAGE_ADD_PAST, description), Color.RED);
+            return new Response(errorMessage, false);
         }
 
         Task task = new Task(description, datePairs);
+
         if (!task.checkValidity()) {
-            return ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_TYPE,
-                    Color.RED);
+            String errorMessage = ColorFormatter.format(
+                MESSAGE_ERROR_WRONG_TASK_TYPE, Color.RED);
+            return new Response(errorMessage, false);
         }
 
-        boolean hasConflict = task.checkConflictWithDB(getDbManager());
+        
+        String recordDesc = Formatter.limitDescription(task.getDescription());
 
         long id = getDbManager().modify(null, task,
-                String.format(JOURNAL_MESSAGE_ADD, task.getDescription()));
+                                        String.format(JOURNAL_MESSAGE_ADD,
+                                                      recordDesc));
         assert id >= 0 : "ID should never be a negative number.";
 
-        StringBuilder response = new StringBuilder();
-        if (hasConflict) {
-            response.append(ColorFormatter.format(
-                    String.format(MESSAGE_ADD_CONFLICT, description),
-                    Color.YELLOW));
-        } else {
-            response.append(ColorFormatter.format(
-                    String.format(MESSAGE_ADD, description), Color.YELLOW));
-        }
-        response.append(System.lineSeparator());
-        response.append(ColorFormatter.format(task.formatOutput("+"),
-                Color.GREEN));
-        return response.toString();
+        /* Build Response to the User */
+        StringBuilder messages = new StringBuilder();
+        messages = getSpecifiedMessages(messages, task, recordDesc);
+     
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
     }
+    
+    /**
+     * When task are added, they are check for tasktype and modify the appropriate feedback to user,
+     * to show what type of task has beed added successfully
+     * 
+     * @param messages StringBuilder that modifies the messages to be shown to user
+     * @param task the task that is being check for the status
+     * @param recordDesc description of the task
+     * @return StringBuilder containing the modified message to be shown to user
+     * @throws IOException
+     */
+    
+    private static StringBuilder getSpecifiedMessages(StringBuilder messages, Task task,String recordDesc) throws IOException{
+        if (task.isFloatingTask()) {
+            messages.append(ColorFormatter.format(
+                String.format(MESSAGE_ADD_TASK_SUCCESS, recordDesc),
+                Color.YELLOW));
+        } else if (task.isDeadline()) {
+            messages.append(ColorFormatter.format(String.format(
+                MESSAGE_ADD_DEADLINE_SUCCESS, recordDesc,
+                task.getDateString()), Color.YELLOW));
+        } else if (task.isTimedTask()) {
+            messages.append(ColorFormatter.format(String.format(
+                MESSAGE_ADD_TIMED_SUCCESS, recordDesc,
+                task.getDateString()), Color.YELLOW));
+        } else if (task.isTentative()) {
+            messages.append(ColorFormatter.format(String.format(
+                MESSAGE_ADD_TENTATIVE_SUCCESS, recordDesc), Color.YELLOW));
+        }        
+        messages = conflictCheck(messages, task);       
+        return messages;
+    }
+    
+
+    
+
 }

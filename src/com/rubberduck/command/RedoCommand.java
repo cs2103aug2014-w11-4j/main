@@ -1,33 +1,40 @@
 package com.rubberduck.command;
 
-import java.io.IOException;
-
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Response;
+
+import java.io.IOException;
 
 /**
  * Concrete Command Class that can be executed to redo the previous undone
  * operation.
- *
- * @author hooitong
  */
+//@author A0111736M
 public class RedoCommand extends Command {
-    private static final String JOURNAL_MESSAGE_REDONE = "Redone action \"%s\".";
+
+    private static final String JOURNAL_MESSAGE_REDONE =
+        "Redone action \"%s\".";
 
     /**
-     * Redo previous action that was undone in the journal by the user. Will
-     * return error message if there is nothing to redo.
+     * Redo previous action that was undone in the journal by the user. Returns
+     * a response back with the appropriate response message and updated view
+     * data of previously executed view/search.
      *
+     * @return Response object with appropriate messages
      * @throws IOException occurs when DatabaseManager has I/O issues
      */
     @Override
-    public String execute() throws IOException {
+    public Response execute() throws IOException {
         try {
-            return String.format(
-                    ColorFormatter.format(JOURNAL_MESSAGE_REDONE, Color.YELLOW),
-                    getDbManager().redo());
+            String redoMessage = getDbManager().redo();
+            Response res = getPreviousDisplayCommand().execute();
+            res.setMessages(String.format(
+                ColorFormatter.format(JOURNAL_MESSAGE_REDONE, Color.YELLOW),
+                redoMessage));
+            return res;
         } catch (UnsupportedOperationException e) { /* Nothing to redo */
-            return e.getMessage();
+            return new Response(e.getMessage(), false);
         }
     }
 }

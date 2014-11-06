@@ -1,25 +1,32 @@
 package com.rubberduck.command;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Formatter;
+import com.rubberduck.menu.Response;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Concrete Command Class that can be executed to confirm the a tentative task
  * given a task id displayed on the screen to the user.
- *
- * @author Zhao Hang
  */
+//@author A0119504L
 public class ConfirmCommand extends Command {
-    private static final String JOURNAL_MESSAGE_CONFIRM = "Confirm task \"%s\"";
-    private static final String MESSAGE_CONFIRM = "\"%s\" has been confirmed.";
-    private static final String MESSAGE_ERROR_WRONG_TASK_ID = "You have input an invalid task ID.";
-    private static final String MESSAGE_ERROR_NOT_TENTATIVE = "\"%s\" is not tentative and does not need confirmation.";
-    private static final String MESSAGE_ERROR_WRONG_DATE_ID = "You have input an invalid date ID.";
+
+    private static final String JOURNAL_MESSAGE_CONFIRM =
+        "Confirmed task \"%s\"";
+    private static final String MESSAGE_CONFIRM =
+        "\"%s\" has been confirmed from %s.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
+        "You have input an invalid task ID.";
+    private static final String MESSAGE_ERROR_NOT_TENTATIVE =
+        "\"%s\" is not tentative and does not need confirmation.";
+    private static final String MESSAGE_ERROR_WRONG_DATE_ID =
+        "You have input an invalid date ID.";
 
     private int taskId;
     private int dateId;
@@ -54,36 +61,36 @@ public class ConfirmCommand extends Command {
     }
 
     /**
-     * Confirm the date of task to the database.
+     * Confirm the date of the tentative task to the database.
      *
-     * @return confirm message with the displayed id
-     * @throws IOException
-     * @author Zhao Hang
-     * @author Hooi Tong ANSI & Response
+     * @return Response object with appropriate feedback to the user
      */
+    //@author A0119504L
     @Override
-    public String execute() throws IOException {
+    public Response execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            return ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            String errorMessage = ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return new Response(errorMessage, false);
         }
 
         long databaseId = getDisplayedTasksList().get(taskId - 1);
 
         Task task = getDbManager().getInstance(databaseId);
-        String oldTaskFormattedString = ColorFormatter.format(
-                String.format(task.formatOutput("-")), Color.RED);
-        String oldDescription = task.getDescription();
-
+        String description = Formatter.limitDescription(task.getDescription());
         ArrayList<DatePair> dateList = task.getDateList();
 
-        if (dateList.size() <= 1) {
-            return ColorFormatter.format(
-                    String.format(MESSAGE_ERROR_NOT_TENTATIVE, oldDescription),
-                    Color.RED);
+        if (!task.isTentative()) {
+            String errorMessage = ColorFormatter.format(
+                String.format(MESSAGE_ERROR_NOT_TENTATIVE, description),
+                Color.RED);
+            return new Response(errorMessage, false);
         }
 
         if (dateList.size() < dateId) {
-            return ColorFormatter.format(MESSAGE_ERROR_WRONG_DATE_ID, Color.RED);
+            String errorMessage = ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_DATE_ID, Color.RED);
+            return new Response(errorMessage, false);
         }
 
         DatePair date = dateList.get(dateId - 1);
@@ -91,22 +98,20 @@ public class ConfirmCommand extends Command {
         newDateList.add(date);
         task.setDateList(newDateList);
 
-        long newDatabaseId = getDbManager().modify(databaseId, task,
-                String.format(JOURNAL_MESSAGE_CONFIRM, oldDescription));
+        long newDatabaseId = getDbManager().
+            modify(databaseId, task, String.format(JOURNAL_MESSAGE_CONFIRM,
+                                                   description));
 
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
 
-        StringBuilder response = new StringBuilder();
-        response.append(ColorFormatter.format(
-                String.format(MESSAGE_CONFIRM, oldDescription), Color.YELLOW));
-        response.append(System.lineSeparator());
-        response.append(oldTaskFormattedString);
-        response.append(System.lineSeparator());
-        response.append(ColorFormatter.format(task.formatOutput("+"),
-                Color.GREEN));
-        response.append(System.lineSeparator());
-        response.append(getPreviousDisplayCommand().execute());
-
-        return response.toString();
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter.format(
+            String.format(MESSAGE_CONFIRM, description,
+                          task.getDateString()), Color.YELLOW));
+        messages = conflictCheck(messages, task); 
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
     }
+    
 }

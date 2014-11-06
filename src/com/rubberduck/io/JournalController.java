@@ -1,7 +1,5 @@
 package com.rubberduck.io;
 
-//@author A0119416H
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Stack;
@@ -9,6 +7,7 @@ import java.util.Stack;
 /**
  * This class records all the actions done and controls undo/redo operations.
  */
+//@author A0119416H
 public class JournalController<T extends Serializable & Comparable<T>> {
 
     private class IDPair {

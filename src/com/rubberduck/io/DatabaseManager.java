@@ -1,7 +1,5 @@
 package com.rubberduck.io;
 
-//@author A0119416H
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,6 +24,7 @@ import com.thoughtworks.xstream.XStream;
  *
  * @param <T> The data type, which has to be a Java Bean class.
  */
+//@author A0119416H
 public class DatabaseManager<T extends Serializable & Comparable<T>> implements
         Iterable<T> {
 

@@ -1,31 +1,66 @@
 package com.rubberduck.command;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Collections;
-
 import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Formatter;
+import com.rubberduck.menu.Response;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.logging.Logger;
 
 /**
  * Concrete Command Class that can be executed to return related tasks as a
  * formatted String based on various input upon creation.
- *
- * @author Jason Sia
  */
+//@author A0111794E
 public class ViewCommand extends Command {
-    private static final String MESSAGE_VIEWALL_RESULT = "You have %s uncompleted task(s).";
-    private static final String MESSAGE_VIEWDATE_RESULT = "You have %s uncompleted task(s) %s.";
-    private static final String MESSAGE_VIEWALL_CRESULT = "You have %s completed task(s).";
-    private static final String MESSAGE_VIEWDATE_CRESULT = "You have %s completed task(s) %s.";
 
-    protected static final int CONSOLE_MAX_WIDTH = 80;
+    public enum ViewType {
+        TASK, DEADLINE, SCHEDULE
+    }
+
+    /* Global logger to log information and exception. */
+    private static final Logger LOGGER =
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
+    private static final String MESSAGE_VIEWALL_RESULT =
+        "You have %s uncompleted task(s) in total.";
+    private static final String MESSAGE_VIEWDATE_RESULT =
+        "You have %s uncompleted task(s) %s.";
+    private static final String MESSAGE_VIEWALL_CRESULT =
+        "You have %s completed task(s) in total.";
+    private static final String MESSAGE_VIEWDATE_CRESULT =
+        "You have %s completed task(s) %s.";
+    private static final String MESSAGE_DATE_RANGE =
+        "from %s to %s";
+    private static final String MESSAGE_ONE_DAY =
+        "on %s";
+    private static final String SCHEDULE_SEPERATOR =
+        "--------------------------------[  SCHEDULES  ]---------------------------------";
+    private static final String FLOATING_SEPERATOR =
+        "--------------------------------[    TASKS    ]---------------------------------";
+    private static final String DEADLINE_SEPERATOR =
+        "--------------------------------[  DEADLINES  ]---------------------------------";
+
+    private static final ArrayList<ViewType> VIEW_SELECTION_ALL =
+        new ArrayList<ViewType>(
+            Arrays.asList(ViewType.DEADLINE, ViewType.SCHEDULE, ViewType.TASK));
+
+    private static final int FLOATING_TASK = 0;
+    private static final int DEADLINE_TASK = 1;
+    private static final int TIMED_TASK = 2;
 
     private DatePair viewRange;
     private boolean viewAll;
     private boolean completed;
+    private ArrayList<ViewType> viewSelection;
 
     /**
      * Getter method for viewRange.
@@ -57,84 +92,105 @@ public class ViewCommand extends Command {
     /**
      * Public constructor for ViewCommand.
      *
-     * @param viewAll true if all tasks should be returned
-     * @param completed true if all completed tasks should be returned instead
-     * @param viewRange date range to view tasks in
+     * @param viewAll       true if all tasks should be returned
+     * @param completed     true if all completed tasks should be returned
+     *                      instead
+     * @param viewRange     date range to view tasks in
+     * @param viewSelection specified view scope from user
      */
-    public ViewCommand(boolean viewAll, boolean completed, DatePair viewRange) {
+    public ViewCommand(boolean viewAll, boolean completed, DatePair viewRange,
+                       ArrayList<ViewType> viewSelection) {
         this.viewAll = viewAll;
         this.viewRange = viewRange;
         this.completed = completed;
+        if (viewSelection.isEmpty()) {
+            this.viewSelection = VIEW_SELECTION_ALL;
+        } else {
+            this.viewSelection = viewSelection;
+        }
+
     }
 
     /**
      * Check the type of view method requested by user.
      *
-     * @return the result of the view option
-     * @throws IOException
+     * @return Response object containing the result of the view option
      */
     @Override
-    public String execute() throws IOException {
+    public Response execute() throws IOException {
         setPreviousDisplayCommand(this);
         if (isViewAll()) {
-            return viewAll(isCompleted());
+            return viewAll(isCompleted(), viewSelection);
         } else {
-            return viewByPeriod(getViewRange(), isCompleted());
+            return viewByPeriod(getViewRange(), isCompleted(), viewSelection);
         }
     }
 
     /**
      * Return all the valid task stored in the database.
      *
-     * @return list of tasks and their information in the database
+     * @param isCompleted   true if completed tasks should be displayed
+     * @param viewSelection specified view scope from user
+     * @return Response object containing result of all tasks
+     * @throws IOException occurs when dbManager encounters a problem with file
      */
-    public String viewAll(boolean isCompleted) throws IOException {
-        StringBuilder responseBuilder = new StringBuilder();
+    private Response viewAll(boolean isCompleted,
+                             ArrayList<ViewType> viewSelection)
+        throws IOException {
+
         getDisplayedTasksList().clear();
 
         for (int i = 0; i < getDbManager().getValidIdList().size(); i++) {
             Long databaseId = getDbManager().getValidIdList().get(i);
             Task task = getDbManager().getInstance(databaseId);
-            if (isCompleted == task.getIsDone()) {
+            if (isCompleted == task.getIsDone() && viewSelection.
+                contains(getTaskType(task))) {
                 getDisplayedTasksList().add(databaseId);
             }
         }
 
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
-                : Color.YELLOW;
+                                                              : Color.YELLOW;
 
+        Color cHeaderColor = getDisplayedTasksList().isEmpty() ? Color.YELLOW
+                                                               : Color.GREEN;
+        StringBuilder viewCount = new StringBuilder();
         if (isCompleted) {
-            responseBuilder.append(ColorFormatter.format(String.format(
-                    MESSAGE_VIEWALL_CRESULT, getDisplayedTasksList().size()),
-                    headerColor));
+            String formattedString = String.format(MESSAGE_VIEWALL_CRESULT,
+                                                   getDisplayedTasksList().
+                                                       size());
+            viewCount.append(ColorFormatter.format(formattedString,
+                                                   cHeaderColor));
         } else {
-            responseBuilder.append(ColorFormatter.format(String.format(
-                    MESSAGE_VIEWALL_RESULT, getDisplayedTasksList().size()),
-                    headerColor));
+            String formattedString = String.format(MESSAGE_VIEWALL_RESULT,
+                                                   getDisplayedTasksList().
+                                                       size());
+            viewCount.append(ColorFormatter.format(formattedString,
+                                                   headerColor));
         }
 
-        if (!getDisplayedTasksList().isEmpty()) {
-            responseBuilder.append(System.lineSeparator());
-            responseBuilder.append(formatTaskListOutput());
-        }
-
-        return responseBuilder.toString();
+        return new Response("", viewCount.toString(), formatTaskListOutput());
     }
 
     /**
      * Searches the Database for a related task that coincides with the
      * dateRange requested.
      *
-     * @param dateRange DatePair object containing the start date and end date
-     * @return result of all the tasks that are within the period as queried
+     * @param dateRange     DatePair object containing the start date and end
+     *                      date
+     * @param isCompleted   true if completed tasks should be displayed
+     * @param viewSelection specified view scope from user
+     * @return Response object containing result of all tasks within range
+     * @throws IOException occurs when dbManager encounters a problem with file
      */
-    public String viewByPeriod(DatePair dateRange, boolean isCompleted)
-            throws IOException {
-        StringBuilder responseBuilder = new StringBuilder();
+    private Response viewByPeriod(DatePair dateRange, boolean isCompleted,
+                                  ArrayList<ViewType> viewSelection)
+        throws IOException {
         getDisplayedTasksList().clear();
         for (Long databaseId : getDbManager().getValidIdList()) {
             Task task = getDbManager().getInstance(databaseId);
-            if (isCompleted == task.getIsDone() && task.hasDate()) {
+            if (isCompleted == task.getIsDone() && task.hasDate() &&
+                viewSelection.contains(getTaskType(task))) {
                 if (task.isWithinPeriod(dateRange)) {
                     getDisplayedTasksList().add(databaseId);
                 }
@@ -142,68 +198,71 @@ public class ViewCommand extends Command {
         }
 
         String range = "";
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM", Locale.US);
         if (dateRange.hasDateRange()) {
-            range = "from "
-                    + dateFormat.format(dateRange.getStartDate().getTime())
-                    + " to "
-                    + dateFormat.format(dateRange.getEndDate().getTime());
-        } else if (dateRange.hasEndDate()) {
-            range = "on " + dateFormat.format(dateRange.getEndDate().getTime());
+            String startDate =
+                dateFormat.format(dateRange.getStartDate().getTime());
+            String endDate =
+                dateFormat.format(dateRange.getEndDate().getTime());
+
+            if (!startDate.equals(endDate)) {
+                range = String.format(MESSAGE_DATE_RANGE, startDate, endDate);
+            } else {
+                range = String.format(MESSAGE_ONE_DAY, endDate);
+            }
         } else {
             assert false : "This should not occur as there must be a date.";
         }
 
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
-                : Color.YELLOW;
-
+                                                              : Color.YELLOW;
+        StringBuilder viewCount = new StringBuilder();
         if (isCompleted) {
-            responseBuilder.append(ColorFormatter.format(String.format(
-                    MESSAGE_VIEWDATE_CRESULT, getDisplayedTasksList().size(),
-                    range), headerColor));
+            viewCount.append(ColorFormatter.format(String.format(
+                MESSAGE_VIEWDATE_CRESULT, getDisplayedTasksList().size(),
+                range), headerColor));
         } else {
-            responseBuilder.append(ColorFormatter.format(String.format(
-                    MESSAGE_VIEWDATE_RESULT, getDisplayedTasksList().size(),
-                    range), headerColor));
+            viewCount.append(ColorFormatter.format(String.format(
+                MESSAGE_VIEWDATE_RESULT, getDisplayedTasksList().size(),
+                range), headerColor));
         }
 
-        if (!getDisplayedTasksList().isEmpty()) {
-            responseBuilder.append(System.lineSeparator());
-            responseBuilder.append(formatTaskListOutput());
-        }
-
-        return responseBuilder.toString();
+        return new Response("", viewCount.toString(), formatTaskListOutput());
     }
 
     /**
      * Format the list of tasks into a String output and return.
      *
      * @return the formatted string of all tasks involved
-     * @throws IOException
-     * @author hooitong
+     * @throws IOException occurs when dbManager encounters a problem with file
      */
+    //@author A0111736M
     private String formatTaskListOutput() throws IOException {
         Collections.sort(getDisplayedTasksList(),
-                getDbManager().getInstanceIdComparator());
+                         getDbManager().getInstanceIdComparator());
+        StringBuilder taskData = new StringBuilder();
 
-        StringBuilder stringBuilder = new StringBuilder();
-        String header = String.format("%-7s%-6s%-43s%-24s", "ID", "Done",
-                "Task", "Date");
-        String border = "";
-        for (int i = 0; i < CONSOLE_MAX_WIDTH; i++) {
-            border += "-";
-        }
-
-        stringBuilder.append(border + System.lineSeparator() + header
-                + System.lineSeparator() + border + System.lineSeparator());
-
+        int prevType = -1;
         for (int i = 0; i < getDisplayedTasksList().size(); i++) {
-            stringBuilder.append(formatTaskOutput(i));
-            stringBuilder.append(System.lineSeparator());
-        }
-        stringBuilder.append(border);
+            if (taskData.length() > 0) {
+                taskData.append(System.lineSeparator());
+            }
 
-        return stringBuilder.toString();
+            int currentType = getTaskType(i);
+            if (currentType != prevType) {
+                if (currentType == FLOATING_TASK) {
+                    taskData.append(FLOATING_SEPERATOR);
+                } else if (currentType == DEADLINE_TASK) {
+                    taskData.append(DEADLINE_SEPERATOR);
+                } else if (currentType == TIMED_TASK) {
+                    taskData.append(SCHEDULE_SEPERATOR);
+                }
+                taskData.append(System.lineSeparator());
+            }
+            prevType = currentType;
+            taskData.append(formatTaskOutput(i));
+        }
+        return taskData.toString();
     }
 
     /**
@@ -211,13 +270,49 @@ public class ViewCommand extends Command {
      *
      * @param displayingId the id of the task
      * @return the formatted output of the task
-     * @throws IOException
-     * @author hooitong
+     * @throws IOException occurs when dbManager encounters a problem with file
      */
-    protected String formatTaskOutput(int displayingId) throws IOException {
-        Task task = getDbManager().getInstance(
-                getDisplayedTasksList().get(displayingId));
-        return task.formatOutput(displayingId + 1 + "");
+    private String formatTaskOutput(int displayingId) throws IOException {
+        Task task = getDbManager().
+            getInstance(getDisplayedTasksList().get(displayingId));
+        return Formatter.formatTask(task, displayingId + 1 + "");
+    }
+
+    /**
+     * Retrieve the task type from the database given the ID displayed.
+     *
+     * @param displayingId the id of the task
+     * @return enum which specifies what type of task it is
+     * @throws IOException occurs when dbManager encounters a problem with file
+     */
+    //@author A0111794E
+    private int getTaskType(int displayingId) throws IOException {
+        Task t = getDbManager().
+            getInstance(getDisplayedTasksList().get(displayingId));
+        if (t.isFloatingTask()) {
+            return FLOATING_TASK;
+        } else if (t.isDeadline()) {
+            return DEADLINE_TASK;
+        } else {
+            return TIMED_TASK;
+        }
+    }
+
+    /**
+     * Retrieve the viewType based on the task provided.
+     *
+     * @param task object to get type
+     * @return ViewType of the object
+     */
+
+    private ViewType getTaskType(Task task) {
+        if (task.isFloatingTask()) {
+            return ViewType.TASK;
+        } else if (task.isDeadline()) {
+            return ViewType.DEADLINE;
+        } else {
+            return ViewType.SCHEDULE;
+        }
     }
 
 }

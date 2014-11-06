@@ -1,21 +1,26 @@
 package com.rubberduck.command;
 
-import java.io.IOException;
-
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.menu.Formatter;
+import com.rubberduck.menu.Response;
+
+import java.io.IOException;
 
 /**
  * Concrete Command Class that can be executed to delete the task object from
  * database given the task id displayed on screen to the user.
- *
- * @author Zhao Hang
  */
+//@author A0119504L
 public class DeleteCommand extends Command {
-    private static final String JOURNAL_MESSAGE_DELETE = "Deleted task \"%s\"";
-    private static final String MESSAGE_DELETE = "\"%s\" has been successfully deleted.";
-    private static final String MESSAGE_ERROR_WRONG_TASK_ID = "This is not a valid task ID to delete.";
+
+    private static final String JOURNAL_MESSAGE_DELETE =
+        "Deleted task \"%s\"";
+    private static final String MESSAGE_DELETE =
+        "\"%s\" has been successfully deleted from RubberDuck.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
+        "This is not a valid task ID to delete.";
 
     private int taskId;
 
@@ -40,32 +45,32 @@ public class DeleteCommand extends Command {
     /**
      * Delete given task from database if it exist.
      *
-     * @return success message and previous view list or error if invalid id
-     * @throws IOException DBManager has encountered an IO Error
-     * @author Zhao Hang
-     * @author Hooi Tong ANSI & Response
+     * @return Response with success message and updated table if delete is
+     * successful. else Response with error message.
+     * @throws IOException occurs when DBManager has encountered an I/O Error
      */
+    // @author A0119504L
     @Override
-    public String execute() throws IOException {
+    public Response execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
-            return ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            String errorMessage = ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return new Response(errorMessage, false);
         }
+
         long databaseId = getDisplayedTasksList().get(taskId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
-        String oldDescription = oldTask.getDescription();
+        String oldDesc = Formatter.limitDescription(oldTask.getDescription());
         getDbManager().modify(databaseId, null,
-                String.format(JOURNAL_MESSAGE_DELETE, oldDescription));
+                              String.format(JOURNAL_MESSAGE_DELETE,
+                                            oldDesc));
         getDisplayedTasksList().set(taskId - 1, (long) -1);
 
-        StringBuilder response = new StringBuilder();
-        response.append(ColorFormatter.format(
-                String.format(MESSAGE_DELETE, oldDescription), Color.YELLOW));
-        response.append(System.lineSeparator());
-        response.append(ColorFormatter.format(
-                String.format(oldTask.formatOutput("-")), Color.RED));
-        response.append(System.lineSeparator());
-        response.append(getPreviousDisplayCommand().execute());
-
-        return response.toString();
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter.format(
+            String.format(MESSAGE_DELETE, oldDesc), Color.YELLOW));
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
     }
 }
