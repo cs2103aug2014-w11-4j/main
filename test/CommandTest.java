@@ -1034,5 +1034,66 @@ public class CommandTest {
 
         assertTrue(actual.contains(expected));
     }
+    
+    /**
+     * confirm task with conflict date
+     */
+    //@author A0119504L
+    @Test
+    public void confirmTaskConflict() throws IOException {
+        
+        ArrayList<ViewCommand.ViewType> viewChoice =
+            new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
+        ViewCommand viewCommand =
+                new ViewCommand(true, false, null, viewChoice);
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
+
+        ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
+        ArrayList<DatePair> datePairList2 = new ArrayList<DatePair>();
+        Calendar date = Calendar.getInstance();
+        Calendar date2 = Calendar.getInstance();
+
+        date.add(Calendar.DAY_OF_YEAR, 1);
+        date2.add(Calendar.DAY_OF_YEAR, 2);
+        DatePair dp = new DatePair(date, date2);
+        datePairList.add(dp);
+
+        Calendar date3 = Calendar.getInstance();
+        Calendar date4 = Calendar.getInstance();
+        date3.add(Calendar.DAY_OF_YEAR, 2);
+        date4.add(Calendar.DAY_OF_YEAR, 3);
+        DatePair dp2 = new DatePair(date3, date4);
+        datePairList.add(dp2);
+
+        Calendar date5 = Calendar.getInstance();
+        Calendar date6 = Calendar.getInstance();
+        date5.add(Calendar.DAY_OF_YEAR, 3);
+        date6.add(Calendar.DAY_OF_YEAR, 4);
+        DatePair dp3 = new DatePair(date5, date6);
+        datePairList.add(dp3);
+        
+        datePairList2.add(dp2);
+        
+        AddCommand addCommand2 = new AddCommand(
+                "Lonsectetur adipiscing elit.",
+                datePairList2);
+        addCommand2.execute();
+            
+        AddCommand addCommand = new AddCommand(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            datePairList);
+        addCommand.execute();
+
+        datePairList2.add(dp);
+        ConfirmCommand confirmCommand = new ConfirmCommand(1, 2);
+        String actual = confirmCommand.execute().getMessages()[2];
+        String expected =
+            "Please note that there are conflicting schedule(s).";
+        assertTrue(actual.contains(expected));
+    }
 
 }
