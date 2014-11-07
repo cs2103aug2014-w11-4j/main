@@ -69,7 +69,10 @@ public class SearchCommand extends Command {
             taskDescription = taskDescription.toLowerCase();                       
             StringTokenizer taskDescriptions = new StringTokenizer(taskDescription);
             StringTokenizer keywords = new StringTokenizer(keyword.toLowerCase());
-            if(keywords.countTokens()==1){
+            
+            if(keyword.charAt(0) == '\"' && keyword.charAt(keyword.length()-1) =='\"'){
+                isFound = searchExactKeyword(keyword, taskDescriptions);
+            }else if(keywords.countTokens()==1){
                 isFound = searchSingleKeyword(keyword, taskDescription);
             }else{
                 isFound = searchMultipleKeyword(keywords, taskDescriptions);                
@@ -107,6 +110,16 @@ public class SearchCommand extends Command {
         }else{
             return false;
         }
+    }
+    
+    private boolean searchExactKeyword(String keyword,StringTokenizer taskDescriptions) {
+        keyword = keyword.substring(1,keyword.length()-1);
+        while (taskDescriptions.hasMoreElements()) {
+            if (taskDescriptions.nextToken().equalsIgnoreCase(keyword)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**
