@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.logging.Logger;
@@ -82,6 +83,15 @@ public class ViewCommand extends Command {
     public boolean isViewAll() {
         return viewAll;
     }
+    
+    /**
+     * Getter method for overdue
+     * 
+     * @return overdue as boolean
+     */
+    public boolean isOverdue(){
+        return overdue;
+    }
 
     /**
      * Getter method for completed.
@@ -140,7 +150,9 @@ public class ViewCommand extends Command {
     @Override
     public Response execute() throws IOException {
         setPreviousDisplayCommand(this);
-        if (isViewAll()) {
+        if(isOverdue()){
+            return viewOverdue(viewSelection);
+        }else if (isViewAll()) {
             return viewAll(isCompleted(), viewSelection);
         } else {
             return viewByPeriod(getViewRange(), isCompleted(), viewSelection);
@@ -193,6 +205,48 @@ public class ViewCommand extends Command {
         return new Response("", viewCount.toString(), formatTaskListOutput());
     }
 
+    /**
+     * Return overdue tasks in database, based on user selections
+     *
+     * @param isCompleted   true if completed tasks should be displayed
+     * @param viewSelection specified view scope from user
+     * @return Response object containing result of all tasks
+     * @throws IOException occurs when dbManager encounters a problem with file
+     */
+    private Response viewOverdue(ArrayList<ViewType> viewSelection)
+        throws IOException {
+
+        getDisplayedTasksList().clear();
+
+        for (int i = 0; i < getDbManager().getValidIdList().size(); i++) {
+            Long databaseId = getDbManager().getValidIdList().get(i);
+            Task task = getDbManager().getInstance(databaseId);
+            if (taskOverdueValidity(task)){                      
+                getDisplayedTasksList().add(databaseId);
+            }
+        }
+        Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
+                                                              : Color.YELLOW;
+        StringBuilder viewCount = new StringBuilder();
+        String formattedString = String.format(MESSAGE_VIEWALL_RESULT,
+                                                   getDisplayedTasksList().
+                                                       size());
+        viewCount.append(ColorFormatter.format(formattedString,
+                                                   headerColor));
+        return new Response("", viewCount.toString(), formatTaskListOutput());
+    }
+    
+    /**
+     * Checks if the task has a deadline, if it is overdue and if it fits user filter criteria
+     * 
+     * @param task
+     * @return if it fits search criteria
+     */
+    private boolean taskOverdueValidity(Task task){
+        return (task.isDeadline() || task.isTimedTask() ) && !task.getIsDone() && viewSelection.contains(getTaskType(task))
+        && task.getDateList().get(0).getEndDate().before(Calendar.getInstance());
+    }
+    
     /**
      * Searches the Database for a related task that coincides with the
      * dateRange requested.

@@ -59,7 +59,7 @@ public class CommandTest {
             datePairList);
         Response s = command.execute();
         String actual = s.getMessages()[0];
-        String expected = "[33m\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been";
+        String expected = "[1;33m\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been";
         assertEquals(expected,actual);
     }
 
@@ -78,7 +78,7 @@ public class CommandTest {
             dpList);
         Response r = command.execute();
         String actual = r.getMessages()[0];        
-        String expected = "[33m\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been";
+        String expected = "[1;33m\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been";
         assertEquals(expected, actual);
     }
 
@@ -100,7 +100,7 @@ public class CommandTest {
             dpList);
         Response r = command.execute();
         String actual = r.getMessages()[0];
-        String expected = "[33m\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been";
+        String expected = "[1;33m\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been";
         assertEquals(expected, actual);
     }
     
@@ -304,7 +304,7 @@ public class CommandTest {
 
         SearchCommand searchCommand = new SearchCommand("\"#test\"");
         String actual = searchCommand.execute().getViewCount();
-        String expected = "[32m1 task with \"#test\" has been found.[m";
+        String expected = "[1;32m1 task with \"#test\" has been found.[m";
         assertEquals(expected, actual);
     }
     
