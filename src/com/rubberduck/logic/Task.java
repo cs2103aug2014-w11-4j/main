@@ -399,8 +399,7 @@ public class Task implements Serializable, Comparable<Task> {
      * @throws IOException occurs when dbManager encounters a problem with file
      */
     public boolean checkConflictWithDB(DatabaseManager<Task> dbManager,
-                                       long thisTaskId)
-        throws IOException {
+                                       long thisTaskId) throws IOException {
         if (isFloatingTask() || isDeadline()) {
             return false;
         }
