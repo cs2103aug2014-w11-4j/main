@@ -71,6 +71,7 @@ public class SearchCommand extends Command {
             StringTokenizer keywords = new StringTokenizer(keyword.toLowerCase());
             
             if(keyword.charAt(0) == '\"' && keyword.charAt(keyword.length()-1) =='\"'){
+                keyword = keyword.substring(1,keyword.length()-1);                
                 isFound = searchExactKeyword(keyword, taskDescriptions);
             }else if(keywords.countTokens()==1){
                 isFound = searchSingleKeyword(keyword, taskDescription);
@@ -121,7 +122,7 @@ public class SearchCommand extends Command {
      * @return if the description of the task contains the keyword.
      */
     private boolean searchExactKeyword(String keyword,StringTokenizer taskDescriptions) {
-        keyword = keyword.substring(1,keyword.length()-1);
+        
         while (taskDescriptions.hasMoreElements()) {
             if (taskDescriptions.nextToken().equalsIgnoreCase(keyword)) {
                 return true;
