@@ -112,6 +112,14 @@ public class SearchCommand extends Command {
         }
     }
     
+    /**
+     * This method allows user to search for exact keyword, thus if " " are used,
+     * only description that consist of exact same words will be shown.
+     * 
+     * @param keyword 
+     * @param taskDescriptions tokenized taskDescription
+     * @return if the description of the task contains the keyword.
+     */
     private boolean searchExactKeyword(String keyword,StringTokenizer taskDescriptions) {
         keyword = keyword.substring(1,keyword.length()-1);
         while (taskDescriptions.hasMoreElements()) {
