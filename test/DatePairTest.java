@@ -208,32 +208,7 @@ public class DatePairTest {
 
     }
     
-    /**
-     * Task Boundary Test :  18 aug 2014 View Scope :19 aug 2014 - 30 aug 2014
-     * Expected: false
-     *
-     * Range = 19 - 30 Test Value 18 aug
-     */
-
-    @Test
-    public void endDateStartBoundary4() throws IOException {
-        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
-        Calendar endDate = Calendar.getInstance();
-        endDate.set(2014, Calendar.AUGUST, 18);
-        DatePair dp = new DatePair(endDate);
-        dpList.add(dp);
-        Task task = new Task("Test Date", dpList);
-
-        Calendar viewStartDate = Calendar.getInstance();
-        viewStartDate.set(2014, Calendar.AUGUST, 19);
-        Calendar viewEndDate = Calendar.getInstance();
-        viewEndDate.set(2014, Calendar.AUGUST, 30);
-
-        DatePair viewDp = new DatePair(viewStartDate, viewEndDate);
-        boolean actual = task.isWithinPeriod(viewDp);
-        assertEquals(false, actual);
-
-    }
+ 
 
     /**
      * Task Boundary Test : 24 aug 2014 View Scope :19 aug 2014 - 25 aug 2014
