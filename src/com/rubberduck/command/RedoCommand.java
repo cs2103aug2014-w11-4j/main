@@ -26,6 +26,8 @@ public class RedoCommand extends Command {
      */
     @Override
     public Response execute() throws IOException {
+        LOGGER.info(MESSAGE_EXECUTE_INFO);
+
         try {
             String redoMessage = getDbManager().redo();
             Response res = getPreviousDisplayCommand().execute();

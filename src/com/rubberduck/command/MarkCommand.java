@@ -56,6 +56,8 @@ public class MarkCommand extends Command {
     // @author A0119504L
     @Override
     public Response execute() throws IOException {
+        LOGGER.info(MESSAGE_EXECUTE_INFO);
+
         if (!isValidDisplayedId(taskId)) {
             String errorMessage = ColorFormatter.format(
                 MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);

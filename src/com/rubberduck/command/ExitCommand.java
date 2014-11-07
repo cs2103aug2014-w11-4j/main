@@ -22,6 +22,8 @@ public class ExitCommand extends Command {
      */
     @Override
     public Response execute() throws IOException {
+        LOGGER.info(MESSAGE_EXECUTE_INFO);
+
         getDbManager().closeFile();
         System.exit(0);
         return new Response(ColorFormatter.format(MESSAGE_EXIT, Color.RED),

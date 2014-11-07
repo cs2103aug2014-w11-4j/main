@@ -25,6 +25,8 @@ public class UndoCommand extends Command {
      */
     @Override
     public Response execute() throws IOException {
+        LOGGER.info(MESSAGE_EXECUTE_INFO);
+
         try {
             String undoMessage = getDbManager().undo();
             Response res = getPreviousDisplayCommand().execute();

@@ -70,6 +70,8 @@ public class HelpCommand extends Command {
      */
     @Override
     public Response execute() throws IOException {
+        LOGGER.info(MESSAGE_EXECUTE_INFO);
+
         StringBuilder sb = new StringBuilder();
         if (isSpecific) {
             CommandType ct = Command.CommandType.getCommandType(type);

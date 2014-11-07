@@ -9,6 +9,7 @@ import com.rubberduck.menu.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 /**
  * Concrete Command Class that can be executed to add a new task (floating,
@@ -16,6 +17,10 @@ import java.util.ArrayList;
  */
 //@author A0111794E
 public class AddCommand extends Command {
+
+    /* Global logger to log information and exception. */
+    private static final Logger LOGGER =
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private static final String MESSAGE_ADD_TASK_SUCCESS =
         "\"%s\" has been successfully added.";
@@ -26,13 +31,15 @@ public class AddCommand extends Command {
     private static final String MESSAGE_ADD_TENTATIVE_SUCCESS =
         "\"%s\" has been successfully added tentatively on your specified dates.";
     private static final String MESSAGE_ADD_PAST =
-        "\"%s\" cannot be added as the end date has already passed.";
-    private static final String JOURNAL_MESSAGE_ADD =
-        "Added task \"%s\"";
+        "\"%s\" cannot be added as the end date has already passed the current time.";
     private static final String MESSAGE_ERROR_WRONG_TASK_TYPE =
-        "You have input an invalid task type.";
+        "Tentative task must be strictly for schedule(s) only. No deadline(s) are allowed.";
     private static final String MESSAGE_SCHEDULE_CONFLICT =
         "Please note that there are conflicting schedule(s). Plan well!";
+    private static final String MESSAGE_ADD_START =
+        "Adding tasks into database...";
+    private static final String JOURNAL_MESSAGE_ADD =
+        "Added task \"%s\"";
 
     private String description;
     private ArrayList<DatePair> datePairs;
@@ -79,6 +86,8 @@ public class AddCommand extends Command {
         assert description != null;
         assert !description.equals("");
 
+        LOGGER.info(MESSAGE_EXECUTE_INFO);
+
         if (DatePair.isDateBeforeNow(datePairs)) {
             String errorMessage = ColorFormatter.format(
                 String.format(MESSAGE_ADD_PAST, description), Color.RED);
@@ -95,11 +104,12 @@ public class AddCommand extends Command {
 
         String recordDesc = Formatter.limitDescription(task.getDescription());
 
+        LOGGER.info(MESSAGE_ADD_START);
         long id = getDbManager().modify(null, task,
                                         String.format(JOURNAL_MESSAGE_ADD,
                                                       recordDesc));
         assert id >= 0 : "ID should never be a negative number.";
-        
+
         boolean hasConflict = task.checkConflictWithDB(getDbManager(), id);
 
         /* Build Response to the User */
@@ -115,11 +125,13 @@ public class AddCommand extends Command {
             messages.append(ColorFormatter.format(String.format(
                 MESSAGE_ADD_DEADLINE_SUCCESS, recordDesc,
                 task.getDateString()), Color.YELLOW));
-        } else if (task.isTimedTask()) {
+        } else if (task.isSchedule()) {
             messages.append(ColorFormatter.format(String.format(
                 MESSAGE_ADD_TIMED_SUCCESS, recordDesc,
                 task.getDateString()), Color.YELLOW));
         }
+
+        LOGGER.info(messages.toString());
 
         if (hasConflict) {
             messages.append(System.lineSeparator());

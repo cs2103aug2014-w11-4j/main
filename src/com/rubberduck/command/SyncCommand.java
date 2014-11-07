@@ -65,6 +65,8 @@ public class SyncCommand extends Command {
      */
     @Override
     public Response execute() throws IOException {
+        LOGGER.info(MESSAGE_EXECUTE_INFO);
+
         try {
             String response = MenuInterface.getInstance().requestPrompt(
                 ColorFormatter.format(MESSAGE_UNDO_WARNING,
