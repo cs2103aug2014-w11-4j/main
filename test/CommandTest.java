@@ -279,6 +279,36 @@ public class CommandTest {
     }
     
     /**
+     * Search for exact keyword in description
+     */
+    //@author A0111794E
+    @Test
+    public void searchExactKeywordTest() throws IOException {
+        ArrayList<ViewCommand.ViewType> viewChoice = new ArrayList<ViewCommand.ViewType>();
+        viewChoice.add(ViewCommand.ViewType.DEADLINE);
+        viewChoice.add(ViewCommand.ViewType.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewType.TASK);
+        ViewCommand viewCommand = new ViewCommand(true, false, null, viewChoice);
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
+        ArrayList<DatePair> dpList = new ArrayList<DatePair>();
+
+        AddCommand addCommand = new AddCommand(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. #test",
+            dpList);
+        addCommand.execute();
+        addCommand = new AddCommand(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. test",
+                dpList);
+        addCommand.execute();
+
+        SearchCommand searchCommand = new SearchCommand("\"#test\"");
+        String actual = searchCommand.execute().getViewCount();
+        String expected = "[32m1 task with \"#test\" has been found.[m";
+        assertEquals(expected, actual);
+    }
+    
+    /**
      * Search for keyword not exist
      */
     //@author A0119504L
