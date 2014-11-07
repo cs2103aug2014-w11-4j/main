@@ -32,7 +32,7 @@ public class AddCommand extends Command {
     private static final String MESSAGE_ERROR_WRONG_TASK_TYPE =
         "You have input an invalid task type.";
     private static final String MESSAGE_SCHEDULE_CONFLICT =
-            "Please note that there are conflicting schedule(s). Plan well!";
+        "Please note that there are conflicting schedule(s). Plan well!";
 
     private String description;
     private ArrayList<DatePair> datePairs;
@@ -93,9 +93,8 @@ public class AddCommand extends Command {
             return new Response(errorMessage, false);
         }
 
-        
         String recordDesc = Formatter.limitDescription(task.getDescription());
-        
+
         boolean hasConflict = task.checkConflictWithDB(getDbManager());
 
         long id = getDbManager().modify(null, task,
@@ -105,7 +104,10 @@ public class AddCommand extends Command {
 
         /* Build Response to the User */
         StringBuilder messages = new StringBuilder();
-        if (task.isFloatingTask()) {
+        if (task.isTentative()) {
+            messages.append(ColorFormatter.format(String.format(
+                MESSAGE_ADD_TENTATIVE_SUCCESS, recordDesc), Color.YELLOW));
+        } else if (task.isFloatingTask()) {
             messages.append(ColorFormatter.format(
                 String.format(MESSAGE_ADD_TASK_SUCCESS, recordDesc),
                 Color.YELLOW));
@@ -117,17 +119,14 @@ public class AddCommand extends Command {
             messages.append(ColorFormatter.format(String.format(
                 MESSAGE_ADD_TIMED_SUCCESS, recordDesc,
                 task.getDateString()), Color.YELLOW));
-        } else if (task.isTentative()) {
-            messages.append(ColorFormatter.format(String.format(
-                MESSAGE_ADD_TENTATIVE_SUCCESS, recordDesc), Color.YELLOW));
-        } 
-        
+        }
+
         if (hasConflict) {
             messages.append(System.lineSeparator());
             messages.append(ColorFormatter.format(MESSAGE_SCHEDULE_CONFLICT,
                                                   Color.RED));
         }
-     
+
         Response res = getPreviousDisplayCommand().execute();
         res.setMessages(messages.toString());
         return res;
