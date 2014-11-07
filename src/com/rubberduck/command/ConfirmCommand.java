@@ -17,8 +17,6 @@ import java.util.ArrayList;
 //@author A0119504L
 public class ConfirmCommand extends Command {
 
-    private static final String JOURNAL_MESSAGE_CONFIRM =
-        "Confirmed task \"%s\"";
     private static final String MESSAGE_CONFIRM =
         "\"%s\" has been confirmed from %s.";
     private static final String MESSAGE_ERROR_WRONG_TASK_ID =
@@ -28,7 +26,9 @@ public class ConfirmCommand extends Command {
     private static final String MESSAGE_ERROR_WRONG_DATE_ID =
         "You have input an invalid date ID.";
     private static final String MESSAGE_SCHEDULE_CONFLICT =
-            "Please note that there are conflicting schedule(s). Plan well!";
+        "Please note that there are conflicting schedule(s). Plan well!";
+    private static final String JOURNAL_MESSAGE_CONFIRM =
+        "Confirmed task \"%s\"";
 
     private int taskId;
     private int dateId;
@@ -70,6 +70,8 @@ public class ConfirmCommand extends Command {
     //@author A0119504L
     @Override
     public Response execute() throws IOException {
+        LOGGER.info(MESSAGE_EXECUTE_INFO);
+
         if (!isValidDisplayedId(taskId)) {
             String errorMessage = ColorFormatter.
                 format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
@@ -99,11 +101,12 @@ public class ConfirmCommand extends Command {
         ArrayList<DatePair> newDateList = new ArrayList<DatePair>();
         newDateList.add(date);
         task.setDateList(newDateList);
-        
+
         long newDatabaseId = getDbManager().
             modify(databaseId, task, String.format(JOURNAL_MESSAGE_CONFIRM,
                                                    description));
-        boolean hasConflict = task.checkConflictWithDB(getDbManager(), newDatabaseId);
+        boolean hasConflict =
+            task.checkConflictWithDB(getDbManager(), newDatabaseId);
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
 
         StringBuilder messages = new StringBuilder();
@@ -119,5 +122,5 @@ public class ConfirmCommand extends Command {
         res.setMessages(messages.toString());
         return res;
     }
-    
+
 }

@@ -679,13 +679,15 @@ public class Parser {
     }
 
     /**
-     * @param desc
-     * @param dp
+     * Separate the date and the actual description from the input.
+     *
+     * @param input the String to parse
+     * @param dp    ArrayList to store any parsed date
+     * @return the actual description as String
      */
-    private String extractDateFromDesc(String desc, ArrayList<DatePair> dp) {
-
+    private String extractDateFromDesc(String input, ArrayList<DatePair> dp) {
         /* Support tentative task by splitting with 'or' */
-        String[] tentatives = desc.split("\\bor\\b");
+        String[] tentatives = input.split("\\bor\\b");
         StringBuilder sb = new StringBuilder();
         int firstDateIndex = NO_DATE_PARSED;
 
@@ -702,7 +704,7 @@ public class Parser {
 
                 for (DateGroup group : groups) {
                     List<Date> dates = group.getDates();
-                    System.out.println(group.getText());
+
                     /* Restrict parsing of natty */
                     Map<String, List<ParseLocation>> map =
                         group.getParseLocations();

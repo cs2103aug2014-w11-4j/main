@@ -59,30 +59,35 @@ public class SearchCommand extends Command {
      */
     @Override
     public Response execute() throws IOException {
+        LOGGER.info(MESSAGE_EXECUTE_INFO);
+
         setPreviousDisplayCommand(this);
         getDisplayedTasksList().clear();
 
         for (Long databaseId : getDbManager().getValidIdList()) {
-            boolean isFound=false;
+            boolean isFound = false;
             String taskDescription =
                 getDbManager().getInstance(databaseId).getDescription();
-            taskDescription = taskDescription.toLowerCase();                       
-            StringTokenizer taskDescriptions = new StringTokenizer(taskDescription);
-            StringTokenizer keywords = new StringTokenizer(keyword.toLowerCase());
-            
-            if(keyword.charAt(0) == '\"' && keyword.charAt(keyword.length()-1) =='\"'){
-                keyword = keyword.substring(1,keyword.length()-1);                
+            taskDescription = taskDescription.toLowerCase();
+            StringTokenizer taskDescriptions =
+                new StringTokenizer(taskDescription);
+            StringTokenizer keywords =
+                new StringTokenizer(keyword.toLowerCase());
+
+            if (keyword.charAt(0) == '\"'
+                && keyword.charAt(keyword.length() - 1) == '\"') {
+                keyword = keyword.substring(1, keyword.length() - 1);
                 isFound = searchExactKeyword(keyword, taskDescriptions);
-            }else if(keywords.countTokens()==1){
+            } else if (keywords.countTokens() == 1) {
                 isFound = searchSingleKeyword(keyword, taskDescription);
-            }else{
-                isFound = searchMultipleKeyword(keywords, taskDescriptions);                
+            } else {
+                isFound = searchMultipleKeyword(keywords, taskDescriptions);
             }
-            if(isFound){
+            if (isFound) {
                 getDisplayedTasksList().add(databaseId);
             }
-            
-                     
+
+
         }
 
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.RED
@@ -95,34 +100,39 @@ public class SearchCommand extends Command {
 
         return new Response("", viewCount.toString(), formatTaskListOutput());
     }
-    
+
     /**
-     * Complementing searchMultipleKeyword.
-     * <p>When search are being called, if keyword used in search contains only a single word, this method will be called.</p>
-     * <p>This will actually check if the description itself contains the word and return the value immediately</p>
-     * <p>To eliminate the getting unwanted result due to searching with meaningless keywords</p>
+     * Complementing searchMultipleKeyword. <p>When search are being called, if
+     * keyword used in search contains only a single word, this method will be
+     * called.</p> <p>This will actually check if the description itself
+     * contains the word and return the value immediately</p> <p>To eliminate
+     * the getting unwanted result due to searching with meaningless
+     * keywords</p>
+     *
      * @param keyword
      * @param taskDescription
      * @return if the description of the task contains the keyword.
      */
-    private boolean searchSingleKeyword(String keyword, String taskDescription){
-        if(taskDescription.toLowerCase().contains(keyword.toLowerCase())){
+    private boolean searchSingleKeyword(String keyword,
+                                        String taskDescription) {
+        if (taskDescription.toLowerCase().contains(keyword.toLowerCase())) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
-    
+
     /**
-     * This method allows user to search for exact keyword, thus if " " are used,
-     * only description that consist of exact same words will be shown.
-     * 
-     * @param keyword 
+     * This method allows user to search for exact keyword, thus if " " are
+     * used, only description that consist of exact same words will be shown.
+     *
+     * @param keyword
      * @param taskDescriptions tokenized taskDescription
      * @return if the description of the task contains the keyword.
      */
-    private boolean searchExactKeyword(String keyword,StringTokenizer taskDescriptions) {
-        
+    private boolean searchExactKeyword(String keyword,
+                                       StringTokenizer taskDescriptions) {
+
         while (taskDescriptions.hasMoreElements()) {
             if (taskDescriptions.nextToken().equalsIgnoreCase(keyword)) {
                 return true;
@@ -130,17 +140,21 @@ public class SearchCommand extends Command {
         }
         return false;
     }
-    
+
     /**
-     * Complementing searchSingleKeyword.
-     * <p>When search are being called, if keyword used in search contains more than a word, this method will be called.</p>
-     * <p>This will actually check if the description itself contains exactly all the keyword as entered by the user</p>
-     * <p>To eliminate the getting unwanted result due to searching with meaningless keywords</p>
+     * Complementing searchSingleKeyword. <p>When search are being called, if
+     * keyword used in search contains more than a word, this method will be
+     * called.</p> <p>This will actually check if the description itself
+     * contains exactly all the keyword as entered by the user</p> <p>To
+     * eliminate the getting unwanted result due to searching with meaningless
+     * keywords</p>
+     *
      * @param keyword
      * @param taskDescription
      * @return if the description of the task contains the keyword.
      */
-    private boolean searchMultipleKeyword(StringTokenizer keywords,StringTokenizer taskDescriptions){        
+    private boolean searchMultipleKeyword(StringTokenizer keywords,
+                                          StringTokenizer taskDescriptions) {
         String firstKeyword = keywords.nextToken();
         while (taskDescriptions.hasMoreElements()) {
             if (taskDescriptions.nextToken().equals(firstKeyword)) {
@@ -148,11 +162,12 @@ public class SearchCommand extends Command {
                     // check remaining keyword
                     boolean stillValid = true;
                     while (keywords.hasMoreElements() && stillValid == true) {
-                        if(!keywords.nextToken().equals(taskDescriptions.nextToken())){
+                        if (!keywords.nextToken()
+                            .equals(taskDescriptions.nextToken())) {
                             stillValid = false;
                             return false;
                         }
-                    }    
+                    }
                     return true;
                 } else {
                     return false;

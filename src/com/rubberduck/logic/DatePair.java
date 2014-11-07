@@ -189,8 +189,8 @@ public class DatePair implements Serializable {
             return (!endDate.after(endDateCriteria));
         }
 
-        return !(startDate.after(endDateCriteria) ||
-                 endDate.before(startDateCriteria));
+        return startDate.before(endDateCriteria) &&
+               endDate.after(startDateCriteria);
     }
 
     /**

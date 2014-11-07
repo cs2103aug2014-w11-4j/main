@@ -25,6 +25,8 @@ public class UndoCommand extends Command {
      */
     @Override
     public Response execute() throws IOException {
+        LOGGER.info(MESSAGE_EXECUTE_INFO);
+
         try {
             String undoMessage = getDbManager().undo();
             Response res = getPreviousDisplayCommand().execute();
@@ -33,6 +35,7 @@ public class UndoCommand extends Command {
                 undoMessage));
             return res;
         } catch (UnsupportedOperationException e) { /* Nothing to undo */
+            LOGGER.info(MESSAGE_EXECUTE_INFO);
             return new Response(e.getMessage(), false);
         }
 

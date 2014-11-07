@@ -45,6 +45,8 @@ public class InvalidCommand extends Command {
      */
     @Override
     public Response execute() throws IOException {
+        LOGGER.info(MESSAGE_EXECUTE_INFO);
+
         StringBuilder response = new StringBuilder();
         response.append(ColorFormatter.format(errorMessage, Color.RED));
         if (showPrev) {

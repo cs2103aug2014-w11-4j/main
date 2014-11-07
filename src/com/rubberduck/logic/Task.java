@@ -266,11 +266,12 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     /**
-     * Check if the task is a timed task.
+     * Check if the task is a schedule task. Do note that a tentative task is
+     * also a schedule task in this implementation.
      *
-     * @return if the task is a timed task
+     * @return if the task is a schedule task or tentative task
      */
-    public boolean isTimedTask() {
+    public boolean isSchedule() {
         if (dateList.size() > 0) {
             for (DatePair dp : dateList) {
                 if (!dp.hasDateRange()) {
@@ -282,10 +283,32 @@ public class Task implements Serializable, Comparable<Task> {
         return false;
     }
 
+    /**
+     * Check if the task is strictly a tentative task. It must have at least 2
+     * date range.
+     *
+     * @return if the task is strictly a tentative task
+     */
+    //@author A0111736M
     public boolean isTentative() {
-        return dateList.size() > 1;
+        if (dateList.size() > 1) {
+            for (DatePair dp : dateList) {
+                if (!dp.hasDateRange()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
+    /**
+     * Return the first DatePair from the task as String. Should not be used
+     * with tentative tasks.
+     *
+     * @return String representation of the DatePair in this Task
+     */
+    //@author A0111736M
     public String getDateString() {
         if (isFloatingTask()) {
             return "No Date";
@@ -308,7 +331,8 @@ public class Task implements Serializable, Comparable<Task> {
      * @return if the task is a valid task
      */
     public boolean checkValidity() {
-        return isFloatingTask() || isDeadline() || isTimedTask();
+        return isFloatingTask() || isDeadline() || isSchedule() ||
+               isTentative();
     }
 
     /**
@@ -336,8 +360,9 @@ public class Task implements Serializable, Comparable<Task> {
     }
 
     /**
-     * Compare both task by their deadline. <p>Schedule Task > Deadline Task >
-     * Floating Task<p/>
+     * Compare both task by their deadline.
+     * <p/>
+     * Schedule Task > Deadline Task > Floating Task
      *
      * @param o the task object to be compared with the argument
      * @return int ,  0 = equal, -1 = smaller, 1 = bigger
@@ -347,9 +372,9 @@ public class Task implements Serializable, Comparable<Task> {
     public int compareTo(Task o) {
         assert (o != null);
 
-        if (this.isTimedTask() && !o.isTimedTask()) {
+        if (this.isSchedule() && !o.isSchedule()) {
             return -1;
-        } else if (!this.isTimedTask() && o.isTimedTask()) {
+        } else if (!this.isSchedule() && o.isSchedule()) {
             return 1;
         }
 
@@ -373,8 +398,8 @@ public class Task implements Serializable, Comparable<Task> {
      * @return true if there is a conflict else false
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    public boolean checkConflictWithDB(DatabaseManager<Task> dbManager, long thisTaskId)
-        throws IOException {
+    public boolean checkConflictWithDB(DatabaseManager<Task> dbManager,
+                                       long thisTaskId) throws IOException {
         if (isFloatingTask() || isDeadline()) {
             return false;
         }

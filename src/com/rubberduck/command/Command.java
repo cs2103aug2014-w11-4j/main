@@ -2,9 +2,7 @@ package com.rubberduck.command;
 
 import com.rubberduck.io.DatabaseManager;
 import com.rubberduck.logic.Task;
-import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.Response;
-import com.rubberduck.menu.ColorFormatter.Color;
 
 import java.io.File;
 import java.io.IOException;
@@ -109,6 +107,12 @@ public abstract class Command {
         }
     }
 
+    /* Logger variable for usage and shared log messages */
+    protected static final Logger LOGGER =
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    protected static final String MESSAGE_EXECUTE_INFO =
+        "Initiating execution of command.";
+
     /* Details about the DataStore/DatabaseManager */
     private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION =
         "Exception has occured when accessing local storage.";
@@ -116,9 +120,6 @@ public abstract class Command {
         "database.xml";
     private static final String CURRENT_DIRECTORY =
         System.getProperty("user.dir");
-
-    private static final Logger LOGGER =
-        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private static ArrayList<Long> displayedTasksList = new ArrayList<Long>();
     private static Command previousDisplayCommand;
@@ -204,7 +205,7 @@ public abstract class Command {
     private static Logger getLogger() {
         return LOGGER;
     }
-    
+
     /**
      * Execute the implemented execute in respective concrete class and catch
      * any exception if occur.

@@ -28,8 +28,8 @@ public class UpdateCommand extends Command {
     private static final String MESSAGE_ERROR_WRONG_TASK_TYPE =
         "You have input an invalid task type.";
     private static final String MESSAGE_SCHEDULE_CONFLICT =
-            "Please note that there are conflicting schedule(s). Plan well!";
-   
+        "Please note that there are conflicting schedule(s). Plan well!";
+
 
     private int taskId;
     private String description;
@@ -84,6 +84,8 @@ public class UpdateCommand extends Command {
     // @author A0119504L
     @Override
     public Response execute() throws IOException {
+        LOGGER.info(MESSAGE_EXECUTE_INFO);
+
         if (!isValidDisplayedId(taskId)) {
             String errorMessage =
                 ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
@@ -124,11 +126,12 @@ public class UpdateCommand extends Command {
                 ColorFormatter.format(MESSAGE_ERROR_WRONG_TASK_TYPE, Color.RED);
             return new Response(errorMessage, false);
         }
-        
+
         long newDatabaseId = getDbManager().
             modify(databaseId, task, String.format(JOURNAL_MESSAGE_UPDATE,
                                                    oldDesc));
-        boolean hasConflict = task.checkConflictWithDB(getDbManager(), newDatabaseId);
+        boolean hasConflict =
+            task.checkConflictWithDB(getDbManager(), newDatabaseId);
 
         getDisplayedTasksList().set(taskId - 1, newDatabaseId);
 
@@ -144,6 +147,6 @@ public class UpdateCommand extends Command {
         res.setMessages(messages.toString());
         return res;
     }
-    
+
 
 }

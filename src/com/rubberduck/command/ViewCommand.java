@@ -149,6 +149,8 @@ public class ViewCommand extends Command {
      */
     @Override
     public Response execute() throws IOException {
+        LOGGER.info(MESSAGE_EXECUTE_INFO);
+
         setPreviousDisplayCommand(this);
         if(isOverdue()){
             return viewOverdue(viewSelection);

@@ -15,12 +15,12 @@ import java.io.IOException;
 //@author A0119504L
 public class DeleteCommand extends Command {
 
-    private static final String JOURNAL_MESSAGE_DELETE =
-        "Deleted task \"%s\"";
     private static final String MESSAGE_DELETE =
         "\"%s\" has been successfully deleted from RubberDuck.";
     private static final String MESSAGE_ERROR_WRONG_TASK_ID =
         "This is not a valid task ID to delete.";
+    private static final String JOURNAL_MESSAGE_DELETE =
+        "Deleted task \"%s\"";
 
     private int taskId;
 
@@ -52,6 +52,8 @@ public class DeleteCommand extends Command {
     // @author A0119504L
     @Override
     public Response execute() throws IOException {
+        LOGGER.info(MESSAGE_EXECUTE_INFO);
+
         if (!isValidDisplayedId(taskId)) {
             String errorMessage = ColorFormatter.
                 format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
