@@ -14,10 +14,6 @@ import java.util.logging.Logger;
 //@author A0111736M
 public class ClearCommand extends Command {
 
-    /* Global logger to log information and exception. */
-    private static final Logger LOGGER =
-        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-
     private static final String MESSAGE_CLEAR =
         "Screen cleared.";
 

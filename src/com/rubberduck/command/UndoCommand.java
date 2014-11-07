@@ -35,6 +35,7 @@ public class UndoCommand extends Command {
                 undoMessage));
             return res;
         } catch (UnsupportedOperationException e) { /* Nothing to undo */
+            LOGGER.info(MESSAGE_EXECUTE_INFO);
             return new Response(e.getMessage(), false);
         }
 

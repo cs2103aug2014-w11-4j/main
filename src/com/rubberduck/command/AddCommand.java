@@ -18,10 +18,6 @@ import java.util.logging.Logger;
 //@author A0111794E
 public class AddCommand extends Command {
 
-    /* Global logger to log information and exception. */
-    private static final Logger LOGGER =
-        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-
     private static final String MESSAGE_ADD_TASK_SUCCESS =
         "\"%s\" has been successfully added.";
     private static final String MESSAGE_ADD_DEADLINE_SUCCESS =

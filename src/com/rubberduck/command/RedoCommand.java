@@ -36,6 +36,7 @@ public class RedoCommand extends Command {
                 redoMessage));
             return res;
         } catch (UnsupportedOperationException e) { /* Nothing to redo */
+            LOGGER.info(e.getMessage());
             return new Response(e.getMessage(), false);
         }
     }
