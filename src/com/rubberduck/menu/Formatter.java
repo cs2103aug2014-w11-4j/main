@@ -175,7 +175,7 @@ public class Formatter {
 
         String output = taskBuilder.toString().trim();
 
-        if (overdue) {
+        if (overdue && !t.getIsDone()) {
             output = ColorFormatter.format(output, Color.RED);
         }
 
