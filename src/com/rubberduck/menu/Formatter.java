@@ -20,14 +20,14 @@ public class Formatter {
     protected static final String FORMAT_TABLE = "%-7s%-6s%-43s%-24s";
     protected static final String FORMAT_TENTATIVE = "%-7s%-6s%-43s%-19s%-5s";
 
-    private static final String ANSI_PREFIX = "\u001b[30";
+    private static final String ANSI_PREFIX = "\u001b[130";
     private static final int DESC_MAX_WIDTH = 200;
     private static final int DESC_TABLE_MAX_WIDTH = 41;
     private static final int SENTENCE_WIDTH = 80;
     private static final int WORD_LONGER_THAN_MAX = -1;
 
     private static final String DATE_12HOUR_FORMAT = "dd MMM hh:mm aa";
-    private static final String DATE_24HOUR_FORMAT = "dd MMM kk:mm";
+    private static final String DATE_24HOUR_FORMAT = "dd MMM HH:mm";
 
     private static String currentTimeFormat = DATE_24HOUR_FORMAT;
 

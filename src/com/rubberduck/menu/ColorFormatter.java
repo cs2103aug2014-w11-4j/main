@@ -53,33 +53,18 @@ public class ColorFormatter {
      * @return input that is color-coded
      */
     public static String format(String input, Color fg) {
-        return format(input, null, fg, null);
+        return format(input, Attribute.BRIGHT, fg);
     }
 
     /**
-     * Format input string with given foreground color and background color.
-     *
-     * @param input input string
-     * @param fg    foreground color
-     * @param bg    background color
-     * @return input that is color-coded
-     */
-    public static String format(String input, Color fg, Color bg) {
-        return format(input, null, fg, bg);
-    }
-
-    /**
-     * Format input string with given attribute, foreground color and background
-     * color.
+     * Format input string with given attribute, foreground color.
      *
      * @param input input string
      * @param atr   attribute
      * @param fg    foreground color
-     * @param bg    background color
      * @return input that is color-coded
      */
-    public static String format(String input, Attribute atr, Color fg,
-                                Color bg) {
+    public static String format(String input, Attribute atr, Color fg) {
         StringBuilder sb = new StringBuilder();
 
         if (atr != null) {
@@ -91,13 +76,6 @@ public class ColorFormatter {
                 sb.append(SEPARATOR);
             }
             sb.append(FG_SUFFIX + fg.ordinal());
-        }
-
-        if (bg != null) {
-            if (sb.length() > 0) {
-                sb.append(SEPARATOR);
-            }
-            sb.append(BG_SUFFIX + bg.ordinal());
         }
 
         sb.insert(0, PREFIX);

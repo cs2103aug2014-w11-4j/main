@@ -31,9 +31,9 @@ public class ViewCommand extends Command {
         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private static final String MESSAGE_VIEWALL_RESULT =
-        "You have %s uncompleted task(s) in total.";
+        "You have %s incomplete task(s) in total.";
     private static final String MESSAGE_VIEWDATE_RESULT =
-        "You have %s uncompleted task(s) %s.";
+        "You have %s incomplete task(s) %s.";
     private static final String MESSAGE_VIEWALL_CRESULT =
         "You have %s completed task(s) in total.";
     private static final String MESSAGE_VIEWDATE_CRESULT =
