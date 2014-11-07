@@ -38,6 +38,8 @@ public class ViewCommand extends Command {
         "You have %s completed task(s) in total.";
     private static final String MESSAGE_VIEWDATE_CRESULT =
         "You have %s completed task(s) %s.";
+    private static final String MESSAGE_VIEWOVERDUE_RESULT =
+        "You have %s overdue tasks(s) in total.";
     private static final String MESSAGE_DATE_RANGE =
         "from %s to %s";
     private static final String MESSAGE_ONE_DAY =
@@ -60,6 +62,7 @@ public class ViewCommand extends Command {
     private DatePair viewRange;
     private boolean viewAll;
     private boolean completed;
+    private boolean overdue;
     private ArrayList<ViewType> viewSelection;
 
     /**
@@ -98,8 +101,8 @@ public class ViewCommand extends Command {
      * @param viewRange     date range to view tasks in
      * @param viewSelection specified view scope from user
      */
-    public ViewCommand(boolean viewAll, boolean completed, DatePair viewRange,
-                       ArrayList<ViewType> viewSelection) {
+    public ViewCommand(boolean viewAll, boolean completed,
+                       DatePair viewRange, ArrayList<ViewType> viewSelection) {
         this.viewAll = viewAll;
         this.viewRange = viewRange;
         this.completed = completed;
@@ -108,7 +111,25 @@ public class ViewCommand extends Command {
         } else {
             this.viewSelection = viewSelection;
         }
+    }
 
+    /**
+     * Public constructor for ViewCommand. Overloaded for constructing
+     * ViewCommand that can be executed to view overdue tasks with filter.
+     *
+     * @param overdue       true if to show all overdue tasks
+     * @param viewSelection specified view scope from user
+     */
+    public ViewCommand(boolean overdue, ArrayList<ViewType> viewSelection) {
+        this.viewAll = false;
+        this.completed = false;
+        this.viewRange = null;
+        this.overdue = overdue;
+        if (viewSelection.isEmpty()) {
+            this.viewSelection = VIEW_SELECTION_ALL;
+        } else {
+            this.viewSelection = viewSelection;
+        }
     }
 
     /**

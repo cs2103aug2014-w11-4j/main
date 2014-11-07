@@ -31,7 +31,7 @@ public class UnixInterface extends MenuInterface {
     private static final String MESSAGE_SET_12HOUR =
         "Successfully toggled time formatting to 12 hour format.";
     private static final String[] ARGUMENTS_VIEW =
-        new String[]{"all", "deadline", "task", "schedule", "completed"};
+        new String[]{"all", "deadline", "task", "schedule", "completed", "overdue"};
     private static final String SEPARATOR_BORDER =
         "--------------------------------------------------------------------------------";
 

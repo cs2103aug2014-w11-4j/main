@@ -211,21 +211,26 @@ public class Parser {
 
         /* Setup view filter specified by user */
         ArrayList<ViewType> viewList = new ArrayList<ViewType>();
-        if (args.toLowerCase().contains("task")) {
+        if (args.contains("task")) {
             viewList.add(ViewType.TASK);
         }
-        if (args.toLowerCase().contains("deadline")) {
+        if (args.contains("deadline")) {
             viewList.add(ViewType.DEADLINE);
         }
-        if (args.toLowerCase().contains("schedule")) {
+        if (args.contains("schedule")) {
             viewList.add(ViewType.SCHEDULE);
         }
 
         /* Create empty DatePair object */
         DatePair date = new DatePair();
 
+        /* If user decides to view overdue tasks */
+        if (args.contains("overdue")) {
+            return new ViewCommand(true, viewList);
+        }
+
         /* If user decides to view all tasks */
-        if (args.toLowerCase().contains("all")) {
+        if (args.contains("all")) {
             return new ViewCommand(true, isCompleted, date, viewList);
         }
 
