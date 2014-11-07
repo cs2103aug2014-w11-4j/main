@@ -2,6 +2,7 @@ package com.rubberduck.logic;
 
 import com.joestelmach.natty.CalendarSource;
 import com.joestelmach.natty.DateGroup;
+import com.joestelmach.natty.ParseLocation;
 import com.rubberduck.command.AddCommand;
 import com.rubberduck.command.ClearCommand;
 import com.rubberduck.command.Command;
@@ -25,13 +26,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Parser that reads in raw user input and provides instruction on how the UI
- * should call for the correction execution at the logic.
+ * Parser that reads in raw user input and attempts to translate into the
+ * correct command the user wants to execute.
  */
 //@author A0111736M
 public class Parser {
@@ -62,6 +64,10 @@ public class Parser {
     private static final String MESSAGE_INVALID_COMMAND =
         "Please enter a valid command. Press <Tab> or Enter ? for help.";
 
+    /* List of words to remove that appear before a date parsed */
+    private static final String[] DATE_WORDS =
+        new String[]{"by", "on", "at", "from", "during", "@", "in"};
+
     private static final int DEFAULT_START_HOUR = 0;
     private static final int DEFAULT_START_MINUTE = 0;
     private static final int DEFAULT_START_SECOND = 0;
@@ -71,6 +77,8 @@ public class Parser {
     private static final int DEFAULT_END_SECOND = 0;
     private static final int DEFAULT_END_MILLISECOND = 0;
     private static final int DAYS_IN_WEEK = 7;
+    private static final int DESC_NO_OR = 1;
+    private static final int NO_DATE_PARSED = -1;
 
     /* Static member that holds the single instance */
     private static Parser parserInstance;
@@ -196,36 +204,35 @@ public class Parser {
      * @return either a VIEW command or INVALID command
      */
     private Command parseView(String args) {
-        /* Change to lower case for easy parsing */
+        /* Change to lower case for easier parsing */
         args = args.toLowerCase();
 
         boolean isCompleted = args.contains("complete");
 
-        /* Create empty DatePair object */
-        DatePair date = new DatePair();
-
+        /* Setup view filter specified by user */
         ArrayList<ViewType> viewList = new ArrayList<ViewType>();
-        if (args.contains("task")) {
+        if (args.toLowerCase().contains("task")) {
             viewList.add(ViewType.TASK);
         }
-
-        if (args.contains("deadline")) {
+        if (args.toLowerCase().contains("deadline")) {
             viewList.add(ViewType.DEADLINE);
         }
-
-        if (args.contains("schedule")) {
+        if (args.toLowerCase().contains("schedule")) {
             viewList.add(ViewType.SCHEDULE);
         }
 
-        /* If user decides to view all uncompleted tasks */
-        if (args.contains("all")) {
+        /* Create empty DatePair object */
+        DatePair date = new DatePair();
+
+        /* If user decides to view all tasks */
+        if (args.toLowerCase().contains("all")) {
             return new ViewCommand(true, isCompleted, date, viewList);
         }
 
         /* Parse all US Date to SG Date Formal Format */
         String input = parseUStoSGDate(args);
 
-        /* Pre-process certain terms for Natty parser */
+        /* Pre-process and expand certain terms for Natty parser */
         input = parseSpecialTerms(input);
 
         /* Use Natty library to parse date specified by user */
@@ -320,88 +327,17 @@ public class Parser {
         /* Pre-process certain terms for Natty parser */
         input = parseSpecialTerms(input);
 
-        /* Support tentative task by splitting with 'or' */
-        String[] tentatives = input.split("\\bor\\b");
-
         /* ArrayList to store all possible DatePair from input */
         ArrayList<DatePair> datePairs = new ArrayList<DatePair>();
 
-        StringBuilder desc = new StringBuilder();
+        String descString = extractDateFromDesc(input, datePairs);
 
-        /* For each possible tentative date */
-        for (String tentative : tentatives) {
-            String tokens = tentative;
-            /* Continue parsing tokens until retrieved valid date */
-            while (true) {
-                /* Use Natty library to parse date specified by user */
-                List<DateGroup> groups = dateParser.parse(tokens);
-
-                for (DateGroup group : groups) {
-                    List<Date> dates = group.getDates();
-
-                    /* Ignore parsing of random digits */
-                    if (group.getText().length() <= 2) {
-                        tokens = tokens.replace(group.getText(), "");
-                        continue;
-                    }
-
-                    /* If date range is parsed */
-                    if (dates.size() == 2) {
-                        Calendar startDate = dateToCalendar(dates.get(0));
-                        Calendar endDate = dateToCalendar(dates.get(1));
-
-                        /* Swap date if necessary */
-                        if (startDate.after(endDate)) {
-                            Calendar temp = endDate;
-                            endDate = startDate;
-                            startDate = temp;
-                        }
-
-                        /* If no time specified, set default timings */
-                        if (group.isTimeInferred()) {
-                            startDate.set(Calendar.HOUR_OF_DAY,
-                                          DEFAULT_START_HOUR);
-                            startDate.set(Calendar.MINUTE,
-                                          DEFAULT_START_MINUTE);
-                            startDate.set(Calendar.SECOND,
-                                          DEFAULT_START_SECOND);
-                            startDate.set(Calendar.MILLISECOND,
-                                          DEFAULT_START_MILLISECOND);
-
-                            endDate.set(Calendar.HOUR_OF_DAY,
-                                        DEFAULT_END_HOUR);
-                            endDate.set(Calendar.MINUTE,
-                                        DEFAULT_END_MINUTE);
-                            endDate.set(Calendar.SECOND,
-                                        DEFAULT_END_SECOND);
-                            endDate.set(Calendar.MILLISECOND,
-                                        DEFAULT_END_MILLISECOND);
-                        }
-
-                        datePairs.add(new DatePair(startDate, endDate));
-
-                    } else if (dates.size() == 1) {
-                        datePairs
-                            .add(new DatePair(dateToCalendar(dates.get(0))));
-                    }
-
-                    desc.append(tentative.replace(group.getText(), ""));
-                }
-
-                if (groups.isEmpty()) {
-                    desc.append(tentative);
-                }
-
-                break;
-            }
-        }
-
-        String descString = desc.toString().trim();
         if (descString.isEmpty()) {
             return new InvalidCommand(MESSAGE_ADD_ERROR_NO_DESC, true);
         } else {
             return new AddCommand(descString, datePairs);
         }
+
     }
 
     /**
@@ -428,7 +364,7 @@ public class Parser {
     private Command parseUpdate(String args) {
         try {
             /* Get Task ID to update */
-            int deleteId = Integer.parseInt(getFirstWord(args));
+            int updateId = Integer.parseInt(getFirstWord(args));
             args = removeFirstWord(args);
 
             /* Parse all US Date to SG Date Formal Format */
@@ -437,87 +373,16 @@ public class Parser {
             /* Pre-process certain terms for Natty parser */
             input = parseSpecialTerms(input);
 
-            /* Support tentative task by splitting with 'or' */
-            String[] tentatives = input.split("\\bor\\b");
-
             /* ArrayList to store all possible DatePair from input */
             ArrayList<DatePair> datePairs = new ArrayList<DatePair>();
 
-            StringBuilder desc = new StringBuilder();
+            String descString = extractDateFromDesc(input, datePairs);
 
-            /* For each possible tentative date */
-            for (String tentative : tentatives) {
-                String tokens = tentative;
-                /* Continue parsing tokens until retrieved valid date */
-                while (true) {
-                    /* Use Natty library to parse date specified by user */
-                    List<DateGroup> groups = dateParser.parse(tokens);
-
-                    for (DateGroup group : groups) {
-                        List<Date> dates = group.getDates();
-
-                        /* Ignore parsing of random digits */
-                        if (group.getText().length() <= 2) {
-                            tokens = tokens.replace(group.getText(), "");
-                            continue;
-                        }
-
-                        /* If date range is parsed */
-                        if (dates.size() == 2) {
-                            Calendar startDate = dateToCalendar(dates.get(0));
-                            Calendar endDate = dateToCalendar(dates.get(1));
-
-                            /* Swap date if necessary */
-                            if (startDate.after(endDate)) {
-                                Calendar temp = endDate;
-                                endDate = startDate;
-                                startDate = temp;
-                            }
-
-                            /* If no time specified, set default timings */
-                            if (group.isTimeInferred()) {
-                                startDate.set(Calendar.HOUR_OF_DAY,
-                                              DEFAULT_START_HOUR);
-                                startDate.set(Calendar.MINUTE,
-                                              DEFAULT_START_MINUTE);
-                                startDate.set(Calendar.SECOND,
-                                              DEFAULT_START_SECOND);
-                                startDate.set(Calendar.MILLISECOND,
-                                              DEFAULT_START_MILLISECOND);
-
-                                endDate.set(Calendar.HOUR_OF_DAY,
-                                            DEFAULT_END_HOUR);
-                                endDate.set(Calendar.MINUTE,
-                                            DEFAULT_END_MINUTE);
-                                endDate.set(Calendar.SECOND,
-                                            DEFAULT_END_SECOND);
-                                endDate.set(Calendar.MILLISECOND,
-                                            DEFAULT_END_MILLISECOND);
-                            }
-
-                            datePairs.add(new DatePair(startDate, endDate));
-
-                        } else if (dates.size() == 1) {
-                            datePairs.add(new DatePair(
-                                dateToCalendar(dates.get(0))));
-                        }
-                        desc.append(tentative.replace(group.getText(), ""));
-                    }
-
-                    if (groups.isEmpty()) {
-                        desc.append(tentative);
-                    }
-
-                    break;
-                }
-            }
-
-            String descString = desc.toString().trim();
             if (!(!datePairs.isEmpty() || !descString.isEmpty())) {
                 return new InvalidCommand(MESSAGE_UPDATE_ERROR_EMPTY, true);
             }
 
-            return new UpdateCommand(deleteId, descString, datePairs);
+            return new UpdateCommand(updateId, descString, datePairs);
         } catch (NumberFormatException e) {
             return new InvalidCommand(MESSAGE_UPDATE_ERROR_INVALID, true);
         }
@@ -575,8 +440,8 @@ public class Parser {
                 return new InvalidCommand(MESSAGE_CONFIRM_ERROR_INVALID, true);
             }
 
-            int confirmId = Integer.parseInt(substrings[0]);
-            int dateId = Integer.parseInt(substrings[1]);
+            int confirmId = Integer.parseInt(substrings[0].trim());
+            int dateId = Integer.parseInt(substrings[1].trim());
             return new ConfirmCommand(confirmId, dateId);
         } catch (NumberFormatException e) {
             return new InvalidCommand(MESSAGE_CONFIRM_ERROR_INVALID, true);
@@ -658,8 +523,7 @@ public class Parser {
      */
     private String parseUStoSGDate(String input) {
         /* Extract mmddyyyy formal date format from user's input */
-        String
-            dateRegex =
+        String dateRegex =
             "(0[1-9]|[12][0-9]|3[01])[-\\s\\/.](0[1-9]|1[012])[-\\s\\/.]?((?:19|20)\\d\\d)?";
         Pattern datePattern = Pattern.compile(dateRegex);
         Matcher dateMatcher = datePattern.matcher(input);
@@ -687,8 +551,8 @@ public class Parser {
     }
 
     /**
-     * Parses special occurrences of terms from the user input so that the
-     * resulting output parsed into Natty lib will be more accurate and
+     * Parses and expan special occurrences of terms from the user input so that
+     * the resulting output parsed into Natty lib will be more accurate and
      * correct.
      *
      * @param input the input from the user
@@ -702,16 +566,6 @@ public class Parser {
 
         while (textMatcher.find()) {
             input = input.replace(textMatcher.group().trim(), "today to");
-        }
-
-        /* Check if any usage of from */
-        String fromTerm = "\\b(from)\\b";
-        textPattern = Pattern.compile(fromTerm);
-        textMatcher = textPattern.matcher(input);
-
-        /* Remove all from term as not supported by Natty lib */
-        while (textMatcher.find()) {
-            input = input.replace(textMatcher.group().trim(), "");
         }
 
         /* Check if any usage of next week */
@@ -796,13 +650,155 @@ public class Parser {
     }
 
     /**
+     * Remove any valid word that is before a parsed date. For example, "by",
+     * "on", etc.
+     *
+     * @param input     the input to parse
+     * @param dateIndex the index of the parsed date
+     * @return Parsed string that removed any word from the date phrase list
+     */
+    private static String removeWordBeforeDate(String input, int dateIndex) {
+        String textBeforeDate = input.substring(0, dateIndex).trim();
+        String textAfter = input.substring(dateIndex, input.length());
+        String lastWord = textBeforeDate.
+            substring(textBeforeDate.lastIndexOf(" ") + 1);
+        for (String preposition : DATE_WORDS) {
+            if (lastWord.equalsIgnoreCase(preposition)) {
+                textBeforeDate = textBeforeDate.
+                    substring(0, textBeforeDate.length() - lastWord.length());
+                break;
+            }
+        }
+
+        return textBeforeDate + " " + textAfter;
+    }
+
+    /**
+     * @param desc
+     * @param dp
+     */
+    private String extractDateFromDesc(String desc, ArrayList<DatePair> dp) {
+
+        /* Support tentative task by splitting with 'or' */
+        String[] tentatives = desc.split("\\bor\\b");
+        StringBuilder sb = new StringBuilder();
+        int firstDateIndex = NO_DATE_PARSED;
+
+        /* For each possible tentative date */
+        for (int i = 0; i < tentatives.length; i++) {
+            String tentative = tentatives[i];
+            String tokens = tentative;
+            boolean replaceOr = tentatives.length != DESC_NO_OR && i != 0;
+            /* Continue parsing tokens until retrieved valid date */
+            while (true) {
+                /* Use Natty library to parse date specified by user */
+                List<DateGroup> groups = dateParser.parse(tokens);
+                boolean skipIteration = false;
+
+                for (DateGroup group : groups) {
+                    List<Date> dates = group.getDates();
+                    System.out.println(group.getText());
+                    /* Restrict parsing of natty */
+                    Map<String, List<ParseLocation>> map =
+                        group.getParseLocations();
+
+                    boolean haveDate = map.get("date") != null;
+                    boolean haveAMPM = map.get("meridian_indicator") != null;
+                    boolean haveMinutes = map.get("minutes") != null;
+                    boolean haveHour = map.get("hours") != null;
+
+                    if (!haveDate) {
+                        tokens = tokens.replaceFirst(group.getText(), "");
+                        skipIteration = true;
+                        break;
+                    } else if (!(haveAMPM || haveMinutes) && haveHour) {
+                        List<ParseLocation> hoursList = map.get("hours");
+                        if (!hoursList.isEmpty()) {
+                            String ignoredText = hoursList.get(0).getText();
+                            tokens = tokens.replaceFirst(ignoredText, "");
+                        }
+                        skipIteration = true;
+                        break;
+                    }
+
+                    if (dates.size() == 2) {
+                        Calendar startDate = dateToCalendar(dates.get(0));
+                        Calendar endDate = dateToCalendar(dates.get(1));
+
+                        /* Swap date if necessary */
+                        if (startDate.after(endDate)) {
+                            Calendar temp = endDate;
+                            endDate = startDate;
+                            startDate = temp;
+                        }
+
+                        /* If no time specified, set default timings */
+                        if (group.isTimeInferred()) {
+                            startDate.set(Calendar.HOUR_OF_DAY,
+                                          DEFAULT_START_HOUR);
+                            startDate.set(Calendar.MINUTE,
+                                          DEFAULT_START_MINUTE);
+                            startDate.set(Calendar.SECOND,
+                                          DEFAULT_START_SECOND);
+                            startDate.set(Calendar.MILLISECOND,
+                                          DEFAULT_START_MILLISECOND);
+
+                            endDate.set(Calendar.HOUR_OF_DAY,
+                                        DEFAULT_END_HOUR);
+                            endDate.set(Calendar.MINUTE,
+                                        DEFAULT_END_MINUTE);
+                            endDate.set(Calendar.SECOND,
+                                        DEFAULT_END_SECOND);
+                            endDate.set(Calendar.MILLISECOND,
+                                        DEFAULT_END_MILLISECOND);
+                        }
+
+                        dp.add(new DatePair(startDate, endDate));
+                    } else if (dates.size() == 1) {
+                        dp.add(new DatePair(dateToCalendar(dates.get(0))));
+                    }
+
+                    if (i == 0) {
+                        firstDateIndex = group.getPosition();
+                    }
+
+                    tentative = tentative.replace(group.getText(), "");
+                    if (!tentative.trim().isEmpty() && replaceOr) {
+                        sb.append("or");
+                    }
+                    sb.append(tentative);
+                }
+
+                if (skipIteration) {
+                    continue;
+                }
+
+                /* If token does not have any date parsed, just append to sb */
+                if (groups.isEmpty()) {
+                    if (replaceOr) {
+                        sb.append("or");
+                    }
+                    sb.append(tentative);
+                }
+                break;
+            }
+        }
+
+        if (firstDateIndex != NO_DATE_PARSED) {
+            return removeWordBeforeDate(sb.toString(), firstDateIndex).trim();
+        } else {
+            return sb.toString().trim();
+        }
+    }
+
+    /**
      * Gets the first word from a given String object.
      *
      * @param input String object
      * @return a String object containing the first word
      */
     private static String getFirstWord(String input) {
-        return input.split("\\s+", 2)[0];
+        return input.trim().split("\\s+", 2)[0];
     }
 
     /**
@@ -812,7 +808,7 @@ public class Parser {
      * @return a String object without the first word
      */
     private static String removeFirstWord(String input) {
-        String[] splitWord = input.split("\\s+", 2);
+        String[] splitWord = input.trim().split("\\s+", 2);
         return splitWord.length == 1 ? "" : splitWord[1];
     }
 
