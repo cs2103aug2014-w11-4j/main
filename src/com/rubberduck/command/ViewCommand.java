@@ -83,13 +83,13 @@ public class ViewCommand extends Command {
     public boolean isViewAll() {
         return viewAll;
     }
-    
+
     /**
      * Getter method for overdue
-     * 
+     *
      * @return overdue as boolean
      */
-    public boolean isOverdue(){
+    public boolean isOverdue() {
         return overdue;
     }
 
@@ -152,9 +152,9 @@ public class ViewCommand extends Command {
         LOGGER.info(MESSAGE_EXECUTE_INFO);
 
         setPreviousDisplayCommand(this);
-        if(isOverdue()){
+        if (isOverdue()) {
             return viewOverdue(viewSelection);
-        }else if (isViewAll()) {
+        } else if (isViewAll()) {
             return viewAll(isCompleted(), viewSelection);
         } else {
             return viewByPeriod(getViewRange(), isCompleted(), viewSelection);
@@ -198,8 +198,8 @@ public class ViewCommand extends Command {
                                                    cHeaderColor));
         } else {
             String formattedString = String.format(MESSAGE_VIEWALL_RESULT,
-                                                   getDisplayedTasksList().
-                                                       size());
+                                                   getDisplayedTasksList()
+                                                       .size());
             viewCount.append(ColorFormatter.format(formattedString,
                                                    headerColor));
         }
@@ -210,7 +210,6 @@ public class ViewCommand extends Command {
     /**
      * Return overdue tasks in database, based on user selections
      *
-     * @param isCompleted   true if completed tasks should be displayed
      * @param viewSelection specified view scope from user
      * @return Response object containing result of all tasks
      * @throws IOException occurs when dbManager encounters a problem with file
@@ -223,32 +222,33 @@ public class ViewCommand extends Command {
         for (int i = 0; i < getDbManager().getValidIdList().size(); i++) {
             Long databaseId = getDbManager().getValidIdList().get(i);
             Task task = getDbManager().getInstance(databaseId);
-            if (taskOverdueValidity(task)){                      
+            if (taskOverdueValidity(task)) {
                 getDisplayedTasksList().add(databaseId);
             }
         }
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
                                                               : Color.YELLOW;
         StringBuilder viewCount = new StringBuilder();
-        String formattedString = String.format(MESSAGE_VIEWALL_RESULT,
-                                                   getDisplayedTasksList().
-                                                       size());
-        viewCount.append(ColorFormatter.format(formattedString,
-                                                   headerColor));
+        String formattedString = String.format(MESSAGE_VIEWOVERDUE_RESULT,
+                                               getDisplayedTasksList().size());
+        viewCount.append(ColorFormatter.format(formattedString, headerColor));
         return new Response("", viewCount.toString(), formatTaskListOutput());
     }
-    
+
     /**
-     * Checks if the task has a deadline, if it is overdue and if it fits user filter criteria
-     * 
-     * @param task
+     * Checks if the task has a deadline, if it is overdue and if it fits user
+     * filter criteria
+     *
+     * @param task the task to check
      * @return if it fits search criteria
      */
-    private boolean taskOverdueValidity(Task task){
-        return (task.isDeadline() || task.isTimedTask() ) && !task.getIsDone() && viewSelection.contains(getTaskType(task))
-        && task.getDateList().get(0).getEndDate().before(Calendar.getInstance());
+    private boolean taskOverdueValidity(Task task) {
+        return (task.isDeadline() || task.isSchedule()) &&
+               !task.getIsDone() && viewSelection.contains(getTaskType(task)) &&
+               task.getDateList().get(0).getEndDate()
+                   .before(Calendar.getInstance());
     }
-    
+
     /**
      * Searches the Database for a related task that coincides with the
      * dateRange requested.
@@ -350,8 +350,8 @@ public class ViewCommand extends Command {
      * @throws IOException occurs when dbManager encounters a problem with file
      */
     private String formatTaskOutput(int displayingId) throws IOException {
-        Task task = getDbManager().
-            getInstance(getDisplayedTasksList().get(displayingId));
+        Task task = getDbManager()
+            .getInstance(getDisplayedTasksList().get(displayingId));
         return Formatter.formatTask(task, displayingId + 1 + "");
     }
 
