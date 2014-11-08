@@ -320,14 +320,15 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      * @throws IndexOutOfBoundsException if the instance is invalid or does not exist.
      */
     public T getInstance(long instanceId) throws IOException {
-        if (!(isValidId(instanceId) || isDeletedId(instanceId))) {
-            if (isInvalidId(instanceId)) {
-                throw new IndexOutOfBoundsException("Instance is invalid.");
-            } else {
-                throw new IndexOutOfBoundsException("Instance doe not exist.");
-            }
+        if (isValidId(instanceId)) {
+            return xmlToInstance(getStringAtOffset(validInstancesMap.get(instanceId)));
+        } else if (isDeletedId(instanceId)) {
+            return xmlToInstance(getStringAtOffset(deletedInstancesMap.get(instanceId)));
+        } else if (isInvalidId(instanceId)) {
+            throw new IndexOutOfBoundsException("Instance is invalid.");
+        } else {
+            throw new IndexOutOfBoundsException("Instance doe not exist.");
         }
-        return xmlToInstance(getStringAtOffset(validInstancesMap.get(instanceId)));
     }
 
     /**
