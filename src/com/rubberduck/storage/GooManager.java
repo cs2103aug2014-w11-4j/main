@@ -44,6 +44,7 @@ public class GooManager {
     private static final String CALENDAR_NAME = "RubberDuck";
 
     private static final String REMOTE_FLAG_COMPLETED = "[Completed]\n";
+    private static final String LOCAL_FLAG_UNNAMED_TASK = "[Unnamed]";
 
     private static final String LOCAL_UUID_TASK = "_RD_T_";
     private static final String LOCAL_UUID_EVENT = "_RD_E_";
@@ -531,27 +532,26 @@ public class GooManager {
             uuidMap.put(dbManager.getInstance(databaseId).getUuid(), databaseId);
         }
         for (Task remoteTask : getRemoteTaskList(false)) {
-            if (remoteTask != null && !remoteTask.getTitle().isEmpty()) {
-                String localUuid = constructLocalTaskUuid(remoteTask.getId());
-                if (remoteTask.getDeleted() != null && remoteTask.getDeleted()) {
-                    if (uuidMap.containsKey(localUuid)) {
-                        dbManager.markAsInvalid(uuidMap.get(localUuid));
-                    }
-                } else {
-                    dbManager.modify(uuidMap.get(localUuid), reconstructTask(remoteTask), null);
+            if (remoteTask.getTitle().isEmpty()) {
+                remoteTask.setTitle(LOCAL_FLAG_UNNAMED_TASK);
+            }
+            String localUuid = constructLocalTaskUuid(remoteTask.getId());
+            if (remoteTask.getDeleted() != null && remoteTask.getDeleted()) {
+                if (uuidMap.containsKey(localUuid)) {
+                    dbManager.markAsInvalid(uuidMap.get(localUuid));
                 }
+            } else {
+                dbManager.modify(uuidMap.get(localUuid), reconstructTask(remoteTask), null);
             }
         }
         for (Event remoteEvent : getRemoteEventList(false)) {
-            if (remoteEvent != null) {
-                String localUuid = constructLocalEventUuid(remoteEvent.getId());
-                if (remoteEvent.getStatus().equals("cancelled")) {
-                    if (uuidMap.containsKey(localUuid)) {
-                        dbManager.markAsInvalid(uuidMap.get(localUuid));
-                    }
-                } else {
-                    dbManager.modify(uuidMap.get(localUuid), reconstructEvent(remoteEvent), null);
+            String localUuid = constructLocalEventUuid(remoteEvent.getId());
+            if (remoteEvent.getStatus().equals("cancelled")) {
+                if (uuidMap.containsKey(localUuid)) {
+                    dbManager.markAsInvalid(uuidMap.get(localUuid));
                 }
+            } else {
+                dbManager.modify(uuidMap.get(localUuid), reconstructEvent(remoteEvent), null);
             }
         }
         dbManager.rewriteFile(true);
@@ -658,6 +658,9 @@ public class GooManager {
         }
 
         for (Task remoteTask : remoteModifiedTasks.values()) {
+            if (remoteTask.getTitle().isEmpty()) {
+                remoteTask.setTitle(LOCAL_FLAG_UNNAMED_TASK);
+            }
             String localUuid = constructLocalTaskUuid(remoteTask.getId());
             if (localUuidMap.containsKey(localUuid)) {
                 if (remoteTask.getDeleted() != null && remoteTask.getDeleted()) {
