@@ -21,11 +21,19 @@ import java.util.logging.Logger;
  */
 //@author A0111794E
 public class ViewCommand extends Command {
-
+    
+    /**
+     * Enumeration of all types of view filter
+     *
+     */
     public enum ViewFilter {
         TASK, DEADLINE, SCHEDULE
     }
 
+    /**
+     * Enumeration of all types of view type
+     *
+     */
     public enum ViewType {
         ALL, DATE, PREV, OVERDUE
     }
@@ -122,6 +130,7 @@ public class ViewCommand extends Command {
      * Check the type of view method requested by user.
      *
      * @return Response object containing the result of the view option
+     * @throws IOException that might occur
      */
     @Override
     public Response execute() throws IOException {
