@@ -21,6 +21,8 @@ public class ExitCommand extends Command {
     /**
      * Close the DatabaseManager and related I/O files and exit the
      * application.
+     * 
+     * @throws IOException that the logger might encounter
      */
     @Override
     public Response execute() throws IOException {
