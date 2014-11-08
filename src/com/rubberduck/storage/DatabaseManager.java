@@ -86,6 +86,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      */
     private static String VALID_FLAG = "#DBMNGR_VALID";
     private static String INVALID_FLAG = "#DBMNGR_INVAL";
+    private static String DELETED_FLAG = "#DBMNGR_DELED";
 
     /**
      * eofOffset records the end of the file, which is needed to insert new
@@ -100,6 +101,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      */
     private HashMap<Long, Long> validInstancesMap = null;
     private HashMap<Long, Long> invalidInstancesMap = null;
+    private HashMap<Long, Long> deletedInstancesMap = null;
     private long currentId;
 
     private JournalController<T> journal;
@@ -152,12 +154,15 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
         resetJournal();
         validInstancesMap = new HashMap<Long, Long>();
         invalidInstancesMap = new HashMap<Long, Long>();
+        deletedInstancesMap = new HashMap<Long, Long>();
         randomAccessFile.seek(0);
         long offset = randomAccessFile.getFilePointer();
         String line;
         while ((line = randomAccessFile.readLine()) != null) {
             if (line.equals(VALID_FLAG)) {
                 validInstancesMap.put(createNewId(), offset);
+            } else if (line.equals(DELETED_FLAG)) {
+                deletedInstancesMap.put(createNewId(), offset);
             }
             offset = randomAccessFile.getFilePointer();
         }
@@ -170,17 +175,18 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      * @throws IOException
      */
     public void closeFile() throws IOException {
-        writeChangesAndClose();
+        writeChangesAndClose(false);
     }
 
     /**
      * Write all the changes and remove invalid instances. Then reopen the file.
      * Note that IDs of instances will change after the operation.
      *
+     * @param removeDeleted whether instances marked as deleted should really be removed
      * @throws IOException
      */
-    public void rewriteFile() throws IOException {
-        writeChangesAndClose();
+    public void rewriteFile(boolean removeDeleted) throws IOException {
+        writeChangesAndClose(removeDeleted);
         openFile();
         scanFile();
     }
@@ -192,16 +198,17 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      */
     public void resetDatabase() throws IOException {
         randomAccessFile.setLength(0);
-        rewriteFile();
+        rewriteFile(true);
     }
 
     /**
      * Rewrite the file with all valid instances and close the file. All invalid
      * instances are discarded.
      *
+     * @param removeDeleted whether instances marked as deleted should really be removed
      * @throws IOException
      */
-    private void writeChangesAndClose() throws IOException {
+    private void writeChangesAndClose(boolean removeDeleted) throws IOException {
         File tempFile = File.createTempFile("DBMNGR", ".tmp");
         tempFile.deleteOnExit();
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(
@@ -214,6 +221,8 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
                 willCopy = true;
             } else if (line.equals(INVALID_FLAG)) {
                 willCopy = false;
+            } else if (line.equals(DELETED_FLAG)) {
+                willCopy = !removeDeleted;
             }
             if (willCopy) {
                 bufferedWriter.write(line);
@@ -228,10 +237,10 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
     private String getStringAtOffset(long offset) throws IOException {
         randomAccessFile.seek(offset);
         String line = randomAccessFile.readLine();
-        if (line.equals(VALID_FLAG)) {
+        if (line.equals(VALID_FLAG) || line.equals(DELETED_FLAG)) {
             StringBuilder xmlString = new StringBuilder();
             while ((line = randomAccessFile.readLine()) != null
-                    && !(line.equals(VALID_FLAG) || line.equals(INVALID_FLAG))) {
+                    && !(line.equals(VALID_FLAG) || line.equals(INVALID_FLAG) || line.equals(DELETED_FLAG))) {
                 xmlString.append(System.getProperty("line.separator"));
                 xmlString.append(line);
             }
@@ -279,6 +288,15 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
     }
 
     /**
+     * Get an ArrayList of IDs of all invalid instances.
+     *
+     * @return the list of all invalid IDs
+     */
+    public ArrayList<Long> getDeletedIdList() {
+        return new ArrayList<Long>(deletedInstancesMap.keySet());
+    }
+
+    /**
      * Write a new instance to the database.
      *
      * @param instance the new instance to be inserted
@@ -297,19 +315,20 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      *
      * @param instanceId The ID of instance to be fetched.
      * @return The reconstructed instance. Note that it is not the same object
-     *         with the one that was written to the file. If the ID does not
-     *         exist, null will be returned.
+     *         with the one that was written to the file.
      * @throws IOException
+     * @throws IndexOutOfBoundsException if the instance is invalid or does not exist.
      */
     public T getInstance(long instanceId) throws IOException {
-        if (!validInstancesMap.containsKey(instanceId)) {
-            if (invalidInstancesMap.containsKey(instanceId)) {
-                throw new IndexOutOfBoundsException("Instance is invalid.");
-            } else {
-                throw new IndexOutOfBoundsException("Instance doe not exist.");
-            }
+        if (isValidId(instanceId)) {
+            return xmlToInstance(getStringAtOffset(validInstancesMap.get(instanceId)));
+        } else if (isDeletedId(instanceId)) {
+            return xmlToInstance(getStringAtOffset(deletedInstancesMap.get(instanceId)));
+        } else if (isInvalidId(instanceId)) {
+            throw new IndexOutOfBoundsException("Instance is invalid.");
+        } else {
+            throw new IndexOutOfBoundsException("Instance doe not exist.");
         }
-        return xmlToInstance(getStringAtOffset(validInstancesMap.get(instanceId)));
     }
 
     /**
@@ -317,11 +336,11 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      *
      * @param instanceId the ID of the instance to be marked.
      * @throws IndexOutOfBoundsException if the ID is not found (or it is
-     *             already invalid)
+     *             not valid)
      * @throws IOException
      */
     protected void markAsInvalid(long instanceId) throws IOException {
-        if (!validInstancesMap.containsKey(instanceId)) {
+        if (!isValidId(instanceId)) {
             throw new IndexOutOfBoundsException();
         }
         long offset = validInstancesMap.get(instanceId);
@@ -333,7 +352,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
             validInstancesMap.remove(instanceId);
             invalidInstancesMap.put(instanceId, offset);
         } else {
-            throw new AssertionError(); // TODO
+            throw new AssertionError();
         }
     }
 
@@ -346,19 +365,52 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      * @throws IOException
      */
     protected void markAsValid(long instanceId) throws IOException {
-        if (!invalidInstancesMap.containsKey(instanceId)) {
+        long offset;
+        if (isInvalidId(instanceId)) {
+            offset = invalidInstancesMap.get(instanceId);
+        } else if (isDeletedId(instanceId)) {
+            offset = deletedInstancesMap.get(instanceId);
+        } else {
             throw new IndexOutOfBoundsException();
         }
-        long offset = invalidInstancesMap.get(instanceId);
         randomAccessFile.seek(offset);
         String line = randomAccessFile.readLine();
-        if (line.equals(INVALID_FLAG)) {
+        if (line.equals(INVALID_FLAG) || line.equals(DELETED_FLAG)) {
             randomAccessFile.seek(offset);
             randomAccessFile.writeBytes(VALID_FLAG);
-            invalidInstancesMap.remove(instanceId);
+            if (isInvalidId(instanceId)) {
+                invalidInstancesMap.remove(instanceId);
+            } else {
+                deletedInstancesMap.remove(instanceId);
+            }
             validInstancesMap.put(instanceId, offset);
         } else {
-            throw new AssertionError(); // TODO
+            throw new AssertionError();
+        }
+    }
+
+    /**
+     * Mark the instance with the given ID as deleted.
+     *
+     * @param instanceId the ID of the instance to be marked.
+     * @throws IndexOutOfBoundsException if the ID is not found (or it is
+     *             not valid)
+     * @throws IOException
+     */
+    protected void markAsDeleted(long instanceId) throws IOException {
+        if (!isValidId(instanceId)) {
+            throw new IndexOutOfBoundsException();
+        }
+        long offset = validInstancesMap.get(instanceId);
+        randomAccessFile.seek(offset);
+        String line = randomAccessFile.readLine();
+        if (line.equals(VALID_FLAG)) {
+            randomAccessFile.seek(offset);
+            randomAccessFile.writeBytes(DELETED_FLAG);
+            validInstancesMap.remove(instanceId);
+            deletedInstancesMap.put(instanceId, offset);
+        } else {
+            throw new AssertionError();
         }
     }
 
@@ -370,7 +422,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      * @return if the ID exists
      */
     public boolean contains(long instanceId) {
-        return (isValidId(instanceId) || isInvalidId(instanceId));
+        return (isValidId(instanceId) || isInvalidId(instanceId) || isDeletedId(instanceId));
     }
 
     /**
@@ -394,6 +446,16 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
     }
 
     /**
+     * Check whether an ID represents a deleted instance.
+     *
+     * @param instanceId the ID to be checked
+     * @return if the ID represents a deleted instance.
+     */
+    public boolean isDeletedId(long instanceId) {
+        return deletedInstancesMap.containsKey(instanceId);
+    }
+
+    /**
      * Make modification to the database.
      *
      * @param previousId the ID of instance to be removed, or null if no removal
@@ -413,7 +475,11 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
             newId = putInstance(newInstance);
         }
         if (previousId != null) {
-            markAsInvalid(previousId);
+            if (newInstance != null) {
+                markAsInvalid(previousId);
+            } else {
+                markAsDeleted(previousId);
+            }
         }
         journal.recordAction(previousId, newId, description);
         return newId;

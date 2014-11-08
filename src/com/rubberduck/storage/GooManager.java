@@ -35,6 +35,7 @@ import com.google.api.services.tasks.model.TaskLists;
 import com.google.api.services.tasks.model.Tasks;
 import com.rubberduck.storage.task.DatePair;
 
+//@author A0119416H
 public class GooManager {
 
     private static final String CLIENT_ID = "849841048712-0t9rn1vi1nch19cqsuaaaj19oo7c7pl3.apps.googleusercontent.com";
@@ -56,8 +57,10 @@ public class GooManager {
     private static com.google.api.services.tasks.Tasks tasksClient;
     private static String taskListId = null;
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss", Locale.US);
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.US);
     private static final String REMOTE_SYNC_FLAG_FORMAT = "Last Synced on: ";
+    private static final String REMOTE_TASK_TIME_FORMAT = "Due: ";
+    private static Date lastSyncTime;
 
     private static Credential authorize() throws IOException {
         GoogleClientSecrets.Details details = new GoogleClientSecrets.Details();
@@ -117,7 +120,6 @@ public class GooManager {
         } while (pageToken != null);
 
         if (calendarId == null) {
-            // System.out.println("Not found, creating new one"); //TODO
             Calendar calendar = new Calendar();
             calendar.setSummary(CALENDAR_NAME);
             calendar.setTimeZone(TimeZone.getDefault().getID());
@@ -147,7 +149,6 @@ public class GooManager {
         } while (pageToken != null);
 
         if (taskListId == null) {
-            // System.out.println("Not found, creating new one"); //TODO
             TaskList taskList = new TaskList();
             taskList.setTitle(CALENDAR_NAME);
             TaskList createdTaskList = tasksClient.tasklists()
@@ -176,6 +177,11 @@ public class GooManager {
         } else {
             return null;
         }
+    }
+
+    private static boolean isOnSameDate(java.util.Calendar cal1, java.util.Calendar cal2) {
+        return cal1.get(java.util.Calendar.YEAR) == cal2.get(java.util.Calendar.YEAR) &&
+                cal1.get(java.util.Calendar.DAY_OF_YEAR) == cal2.get(java.util.Calendar.DAY_OF_YEAR);
     }
 
     private static boolean isPushedAsTask(com.rubberduck.storage.task.Task task) {
@@ -222,7 +228,7 @@ public class GooManager {
         } else if (isPushedAsEvent(task)) {
             return constructRemoteEventId(task.getUuid());
         } else {
-            throw new UnsupportedOperationException(); // TODO
+            throw new UnsupportedOperationException("This task is not pushed.");
         }
     }
 
@@ -234,6 +240,16 @@ public class GooManager {
             return (getRemoteEvent(getRemoteUuid(task)) != null);
         } else {
             return false;
+        }
+    }
+
+    public static void deleteTask(com.rubberduck.storage.task.Task originalTask)
+            throws IOException {
+        if (isPushedAsTask(originalTask)) {
+            tasksClient.tasks().delete(taskListId, getRemoteUuid(originalTask)).execute();
+        }
+        if (isPushedAsEvent(originalTask)) {
+            calendarClient.events().delete(calendarId, getRemoteUuid(originalTask)).execute();
         }
     }
 
@@ -343,6 +359,7 @@ public class GooManager {
         }
         if (!originalTask.isFloatingTask()) {
             task.setDue(calendarToDateTime(originalTask.getEarliestDate()));
+            task.setNotes(REMOTE_TASK_TIME_FORMAT + DATE_FORMAT.format(originalTask.getEarliestDate().getTime()));
         }
         if (originalTask.getIsDone()) {
             task.setStatus("completed");
@@ -387,8 +404,20 @@ public class GooManager {
             task.setIsDone(false);
         }
         if (remoteTask.getDue() != null) {
+            java.util.Calendar remoteDueDate = dateTimeToCalendar(remoteTask.getDue());
+            String line = remoteTask.getNotes();
+            if (line != null && line.startsWith(REMOTE_TASK_TIME_FORMAT)) {
+                try {
+                    java.util.Calendar recordedDueDate = java.util.Calendar.getInstance();
+                    recordedDueDate.setTime(DATE_FORMAT.parse(line.replace(REMOTE_TASK_TIME_FORMAT, "")));
+                    if (isOnSameDate(remoteDueDate, recordedDueDate)) {
+                        remoteDueDate = recordedDueDate;
+                    }
+                } catch (ParseException e) {
+                }
+            }
             ArrayList<DatePair> dateList = new ArrayList<DatePair>();
-            dateList.add(new DatePair(dateTimeToCalendar(remoteTask.getDue())));
+            dateList.add(new DatePair(remoteDueDate));
             task.setDateList(dateList);
         } else {
             task.setDateList(new ArrayList<DatePair>());
@@ -424,20 +453,21 @@ public class GooManager {
             Event remoteEvent = getRemoteEvent(constructRemoteEventId(localId));
             task = reconstructEvent(remoteEvent);
         } else {
-            throw new UnsupportedOperationException(); // TODO
+            throw new UnsupportedOperationException("This task is not pushed.");
         }
         return task;
     }
 
-    public static ArrayList<Task> getRemoteTaskList() throws IOException {
+    public static ArrayList<Task> getRemoteTaskList(boolean filterByUpdateTime) throws IOException {
         ArrayList<Task> remoteTaskList = new ArrayList<Task>();
 
         String pageToken = null;
         do {
-            Tasks tasks = tasksClient.tasks()
-                    .list(taskListId)
-                    .setPageToken(pageToken)
-                    .execute();
+            com.google.api.services.tasks.Tasks.TasksOperations.List listOperation = tasksClient.tasks().list(taskListId).setShowDeleted(true);
+            if (filterByUpdateTime) {
+                listOperation.setUpdatedMin(new DateTime(lastSyncTime, TimeZone.getDefault()).toStringRfc3339());
+            }
+            Tasks tasks = listOperation.setPageToken(pageToken).execute();
             if (tasks != null && tasks.getItems() != null) {
                 remoteTaskList.addAll(tasks.getItems());
             }
@@ -447,15 +477,16 @@ public class GooManager {
         return remoteTaskList;
     }
 
-    public static ArrayList<Event> getRemoteEventList() throws IOException {
+    public static ArrayList<Event> getRemoteEventList(boolean filterByUpdateTime) throws IOException {
         ArrayList<Event> remoteEventList = new ArrayList<Event>();
 
         String pageToken = null;
         do {
-            Events events = calendarClient.events()
-                    .list(calendarId)
-                    .setPageToken(pageToken)
-                    .execute();
+            com.google.api.services.calendar.Calendar.Events.List listOperation = calendarClient.events().list(calendarId).setShowDeleted(true);
+            if (filterByUpdateTime) {
+                listOperation = listOperation.setUpdatedMin(new DateTime(lastSyncTime, TimeZone.getDefault()));
+            }
+            Events events = listOperation.setPageToken(pageToken).execute();
             remoteEventList.addAll(events.getItems());
             pageToken = events.getNextPageToken();
         } while (pageToken != null);
@@ -471,9 +502,7 @@ public class GooManager {
         tasksClient.tasks().clear(taskListId).execute();
     }
 
-    public static void pushAll(
-            DatabaseManager<com.rubberduck.storage.task.Task> dbManager)
-            throws IOException {
+    public static void pushAll(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
         for (Long databaseId : dbManager.getValidIdList()) {
             com.rubberduck.storage.task.Task localTask = dbManager.getInstance(databaseId);
             if (!(localTask.getDateList().size() > 1)) {
@@ -481,13 +510,16 @@ public class GooManager {
                 dbManager.modify(databaseId, localTask, null);
             }
         }
-        dbManager.rewriteFile();
+        for (Long databaseId : dbManager.getDeletedIdList()) {
+            if (isPushed(dbManager.getInstance(databaseId))) {
+                deleteTask(dbManager.getInstance(databaseId));
+            }
+        }
+        dbManager.rewriteFile(true);
         setLastSyncTime();
     }
 
-    public static void forcePushAll(
-            DatabaseManager<com.rubberduck.storage.task.Task> dbManager)
-            throws IOException {
+    public static void forcePushAll(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
         clearRemoteEvents();
         clearRemoteTasks();
         pushAll(dbManager);
@@ -498,62 +530,165 @@ public class GooManager {
         for (Long databaseId : dbManager.getValidIdList()) {
             uuidMap.put(dbManager.getInstance(databaseId).getUuid(), databaseId);
         }
-        for (Task remoteTask : getRemoteTaskList()) {
+        for (Task remoteTask : getRemoteTaskList(false)) {
             if (remoteTask != null && !remoteTask.getTitle().isEmpty()) {
-                dbManager.modify(
-                        uuidMap.get(constructLocalTaskUuid(remoteTask.getId())),
-                        reconstructTask(remoteTask), null);
+                String localUuid = constructLocalTaskUuid(remoteTask.getId());
+                if (remoteTask.getDeleted() != null && remoteTask.getDeleted()) {
+                    if (uuidMap.containsKey(localUuid)) {
+                        dbManager.markAsInvalid(uuidMap.get(localUuid));
+                    }
+                } else {
+                    dbManager.modify(uuidMap.get(localUuid), reconstructTask(remoteTask), null);
+                }
             }
         }
-        for (Event remoteEvent : getRemoteEventList()) {
+        for (Event remoteEvent : getRemoteEventList(false)) {
             if (remoteEvent != null) {
-                dbManager.modify(
-                        uuidMap.get(constructLocalEventUuid(remoteEvent.getId())),
-                        reconstructEvent(remoteEvent), null);
+                String localUuid = constructLocalEventUuid(remoteEvent.getId());
+                if (remoteEvent.getStatus().equals("cancelled")) {
+                    if (uuidMap.containsKey(localUuid)) {
+                        dbManager.markAsInvalid(uuidMap.get(localUuid));
+                    }
+                } else {
+                    dbManager.modify(uuidMap.get(localUuid), reconstructEvent(remoteEvent), null);
+                }
             }
         }
-        dbManager.rewriteFile();
+        dbManager.rewriteFile(true);
         setLastSyncTime();
     }
 
-    public static void forcePullAll(
-            DatabaseManager<com.rubberduck.storage.task.Task> dbManager)
-            throws IOException {
+    public static void forcePullAll(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
         dbManager.resetDatabase();
         pullAll(dbManager);
     }
 
     public static void twoWaySync(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
-        HashMap<Long, com.rubberduck.storage.task.Task> localModifiedTasks = new HashMap<Long, com.rubberduck.storage.task.Task>();
-        HashMap<Long, com.rubberduck.storage.task.Task> localModifiedEvents = new HashMap<Long, com.rubberduck.storage.task.Task>();
-        Date lastSyncTime = getLastSyncTime();
+        lastSyncTime = getLastSyncTime();
+        HashMap<String, Long> localUuidMap = new HashMap<String, Long>();
+
+        HashMap<String, Task> remoteModifiedTasks = new HashMap<String, Task>();
+        for (Task remoteTask : getRemoteTaskList(true)) {
+            remoteModifiedTasks.put(remoteTask.getId(), remoteTask);
+        }
+        HashMap<String, Event> remoteModifiedEvents = new HashMap<String, Event>();
+        for (Event remoteEvent : getRemoteEventList(true)) {
+            remoteModifiedEvents.put(remoteEvent.getId(), remoteEvent);
+        }
+
         for (Long databaseId : dbManager.getValidIdList()) {
             com.rubberduck.storage.task.Task localTask = dbManager.getInstance(databaseId);
+            if (isPushed(localTask)) {
+                localUuidMap.put(localTask.getUuid(), databaseId);
+            }
             if (lastSyncTime == null || localTask.getLastUpdate().getTime().after(lastSyncTime)) {
                 if (!(localTask.getDateList().size() > 1)) {
-                    if (localTask.isDeadline() || localTask.isFloatingTask()) {
-                        localModifiedTasks.put(databaseId, localTask);
+                    boolean shouldPush = false;
+                    if (!isPushed(localTask)) {
+                        shouldPush = true;
                     } else {
-                        localModifiedEvents.put(databaseId, localTask);
+                        java.util.Calendar localUpdateTime = localTask.getLastUpdate();
+                        if (localTask.isDeadline() || localTask.isFloatingTask()) {
+                            String remoteUuid = constructRemoteTaskId(localTask.getUuid());
+                            if (remoteModifiedTasks.containsKey(remoteUuid)) {
+                                Task remoteTask = remoteModifiedTasks.get(remoteUuid);
+                                if ((remoteTask.getDeleted() != null && remoteTask.getDeleted()) ||
+                                        dateTimeToCalendar(remoteTask.getUpdated()).after(localUpdateTime)) {
+                                    shouldPush = true;
+                                    remoteModifiedTasks.remove(remoteUuid);
+                                }
+                            } else {
+                                shouldPush = true;
+                            }
+                        } else {
+                            String remoteUuid = constructRemoteEventId(localTask.getUuid());
+                            if (remoteModifiedEvents.containsKey(remoteUuid)) {
+                                Event remoteEvent = remoteModifiedEvents.get(remoteUuid);
+                                if (remoteEvent.getStatus().equals("cancelled") ||
+                                        dateTimeToCalendar(remoteEvent.getUpdated()).after(localUpdateTime)) {
+                                    shouldPush = true;
+                                    remoteModifiedEvents.remove(remoteUuid);
+                                }
+                            } else {
+                                shouldPush = true;
+                            }
+                        }
+                    }
+                    if (shouldPush) {
+                        pushTask(localTask);
+                        dbManager.modify(databaseId, localTask, null);
                     }
                 }
             }
         }
-        for (Long databaseId : localModifiedTasks.keySet()) {
-            com.rubberduck.storage.task.Task task = localModifiedTasks.get(databaseId);
-            if (!isPushed(task) || dateTimeToCalendar(getRemoteTask(getRemoteUuid(task)).getUpdated()).before(task.getLastUpdate())) {
-                pushTask(task);
-                dbManager.modify(databaseId, task, null);
+
+        for (Long databaseId : dbManager.getDeletedIdList()) {
+            com.rubberduck.storage.task.Task localTask = dbManager.getInstance(databaseId);
+            if (!(localTask.getDateList().size() > 1)) {
+                boolean shouldDelete = false;
+                if (!isPushed(localTask)) {
+                    shouldDelete = false;
+                } else {
+                    if (localTask.isDeadline() || localTask.isFloatingTask()) {
+                        String remoteUuid = constructRemoteTaskId(localTask.getUuid());
+                        if (remoteModifiedTasks.containsKey(remoteUuid)) {
+                            shouldDelete = false;
+                            if (remoteModifiedTasks.get(remoteUuid).getDeleted() != null && remoteModifiedTasks.get(remoteUuid).getDeleted()) {
+                                remoteModifiedTasks.remove(remoteUuid);
+                            }
+                        } else {
+                            shouldDelete = true;
+                        }
+                    } else {
+                        String remoteUuid = constructRemoteEventId(localTask.getUuid());
+                        if (remoteModifiedEvents.containsKey(remoteUuid)) {
+                            shouldDelete = false;
+                            if (remoteModifiedEvents.get(remoteUuid).getStatus().equals("cancelled")) {
+                                remoteModifiedEvents.remove(remoteUuid);
+                            }
+                        } else {
+                            shouldDelete = true;
+                        }
+                    }
+                }
+                if (shouldDelete) {
+                    deleteTask(localTask);
+                }
             }
         }
-        for (Long databaseId : localModifiedEvents.keySet()) {
-            com.rubberduck.storage.task.Task task = localModifiedEvents.get(databaseId);
-            if (!isPushed(task) || dateTimeToCalendar(getRemoteEvent(getRemoteUuid(task)).getUpdated()).before(task.getLastUpdate())) {
-                pushTask(task);
-                dbManager.modify(databaseId, task, null);
+
+        for (Task remoteTask : remoteModifiedTasks.values()) {
+            String localUuid = constructLocalTaskUuid(remoteTask.getId());
+            if (localUuidMap.containsKey(localUuid)) {
+                if (remoteTask.getDeleted() != null && remoteTask.getDeleted()) {
+                    dbManager.modify(localUuidMap.get(localUuid), null, null);
+                } else {
+                    dbManager.modify(localUuidMap.get(localUuid), reconstructTask(remoteTask), null);
+                }
+            } else {
+                if (remoteTask.getDeleted() == null || !remoteTask.getDeleted()) {
+                    dbManager.modify(null, reconstructTask(remoteTask), null);
+                }
             }
         }
-        pullAll(dbManager);
+
+        for (Event remoteEvent : remoteModifiedEvents.values()) {
+            String localUuid = constructLocalEventUuid(remoteEvent.getId());
+            if (localUuidMap.containsKey(localUuid)) {
+                if (remoteEvent.getStatus().equals("cancelled")) {
+                    dbManager.modify(localUuidMap.get(localUuid), null, null);
+                } else {
+                    dbManager.modify(localUuidMap.get(localUuid), reconstructEvent(remoteEvent), null);
+                }
+            } else {
+                if (!remoteEvent.getStatus().equals("cancelled")) {
+                    dbManager.modify(null, reconstructEvent(remoteEvent), null);
+                }
+            }
+        }
+
+        dbManager.rewriteFile(true);
+        setLastSyncTime();
     }
 
     public static void main(String[] args) throws Exception {
