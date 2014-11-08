@@ -52,6 +52,7 @@ public class MarkCommand extends Command {
      * Mark a task (completed to uncompleted and vice versa).
      *
      * @return message of mark
+     * @throws IOException that might occur
      */
     // @author A0119504L
     @Override
