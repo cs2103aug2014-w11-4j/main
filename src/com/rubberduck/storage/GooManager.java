@@ -17,6 +17,7 @@ import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
@@ -41,6 +42,12 @@ import com.rubberduck.storage.task.DatePair;
  * GooManager is a component that is responsible for all interaction with Google Calendar / Google Tasks.
  */
 public class GooManager {
+
+    public static class NetworkException extends IOException {
+        public NetworkException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
 
     /**
      * Constants needed for Google API Client
@@ -91,9 +98,9 @@ public class GooManager {
      * Authorize the application to access Google Accounts.
      *
      * @return Credential required by Google API Clients
-     * @throws IOException if network failure happens
+     * @throws NetworkException if network failure happens
      */
-    private static Credential authorize() throws IOException {
+    private static Credential authorize() throws NetworkException {
         GoogleClientSecrets.Details details = new GoogleClientSecrets.Details();
         details.setClientId(CLIENT_ID);
         details.setClientSecret(CLIENT_SECRET);
@@ -103,21 +110,30 @@ public class GooManager {
         ArrayList<String> scopes = new ArrayList<String>();
         scopes.add(CalendarScopes.CALENDAR);
         scopes.add(TasksScopes.TASKS);
-        GoogleAuthorizationCodeFlow flow =
-                new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets, scopes).
-                        setDataStoreFactory(memoryDataStoreFactory).build();
 
-        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+        try {
+            GoogleAuthorizationCodeFlow flow =
+                    new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets, scopes).
+                            setDataStoreFactory(memoryDataStoreFactory).build();
+
+            return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+        } catch (IOException e) {
+            throw new NetworkException(e.getMessage(), e.getCause());
+        }
     }
 
     /**
      * Set up Google API Clients
      *
-     * @throws IOException              if network failure happens
+     * @throws NetworkException         if network failure happens
      * @throws GeneralSecurityException if server cannot be trusted (possible MITM)
      */
-    private static void setupConnection() throws IOException, GeneralSecurityException {
-        httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+    private static void setupConnection() throws NetworkException, GeneralSecurityException {
+        try {
+            httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        } catch (IOException e) {
+            throw new NetworkException(e.getMessage(), e.getCause());
+        }
 
         Credential credential = authorize();
 
@@ -133,95 +149,107 @@ public class GooManager {
     /**
      * Initialize GooManager to authorize and get information about Calendar and TaskList RubberDuck should write to.
      *
-     * @throws IOException
-     * @throws GeneralSecurityException
+     * @throws NetworkException         if network failure happens
+     * @throws GeneralSecurityException if server cannot be trusted (possible MITM)
      */
-    public static void initialize() throws IOException, GeneralSecurityException {
+    public static void initialize() throws NetworkException, GeneralSecurityException {
         setupConnection();
 
-        String pageToken = null;
-        do {
-            CalendarList calendarList = calendarClient.calendarList().list().setPageToken(pageToken).execute();
-            List<CalendarListEntry> items = calendarList.getItems();
-            for (CalendarListEntry calendarListEntry : items) {
-                if (calendarListEntry.getSummary().equals(CALENDAR_NAME)) {
-                    calendarId = calendarListEntry.getId();
+        try {
+            String pageToken = null;
+            do {
+                CalendarList calendarList = calendarClient.calendarList().list().setPageToken(pageToken).execute();
+                List<CalendarListEntry> items = calendarList.getItems();
+                for (CalendarListEntry calendarListEntry : items) {
+                    if (calendarListEntry.getSummary().equals(CALENDAR_NAME)) {
+                        calendarId = calendarListEntry.getId();
+                        break;
+                    }
+                }
+                if (calendarId != null) {
                     break;
                 }
-            }
-            if (calendarId != null) {
-                break;
-            }
-            pageToken = calendarList.getNextPageToken();
-        } while (pageToken != null);
+                pageToken = calendarList.getNextPageToken();
+            } while (pageToken != null);
 
-        /*
-         * If there is no Calendar named RubberDuck, create a new one.
-         */
-        if (calendarId == null) {
-            Calendar calendar = new Calendar();
-            calendar.setSummary(CALENDAR_NAME);
-            calendar.setTimeZone(TimeZone.getDefault().getID());
-            Calendar createdCalendar = calendarClient.calendars().insert(calendar).execute();
-            calendarId = createdCalendar.getId();
-        }
+            /*
+             * If there is no Calendar named RubberDuck, create a new one.
+             */
+            if (calendarId == null) {
+                Calendar calendar = new Calendar();
+                calendar.setSummary(CALENDAR_NAME);
+                calendar.setTimeZone(TimeZone.getDefault().getID());
+                Calendar createdCalendar = calendarClient.calendars().insert(calendar).execute();
+                calendarId = createdCalendar.getId();
+            }
 
-        pageToken = null;
-        do {
-            TaskLists taskLists = tasksClient.tasklists().list().setPageToken(pageToken).execute();
-            List<TaskList> items = taskLists.getItems();
-            for (TaskList taskList : items) {
-                if (taskList.getTitle().equals(CALENDAR_NAME)) {
-                    taskListId = taskList.getId();
+            pageToken = null;
+            do {
+                TaskLists taskLists = tasksClient.tasklists().list().setPageToken(pageToken).execute();
+                List<TaskList> items = taskLists.getItems();
+                for (TaskList taskList : items) {
+                    if (taskList.getTitle().equals(CALENDAR_NAME)) {
+                        taskListId = taskList.getId();
+                        break;
+                    }
+                }
+                if (taskListId != null) {
                     break;
                 }
-            }
-            if (taskListId != null) {
-                break;
-            }
-            pageToken = taskLists.getNextPageToken();
-        } while (pageToken != null);
+                pageToken = taskLists.getNextPageToken();
+            } while (pageToken != null);
 
-        /*
-         * If there is no TaskList named RubberDuck, create a new one.
-         */
-        if (taskListId == null) {
-            TaskList taskList = new TaskList();
-            taskList.setTitle(CALENDAR_NAME);
-            TaskList createdTaskList = tasksClient.tasklists().insert(taskList).execute();
-            taskListId = createdTaskList.getId();
+            /*
+             * If there is no TaskList named RubberDuck, create a new one.
+             */
+            if (taskListId == null) {
+                TaskList taskList = new TaskList();
+                taskList.setTitle(CALENDAR_NAME);
+                TaskList createdTaskList = tasksClient.tasklists().insert(taskList).execute();
+                taskListId = createdTaskList.getId();
+            }
+        } catch (IOException e) {
+            throw new NetworkException(e.getMessage(), e.getCause());
         }
     }
 
     /**
      * Set last sync time on server to current time.
      *
-     * @throws IOException if network failure happens
+     * @throws NetworkException if network failure happens
      */
-    private static void setLastSyncTime() throws IOException {
-        Calendar calendar = calendarClient.calendars().get(calendarId).execute();
-        calendar.setDescription(REMOTE_SYNC_FLAG_FORMAT +
-                DATE_FORMAT.format(java.util.Calendar.getInstance().getTime()));
-        calendarClient.calendars().update(calendarId, calendar).execute();
+    private static void setLastSyncTime() throws NetworkException {
+        try {
+            Calendar calendar = calendarClient.calendars().get(calendarId).execute();
+            calendar.setDescription(REMOTE_SYNC_FLAG_FORMAT +
+                    DATE_FORMAT.format(java.util.Calendar.getInstance().getTime()));
+            calendarClient.calendars().update(calendarId, calendar).execute();
+        } catch (IOException e) {
+            throw new NetworkException(e.getMessage(), e.getCause());
+        }
     }
 
     /**
      * Get last sync time on server.
      *
      * @return last time a sync was finished, or null if never synced.
-     * @throws IOException if network failure happens
+     * @throws NetworkException if network failure happens
      */
-    private static Date getLastSyncTime() throws IOException {
-        Calendar calendar = calendarClient.calendars().get(calendarId).execute();
-        String line = calendar.getDescription();
-        if (line != null && line.startsWith(REMOTE_SYNC_FLAG_FORMAT)) {
-            try {
-                return DATE_FORMAT.parse(line.replace(REMOTE_SYNC_FLAG_FORMAT, ""));
-            } catch (ParseException e) {
-                throw new IOException();
+    private static Date getLastSyncTime() throws NetworkException {
+        try {
+            Calendar calendar = calendarClient.calendars().get(calendarId).execute();
+            String line = calendar.getDescription();
+            if (line != null && line.startsWith(REMOTE_SYNC_FLAG_FORMAT)) {
+                try {
+                    return DATE_FORMAT.parse(line.replace(REMOTE_SYNC_FLAG_FORMAT, ""));
+                } catch (ParseException e) {
+                    return null;
+                }
+            } else {
+                return null;
             }
-        } else {
-            return null;
+        } catch (IOException e) {
+            throw new NetworkException(e.getMessage(), e.getCause());
         }
     }
 
@@ -230,12 +258,13 @@ public class GooManager {
      *
      * @param remoteId Remote ID of the task
      * @return the remote task inquired
-     * @throws IOException if network failure happens.
+     * @throws IOException                 if network failure happens.
+     * @throws GoogleJsonResponseException if the operation cannot be finished.
      */
-    public static Task getRemoteTask(String remoteId) throws IOException {
+    public static Task getRemoteTask(String remoteId) throws NetworkException, GoogleJsonResponseException {
         try {
             return tasksClient.tasks().get(taskListId, remoteId).execute();
-        } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
+        } catch (GoogleJsonResponseException e) {
             /*
              * This happens when the requested ID cannot be found.
              */
@@ -244,6 +273,8 @@ public class GooManager {
             } else {
                 throw e;
             }
+        } catch (IOException e) {
+            throw new NetworkException(e.getMessage(), e.getCause());
         }
     }
 
@@ -253,8 +284,9 @@ public class GooManager {
      * @param remoteId Remote ID of the event
      * @return the remote event inquired
      * @throws IOException if network failure happens.
+     * * @throws GoogleJsonResponseException if the operation cannot be finished.
      */
-    public static Event getRemoteEvent(String remoteId) throws IOException {
+    public static Event getRemoteEvent(String remoteId) throws NetworkException, GoogleJsonResponseException {
         try {
             return calendarClient.events().get(calendarId, remoteId).execute();
         } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
@@ -267,6 +299,8 @@ public class GooManager {
             } else {
                 throw e;
             }
+        } catch (IOException e) {
+            throw new NetworkException(e.getMessage(), e.getCause());
         }
     }
 
@@ -275,15 +309,18 @@ public class GooManager {
      *
      * @param task the local task to be tested
      * @return true if the task exists
-     * @throws IOException if network failure happens.
+     * @throws NetworkException if network failure happens.
      */
-    public static boolean isInRemote(com.rubberduck.storage.task.Task task)
-            throws IOException {
-        if (isPushedAsTask(task)) {
-            return (getRemoteTask(getRemoteUuid(task)) != null);
-        } else if (isPushedAsEvent(task)) {
-            return (getRemoteEvent(getRemoteUuid(task)) != null);
-        } else {
+    public static boolean isInRemote(com.rubberduck.storage.task.Task task) throws NetworkException {
+        try {
+            if (isPushedAsTask(task)) {
+                return (getRemoteTask(getRemoteUuid(task)) != null);
+            } else if (isPushedAsEvent(task)) {
+                return (getRemoteEvent(getRemoteUuid(task)) != null);
+            } else {
+                return false;
+            }
+        } catch (GoogleJsonResponseException e) {
             return false;
         }
     }
@@ -292,15 +329,18 @@ public class GooManager {
      * Delete the given task on remote server.
      *
      * @param localTask the local task to be deleted remotely
-     * @throws IOException if network failure happens.
+     * @throws NetworkException if network failure happens.
      */
-    public static void deleteTask(com.rubberduck.storage.task.Task localTask)
-            throws IOException {
-        if (isPushedAsTask(localTask)) {
-            tasksClient.tasks().delete(taskListId, getRemoteUuid(localTask)).execute();
-        }
-        if (isPushedAsEvent(localTask)) {
-            calendarClient.events().delete(calendarId, getRemoteUuid(localTask)).execute();
+    public static void deleteTask(com.rubberduck.storage.task.Task localTask) throws NetworkException {
+        try {
+            if (isPushedAsTask(localTask)) {
+                tasksClient.tasks().delete(taskListId, getRemoteUuid(localTask)).execute();
+            }
+            if (isPushedAsEvent(localTask)) {
+                calendarClient.events().delete(calendarId, getRemoteUuid(localTask)).execute();
+            }
+        } catch (IOException e) {
+            throw new NetworkException(e.getMessage(), e.getCause());
         }
     }
 
@@ -310,46 +350,49 @@ public class GooManager {
      * by saving to the database.
      *
      * @param localTask the local task to be pushed
-     * @throws IOException if network failure happens.
+     * @throws NetworkException if network failure happens.
      */
-    public static void pushTask(com.rubberduck.storage.task.Task localTask)
-            throws IOException {
-        /*
-         * We need to see if a copy exists on the server. If so, we need to use update instead of insert.
-         */
-        boolean shouldUpdate = true;
-        if (localTask.isFloatingTask() || localTask.isDeadline()) {
-            Task remoteTask = null;
-            if (isPushedAsTask(localTask)) {
-                remoteTask = getRemoteTask(getRemoteUuid(localTask));
-            }
-            if (remoteTask == null) {
-                remoteTask = new Task();
-                shouldUpdate = false;
-            }
-            constructRemoteTask(remoteTask, localTask);
-            if (shouldUpdate) {
-                remoteTask = tasksClient.tasks().update(taskListId, remoteTask.getId(), remoteTask).execute();
+    public static void pushTask(com.rubberduck.storage.task.Task localTask) throws NetworkException {
+        try {
+            /*
+             * We need to see if a copy exists on the server. If so, we need to use update instead of insert.
+             */
+            boolean shouldUpdate = true;
+            if (localTask.isFloatingTask() || localTask.isDeadline()) {
+                Task remoteTask = null;
+                if (isPushedAsTask(localTask)) {
+                    remoteTask = getRemoteTask(getRemoteUuid(localTask));
+                }
+                if (remoteTask == null) {
+                    remoteTask = new Task();
+                    shouldUpdate = false;
+                }
+                constructRemoteTask(remoteTask, localTask);
+                if (shouldUpdate) {
+                    remoteTask = tasksClient.tasks().update(taskListId, remoteTask.getId(), remoteTask).execute();
+                } else {
+                    remoteTask = tasksClient.tasks().insert(taskListId, remoteTask).execute();
+                }
+                localTask.setUuid(constructLocalTaskUuid(remoteTask.getId()));
             } else {
-                remoteTask = tasksClient.tasks().insert(taskListId, remoteTask).execute();
+                Event remoteEvent = null;
+                if (isPushedAsEvent(localTask)) {
+                    remoteEvent = getRemoteEvent(getRemoteUuid(localTask));
+                }
+                if (remoteEvent == null) {
+                    remoteEvent = new Event();
+                    shouldUpdate = false;
+                }
+                constructRemoteEvent(remoteEvent, localTask);
+                if (shouldUpdate) {
+                    remoteEvent = calendarClient.events().update(calendarId, remoteEvent.getId(), remoteEvent).execute();
+                } else {
+                    remoteEvent = calendarClient.events().insert(calendarId, remoteEvent).execute();
+                }
+                localTask.setUuid(constructLocalEventUuid(remoteEvent.getId()));
             }
-            localTask.setUuid(constructLocalTaskUuid(remoteTask.getId()));
-        } else {
-            Event remoteEvent = null;
-            if (isPushedAsEvent(localTask)) {
-                remoteEvent = getRemoteEvent(getRemoteUuid(localTask));
-            }
-            if (remoteEvent == null) {
-                remoteEvent = new Event();
-                shouldUpdate = false;
-            }
-            constructRemoteEvent(remoteEvent, localTask);
-            if (shouldUpdate) {
-                remoteEvent = calendarClient.events().update(calendarId, remoteEvent.getId(), remoteEvent).execute();
-            } else {
-                remoteEvent = calendarClient.events().insert(calendarId, remoteEvent).execute();
-            }
-            localTask.setUuid(constructLocalEventUuid(remoteEvent.getId()));
+        } catch (IOException e) {
+            throw new NetworkException(e.getMessage(), e.getCause());
         }
     }
 
@@ -358,22 +401,25 @@ public class GooManager {
      *
      * @param localId the localId of the requested task.
      * @return the local task pulled
-     * @throws IOException                   if network failure happens.
+     * @throws NetworkException                   if network failure happens.
      * @throws UnsupportedOperationException if the task is never pushed.
      */
-    public static com.rubberduck.storage.task.Task pullTask(String localId)
-            throws IOException {
-        com.rubberduck.storage.task.Task task;
-        if (isLocalTaskUuid(localId)) {
-            Task remoteTask = getRemoteTask(constructRemoteTaskId(localId));
-            task = constructLocalTask(remoteTask);
-        } else if (isLocalEventUuid(localId)) {
-            Event remoteEvent = getRemoteEvent(constructRemoteEventId(localId));
-            task = constructLocalEvent(remoteEvent);
-        } else {
-            throw new UnsupportedOperationException("This task is not pushed.");
+    public static com.rubberduck.storage.task.Task pullTask(String localId) throws NetworkException {
+        try {
+            com.rubberduck.storage.task.Task task;
+            if (isLocalTaskUuid(localId)) {
+                Task remoteTask = getRemoteTask(constructRemoteTaskId(localId));
+                task = constructLocalTask(remoteTask);
+            } else if (isLocalEventUuid(localId)) {
+                Event remoteEvent = getRemoteEvent(constructRemoteEventId(localId));
+                task = constructLocalEvent(remoteEvent);
+            } else {
+                throw new UnsupportedOperationException("This task is not pushed.");
+            }
+            return task;
+        } catch (IOException e) {
+            throw new NetworkException(e.getMessage(), e.getCause());
         }
-        return task;
     }
 
     /**
@@ -509,25 +555,30 @@ public class GooManager {
      *
      * @param filterByUpdateTime if the result should only contain items that were updated since last sync
      * @return the list of remote Tasks
-     * @throws IOException if network failure happens.
+     * @throws NetworkException if network failure happens.
      */
-    public static ArrayList<Task> getRemoteTaskList(boolean filterByUpdateTime) throws IOException {
-        ArrayList<Task> remoteTaskList = new ArrayList<Task>();
+    public static ArrayList<Task> getRemoteTaskList(boolean filterByUpdateTime) throws NetworkException {
+        try {
+            ArrayList<Task> remoteTaskList = new ArrayList<Task>();
 
-        String pageToken = null;
-        do {
-            com.google.api.services.tasks.Tasks.TasksOperations.List listOperation = tasksClient.tasks().list(taskListId).setShowDeleted(true);
-            if (filterByUpdateTime && lastSyncTime != null) {
-                listOperation.setUpdatedMin(new DateTime(lastSyncTime, TimeZone.getDefault()).toStringRfc3339());
-            }
-            Tasks tasks = listOperation.setPageToken(pageToken).execute();
-            if (tasks != null && tasks.getItems() != null) {
-                remoteTaskList.addAll(tasks.getItems());
-            }
-            pageToken = tasks.getNextPageToken();
-        } while (pageToken != null);
+            String pageToken = null;
+            do {
+                com.google.api.services.tasks.Tasks.TasksOperations.List listOperation =
+                        tasksClient.tasks().list(taskListId).setShowDeleted(true);
+                if (filterByUpdateTime && lastSyncTime != null) {
+                    listOperation.setUpdatedMin(new DateTime(lastSyncTime, TimeZone.getDefault()).toStringRfc3339());
+                }
+                Tasks tasks = listOperation.setPageToken(pageToken).execute();
+                if (tasks != null && tasks.getItems() != null) {
+                    remoteTaskList.addAll(tasks.getItems());
+                }
+                pageToken = tasks.getNextPageToken();
+            } while (pageToken != null);
 
-        return remoteTaskList;
+            return remoteTaskList;
+        } catch (IOException e) {
+            throw new NetworkException(e.getMessage(), e.getCause());
+        }
     }
 
     /**
@@ -535,46 +586,62 @@ public class GooManager {
      *
      * @param filterByUpdateTime if the result should only contain items that were updated since last sync
      * @return the list of remote Events
-     * @throws IOException if network failure happens.
+     * @throws NetworkException if network failure happens.
      */
-    public static ArrayList<Event> getRemoteEventList(boolean filterByUpdateTime) throws IOException {
-        ArrayList<Event> remoteEventList = new ArrayList<Event>();
+    public static ArrayList<Event> getRemoteEventList(boolean filterByUpdateTime) throws NetworkException {
+        try {
+            ArrayList<Event> remoteEventList = new ArrayList<Event>();
 
-        String pageToken = null;
-        do {
-            com.google.api.services.calendar.Calendar.Events.List listOperation = calendarClient.events().list(calendarId).setShowDeleted(true);
-            if (filterByUpdateTime && lastSyncTime != null) {
-                listOperation = listOperation.setUpdatedMin(new DateTime(lastSyncTime, TimeZone.getDefault()));
-            }
-            Events events = listOperation.setPageToken(pageToken).execute();
-            remoteEventList.addAll(events.getItems());
-            pageToken = events.getNextPageToken();
-        } while (pageToken != null);
+            String pageToken = null;
+            do {
+                com.google.api.services.calendar.Calendar.Events.List listOperation =
+                        calendarClient.events().list(calendarId).setShowDeleted(true);
+                if (filterByUpdateTime && lastSyncTime != null) {
+                    listOperation = listOperation.setUpdatedMin(new DateTime(lastSyncTime, TimeZone.getDefault()));
+                }
+                Events events = listOperation.setPageToken(pageToken).execute();
+                remoteEventList.addAll(events.getItems());
+                pageToken = events.getNextPageToken();
+            } while (pageToken != null);
 
-        return remoteEventList;
+            return remoteEventList;
+        } catch (IOException e) {
+            throw new NetworkException(e.getMessage(), e.getCause());
+        }
     }
 
     /**
      * Delete all Tasks on the server.
-     * @throws IOException if network failure happens.
+     *
+     * @throws NetworkException if network failure happens.
      */
-    public static void clearRemoteTasks() throws IOException {
-        tasksClient.tasks().clear(taskListId).execute();
+    public static void clearRemoteTasks() throws NetworkException {
+        try {
+            tasksClient.tasks().clear(taskListId).execute();
+        } catch (IOException e) {
+            throw new NetworkException(e.getMessage(), e.getCause());
+        }
     }
 
     /**
      * Delete all Events on the server.
-     * @throws IOException if network failure happens.
+     *
+     * @throws NetworkException if network failure happens.
      */
-    public static void clearRemoteEvents() throws IOException {
-        calendarClient.calendars().clear(calendarId);
+    public static void clearRemoteEvents() throws NetworkException {
+        try {
+            calendarClient.calendars().clear(calendarId);
+        } catch (IOException e) {
+            throw new NetworkException(e.getMessage(), e.getCause());
+        }
     }
 
     /**
      * Push all local tasks to remote server and overwrite if exists.
      *
      * @param dbManager the DatabaseManager instance that stores tasks
-     * @throws IOException if thrown by DatabaseManager or network failure happens.
+     * @throws IOException if thrown by DatabaseManager.
+     * @throws NetworkException if network failure happens.
      */
     public static void pushAll(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
         for (Long databaseId : dbManager.getValidIdList()) {
@@ -596,7 +663,8 @@ public class GooManager {
      * Pull all tasks from remote server and overwrite if exists.
      *
      * @param dbManager the DatabaseManager instance that stores tasks
-     * @throws IOException if thrown by DatabaseManager or network failure happens.
+     * @throws IOException if thrown by DatabaseManager.
+     * @throws NetworkException if network failure happens.
      */
     public static void pullAll(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
         HashMap<String, Long> uuidMap = new HashMap<String, Long>();
@@ -630,7 +698,8 @@ public class GooManager {
      * Overwrite the whole remote database with local one.
      *
      * @param dbManager the DatabaseManager instance that stores tasks
-     * @throws IOException if thrown by DatabaseManager or network failure happens.
+     * @throws IOException if thrown by DatabaseManager.
+     * @throws NetworkException if network failure happens.
      */
     public static void forcePushAll(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
         clearRemoteEvents();
@@ -642,7 +711,8 @@ public class GooManager {
      * Overwrite the whole local database with remote one.
      *
      * @param dbManager the DatabaseManager instance that stores tasks
-     * @throws IOException if thrown by DatabaseManager or network failure happens.
+     * @throws IOException if thrown by DatabaseManager.
+     * @throws NetworkException if network failure happens.
      */
     public static void forcePullAll(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
         dbManager.resetDatabase();
@@ -653,7 +723,8 @@ public class GooManager {
      * Perform a two-way synchronization and update both databases with latest modified tasks.
      *
      * @param dbManager the DatabaseManager instance that stores tasks
-     * @throws IOException if thrown by DatabaseManager or network failure happens.
+     * @throws IOException if thrown by DatabaseManager.
+     * @throws NetworkException if network failure happens.
      */
     public static void twoWaySync(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
         lastSyncTime = getLastSyncTime();

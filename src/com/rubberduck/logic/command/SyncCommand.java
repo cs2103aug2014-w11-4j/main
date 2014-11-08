@@ -89,8 +89,9 @@ public class SyncCommand extends Command {
      * Synchronize with Google based on the type the user specifies.
      *
      * @return Response after synchronization
+     * @throws IOException that is thrown by DatabaseManager
      */
-    private Response startSync() {
+    private Response startSync() throws IOException {
         try {
             GooManager.initialize();
             switch (type) {
@@ -127,7 +128,7 @@ public class SyncCommand extends Command {
             LOGGER.log(Level.SEVERE, MESSAGE_ERROR_FAIL_SAFE_CONNECTION, e);
             return new Response(ColorFormatter.format(
                 MESSAGE_ERROR_FAIL_SAFE_CONNECTION, Color.RED), true);
-        } catch (IOException e) {
+        } catch (GooManager.NetworkException e) {
             LOGGER.log(Level.SEVERE, MESSAGE_ERROR_NETWORK_IOEXCEPTION, e);
             return new Response(ColorFormatter.format(
                 MESSAGE_ERROR_NETWORK_IOEXCEPTION, Color.RED), true);
