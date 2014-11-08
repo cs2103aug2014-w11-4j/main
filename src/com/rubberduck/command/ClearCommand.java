@@ -20,6 +20,8 @@ public class ClearCommand extends Command {
     /**
      * Clear the screen of the current terminal by returning an appropriate
      * response back to the caller.
+     * 
+     * @throws IOException from logger
      */
     @Override
     public Response execute() throws IOException {
