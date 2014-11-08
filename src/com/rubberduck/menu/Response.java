@@ -79,6 +79,8 @@ public class Response {
     /**
      * Public getter method for isOverwrite. If true, menu should overwrite
      * buffer, else retain old task buffer.
+     * 
+     * @return if the value isOverwrite
      */
     public boolean isOverwrite() {
         return isOverwrite;
