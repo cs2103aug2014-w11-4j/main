@@ -67,6 +67,7 @@ public class HelpCommand extends Command {
      * Shows the available commands for the end user in the system.
      *
      * @return a Response object containing the command information requested
+     * @throws IOException that might occur
      */
     @Override
     public Response execute() throws IOException {
