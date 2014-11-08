@@ -1,8 +1,11 @@
 package com.rubberduck.menu;
 
-import com.rubberduck.command.Command;
-import com.rubberduck.logic.Parser;
-import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.logic.command.Command;
+import com.rubberduck.logic.command.Response;
+import com.rubberduck.logic.parser.Parser;
+import com.rubberduck.logic.formatter.ColorFormatter;
+import com.rubberduck.logic.formatter.ColorFormatter.Color;
+import com.rubberduck.logic.formatter.Formatter;
 
 import jline.console.ConsoleReader;
 import jline.console.completer.AggregateCompleter;
@@ -36,7 +39,8 @@ public class WinInterface extends MenuInterface {
     private static final String MESSAGE_ERROR_CMD =
         "Interrupted when executing console setup command.";
     private static final String[] ARGUMENTS_VIEW =
-        new String[]{"all", "deadline", "task", "schedule", "completed", "overdue"};
+        new String[]{"all", "deadline", "task", "schedule", "completed",
+                     "overdue"};
 
     /* Separator Strings to format mock GUI */
     private static final String SEPARATOR_BORDER =
@@ -357,7 +361,7 @@ public class WinInterface extends MenuInterface {
     /**
      * Returns a boolean that represents whether a scroll up function can be
      * done. <p/> return true if task data can be scrolled up else false
-     * 
+     *
      * @return true if task data can be scrolled up else false
      */
     private boolean canScrollUp() {

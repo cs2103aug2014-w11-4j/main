@@ -1,4 +1,4 @@
-package com.rubberduck.logic;
+package com.rubberduck.storage.task;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -133,7 +133,7 @@ public class DatePair implements Serializable {
     /**
      * Overwrite the default to string value of task Formatted for RubberDuck
      * console design.
-     * 
+     *
      * @return String value of DatePair
      */
     @Override

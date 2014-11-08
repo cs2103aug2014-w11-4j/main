@@ -1,4 +1,4 @@
-import com.rubberduck.io.DatabaseManager;
+import com.rubberduck.storage.DatabaseManager;
 
 import org.junit.Before;
 import org.junit.Test;

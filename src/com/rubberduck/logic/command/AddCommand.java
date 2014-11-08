@@ -1,15 +1,13 @@
-package com.rubberduck.command;
+package com.rubberduck.logic.command;
 
-import com.rubberduck.logic.DatePair;
-import com.rubberduck.logic.Task;
-import com.rubberduck.menu.ColorFormatter;
-import com.rubberduck.menu.ColorFormatter.Color;
-import com.rubberduck.menu.Formatter;
-import com.rubberduck.menu.Response;
+import com.rubberduck.logic.formatter.ColorFormatter;
+import com.rubberduck.logic.formatter.ColorFormatter.Color;
+import com.rubberduck.logic.formatter.Formatter;
+import com.rubberduck.storage.task.DatePair;
+import com.rubberduck.storage.task.Task;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 /**
  * Concrete Command Class that can be executed to add a new task (floating,
@@ -63,7 +61,7 @@ public class AddCommand extends Command {
      * of DatePairs.
      *
      * @param description of the task
-     * @param datePairs list of datePairs if any
+     * @param datePairs   list of datePairs if any
      */
     public AddCommand(String description, ArrayList<DatePair> datePairs) {
         this.description = description;

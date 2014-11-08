@@ -1,10 +1,9 @@
-package com.rubberduck.command;
+package com.rubberduck.logic.command;
 
-import com.rubberduck.io.GooManager;
-import com.rubberduck.menu.ColorFormatter;
-import com.rubberduck.menu.ColorFormatter.Color;
 import com.rubberduck.menu.MenuInterface;
-import com.rubberduck.menu.Response;
+import com.rubberduck.logic.formatter.ColorFormatter;
+import com.rubberduck.logic.formatter.ColorFormatter.Color;
+import com.rubberduck.storage.GooManager;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -41,7 +40,6 @@ public class SyncCommand extends Command {
         "Type has not been implemented.";
 
     /**
-     * 
      * Enumeration of all the different Sync type
      */
     public enum SyncType {

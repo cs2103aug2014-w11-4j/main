@@ -1,9 +1,8 @@
-package com.rubberduck.command;
+package com.rubberduck.logic.command;
 
-import com.rubberduck.menu.ColorFormatter;
-import com.rubberduck.menu.ColorFormatter.Color;
-import com.rubberduck.menu.Formatter;
-import com.rubberduck.menu.Response;
+import com.rubberduck.logic.formatter.ColorFormatter;
+import com.rubberduck.logic.formatter.ColorFormatter.Color;
+import com.rubberduck.logic.formatter.Formatter;
 
 import java.io.IOException;
 import java.util.StringTokenizer;

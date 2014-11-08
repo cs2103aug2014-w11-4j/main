@@ -1,4 +1,4 @@
-package com.rubberduck.io;
+package com.rubberduck.storage;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -33,7 +33,7 @@ import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.api.services.tasks.model.TaskLists;
 import com.google.api.services.tasks.model.Tasks;
-import com.rubberduck.logic.DatePair;
+import com.rubberduck.storage.task.DatePair;
 
 public class GooManager {
 
@@ -178,11 +178,11 @@ public class GooManager {
         }
     }
 
-    private static boolean isPushedAsTask(com.rubberduck.logic.Task task) {
+    private static boolean isPushedAsTask(com.rubberduck.storage.task.Task task) {
         return isLocalTaskUuid(task.getUuid());
     }
 
-    private static boolean isPushedAsEvent(com.rubberduck.logic.Task task) {
+    private static boolean isPushedAsEvent(com.rubberduck.storage.task.Task task) {
         return isLocalEventUuid(task.getUuid());
     }
 
@@ -212,11 +212,11 @@ public class GooManager {
         return localUuid.replaceFirst(LOCAL_UUID_EVENT, "");
     }
 
-    public static boolean isPushed(com.rubberduck.logic.Task task) {
+    public static boolean isPushed(com.rubberduck.storage.task.Task task) {
         return isPushedAsTask(task) || isPushedAsEvent(task);
     }
 
-    private static String getRemoteUuid(com.rubberduck.logic.Task task) {
+    private static String getRemoteUuid(com.rubberduck.storage.task.Task task) {
         if (isPushedAsTask(task)) {
             return constructRemoteTaskId(task.getUuid());
         } else if (isPushedAsEvent(task)) {
@@ -226,7 +226,7 @@ public class GooManager {
         }
     }
 
-    public static boolean isInRemote(com.rubberduck.logic.Task task)
+    public static boolean isInRemote(com.rubberduck.storage.task.Task task)
             throws IOException {
         if (isPushedAsTask(task)) {
             return (getRemoteTask(getRemoteUuid(task)) != null);
@@ -237,7 +237,7 @@ public class GooManager {
         }
     }
 
-    public static void pushTask(com.rubberduck.logic.Task originalTask)
+    public static void pushTask(com.rubberduck.storage.task.Task originalTask)
             throws IOException {
         boolean shouldUpdate = true;
         if (originalTask.isFloatingTask() || originalTask.isDeadline()) {
@@ -336,7 +336,7 @@ public class GooManager {
     }
 
     private static void prepareTask(Task task,
-                                    com.rubberduck.logic.Task originalTask) {
+                                    com.rubberduck.storage.task.Task originalTask) {
         task.setTitle(originalTask.getDescription());
         if (isLocalTaskUuid(originalTask.getUuid())) {
             task.setId(constructRemoteTaskId(originalTask.getUuid()));
@@ -353,7 +353,7 @@ public class GooManager {
     }
 
     private static void prepareEvent(Event event,
-                                     com.rubberduck.logic.Task originalTask) {
+                                     com.rubberduck.storage.task.Task originalTask) {
         event.setSummary(originalTask.getDescription());
         if (isLocalEventUuid(originalTask.getUuid())) {
             event.setId(constructRemoteEventId(originalTask.getUuid()));
@@ -376,8 +376,9 @@ public class GooManager {
         }
     }
 
-    private static com.rubberduck.logic.Task reconstructTask(Task remoteTask) {
-        com.rubberduck.logic.Task task = new com.rubberduck.logic.Task();
+    private static com.rubberduck.storage.task.Task reconstructTask(Task remoteTask) {
+        com.rubberduck.storage.task.Task
+            task = new com.rubberduck.storage.task.Task();
         task.setUuid(constructLocalTaskUuid(remoteTask.getId()));
         task.setDescription(remoteTask.getTitle());
         if (remoteTask.getStatus().equals("completed")) {
@@ -395,8 +396,9 @@ public class GooManager {
         return task;
     }
 
-    private static com.rubberduck.logic.Task reconstructEvent(Event remoteEvent) {
-        com.rubberduck.logic.Task task = new com.rubberduck.logic.Task();
+    private static com.rubberduck.storage.task.Task reconstructEvent(Event remoteEvent) {
+        com.rubberduck.storage.task.Task
+            task = new com.rubberduck.storage.task.Task();
         task.setUuid(constructLocalEventUuid(remoteEvent.getId()));
         task.setDescription(remoteEvent.getSummary());
         ArrayList<DatePair> dateList = new ArrayList<DatePair>();
@@ -412,9 +414,9 @@ public class GooManager {
         return task;
     }
 
-    public static com.rubberduck.logic.Task pullTask(String localId)
+    public static com.rubberduck.storage.task.Task pullTask(String localId)
             throws IOException {
-        com.rubberduck.logic.Task task;
+        com.rubberduck.storage.task.Task task;
         if (isLocalTaskUuid(localId)) {
             Task remoteTask = getRemoteTask(constructRemoteTaskId(localId));
             task = reconstructTask(remoteTask);
@@ -470,10 +472,10 @@ public class GooManager {
     }
 
     public static void pushAll(
-            DatabaseManager<com.rubberduck.logic.Task> dbManager)
+            DatabaseManager<com.rubberduck.storage.task.Task> dbManager)
             throws IOException {
         for (Long databaseId : dbManager.getValidIdList()) {
-            com.rubberduck.logic.Task localTask = dbManager.getInstance(databaseId);
+            com.rubberduck.storage.task.Task localTask = dbManager.getInstance(databaseId);
             if (!(localTask.getDateList().size() > 1)) {
                 pushTask(localTask);
                 dbManager.modify(databaseId, localTask, null);
@@ -484,14 +486,14 @@ public class GooManager {
     }
 
     public static void forcePushAll(
-            DatabaseManager<com.rubberduck.logic.Task> dbManager)
+            DatabaseManager<com.rubberduck.storage.task.Task> dbManager)
             throws IOException {
         clearRemoteEvents();
         clearRemoteTasks();
         pushAll(dbManager);
     }
 
-    public static void pullAll(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
+    public static void pullAll(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
         HashMap<String, Long> uuidMap = new HashMap<String, Long>();
         for (Long databaseId : dbManager.getValidIdList()) {
             uuidMap.put(dbManager.getInstance(databaseId).getUuid(), databaseId);
@@ -515,18 +517,18 @@ public class GooManager {
     }
 
     public static void forcePullAll(
-            DatabaseManager<com.rubberduck.logic.Task> dbManager)
+            DatabaseManager<com.rubberduck.storage.task.Task> dbManager)
             throws IOException {
         dbManager.resetDatabase();
         pullAll(dbManager);
     }
 
-    public static void twoWaySync(DatabaseManager<com.rubberduck.logic.Task> dbManager) throws IOException {
-        HashMap<Long, com.rubberduck.logic.Task> localModifiedTasks = new HashMap<Long, com.rubberduck.logic.Task>();
-        HashMap<Long, com.rubberduck.logic.Task> localModifiedEvents = new HashMap<Long, com.rubberduck.logic.Task>();
+    public static void twoWaySync(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
+        HashMap<Long, com.rubberduck.storage.task.Task> localModifiedTasks = new HashMap<Long, com.rubberduck.storage.task.Task>();
+        HashMap<Long, com.rubberduck.storage.task.Task> localModifiedEvents = new HashMap<Long, com.rubberduck.storage.task.Task>();
         Date lastSyncTime = getLastSyncTime();
         for (Long databaseId : dbManager.getValidIdList()) {
-            com.rubberduck.logic.Task localTask = dbManager.getInstance(databaseId);
+            com.rubberduck.storage.task.Task localTask = dbManager.getInstance(databaseId);
             if (lastSyncTime == null || localTask.getLastUpdate().getTime().after(lastSyncTime)) {
                 if (!(localTask.getDateList().size() > 1)) {
                     if (localTask.isDeadline() || localTask.isFloatingTask()) {
@@ -538,14 +540,14 @@ public class GooManager {
             }
         }
         for (Long databaseId : localModifiedTasks.keySet()) {
-            com.rubberduck.logic.Task task = localModifiedTasks.get(databaseId);
+            com.rubberduck.storage.task.Task task = localModifiedTasks.get(databaseId);
             if (!isPushed(task) || dateTimeToCalendar(getRemoteTask(getRemoteUuid(task)).getUpdated()).before(task.getLastUpdate())) {
                 pushTask(task);
                 dbManager.modify(databaseId, task, null);
             }
         }
         for (Long databaseId : localModifiedEvents.keySet()) {
-            com.rubberduck.logic.Task task = localModifiedEvents.get(databaseId);
+            com.rubberduck.storage.task.Task task = localModifiedEvents.get(databaseId);
             if (!isPushed(task) || dateTimeToCalendar(getRemoteEvent(getRemoteUuid(task)).getUpdated()).before(task.getLastUpdate())) {
                 pushTask(task);
                 dbManager.modify(databaseId, task, null);

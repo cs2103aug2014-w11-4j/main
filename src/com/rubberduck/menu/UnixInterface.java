@@ -1,8 +1,11 @@
 package com.rubberduck.menu;
 
-import com.rubberduck.command.Command;
-import com.rubberduck.logic.Parser;
-import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.logic.command.Command;
+import com.rubberduck.logic.command.Response;
+import com.rubberduck.logic.parser.Parser;
+import com.rubberduck.logic.formatter.ColorFormatter;
+import com.rubberduck.logic.formatter.ColorFormatter.Color;
+import com.rubberduck.logic.formatter.Formatter;
 
 import jline.console.ConsoleReader;
 import jline.console.completer.AggregateCompleter;
@@ -31,7 +34,8 @@ public class UnixInterface extends MenuInterface {
     private static final String MESSAGE_SET_12HOUR =
         "Successfully toggled time formatting to 12 hour format.";
     private static final String[] ARGUMENTS_VIEW =
-        new String[]{"all", "deadline", "task", "schedule", "completed", "overdue"};
+        new String[]{"all", "deadline", "task", "schedule", "completed",
+                     "overdue"};
     private static final String SEPARATOR_BORDER =
         "--------------------------------------------------------------------------------";
 
