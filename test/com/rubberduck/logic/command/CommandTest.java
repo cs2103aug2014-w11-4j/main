@@ -983,10 +983,10 @@ public class CommandTest {
         addCommand.execute();
 
         ConfirmCommand confirmCommand = new ConfirmCommand(1, 2);
-        String actual = confirmCommand.execute().getMessages()[0];
+        String actual = confirmCommand.execute().getMessages()[1];
 
 
-        String expected ="is not tentative";
+        String expected ="tentative and does not need confirmation.";
 
         assertTrue(actual.contains(expected));
     }
