@@ -249,7 +249,7 @@ public class CommandTest {
         String actual = addCommand.execute().getMessages()[0];
 
         String expected =
-                "You have input an invalid task type.";
+                "Tentative task must be strictly for schedule(s) only.";
         assertTrue(actual.contains(expected));
     }
 
