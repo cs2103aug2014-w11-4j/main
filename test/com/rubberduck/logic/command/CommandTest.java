@@ -176,7 +176,7 @@ public class CommandTest {
         String actual = addCommand.execute().getMessages()[1];
 
         String expected =
-            "the end date has already passed.";
+            "as the end date has already passed the current time.";
         assertTrue(actual.contains(expected));
     }
 
