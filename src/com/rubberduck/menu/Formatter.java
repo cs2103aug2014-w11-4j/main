@@ -32,6 +32,10 @@ public class Formatter {
         "--------------------------------[  SCHEDULES  ]---------------------------------";
 
     /* Values to represent the header type to print */
+    /**
+     * Enumeration of headerType
+     *
+     */
     private enum HeaderType {
         NONE, FLOATING, DEADLINE, SCHEDULE,
     }
@@ -158,8 +162,8 @@ public class Formatter {
     }
 
     /**
-     * @param t
-     * @return
+     * @param t the task object
+     * @return the type of task
      */
     private static HeaderType getHeaderType(Task t) {
         if (t.isFloatingTask()) {
