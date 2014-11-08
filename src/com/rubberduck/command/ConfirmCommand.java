@@ -66,6 +66,7 @@ public class ConfirmCommand extends Command {
      * Confirm the date of the tentative task to the database.
      *
      * @return Response object with appropriate feedback to the user
+     * @throws IOException that the dbManager may encounter
      */
     //@author A0119504L
     @Override
