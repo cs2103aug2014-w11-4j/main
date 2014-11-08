@@ -23,8 +23,12 @@ import java.util.logging.Logger;
 //@author A0111794E
 public class ViewCommand extends Command {
 
-    public enum ViewType {
+    public enum ViewFilter {
         TASK, DEADLINE, SCHEDULE
+    }
+
+    public enum ViewType {
+        ALL, DATE, PREV, OVERDUE
     }
 
     /* Global logger to log information and exception. */
@@ -52,19 +56,19 @@ public class ViewCommand extends Command {
     private static final String DEADLINE_SEPERATOR =
         "--------------------------------[  DEADLINES  ]---------------------------------";
 
-    private static final ArrayList<ViewType> VIEW_SELECTION_ALL =
-        new ArrayList<ViewType>(
-            Arrays.asList(ViewType.DEADLINE, ViewType.SCHEDULE, ViewType.TASK));
+    private static final ArrayList<ViewFilter> VIEW_SELECTION_ALL =
+        new ArrayList<ViewFilter>(
+            Arrays.asList(ViewFilter.DEADLINE, ViewFilter.SCHEDULE,
+                          ViewFilter.TASK));
 
     private static final int FLOATING_TASK = 0;
     private static final int DEADLINE_TASK = 1;
-    private static final int TIMED_TASK = 2;
+    private static final int SCHEDULE_TASK = 2;
 
     private DatePair viewRange;
-    private boolean viewAll;
     private boolean completed;
-    private boolean overdue;
-    private ArrayList<ViewType> viewSelection;
+    private ViewType viewType;
+    private ArrayList<ViewFilter> viewSelection;
 
     /**
      * Getter method for viewRange.
@@ -75,23 +79,6 @@ public class ViewCommand extends Command {
         return viewRange;
     }
 
-    /**
-     * Getter method for viewAll.
-     *
-     * @return viewAll as boolean
-     */
-    public boolean isViewAll() {
-        return viewAll;
-    }
-
-    /**
-     * Getter method for overdue
-     *
-     * @return overdue as boolean
-     */
-    public boolean isOverdue() {
-        return overdue;
-    }
 
     /**
      * Getter method for completed.
@@ -103,44 +90,44 @@ public class ViewCommand extends Command {
     }
 
     /**
+     * Getter method for viewType.
+     *
+     * @return viewType as ViewType
+     */
+    public ViewType getViewType() {
+        return viewType;
+    }
+
+    /**
+     * Getter method for viewSelection.
+     *
+     * @return viewSelection as ArrayList
+     */
+    public ArrayList<ViewFilter> getViewSelection() {
+        return viewSelection;
+    }
+
+    /**
      * Public constructor for ViewCommand.
      *
-     * @param viewAll       true if all tasks should be returned
+     * @param viewType      the type of view to execute
      * @param completed     true if all completed tasks should be returned
      *                      instead
      * @param viewRange     date range to view tasks in
      * @param viewSelection specified view scope from user
      */
-    public ViewCommand(boolean viewAll, boolean completed,
-                       DatePair viewRange, ArrayList<ViewType> viewSelection) {
-        this.viewAll = viewAll;
-        this.viewRange = viewRange;
+    public ViewCommand(ViewType viewType, boolean completed, DatePair viewRange,
+                       ArrayList<ViewFilter> viewSelection) {
+        this.viewType = viewType;
         this.completed = completed;
-        if (viewSelection.isEmpty()) {
+        this.viewRange = viewRange;
+        if (viewSelection != null && viewSelection.isEmpty()) {
             this.viewSelection = VIEW_SELECTION_ALL;
         } else {
             this.viewSelection = viewSelection;
         }
     }
 
-    /**
-     * Public constructor for ViewCommand. Overloaded for constructing
-     * ViewCommand that can be executed to view overdue tasks with filter.
-     *
-     * @param overdue       true if to show all overdue tasks
-     * @param viewSelection specified view scope from user
-     */
-    public ViewCommand(boolean overdue, ArrayList<ViewType> viewSelection) {
-        this.viewAll = false;
-        this.completed = false;
-        this.viewRange = null;
-        this.overdue = overdue;
-        if (viewSelection.isEmpty()) {
-            this.viewSelection = VIEW_SELECTION_ALL;
-        } else {
-            this.viewSelection = viewSelection;
-        }
-    }
 
     /**
      * Check the type of view method requested by user.
@@ -151,34 +138,39 @@ public class ViewCommand extends Command {
     public Response execute() throws IOException {
         LOGGER.info(MESSAGE_EXECUTE_INFO);
 
-        setPreviousDisplayCommand(this);
-        if (isOverdue()) {
-            return viewOverdue(viewSelection);
-        } else if (isViewAll()) {
-            return viewAll(isCompleted(), viewSelection);
-        } else {
-            return viewByPeriod(getViewRange(), isCompleted(), viewSelection);
+        switch (viewType) {
+            case ALL:
+                return viewAll();
+
+            case DATE:
+                return viewByPeriod();
+
+            case OVERDUE:
+                return viewOverdue();
+
+            case PREV:
+                return viewPrev();
+
+            default:
+                throw new UnsupportedOperationException();
         }
     }
 
     /**
      * Return all the valid task stored in the database.
      *
-     * @param isCompleted   true if completed tasks should be displayed
-     * @param viewSelection specified view scope from user
      * @return Response object containing result of all tasks
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    private Response viewAll(boolean isCompleted,
-                             ArrayList<ViewType> viewSelection)
-        throws IOException {
+    private Response viewAll() throws IOException {
+        assert viewSelection != null;
 
         getDisplayedTasksList().clear();
 
         for (int i = 0; i < getDbManager().getValidIdList().size(); i++) {
             Long databaseId = getDbManager().getValidIdList().get(i);
             Task task = getDbManager().getInstance(databaseId);
-            if (isCompleted == task.getIsDone() && viewSelection.
+            if (completed == task.getIsDone() && viewSelection.
                 contains(getTaskType(task))) {
                 getDisplayedTasksList().add(databaseId);
             }
@@ -190,7 +182,7 @@ public class ViewCommand extends Command {
         Color cHeaderColor = getDisplayedTasksList().isEmpty() ? Color.YELLOW
                                                                : Color.GREEN;
         StringBuilder viewCount = new StringBuilder();
-        if (isCompleted) {
+        if (completed) {
             String formattedString = String.format(MESSAGE_VIEWALL_CRESULT,
                                                    getDisplayedTasksList().
                                                        size());
@@ -204,18 +196,18 @@ public class ViewCommand extends Command {
                                                    headerColor));
         }
 
+        setPreviousDisplayCommand(this);
         return new Response("", viewCount.toString(), formatTaskListOutput());
     }
 
     /**
      * Return overdue tasks in database, based on user selections
      *
-     * @param viewSelection specified view scope from user
      * @return Response object containing result of all tasks
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    private Response viewOverdue(ArrayList<ViewType> viewSelection)
-        throws IOException {
+    private Response viewOverdue() throws IOException {
+        assert viewSelection != null;
 
         getDisplayedTasksList().clear();
 
@@ -232,6 +224,8 @@ public class ViewCommand extends Command {
         String formattedString = String.format(MESSAGE_VIEWOVERDUE_RESULT,
                                                getDisplayedTasksList().size());
         viewCount.append(ColorFormatter.format(formattedString, headerColor));
+
+        setPreviousDisplayCommand(this);
         return new Response("", viewCount.toString(), formatTaskListOutput());
     }
 
@@ -253,22 +247,19 @@ public class ViewCommand extends Command {
      * Searches the Database for a related task that coincides with the
      * dateRange requested.
      *
-     * @param dateRange     DatePair object containing the start date and end
-     *                      date
-     * @param isCompleted   true if completed tasks should be displayed
-     * @param viewSelection specified view scope from user
      * @return Response object containing result of all tasks within range
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    private Response viewByPeriod(DatePair dateRange, boolean isCompleted,
-                                  ArrayList<ViewType> viewSelection)
-        throws IOException {
+    private Response viewByPeriod() throws IOException {
+        assert viewSelection != null;
+        assert viewRange != null;
+
         getDisplayedTasksList().clear();
         for (Long databaseId : getDbManager().getValidIdList()) {
             Task task = getDbManager().getInstance(databaseId);
-            if (isCompleted == task.getIsDone() && task.hasDate() &&
+            if (completed == task.getIsDone() && task.hasDate() &&
                 viewSelection.contains(getTaskType(task))) {
-                if (task.isWithinPeriod(dateRange)) {
+                if (task.isWithinPeriod(viewRange)) {
                     getDisplayedTasksList().add(databaseId);
                 }
             }
@@ -276,11 +267,11 @@ public class ViewCommand extends Command {
 
         String range = "";
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM", Locale.US);
-        if (dateRange.hasDateRange()) {
+        if (viewRange.hasDateRange()) {
             String startDate =
-                dateFormat.format(dateRange.getStartDate().getTime());
+                dateFormat.format(viewRange.getStartDate().getTime());
             String endDate =
-                dateFormat.format(dateRange.getEndDate().getTime());
+                dateFormat.format(viewRange.getEndDate().getTime());
 
             if (!startDate.equals(endDate)) {
                 range = String.format(MESSAGE_DATE_RANGE, startDate, endDate);
@@ -294,7 +285,7 @@ public class ViewCommand extends Command {
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
                                                               : Color.YELLOW;
         StringBuilder viewCount = new StringBuilder();
-        if (isCompleted) {
+        if (completed) {
             viewCount.append(ColorFormatter.format(String.format(
                 MESSAGE_VIEWDATE_CRESULT, getDisplayedTasksList().size(),
                 range), headerColor));
@@ -304,7 +295,32 @@ public class ViewCommand extends Command {
                 range), headerColor));
         }
 
+        setPreviousDisplayCommand(this);
         return new Response("", viewCount.toString(), formatTaskListOutput());
+    }
+
+    /**
+     * Execute the previous command with viewSelection and completed of the
+     * current command.
+     *
+     * @return the formatted string of all tasks involved
+     * @throws IOException occurs when dbManager encounters a problem with file
+     */
+    private Response viewPrev() throws IOException {
+        if (viewSelection.size() == 1 &&
+            viewSelection.contains(ViewFilter.TASK)) {
+            this.viewType = ViewType.ALL;
+            return execute();
+        }
+
+        if (getPreviousDisplayCommand() instanceof ViewCommand) {
+            ViewCommand prev = (ViewCommand) getPreviousDisplayCommand();
+            this.viewType = prev.getViewType();
+            this.viewRange = prev.getViewRange();
+            return execute();
+        } else {
+            return getPreviousDisplayCommand().execute();
+        }
     }
 
     /**
@@ -331,7 +347,7 @@ public class ViewCommand extends Command {
                     taskData.append(FLOATING_SEPERATOR);
                 } else if (currentType == DEADLINE_TASK) {
                     taskData.append(DEADLINE_SEPERATOR);
-                } else if (currentType == TIMED_TASK) {
+                } else if (currentType == SCHEDULE_TASK) {
                     taskData.append(SCHEDULE_SEPERATOR);
                 }
                 taskData.append(System.lineSeparator());
@@ -371,7 +387,7 @@ public class ViewCommand extends Command {
         } else if (t.isDeadline()) {
             return DEADLINE_TASK;
         } else {
-            return TIMED_TASK;
+            return SCHEDULE_TASK;
         }
     }
 
@@ -379,16 +395,16 @@ public class ViewCommand extends Command {
      * Retrieve the viewType based on the task provided.
      *
      * @param task object to get type
-     * @return ViewType of the object
+     * @return ViewFilter of the object
      */
 
-    private ViewType getTaskType(Task task) {
+    private ViewFilter getTaskType(Task task) {
         if (task.isFloatingTask()) {
-            return ViewType.TASK;
+            return ViewFilter.TASK;
         } else if (task.isDeadline()) {
-            return ViewType.DEADLINE;
+            return ViewFilter.DEADLINE;
         } else {
-            return ViewType.SCHEDULE;
+            return ViewFilter.SCHEDULE;
         }
     }
 

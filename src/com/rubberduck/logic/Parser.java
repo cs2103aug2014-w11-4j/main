@@ -18,7 +18,7 @@ import com.rubberduck.command.SyncCommand;
 import com.rubberduck.command.UndoCommand;
 import com.rubberduck.command.UpdateCommand;
 import com.rubberduck.command.ViewCommand;
-import com.rubberduck.command.ViewCommand.ViewType;
+import com.rubberduck.command.ViewCommand.ViewFilter;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -210,15 +210,16 @@ public class Parser {
         boolean isCompleted = args.contains("complete");
 
         /* Setup view filter specified by user */
-        ArrayList<ViewType> viewList = new ArrayList<ViewType>();
+        ArrayList<ViewCommand.ViewFilter> viewList =
+            new ArrayList<ViewFilter>();
         if (args.contains("task")) {
-            viewList.add(ViewType.TASK);
+            viewList.add(ViewFilter.TASK);
         }
         if (args.contains("deadline")) {
-            viewList.add(ViewType.DEADLINE);
+            viewList.add(ViewCommand.ViewFilter.DEADLINE);
         }
         if (args.contains("schedule")) {
-            viewList.add(ViewType.SCHEDULE);
+            viewList.add(ViewFilter.SCHEDULE);
         }
 
         /* Create empty DatePair object */
@@ -226,12 +227,14 @@ public class Parser {
 
         /* If user decides to view overdue tasks */
         if (args.contains("overdue")) {
-            return new ViewCommand(true, viewList);
+            return new ViewCommand(ViewCommand.ViewType.OVERDUE, false, date,
+                                   viewList);
         }
 
         /* If user decides to view all tasks */
         if (args.contains("all")) {
-            return new ViewCommand(true, isCompleted, date, viewList);
+            return new ViewCommand(ViewCommand.ViewType.ALL, isCompleted, date,
+                                   viewList);
         }
 
         /* Parse all US Date to SG Date Formal Format */
@@ -245,7 +248,8 @@ public class Parser {
 
         /* If no matched dates, return invalid command */
         if (groups.isEmpty()) {
-            return new InvalidCommand(MESSAGE_VIEW_ERROR_EMPTY, true);
+            return new ViewCommand(ViewCommand.ViewType.PREV, isCompleted, date,
+                                   viewList);
         }
 
         /* Extract up to two dates from user's input */
@@ -302,7 +306,8 @@ public class Parser {
         }
 
         /* Return view command with retrieved arguments */
-        return new ViewCommand(false, isCompleted, date, viewList);
+        return new ViewCommand(ViewCommand.ViewType.DATE, isCompleted, date,
+                               viewList);
     }
 
     /**
