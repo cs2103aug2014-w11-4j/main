@@ -44,6 +44,7 @@ public class GooManager {
     private static final String CALENDAR_NAME = "RubberDuck";
 
     private static final String REMOTE_FLAG_COMPLETED = "[Completed]\n";
+    private static final String LOCAL_FLAG_UNNAMED_TASK = "[Unnamed]";
 
     private static final String LOCAL_UUID_TASK = "_RD_T_";
     private static final String LOCAL_UUID_EVENT = "_RD_E_";
@@ -397,7 +398,11 @@ public class GooManager {
         com.rubberduck.storage.task.Task
             task = new com.rubberduck.storage.task.Task();
         task.setUuid(constructLocalTaskUuid(remoteTask.getId()));
-        task.setDescription(remoteTask.getTitle());
+        if (remoteTask.getTitle() == null || remoteTask.getTitle().isEmpty()) {
+            task.setDescription(LOCAL_FLAG_UNNAMED_TASK);
+        } else {
+            task.setDescription(remoteTask.getTitle());
+        }
         if (remoteTask.getStatus().equals("completed")) {
             task.setIsDone(true);
         } else {
@@ -429,7 +434,11 @@ public class GooManager {
         com.rubberduck.storage.task.Task
             task = new com.rubberduck.storage.task.Task();
         task.setUuid(constructLocalEventUuid(remoteEvent.getId()));
-        task.setDescription(remoteEvent.getSummary());
+        if (remoteEvent.getDescription() == null || remoteEvent.getDescription().isEmpty()) {
+            task.setDescription(LOCAL_FLAG_UNNAMED_TASK);
+        } else {
+            task.setDescription(remoteEvent.getDescription());
+        }
         ArrayList<DatePair> dateList = new ArrayList<DatePair>();
         dateList.add(new DatePair(
                 eventDateTimeToCalendar(remoteEvent.getStart()),
@@ -531,27 +540,23 @@ public class GooManager {
             uuidMap.put(dbManager.getInstance(databaseId).getUuid(), databaseId);
         }
         for (Task remoteTask : getRemoteTaskList(false)) {
-            if (remoteTask != null && !remoteTask.getTitle().isEmpty()) {
-                String localUuid = constructLocalTaskUuid(remoteTask.getId());
-                if (remoteTask.getDeleted() != null && remoteTask.getDeleted()) {
-                    if (uuidMap.containsKey(localUuid)) {
-                        dbManager.markAsInvalid(uuidMap.get(localUuid));
-                    }
-                } else {
-                    dbManager.modify(uuidMap.get(localUuid), reconstructTask(remoteTask), null);
+            String localUuid = constructLocalTaskUuid(remoteTask.getId());
+            if (remoteTask.getDeleted() != null && remoteTask.getDeleted()) {
+                if (uuidMap.containsKey(localUuid)) {
+                    dbManager.markAsInvalid(uuidMap.get(localUuid));
                 }
+            } else {
+                dbManager.modify(uuidMap.get(localUuid), reconstructTask(remoteTask), null);
             }
         }
         for (Event remoteEvent : getRemoteEventList(false)) {
-            if (remoteEvent != null) {
-                String localUuid = constructLocalEventUuid(remoteEvent.getId());
-                if (remoteEvent.getStatus().equals("cancelled")) {
-                    if (uuidMap.containsKey(localUuid)) {
-                        dbManager.markAsInvalid(uuidMap.get(localUuid));
-                    }
-                } else {
-                    dbManager.modify(uuidMap.get(localUuid), reconstructEvent(remoteEvent), null);
+            String localUuid = constructLocalEventUuid(remoteEvent.getId());
+            if (remoteEvent.getStatus().equals("cancelled")) {
+                if (uuidMap.containsKey(localUuid)) {
+                    dbManager.markAsInvalid(uuidMap.get(localUuid));
                 }
+            } else {
+                dbManager.modify(uuidMap.get(localUuid), reconstructEvent(remoteEvent), null);
             }
         }
         dbManager.rewriteFile(true);
