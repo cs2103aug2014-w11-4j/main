@@ -1,4 +1,4 @@
-package com.rubberduck.menu;
+package com.rubberduck.logic.formatter;
 
 /**
  * Color formatter for ANSI-colored output for RubberDuck.

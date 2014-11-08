@@ -1,5 +1,5 @@
-import com.rubberduck.logic.DatePair;
-import com.rubberduck.logic.Task;
+import com.rubberduck.storage.task.DatePair;
+import com.rubberduck.storage.task.Task;
 
 import org.junit.Test;
 
@@ -207,8 +207,8 @@ public class DatePairTest {
         assertEquals(false, actual);
 
     }
-    
- 
+
+
 
     /**
      * Task Boundary Test : 24 aug 2014 View Scope :19 aug 2014 - 25 aug 2014

@@ -3,4 +3,4 @@
  * implementation. Each command contains their own local variable and must
  * implement the execute function to execute a certain task/logic sequence.
  */
-package com.rubberduck.command;
+package com.rubberduck.logic.command;

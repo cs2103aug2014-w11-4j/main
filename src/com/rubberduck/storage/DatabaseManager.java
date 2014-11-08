@@ -1,4 +1,4 @@
-package com.rubberduck.io;
+package com.rubberduck.storage;
 
 import java.io.BufferedWriter;
 import java.io.File;

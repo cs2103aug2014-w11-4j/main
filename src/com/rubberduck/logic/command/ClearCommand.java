@@ -1,11 +1,9 @@
-package com.rubberduck.command;
+package com.rubberduck.logic.command;
 
-import com.rubberduck.menu.ColorFormatter;
-import com.rubberduck.menu.ColorFormatter.Color;
-import com.rubberduck.menu.Response;
+import com.rubberduck.logic.formatter.ColorFormatter;
+import com.rubberduck.logic.formatter.ColorFormatter.Color;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Concrete Command Class that can be executed to clear the screen of the
@@ -20,7 +18,7 @@ public class ClearCommand extends Command {
     /**
      * Clear the screen of the current terminal by returning an appropriate
      * response back to the caller.
-     * 
+     *
      * @throws IOException from logger
      */
     @Override

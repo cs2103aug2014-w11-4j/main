@@ -1,11 +1,10 @@
-package com.rubberduck.command;
+package com.rubberduck.logic.command;
 
-import com.rubberduck.logic.DatePair;
-import com.rubberduck.logic.Task;
-import com.rubberduck.menu.ColorFormatter;
-import com.rubberduck.menu.ColorFormatter.Color;
-import com.rubberduck.menu.Formatter;
-import com.rubberduck.menu.Response;
+import com.rubberduck.logic.formatter.ColorFormatter;
+import com.rubberduck.logic.formatter.ColorFormatter.Color;
+import com.rubberduck.logic.formatter.Formatter;
+import com.rubberduck.storage.task.DatePair;
+import com.rubberduck.storage.task.Task;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -21,10 +20,9 @@ import java.util.logging.Logger;
  */
 //@author A0111794E
 public class ViewCommand extends Command {
-    
+
     /**
      * Enumeration of all types of view filter
-     *
      */
     public enum ViewFilter {
         TASK, DEADLINE, SCHEDULE
@@ -32,7 +30,6 @@ public class ViewCommand extends Command {
 
     /**
      * Enumeration of all types of view type
-     *
      */
     public enum ViewType {
         ALL, DATE, PREV, OVERDUE
@@ -197,7 +194,8 @@ public class ViewCommand extends Command {
         setPreviousDisplayCommand(this);
         String taskData = Formatter.formatTaskList(getDisplayedTasksList(),
                                                    getDbManager());
-        return new Response("", viewCount.toString()+" "+viewSelectionToString(), taskData);
+        return new Response("", viewCount.toString() + " "
+                                + viewSelectionToString(), taskData);
     }
 
     /**
@@ -228,7 +226,8 @@ public class ViewCommand extends Command {
         setPreviousDisplayCommand(this);
         String taskData = Formatter.formatTaskList(getDisplayedTasksList(),
                                                    getDbManager());
-        return new Response("", viewCount.toString()+" "+viewSelectionToString(), taskData);
+        return new Response("", viewCount.toString() + " "
+                                + viewSelectionToString(), taskData);
     }
 
     /**
@@ -300,7 +299,8 @@ public class ViewCommand extends Command {
         setPreviousDisplayCommand(this);
         String taskData = Formatter.formatTaskList(getDisplayedTasksList(),
                                                    getDbManager());
-        return new Response("", viewCount.toString()+" "+viewSelectionToString(), taskData);
+        return new Response("", viewCount.toString() + " "
+                                + viewSelectionToString(), taskData);
     }
 
     /**
@@ -343,27 +343,28 @@ public class ViewCommand extends Command {
             return ViewFilter.SCHEDULE;
         }
     }
-    
+
     /**
      * Returns user required filters in string
+     *
      * @return String feedback of user requested filters
      */
-    
-    private String viewSelectionToString(){      
+
+    private String viewSelectionToString() {
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
-                : Color.YELLOW;
-        String viewSelectionList="[";
-        
-        if(viewSelection.size() == 3 || viewSelection.size() == 0 ){
+                                                              : Color.YELLOW;
+        String viewSelectionList = "[";
+
+        if (viewSelection.size() == 3 || viewSelection.size() == 0) {
             viewSelectionList += "All";
-        }else {          
-            for(int i = 0 ; i < viewSelection.size();i++){
+        } else {
+            for (int i = 0; i < viewSelection.size(); i++) {
                 viewSelectionList += viewSelection.get(i);
-                if(i <viewSelection.size()-1){
+                if (i < viewSelection.size() - 1) {
                     viewSelectionList += ",";
                 }
-            }           
+            }
         }
-        return ColorFormatter.format( viewSelectionList+"]", headerColor);
+        return ColorFormatter.format(viewSelectionList + "]", headerColor);
     }
 }

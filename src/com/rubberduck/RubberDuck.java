@@ -1,6 +1,6 @@
 package com.rubberduck;
 
-import com.rubberduck.command.Command;
+import com.rubberduck.logic.command.Command;
 import com.rubberduck.menu.MenuInterface;
 
 import java.io.File;
@@ -41,7 +41,7 @@ public class RubberDuck {
      * Main method of application as well as the entry point. It setups the
      * logger, starts the database and finally getting a MenuInterface object
      * and handle the user's input/output.
-     * 
+     *
      * @param args argument input from system
      */
     public static void main(String[] args) {

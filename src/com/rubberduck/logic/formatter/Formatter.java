@@ -1,9 +1,9 @@
-package com.rubberduck.menu;
+package com.rubberduck.logic.formatter;
 
-import com.rubberduck.io.DatabaseManager;
-import com.rubberduck.logic.DatePair;
-import com.rubberduck.logic.Task;
-import com.rubberduck.menu.ColorFormatter.Color;
+import com.rubberduck.storage.DatabaseManager;
+import com.rubberduck.storage.task.DatePair;
+import com.rubberduck.storage.task.Task;
+import com.rubberduck.logic.formatter.ColorFormatter.Color;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -20,8 +20,8 @@ import java.util.Locale;
 //@author A0111736M
 public class Formatter {
 
-    protected static final String FORMAT_TABLE = "%-7s%-6s%-43s%-24s";
-    protected static final String FORMAT_TENTATIVE = "%-7s%-6s%-43s%-19s%-5s";
+    public static final String FORMAT_TABLE = "%-7s%-6s%-43s%-24s";
+    public static final String FORMAT_TENTATIVE = "%-7s%-6s%-43s%-19s%-5s";
 
     private static final String ANSI_PREFIX = "\u001b[130";
     private static final String SEPARATOR_FLOATING =

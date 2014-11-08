@@ -1,8 +1,7 @@
-package com.rubberduck.command;
+package com.rubberduck.logic.command;
 
-import com.rubberduck.io.DatabaseManager;
-import com.rubberduck.logic.Task;
-import com.rubberduck.menu.Response;
+import com.rubberduck.storage.DatabaseManager;
+import com.rubberduck.storage.task.Task;
 
 import java.io.File;
 import java.io.IOException;

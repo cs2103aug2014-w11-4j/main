@@ -1,4 +1,6 @@
-package com.rubberduck.menu;
+package com.rubberduck.logic.command;
+
+import com.rubberduck.logic.formatter.Formatter;
 
 /**
  * A data structure that must be created by each command and returned back to
@@ -79,7 +81,7 @@ public class Response {
     /**
      * Public getter method for isOverwrite. If true, menu should overwrite
      * buffer, else retain old task buffer.
-     * 
+     *
      * @return if the value isOverwrite
      */
     public boolean isOverwrite() {

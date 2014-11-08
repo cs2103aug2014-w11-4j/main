@@ -1,6 +1,6 @@
-package com.rubberduck.logic;
+package com.rubberduck.storage.task;
 
-import com.rubberduck.io.DatabaseManager;
+import com.rubberduck.storage.DatabaseManager;
 
 import java.io.IOException;
 import java.io.Serializable;
