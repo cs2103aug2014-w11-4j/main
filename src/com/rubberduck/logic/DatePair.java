@@ -133,6 +133,8 @@ public class DatePair implements Serializable {
     /**
      * Overwrite the default to string value of task Formatted for RubberDuck
      * console design.
+     * 
+     * @return String value of DatePair
      */
     @Override
     public String toString() {
