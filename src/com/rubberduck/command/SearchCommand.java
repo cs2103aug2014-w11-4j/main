@@ -86,8 +86,6 @@ public class SearchCommand extends Command {
             if (isFound) {
                 getDisplayedTasksList().add(databaseId);
             }
-
-
         }
 
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.RED
@@ -102,12 +100,16 @@ public class SearchCommand extends Command {
     }
 
     /**
-     * Complementing searchMultipleKeyword. <p>When search are being called, if
-     * keyword used in search contains only a single word, this method will be
-     * called.</p> <p>This will actually check if the description itself
-     * contains the word and return the value immediately</p> <p>To eliminate
-     * the getting unwanted result due to searching with meaningless
-     * keywords</p>
+     * Complementing searchMultipleKeyword.
+     * <p/>
+     * When search are being called, if keyword used in search contains only a
+     * single word, this method will be called.
+     * <p/>
+     * This will actually check if the description itself contains the word and
+     * return the value immediately
+     * <p/>
+     * To eliminate the getting unwanted result due to searching with
+     * meaningless keywords
      *
      * @param keyword
      * @param taskDescription
@@ -142,12 +144,16 @@ public class SearchCommand extends Command {
     }
 
     /**
-     * Complementing searchSingleKeyword. <p>When search are being called, if
-     * keyword used in search contains more than a word, this method will be
-     * called.</p> <p>This will actually check if the description itself
-     * contains exactly all the keyword as entered by the user</p> <p>To
-     * eliminate the getting unwanted result due to searching with meaningless
-     * keywords</p>
+     * Complementing searchSingleKeyword.
+     * <p/>
+     * When search are being called, if keyword used in search contains more
+     * than a word, this method will be called.
+     * <p/>
+     * This will actually check if the description itself contains exactly all
+     * the keyword as entered by the user
+     * <p/>
+     * To eliminate the getting unwanted result due to searching with
+     * meaningless keywords
      *
      * @param keyword
      * @param taskDescription
@@ -160,11 +166,9 @@ public class SearchCommand extends Command {
             if (taskDescriptions.nextToken().equals(firstKeyword)) {
                 if (keywords.countTokens() <= taskDescriptions.countTokens()) {
                     // check remaining keyword
-                    boolean stillValid = true;
-                    while (keywords.hasMoreElements() && stillValid == true) {
+                    while (keywords.hasMoreElements()) {
                         if (!keywords.nextToken()
                             .equals(taskDescriptions.nextToken())) {
-                            stillValid = false;
                             return false;
                         }
                     }
@@ -176,7 +180,6 @@ public class SearchCommand extends Command {
         }
         return false;
     }
-
 
     /**
      * Format the list of tasks into a String output and return.
