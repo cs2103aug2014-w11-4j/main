@@ -1,3 +1,5 @@
+package com.rubberduck.storage;
+
 import com.rubberduck.storage.DatabaseManager;
 
 import org.junit.Before;
@@ -15,7 +17,7 @@ public class JournalControllerTest {
     @Before
     public void setUp() throws Exception {
         dbManager = new DatabaseManager<String>(File.createTempFile(
-            "JournalControllerTest", ".tmp").getPath());
+            "com.rubberduck.storage.JournalControllerTest", ".tmp").getPath());
     }
 
     @Test
