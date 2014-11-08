@@ -5,10 +5,13 @@ import com.rubberduck.menu.MenuInterface;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+
 import java.util.Calendar;
 import java.util.Locale;
+
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -38,6 +41,8 @@ public class RubberDuck {
      * Main method of application as well as the entry point. It setups the
      * logger, starts the database and finally getting a MenuInterface object
      * and handle the user's input/output.
+     * 
+     * @param args argument input from system
      */
     public static void main(String[] args) {
         setupGlobalLogger();
