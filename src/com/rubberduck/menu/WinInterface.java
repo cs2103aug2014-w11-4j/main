@@ -357,6 +357,8 @@ public class WinInterface extends MenuInterface {
     /**
      * Returns a boolean that represents whether a scroll up function can be
      * done. <p/> return true if task data can be scrolled up else false
+     * 
+     * @return true if task data can be scrolled up else false
      */
     private boolean canScrollUp() {
         return lastTaskIndex != NOT_IN_BUFFER &&
