@@ -80,6 +80,7 @@ public class UpdateCommand extends Command {
      * Update the task with provided arguments to the database.
      *
      * @return Response containing updated message with the displayed id
+     * @throws IOException that might occur
      */
     // @author A0119504L
     @Override
