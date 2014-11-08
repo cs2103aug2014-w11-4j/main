@@ -35,6 +35,7 @@ import com.google.api.services.tasks.model.TaskLists;
 import com.google.api.services.tasks.model.Tasks;
 import com.rubberduck.logic.DatePair;
 
+//@author A0119416H
 public class GooManager {
 
     private static final String CLIENT_ID = "849841048712-0t9rn1vi1nch19cqsuaaaj19oo7c7pl3.apps.googleusercontent.com";
@@ -56,8 +57,9 @@ public class GooManager {
     private static com.google.api.services.tasks.Tasks tasksClient;
     private static String taskListId = null;
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss", Locale.US);
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.US);
     private static final String REMOTE_SYNC_FLAG_FORMAT = "Last Synced on: ";
+    private static final String REMOTE_TASK_TIME_FORMAT = "Due: ";
 
     private static Credential authorize() throws IOException {
         GoogleClientSecrets.Details details = new GoogleClientSecrets.Details();
@@ -117,7 +119,6 @@ public class GooManager {
         } while (pageToken != null);
 
         if (calendarId == null) {
-            // System.out.println("Not found, creating new one"); //TODO
             Calendar calendar = new Calendar();
             calendar.setSummary(CALENDAR_NAME);
             calendar.setTimeZone(TimeZone.getDefault().getID());
@@ -147,7 +148,6 @@ public class GooManager {
         } while (pageToken != null);
 
         if (taskListId == null) {
-            // System.out.println("Not found, creating new one"); //TODO
             TaskList taskList = new TaskList();
             taskList.setTitle(CALENDAR_NAME);
             TaskList createdTaskList = tasksClient.tasklists()
@@ -176,6 +176,11 @@ public class GooManager {
         } else {
             return null;
         }
+    }
+
+    private static boolean isOnSameDate(java.util.Calendar cal1, java.util.Calendar cal2) {
+        return cal1.get(java.util.Calendar.YEAR) == cal2.get(java.util.Calendar.YEAR) &&
+               cal1.get(java.util.Calendar.DAY_OF_YEAR) == cal2.get(java.util.Calendar.DAY_OF_YEAR);
     }
 
     private static boolean isPushedAsTask(com.rubberduck.logic.Task task) {
@@ -222,7 +227,7 @@ public class GooManager {
         } else if (isPushedAsEvent(task)) {
             return constructRemoteEventId(task.getUuid());
         } else {
-            throw new UnsupportedOperationException(); // TODO
+            throw new UnsupportedOperationException("This task is not pushed.");
         }
     }
 
@@ -343,6 +348,7 @@ public class GooManager {
         }
         if (!originalTask.isFloatingTask()) {
             task.setDue(calendarToDateTime(originalTask.getEarliestDate()));
+            task.setNotes(REMOTE_TASK_TIME_FORMAT + DATE_FORMAT.format(originalTask.getEarliestDate().getTime()));
         }
         if (originalTask.getIsDone()) {
             task.setStatus("completed");
@@ -386,8 +392,19 @@ public class GooManager {
             task.setIsDone(false);
         }
         if (remoteTask.getDue() != null) {
+            java.util.Calendar remoteDueDate = dateTimeToCalendar(remoteTask.getDue());
+            String line = remoteTask.getNotes();
+            if (line != null && line.startsWith(REMOTE_TASK_TIME_FORMAT)) {
+                try {
+                    java.util.Calendar recordedDueDate = java.util.Calendar.getInstance();
+                    recordedDueDate.setTime(DATE_FORMAT.parse(line.replace(REMOTE_TASK_TIME_FORMAT, "")));
+                    if (isOnSameDate(remoteDueDate, recordedDueDate)) {
+                        remoteDueDate = recordedDueDate;
+                    }
+                } catch (ParseException e) {}
+            }
             ArrayList<DatePair> dateList = new ArrayList<DatePair>();
-            dateList.add(new DatePair(dateTimeToCalendar(remoteTask.getDue())));
+            dateList.add(new DatePair(remoteDueDate));
             task.setDateList(dateList);
         } else {
             task.setDateList(new ArrayList<DatePair>());
@@ -422,7 +439,7 @@ public class GooManager {
             Event remoteEvent = getRemoteEvent(constructRemoteEventId(localId));
             task = reconstructEvent(remoteEvent);
         } else {
-            throw new UnsupportedOperationException(); // TODO
+            throw new UnsupportedOperationException("This task is not pushed.");
         }
         return task;
     }
