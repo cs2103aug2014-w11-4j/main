@@ -398,7 +398,11 @@ public class GooManager {
         com.rubberduck.storage.task.Task
             task = new com.rubberduck.storage.task.Task();
         task.setUuid(constructLocalTaskUuid(remoteTask.getId()));
-        task.setDescription(remoteTask.getTitle());
+        if (remoteTask.getTitle() == null || remoteTask.getTitle().isEmpty()) {
+            task.setDescription(LOCAL_FLAG_UNNAMED_TASK);
+        } else {
+            task.setDescription(remoteTask.getTitle());
+        }
         if (remoteTask.getStatus().equals("completed")) {
             task.setIsDone(true);
         } else {
@@ -430,7 +434,11 @@ public class GooManager {
         com.rubberduck.storage.task.Task
             task = new com.rubberduck.storage.task.Task();
         task.setUuid(constructLocalEventUuid(remoteEvent.getId()));
-        task.setDescription(remoteEvent.getSummary());
+        if (remoteEvent.getDescription() == null || remoteEvent.getDescription().isEmpty()) {
+            task.setDescription(LOCAL_FLAG_UNNAMED_TASK);
+        } else {
+            task.setDescription(remoteEvent.getDescription());
+        }
         ArrayList<DatePair> dateList = new ArrayList<DatePair>();
         dateList.add(new DatePair(
                 eventDateTimeToCalendar(remoteEvent.getStart()),
@@ -532,9 +540,6 @@ public class GooManager {
             uuidMap.put(dbManager.getInstance(databaseId).getUuid(), databaseId);
         }
         for (Task remoteTask : getRemoteTaskList(false)) {
-            if (remoteTask.getTitle().isEmpty()) {
-                remoteTask.setTitle(LOCAL_FLAG_UNNAMED_TASK);
-            }
             String localUuid = constructLocalTaskUuid(remoteTask.getId());
             if (remoteTask.getDeleted() != null && remoteTask.getDeleted()) {
                 if (uuidMap.containsKey(localUuid)) {
@@ -658,9 +663,6 @@ public class GooManager {
         }
 
         for (Task remoteTask : remoteModifiedTasks.values()) {
-            if (remoteTask.getTitle().isEmpty()) {
-                remoteTask.setTitle(LOCAL_FLAG_UNNAMED_TASK);
-            }
             String localUuid = constructLocalTaskUuid(remoteTask.getId());
             if (localUuidMap.containsKey(localUuid)) {
                 if (remoteTask.getDeleted() != null && remoteTask.getDeleted()) {
