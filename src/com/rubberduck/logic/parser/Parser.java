@@ -13,6 +13,7 @@ import com.rubberduck.logic.command.HelpCommand;
 import com.rubberduck.logic.command.InvalidCommand;
 import com.rubberduck.logic.command.MarkCommand;
 import com.rubberduck.logic.command.RedoCommand;
+import com.rubberduck.logic.command.Response;
 import com.rubberduck.logic.command.SearchCommand;
 import com.rubberduck.logic.command.SyncCommand;
 import com.rubberduck.logic.command.UndoCommand;
@@ -115,12 +116,24 @@ public class Parser {
     }
 
     /**
-     * Accepts a input from the user and return the command after parsing.
+     * Accepts an input from the menuInterface and executes the Command after
+     * parsing into a Command object.
      *
      * @param input the raw input user provides
-     * @return Command object with the correct argument and type
+     * @return Response object containing data after execution of Command
      */
-    public Command parse(String input) {
+    public Response parseInput(String input) {
+        return parse(input).safeExecute();
+    }
+
+    /**
+     * Accepts a String input and parses it into a Command object by calling the
+     * various sub-methods.
+     *
+     * @param input String object containing input
+     * @return Command object that was parsed
+     */
+    protected Command parse(String input) {
         LOGGER.info("Parsing input: " + input);
         Command.CommandType userCommand = determineCommandType(input);
         LOGGER.info("CommandType requested: " + userCommand.toString());

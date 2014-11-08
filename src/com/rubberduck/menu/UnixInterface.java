@@ -66,8 +66,7 @@ public class UnixInterface extends MenuInterface {
             showToUser(getWelcomeMessage());
             while (true) {
                 String line = consoleInstance.readLine(DEFAULT_PROMPT);
-                Command userCommand = Parser.getInstance().parse(line);
-                Response res = userCommand.safeExecute();
+                Response res = Parser.getInstance().parseInput(line);
                 showToUser(res);
             }
         } catch (IOException e) {
@@ -155,14 +154,13 @@ public class UnixInterface extends MenuInterface {
      */
     //@author A0111736M
     private Response getWelcomeMessage() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(MESSAGE_WELCOME);
-        sb.append(System.lineSeparator());
-        sb.append(ColorFormatter.format(MESSAGE_HELP, Color.YELLOW));
+        StringBuilder messages = new StringBuilder();
+        messages.append(MESSAGE_WELCOME);
+        messages.append(System.lineSeparator());
+        messages.append(ColorFormatter.format(MESSAGE_HELP, Color.YELLOW));
 
-        Command viewCommand = Parser.getInstance().parse(WELCOME_EXECUTE);
-        Response res = viewCommand.safeExecute();
-        res.setMessages(sb.toString());
+        Response res = Parser.getInstance().parseInput(WELCOME_EXECUTE);
+        res.setMessages(messages.toString());
         return res;
     }
 

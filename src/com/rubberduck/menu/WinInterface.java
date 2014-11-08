@@ -105,8 +105,7 @@ public class WinInterface extends MenuInterface {
             printOutput(getWelcomeMessage());
             while (true) {
                 String line = consoleInstance.readLine(DEFAULT_PROMPT);
-                Command userCommand = Parser.getInstance().parse(line);
-                Response res = userCommand.safeExecute();
+                Response res = Parser.getInstance().parseInput(line);
                 printOutput(res);
             }
         } catch (IOException e) {
@@ -258,8 +257,7 @@ public class WinInterface extends MenuInterface {
         messages.append(System.lineSeparator());
         messages.append(ColorFormatter.format(MESSAGE_HELP, Color.YELLOW));
 
-        Command userCommand = Parser.getInstance().parse(WELCOME_EXECUTE);
-        Response res = userCommand.safeExecute();
+        Response res = Parser.getInstance().parseInput(WELCOME_EXECUTE);
         res.setMessages(messages.toString());
         return res;
     }
