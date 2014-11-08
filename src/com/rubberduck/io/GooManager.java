@@ -496,7 +496,7 @@ public class GooManager {
                 dbManager.modify(databaseId, localTask, null);
             }
         }
-        dbManager.rewriteFile();
+        dbManager.rewriteFile(true);
         setLastSyncTime();
     }
 
@@ -527,7 +527,7 @@ public class GooManager {
                         reconstructEvent(remoteEvent), null);
             }
         }
-        dbManager.rewriteFile();
+        dbManager.rewriteFile(true);
         setLastSyncTime();
     }
 
