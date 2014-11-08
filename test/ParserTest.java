@@ -65,7 +65,7 @@ public class ParserTest {
         assertEquals("must be VIEW command", true,
                      allCommand instanceof ViewCommand);
         assertEquals("boolean for viewAll should be true", true,
-                     ((ViewCommand) allCommand).isViewAll());
+                     ((ViewCommand) allCommand).getViewType() == ViewCommand.ViewType.ALL);
 
         /* Boundary case for other String input partition */
         String otherArgument = "view randomstring";
