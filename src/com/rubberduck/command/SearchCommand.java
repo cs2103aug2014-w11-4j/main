@@ -45,6 +45,7 @@ public class SearchCommand extends Command {
      * formatted string of tasks back to parent.
      *
      * @return Response object containing formatted tasks
+     * @throws IOException that might be thrown from dbManager
      */
     @Override
     public Response execute() throws IOException {
