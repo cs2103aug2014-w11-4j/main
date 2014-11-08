@@ -94,7 +94,7 @@ public abstract class Command {
          * Retrieve all available alias found in the specific CommandType.
          *
          * @param type
-         * @return
+         * @return the set of string containing the alias
          */
         public static Set<String> getAlias(CommandType type) {
             Set<String> set = new HashSet<String>();
@@ -146,7 +146,7 @@ public abstract class Command {
     /**
      * Getter method for displayedTaskLists.
      *
-     * @return ArrayList<Long> instance
+     * @return ArrayList<Long> of task id in displayed lists
      */
     public static ArrayList<Long> getDisplayedTasksList() {
         return displayedTasksList;
