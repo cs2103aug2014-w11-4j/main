@@ -54,10 +54,6 @@ public class ViewCommand extends Command {
             Arrays.asList(ViewFilter.DEADLINE, ViewFilter.SCHEDULE,
                           ViewFilter.TASK));
 
-    private static final int FLOATING_TASK = 0;
-    private static final int DEADLINE_TASK = 1;
-    private static final int SCHEDULE_TASK = 2;
-
     private DatePair viewRange;
     private boolean completed;
     private ViewType viewType;
@@ -192,7 +188,7 @@ public class ViewCommand extends Command {
         setPreviousDisplayCommand(this);
         String taskData = Formatter.formatTaskList(getDisplayedTasksList(),
                                                    getDbManager());
-        return new Response("", viewCount.toString(), taskData);
+        return new Response("", viewCount.toString()+" "+viewSelectionToString(), taskData);
     }
 
     /**
@@ -223,7 +219,7 @@ public class ViewCommand extends Command {
         setPreviousDisplayCommand(this);
         String taskData = Formatter.formatTaskList(getDisplayedTasksList(),
                                                    getDbManager());
-        return new Response("", viewCount.toString(), taskData);
+        return new Response("", viewCount.toString()+" "+viewSelectionToString(), taskData);
     }
 
     /**
@@ -295,7 +291,7 @@ public class ViewCommand extends Command {
         setPreviousDisplayCommand(this);
         String taskData = Formatter.formatTaskList(getDisplayedTasksList(),
                                                    getDbManager());
-        return new Response("", viewCount.toString(), taskData);
+        return new Response("", viewCount.toString()+" "+viewSelectionToString(), taskData);
     }
 
     /**
@@ -337,5 +333,24 @@ public class ViewCommand extends Command {
         } else {
             return ViewFilter.SCHEDULE;
         }
+    }
+    
+    private String viewSelectionToString(){
+        
+        Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
+                : Color.YELLOW;
+        String viewSelectionList="[";
+        
+        if(viewSelection.size() == 3 || viewSelection.size() == 0 ){
+            viewSelectionList += "All";
+        }else {          
+            for(int i = 0 ; i < viewSelection.size();i++){
+                viewSelectionList += viewSelection.get(i);
+                if(i <viewSelection.size()-1){
+                    viewSelectionList += ",";
+                }
+            }           
+        }
+        return ColorFormatter.format( viewSelectionList+"]", headerColor);
     }
 }
