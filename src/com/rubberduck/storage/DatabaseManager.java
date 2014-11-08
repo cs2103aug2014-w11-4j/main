@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import com.rubberduck.storage.task.CalendarConverter;
 import com.thoughtworks.xstream.XStream;
 
 /**
@@ -117,6 +118,7 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
      * @throws IOException
      */
     public DatabaseManager(String filePath) throws IOException {
+        xstream.registerConverter(new CalendarConverter());
         this.filePath = filePath;
         openFile();
         scanFile();
