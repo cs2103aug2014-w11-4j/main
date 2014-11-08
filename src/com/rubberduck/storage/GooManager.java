@@ -464,7 +464,7 @@ public class GooManager {
         String pageToken = null;
         do {
             com.google.api.services.tasks.Tasks.TasksOperations.List listOperation = tasksClient.tasks().list(taskListId).setShowDeleted(true);
-            if (filterByUpdateTime) {
+            if (filterByUpdateTime && lastSyncTime != null) {
                 listOperation.setUpdatedMin(new DateTime(lastSyncTime, TimeZone.getDefault()).toStringRfc3339());
             }
             Tasks tasks = listOperation.setPageToken(pageToken).execute();
@@ -483,7 +483,7 @@ public class GooManager {
         String pageToken = null;
         do {
             com.google.api.services.calendar.Calendar.Events.List listOperation = calendarClient.events().list(calendarId).setShowDeleted(true);
-            if (filterByUpdateTime) {
+            if (filterByUpdateTime && lastSyncTime != null) {
                 listOperation = listOperation.setUpdatedMin(new DateTime(lastSyncTime, TimeZone.getDefault()));
             }
             Events events = listOperation.setPageToken(pageToken).execute();
