@@ -1,13 +1,11 @@
 package com.rubberduck.command;
 
-import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter;
 import com.rubberduck.menu.ColorFormatter.Color;
 import com.rubberduck.menu.Formatter;
 import com.rubberduck.menu.Response;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.StringTokenizer;
 
 /**
@@ -96,7 +94,9 @@ public class SearchCommand extends Command {
             String.format(MESSAGE_SEARCH_RESULT, getDisplayedTasksList().size(),
                           keyword), headerColor));
 
-        return new Response("", viewCount.toString(), formatTaskListOutput());
+        String taskData = Formatter.formatTaskList(getDisplayedTasksList(),
+                                                   getDbManager());
+        return new Response("", viewCount.toString(), taskData);
     }
 
     /**
@@ -117,11 +117,7 @@ public class SearchCommand extends Command {
      */
     private boolean searchSingleKeyword(String keyword,
                                         String taskDescription) {
-        if (taskDescription.toLowerCase().contains(keyword.toLowerCase())) {
-            return true;
-        } else {
-            return false;
-        }
+        return taskDescription.toLowerCase().contains(keyword.toLowerCase());
     }
 
     /**
@@ -179,73 +175,5 @@ public class SearchCommand extends Command {
             }
         }
         return false;
-    }
-
-    /**
-     * Format the list of tasks into a String output and return.
-     *
-     * @return the formatted string of all tasks involved
-     * @throws IOException occurs when dbManager encounters a problem with file
-     */
-    //@author A0111736M
-    private String formatTaskListOutput() throws IOException {
-        Collections.sort(getDisplayedTasksList(),
-                         getDbManager().getInstanceIdComparator());
-        StringBuilder taskData = new StringBuilder();
-
-        int prevType = -1;
-        for (int i = 0; i < getDisplayedTasksList().size(); i++) {
-            if (taskData.length() > 0) {
-                taskData.append(System.lineSeparator());
-            }
-
-            int currentType = getTaskType(i);
-            if (currentType != prevType) {
-                if (currentType == FLOATING_TASK) {
-                    taskData.append(FLOATING_SEPERATOR);
-                } else if (currentType == DEADLINE_TASK) {
-                    taskData.append(DEADLINE_SEPERATOR);
-                } else if (currentType == TIMED_TASK) {
-                    taskData.append(SCHEDULE_SEPERATOR);
-                }
-                taskData.append(System.lineSeparator());
-            }
-            prevType = currentType;
-            taskData.append(formatTaskOutput(i));
-        }
-        return taskData.toString();
-    }
-
-    /**
-     * Helper method that formats the output of an individual task.
-     *
-     * @param displayingId the id of the task
-     * @return the formatted output of the task
-     * @throws IOException occurs when dbManager encounters a problem with file
-     */
-    private String formatTaskOutput(int displayingId) throws IOException {
-        Task task = getDbManager().
-            getInstance(getDisplayedTasksList().get(displayingId));
-        return Formatter.formatTask(task, displayingId + 1 + "");
-    }
-
-    /**
-     * Retrieve the task type from the database given the ID displayed.
-     *
-     * @param displayingId the id of the task
-     * @return enum which specifies what type of task it is
-     * @throws IOException occurs when dbManager encounters a problem with file
-     */
-    //@author A0111794E
-    private int getTaskType(int displayingId) throws IOException {
-        Task t = getDbManager().
-            getInstance(getDisplayedTasksList().get(displayingId));
-        if (t.isFloatingTask()) {
-            return FLOATING_TASK;
-        } else if (t.isDeadline()) {
-            return DEADLINE_TASK;
-        } else {
-            return TIMED_TASK;
-        }
     }
 }

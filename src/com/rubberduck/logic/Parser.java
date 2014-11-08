@@ -246,7 +246,7 @@ public class Parser {
         /* Use Natty library to parse date specified by user */
         List<DateGroup> groups = dateParser.parse(input);
 
-        /* If no matched dates, return invalid command */
+        /* If no matched dates, execute previous view/search command */
         if (groups.isEmpty()) {
             return new ViewCommand(ViewCommand.ViewType.PREV, isCompleted, date,
                                    viewList);

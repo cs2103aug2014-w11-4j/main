@@ -1,12 +1,15 @@
 package com.rubberduck.menu;
 
+import com.rubberduck.io.DatabaseManager;
 import com.rubberduck.logic.DatePair;
 import com.rubberduck.logic.Task;
 import com.rubberduck.menu.ColorFormatter.Color;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Locale;
 
@@ -21,6 +24,19 @@ public class Formatter {
     protected static final String FORMAT_TENTATIVE = "%-7s%-6s%-43s%-19s%-5s";
 
     private static final String ANSI_PREFIX = "\u001b[130";
+    private static final String SEPARATOR_FLOATING =
+        "--------------------------------[    TASKS    ]---------------------------------";
+    private static final String SEPARATOR_DEADLINE =
+        "--------------------------------[  DEADLINES  ]---------------------------------";
+    private static final String SEPARATOR_SCHEDULE =
+        "--------------------------------[  SCHEDULES  ]---------------------------------";
+
+    /* Values to represent the header type to print */
+    private enum HeaderType {
+        NONE, FLOATING, DEADLINE, SCHEDULE,
+    }
+
+
     private static final int DESC_MAX_WIDTH = 200;
     private static final int DESC_TABLE_MAX_WIDTH = 41;
     private static final int SENTENCE_WIDTH = 80;
@@ -93,6 +109,69 @@ public class Formatter {
     }
 
     /**
+     * Format the list of tasks into a String output and return.
+     *
+     * @return the formatted string of all tasks involved
+     * @throws java.io.IOException occurs when dbManager encounters a problem
+     *                             with file
+     */
+    public static String formatTaskList(ArrayList<Long> dataTable,
+                                        DatabaseManager<Task> db)
+        throws IOException {
+
+        Collections.sort(dataTable, db.getInstanceIdComparator());
+        StringBuilder taskData = new StringBuilder();
+
+        HeaderType prevType = HeaderType.NONE;
+        for (int i = 0; i < dataTable.size(); i++) {
+            if (taskData.length() > 0) {
+                taskData.append(System.lineSeparator());
+            }
+
+            Task task = db.getInstance(dataTable.get(i));
+
+            HeaderType currentType = getHeaderType(task);
+            if (currentType != prevType) {
+                switch (currentType) {
+                    case FLOATING:
+                        taskData.append(SEPARATOR_FLOATING);
+                        break;
+
+                    case DEADLINE:
+                        taskData.append(SEPARATOR_DEADLINE);
+                        break;
+
+                    case SCHEDULE:
+                        taskData.append(SEPARATOR_SCHEDULE);
+                        break;
+
+                    default:
+                        break;
+                }
+                taskData.append(System.lineSeparator());
+            }
+            prevType = currentType;
+            taskData.append(formatTask(task, i + 1 + ""));
+        }
+        return taskData.toString();
+
+    }
+
+    /**
+     * @param t
+     * @return
+     */
+    private static HeaderType getHeaderType(Task t) {
+        if (t.isFloatingTask()) {
+            return HeaderType.FLOATING;
+        } else if (t.isDeadline()) {
+            return HeaderType.DEADLINE;
+        } else {
+            return HeaderType.SCHEDULE;
+        }
+    }
+
+    /**
      * Format the task information provided into a buffer-friendly and organised
      * output.
      *
@@ -100,7 +179,7 @@ public class Formatter {
      * @param id the display ID it should display
      * @return Buffer acceptable String of Task
      */
-    public static String formatTask(Task t, String id) {
+    private static String formatTask(Task t, String id) {
         /* Setup variables and information about the task provided */
         StringBuilder taskBuilder = new StringBuilder();
         boolean overdue = false;
