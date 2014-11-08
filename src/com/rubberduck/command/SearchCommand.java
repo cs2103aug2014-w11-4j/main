@@ -17,16 +17,7 @@ public class SearchCommand extends Command {
 
     private static final String MESSAGE_SEARCH_RESULT =
         "%s task with \"%s\" has been found.";
-    private static final String SCHEDULE_SEPERATOR =
-        "--------------------------------[  SCHEDULES  ]---------------------------------";
-    private static final String FLOATING_SEPERATOR =
-        "--------------------------------[    TASKS    ]---------------------------------";
-    private static final String DEADLINE_SEPERATOR =
-        "--------------------------------[  DEADLINES  ]---------------------------------";
 
-    private static final int FLOATING_TASK = 0;
-    private static final int DEADLINE_TASK = 1;
-    private static final int TIMED_TASK = 2;
 
     /* Information required for search */
     private String keyword;
