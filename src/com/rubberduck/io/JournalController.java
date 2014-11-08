@@ -97,7 +97,11 @@ public class JournalController<T extends Serializable & Comparable<T>> {
         }
         IDPair lastAction = redoStack.pop();
         if (lastAction.getPreviousId() != null) {
-            dbManager.markAsInvalid(lastAction.getPreviousId());
+            if (lastAction.getNewId() == null) {
+                dbManager.markAsDeleted(lastAction.getPreviousId());
+            } else {
+                dbManager.markAsInvalid(lastAction.getPreviousId());
+            }
         }
         if (lastAction.getNewId() != null) {
             dbManager.markAsValid(lastAction.getNewId());
