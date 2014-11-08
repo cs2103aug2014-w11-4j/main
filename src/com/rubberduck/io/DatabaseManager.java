@@ -40,10 +40,6 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
         }
     }
 
-    /**
-     * Get the instance of the id comparator
-     * @return Comparator of the id
-     */
     public Comparator<Long> getInstanceIdComparator() {
         return new InstanceIdComparator();
     }
@@ -52,19 +48,11 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
         private Iterator<Long> offsetIterator = validInstancesMap.keySet()
                 .iterator();
 
-        /**
-         * Check if there is a instance
-         * @return if there is a instance
-         */
         @Override
         public boolean hasNext() {
             return offsetIterator.hasNext();
         }
 
-        /**
-         * Get the next instance
-         * @return the next instance
-         */
         @Override
         public T next() {
             try {
@@ -75,9 +63,6 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
             }
         }
 
-        /**
-         * To prevent anyone from removing the instance
-         */
         @Override
         public void remove() {
             throw new UnsupportedOperationException("Cannot remove instance.");
@@ -134,26 +119,16 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
         openFile();
         scanFile();
     }
-    /**
-     * Create a new id
-     * @return new id
-     */
 
     private long createNewId() {
         currentId++;
         return currentId;
     }
 
-    /**
-     * Reset the list of id
-     */
     private void resetId() {
         currentId = 0;
     }
 
-    /**
-     * Reset the journal
-     */
     private void resetJournal() {
         journal = new JournalController<T>(this);
     }
@@ -250,12 +225,6 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
         tempFile.renameTo(new File(filePath));
     }
 
-    /**
-     * 
-     * @param offset
-     * @return
-     * @throws IOException
-     */
     private String getStringAtOffset(long offset) throws IOException {
         randomAccessFile.seek(offset);
         String line = randomAccessFile.readLine();
@@ -272,11 +241,6 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
         }
     }
 
-    /**
-     * 
-     * @param string
-     * @throws IOException
-     */
     private void writeStringAtEnd(String string) throws IOException {
         randomAccessFile.seek(eofOffset);
         randomAccessFile.writeBytes(VALID_FLAG
@@ -286,24 +250,12 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
         eofOffset = randomAccessFile.getFilePointer();
     }
 
-    /**
-     * Converts xml to an object
-     * @param xmlString
-     * @return object converted from xml
-     */
     private T xmlToInstance(String xmlString) {
         @SuppressWarnings("unchecked")
         T instance = (T) xstream.fromXML(xmlString);
         return instance;
     }
 
-    /**
-     * Convert the current instance to xml
-     * 
-     * @param instance
-     * @return xml in string
-     * @throws IOException
-     */
     private String instanceToXml(T instance) throws IOException {
         return xstream.toXML(instance);
     }
@@ -489,10 +441,6 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
         return journal.redo();
     }
 
-    /**
-     * Getter method to get the jounal
-     * @return journalController
-     */
     public JournalController<T> getJournal() {
         return journal;
     }
