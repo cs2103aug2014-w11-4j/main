@@ -40,6 +40,10 @@ public class SyncCommand extends Command {
     private static final String EXCEPTION_UNSUPPORTED_TYPE =
         "Type has not been implemented.";
 
+    /**
+     * 
+     * Enumeration of all the different Sync type
+     */
     public enum SyncType {
         PUSH, PULL, FORCE_PUSH, FORCE_PULL, TWO_WAY
     }
@@ -63,6 +67,7 @@ public class SyncCommand extends Command {
      * will be asked from the user.
      *
      * @return Response containing success or error message based on execution
+     * @throws IOException that might occur
      */
     @Override
     public Response execute() throws IOException {
