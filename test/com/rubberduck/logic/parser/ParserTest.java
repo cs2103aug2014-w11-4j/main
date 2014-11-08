@@ -1,3 +1,5 @@
+package com.rubberduck.logic.parser;
+
 import com.rubberduck.logic.command.AddCommand;
 import com.rubberduck.logic.command.Command;
 import com.rubberduck.logic.command.ConfirmCommand;
