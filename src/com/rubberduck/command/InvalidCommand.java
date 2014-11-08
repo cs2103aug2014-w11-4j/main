@@ -42,6 +42,7 @@ public class InvalidCommand extends Command {
      * Returns error response provided by application back to user.
      *
      * @return Response object containing the error message
+     * @throws IOException that might occur
      */
     @Override
     public Response execute() throws IOException {
