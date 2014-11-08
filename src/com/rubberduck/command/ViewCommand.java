@@ -335,8 +335,12 @@ public class ViewCommand extends Command {
         }
     }
     
-    private String viewSelectionToString(){
-        
+    /**
+     * Returns user required filters in string
+     * @return String feedback of user requested filters
+     */
+    
+    private String viewSelectionToString(){      
         Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
                 : Color.YELLOW;
         String viewSelectionList="[";
