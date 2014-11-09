@@ -51,7 +51,7 @@ public class Formatter {
 
     private static final String DATE_12HOUR_FORMAT = "dd MMM hh:mm aa";
     private static final String DATE_24HOUR_FORMAT = "dd MMM HH:mm";
-    private static final Locale DEFAULT_LOCALE = Locale.UK;
+    private static final Locale DEFAULT_LOCALE = Locale.US;
 
     private static String currentTimeFormat = DATE_24HOUR_FORMAT;
 
