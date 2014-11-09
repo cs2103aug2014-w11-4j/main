@@ -45,6 +45,9 @@ import com.rubberduck.common.datatransfer.DatePair;
  */
 public class GooManager {
 
+    /**
+     * A dummy Exception for differentiating IOException happened due to network error and disk error.
+     */
     public static class NetworkException extends IOException {
         public NetworkException(String message, Throwable cause) {
             super(message, cause);
@@ -265,9 +268,9 @@ public class GooManager {
     }
 
     /**
-     * Logs the user out and clears the credential.
+     * Log the user out and clear the credential.
      *
-     * @throws IOException if happens when writing to the disk.
+     * @throws IOException if fail to delete the credential.
      */
     public static void logOut() throws IOException {
         initialized = false;
@@ -319,7 +322,7 @@ public class GooManager {
      *
      * @param remoteId Remote ID of the task
      * @return the remote task inquired
-     * @throws IOException                 if network failure happens.
+     * @throws NetworkException                 if network failure happens.
      * @throws GoogleJsonResponseException if the operation cannot be finished.
      */
     public static Task getRemoteTask(String remoteId) throws NetworkException, GoogleJsonResponseException {
@@ -344,7 +347,7 @@ public class GooManager {
      *
      * @param remoteId Remote ID of the event
      * @return the remote event inquired
-     * @throws IOException if network failure happens.
+     * @throws NetworkException if network failure happens.
      * * @throws GoogleJsonResponseException if the operation cannot be finished.
      */
     public static Event getRemoteEvent(String remoteId) throws NetworkException, GoogleJsonResponseException {
@@ -997,7 +1000,7 @@ public class GooManager {
         return isLocalEventUuid(task.getUuid());
     }
 
-    public static boolean isPushed(com.rubberduck.common.datatransfer.Task task) {
+    private static boolean isPushed(com.rubberduck.common.datatransfer.Task task) {
         return isPushedAsTask(task) || isPushedAsEvent(task);
     }
 
