@@ -50,6 +50,8 @@ public class GooManager {
         }
     }
 
+    private static boolean initialized = false;
+
     /**
      * Constants needed for Google API Client
      */
@@ -86,6 +88,7 @@ public class GooManager {
      */
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private static final String LOG_MESSAGE_INITIALIZATION = "Google API Initialization finished.";
+    private static final String LOG_MESSAGE_INITIALIZED = "Already initialized, skipping...";
     private static final String LOG_MESSAGE_CREATING_CALENDAR = "Remote calendar not found, creating...";
     private static final String LOG_MESSAGE_CREATING_TASKLIST = "Remote task list not found, creating...";
     private static final String LOG_MESSAGE_CALENDAR_ID = "Found remote calendar, ID is %s";
@@ -169,69 +172,75 @@ public class GooManager {
      * @throws GeneralSecurityException if server cannot be trusted (possible MITM)
      */
     public static void initialize() throws NetworkException, GeneralSecurityException {
-        setupConnection();
+        if (initialized) {
+            LOGGER.info(LOG_MESSAGE_INITIALIZED);
+        } else {
+            setupConnection();
 
-        try {
-            String pageToken = null;
-            do {
-                CalendarList calendarList = calendarClient.calendarList().list().setPageToken(pageToken).execute();
-                List<CalendarListEntry> items = calendarList.getItems();
-                for (CalendarListEntry calendarListEntry : items) {
-                    if (calendarListEntry.getSummary().equals(CALENDAR_NAME)) {
-                        calendarId = calendarListEntry.getId();
+            try {
+                String pageToken = null;
+                do {
+                    CalendarList calendarList = calendarClient.calendarList().list().setPageToken(pageToken).execute();
+                    List<CalendarListEntry> items = calendarList.getItems();
+                    for (CalendarListEntry calendarListEntry : items) {
+                        if (calendarListEntry.getSummary().equals(CALENDAR_NAME)) {
+                            calendarId = calendarListEntry.getId();
+                            break;
+                        }
+                    }
+                    if (calendarId != null) {
                         break;
                     }
+                    pageToken = calendarList.getNextPageToken();
+                } while (pageToken != null);
+
+                /*
+                 * If there is no Calendar named RubberDuck, create a new one.
+                 */
+                if (calendarId == null) {
+                    LOGGER.info(LOG_MESSAGE_CREATING_CALENDAR);
+                    Calendar calendar = new Calendar();
+                    calendar.setSummary(CALENDAR_NAME);
+                    calendar.setTimeZone(TimeZone.getDefault().getID());
+                    Calendar createdCalendar = calendarClient.calendars().insert(calendar).execute();
+                    calendarId = createdCalendar.getId();
                 }
-                if (calendarId != null) {
-                    break;
-                }
-                pageToken = calendarList.getNextPageToken();
-            } while (pageToken != null);
 
-            /*
-             * If there is no Calendar named RubberDuck, create a new one.
-             */
-            if (calendarId == null) {
-                LOGGER.info(LOG_MESSAGE_CREATING_CALENDAR);
-                Calendar calendar = new Calendar();
-                calendar.setSummary(CALENDAR_NAME);
-                calendar.setTimeZone(TimeZone.getDefault().getID());
-                Calendar createdCalendar = calendarClient.calendars().insert(calendar).execute();
-                calendarId = createdCalendar.getId();
-            }
+                LOGGER.info(String.format(LOG_MESSAGE_CALENDAR_ID, calendarId));
 
-            LOGGER.info(String.format(LOG_MESSAGE_CALENDAR_ID, calendarId));
-
-            pageToken = null;
-            do {
-                TaskLists taskLists = tasksClient.tasklists().list().setPageToken(pageToken).execute();
-                List<TaskList> items = taskLists.getItems();
-                for (TaskList taskList : items) {
-                    if (taskList.getTitle().equals(CALENDAR_NAME)) {
-                        taskListId = taskList.getId();
+                pageToken = null;
+                do {
+                    TaskLists taskLists = tasksClient.tasklists().list().setPageToken(pageToken).execute();
+                    List<TaskList> items = taskLists.getItems();
+                    for (TaskList taskList : items) {
+                        if (taskList.getTitle().equals(CALENDAR_NAME)) {
+                            taskListId = taskList.getId();
+                            break;
+                        }
+                    }
+                    if (taskListId != null) {
                         break;
                     }
-                }
-                if (taskListId != null) {
-                    break;
-                }
-                pageToken = taskLists.getNextPageToken();
-            } while (pageToken != null);
+                    pageToken = taskLists.getNextPageToken();
+                } while (pageToken != null);
 
-            /*
-             * If there is no TaskList named RubberDuck, create a new one.
-             */
-            if (taskListId == null) {
-                LOGGER.info(LOG_MESSAGE_CREATING_TASKLIST);
-                TaskList taskList = new TaskList();
-                taskList.setTitle(CALENDAR_NAME);
-                TaskList createdTaskList = tasksClient.tasklists().insert(taskList).execute();
-                taskListId = createdTaskList.getId();
+                /*
+                 * If there is no TaskList named RubberDuck, create a new one.
+                 */
+                if (taskListId == null) {
+                    LOGGER.info(LOG_MESSAGE_CREATING_TASKLIST);
+                    TaskList taskList = new TaskList();
+                    taskList.setTitle(CALENDAR_NAME);
+                    TaskList createdTaskList = tasksClient.tasklists().insert(taskList).execute();
+                    taskListId = createdTaskList.getId();
+                }
+
+                LOGGER.info(String.format(LOG_MESSAGE_TASKLIST_ID, taskListId));
+            } catch (IOException e) {
+                throw new NetworkException(e.getMessage(), e.getCause());
             }
 
-            LOGGER.info(String.format(LOG_MESSAGE_TASKLIST_ID, taskListId));
-        } catch (IOException e) {
-            throw new NetworkException(e.getMessage(), e.getCause());
+            initialized = true;
         }
     }
 
