@@ -1,7 +1,8 @@
 package com.rubberduck.logic.command;
 
-import com.rubberduck.storage.DatabaseManager;
+import com.rubberduck.common.datatransfer.Response;
 import com.rubberduck.common.datatransfer.Task;
+import com.rubberduck.storage.DatabaseManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -113,7 +114,7 @@ public abstract class Command {
         "Initiating execution of command.";
 
     /* Details about the DataStore/DatabaseManager */
-    private static final String MESSAGE_ERROR_DATABASE_IOEXCEPTION =
+    private static final String MESSAGE_DATABASE_IOEXCEPTION =
         "Exception has occured when accessing local storage.";
     private static final String DATABASE_NAME =
         "database.xml";
@@ -129,14 +130,14 @@ public abstract class Command {
      *
      * @return states if the database has been started successfully
      */
-    public static boolean startDatabase() {
+    private static boolean startDatabase() {
         try {
             dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
                                                   + File.separator
                                                   + DATABASE_NAME);
             return true;
         } catch (IOException e) {
-            getLogger().log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION,
+            getLogger().log(Level.SEVERE, MESSAGE_DATABASE_IOEXCEPTION,
                             e);
             return false;
         }
@@ -180,6 +181,9 @@ public abstract class Command {
      * @return DatabaseManager<Task> instance
      */
     public static DatabaseManager<Task> getDbManager() {
+        if (dbManager == null) {
+            Command.startDatabase();
+        }
         return dbManager;
     }
 
@@ -211,14 +215,12 @@ public abstract class Command {
      *
      * @return response object after execution
      */
-    //@author A0119504L
     public Response safeExecute() {
         try {
             return execute();
         } catch (IOException e) {
-            getLogger().
-                log(Level.SEVERE, MESSAGE_ERROR_DATABASE_IOEXCEPTION, e);
-            return new Response(MESSAGE_ERROR_DATABASE_IOEXCEPTION, false);
+            getLogger().log(Level.SEVERE, MESSAGE_DATABASE_IOEXCEPTION, e);
+            return new Response(MESSAGE_DATABASE_IOEXCEPTION, false);
         }
     }
 
@@ -228,6 +230,5 @@ public abstract class Command {
      * @return response object after execution
      * @throws IOException thrown if DBManager encounter I/O problems
      */
-    //@author A0119504L
     protected abstract Response execute() throws IOException;
 }

@@ -46,7 +46,6 @@ public class RubberDuck {
      */
     public static void main(String[] args) {
         setupGlobalLogger();
-        Command.startDatabase();
         MenuInterface.getInstance().handleInterface();
     }
 
