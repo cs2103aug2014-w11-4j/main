@@ -55,6 +55,10 @@ public class ViewCommand extends Command {
         "on %s";
     private static final String MESSAGE_VIEWTYPE_TASK_ALERT =
         "Please note that all task have no date, thus it will be omitted in your agenda.";
+    
+    private static final int VIEW_FILTER_ALL_SELECTED = 3;
+    private static final int VIEW_FILTER_ONE_SELECTED = 1;
+    private static final int VIEW_FILTER_NONE_SELECTED = 0;
 
     private static final ArrayList<ViewFilter> VIEW_SELECTION_ALL =
         new ArrayList<ViewFilter>(
@@ -313,7 +317,7 @@ public class ViewCommand extends Command {
      * @throws IOException occurs when dbManager encounters a problem with file
      */
     private Response viewPrev() throws IOException {
-        if (viewSelection.size() == 1 &&
+        if (viewSelection.size() == VIEW_FILTER_ONE_SELECTED &&
             viewSelection.contains(ViewFilter.FLOATING)) {
             this.viewType = ViewType.ALL;
             return execute();
@@ -356,7 +360,7 @@ public class ViewCommand extends Command {
 
         String viewSelectionList = "[";
 
-        if (viewSelection.size() == 3 || viewSelection.size() == 0) {
+        if (viewSelection.size() == VIEW_FILTER_ALL_SELECTED || viewSelection.size() == VIEW_FILTER_NONE_SELECTED) {
             viewSelectionList += "All";
         } else {
             for (int i = 0; i < viewSelection.size(); i++) {
