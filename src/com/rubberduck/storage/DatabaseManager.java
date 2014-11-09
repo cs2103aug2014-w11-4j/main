@@ -12,7 +12,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.rubberduck.common.datatransfer.CalendarConverter;
+import com.rubberduck.common.formatter.CalendarConverter;
 import com.thoughtworks.xstream.XStream;
 
 /**

@@ -1,4 +1,4 @@
-package com.rubberduck.common.datatransfer;
+package com.rubberduck.common.formatter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
