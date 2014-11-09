@@ -1,11 +1,11 @@
 package com.rubberduck.menu;
 
-import com.rubberduck.logic.command.Command;
 import com.rubberduck.common.datatransfer.Response;
-import com.rubberduck.logic.parser.Parser;
 import com.rubberduck.common.formatter.ColorFormatter;
 import com.rubberduck.common.formatter.ColorFormatter.Color;
 import com.rubberduck.common.formatter.Formatter;
+import com.rubberduck.logic.command.Command;
+import com.rubberduck.logic.parser.Parser;
 
 import jline.console.ConsoleReader;
 import jline.console.completer.AggregateCompleter;
@@ -22,27 +22,32 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 
+//@author A0111736M
+
 /**
  * This class handles the user interface of the application that is running on
  * Windows platform. This will handle all input from the user and show the
  * required response back to the user.
  */
-//@author A0111736M
 public class WinInterface extends MenuInterface {
 
+    /* CMD command required to forcefully set the width and height of CMD*/
     private static final String COMMAND_SET_CONSOLE =
         "mode.com con cols=81 lines=41";
+
+    private static final String MESSAGE_ERROR_CMD =
+        "Interrupted when executing console setup command.";
     private static final String MESSAGE_SET_24HOUR =
         "Successfully toggled time formatting to 24 hour format.";
     private static final String MESSAGE_SET_12HOUR =
         "Successfully toggled time formatting to 12 hour format.";
-    private static final String MESSAGE_ERROR_CMD =
-        "Interrupted when executing console setup command.";
+    private static final String MESSAGE_ASSERT_RESPONSE =
+        "Response object returned must not be null.";
     private static final String[] ARGUMENTS_VIEW =
         new String[]{"all", "deadline", "float", "schedule", "completed",
                      "overdue"};
 
-    /* Separator Strings to format mock GUI */
+    /* Separator Strings that are used to display as Footer of WinInterface */
     private static final String SEPARATOR_BORDER =
         "--------------------------------------------------------------------------------";
     private static final String SEPARATOR_PAGEUP =
@@ -61,7 +66,6 @@ public class WinInterface extends MenuInterface {
     private static final int INDEX_VIEW_START = 9;
     private static final int INDEX_FOOTER = 38;
 
-    /* ConsoleReader instances and Writers */
     private ConsoleReader consoleInstance;
     private PrintWriter out;
 
@@ -73,8 +77,8 @@ public class WinInterface extends MenuInterface {
     private static final int NOT_IN_BUFFER = -1;
 
     /**
-     * Default constructor of WinInterface that initialises all the class
-     * variable and setup the consoleReader instance.
+     * Default constructor of WinInterface that initialises all the required
+     * class variable and setup the consoleReader instance.
      */
     protected WinInterface() {
         consoleBuffer = new String[LINES_RESPONSE_AREA + LINES_TASK_AREA];
@@ -95,9 +99,9 @@ public class WinInterface extends MenuInterface {
     }
 
     /**
-     * Handles the interface of the program. It prompts from user and passes to
-     * the parser to determine the command to be executed. It then proceed to
-     * execute the returned command and print the response to the user.
+     * Handles the interface of the program. It prompts input from user and
+     * passes to the parser. It then proceeds to print the output based on the
+     * Response object returned from the Parser.
      */
     @Override
     public void handleInterface() {
@@ -106,6 +110,7 @@ public class WinInterface extends MenuInterface {
             while (true) {
                 String line = consoleInstance.readLine(DEFAULT_PROMPT);
                 Response res = Parser.getInstance().parseInput(line);
+                assert res != null : MESSAGE_ASSERT_RESPONSE;
                 printOutput(res);
             }
         } catch (IOException e) {
@@ -114,7 +119,33 @@ public class WinInterface extends MenuInterface {
     }
 
     /**
-     * Used to setup and instantiate the ConsoleReader from jLine.
+     * Displays a prompt midway through an execution of a command and request an
+     * input from the user which will be returned to the command execution
+     * flow.
+     *
+     * @param prompts String literals to be displayed to the user
+     * @return response by the user
+     */
+    @Override
+    public String requestPrompt(String... prompts) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (String p : prompts) {
+                if (sb.length() > 0) {
+                    sb.append(System.lineSeparator());
+                }
+                sb.append(p);
+            }
+            printOutput(new Response(sb.toString(), true));
+            return consoleInstance.readLine(DEFAULT_PROMPT);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
+            return MESSAGE_ERROR_CR_IOEXCEPTION;
+        }
+    }
+
+    /**
+     * Setup and instantiates the ConsoleReader from jLine.
      *
      * @return ConsoleReader object
      * @throws IOException occurs when ConsoleReader has problem with output
@@ -129,8 +160,8 @@ public class WinInterface extends MenuInterface {
     }
 
     /**
-     * Set up the auto-complete feature by specifying the required completers
-     * into the consoleReader.
+     * Sets up the auto-complete feature by specifying the required completers
+     * into the consoleReader object.
      *
      * @param cr ConsoleReader object
      */
@@ -149,12 +180,13 @@ public class WinInterface extends MenuInterface {
     }
 
     /**
-     * Map the required keyboard keys to perform the required function when
-     * triggered.
+     * Maps the required keyboard keys to perform the required functionality
+     * when triggered.
      *
      * @param cr ConsoleReader object
      */
     private void setKeybinding(ConsoleReader cr) {
+        /* Declare ANSI keycode for each required key */
         final String pageUp = "\033[5~";
         final String pageDown = "\033[6~";
         final String insert = "\033[2~";
@@ -181,9 +213,8 @@ public class WinInterface extends MenuInterface {
         });
     }
 
-
     /**
-     * Scroll the task area upwards if possible.
+     * Scrolls the task area of the interface upwards if possible.
      */
     private void scrollTaskUp() {
         if (canScrollUp()) {
@@ -196,8 +227,8 @@ public class WinInterface extends MenuInterface {
             try {
                 bufferScreen();
                 consoleInstance.restoreLine(consoleInstance.getPrompt(),
-                                            consoleInstance.getCursorBuffer().
-                                                current());
+                                            consoleInstance.getCursorBuffer()
+                                                .current());
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
             }
@@ -205,7 +236,7 @@ public class WinInterface extends MenuInterface {
     }
 
     /**
-     * Scroll the task area downwards if possible.
+     * Scrolls the task area of the interface downwards if possible.
      */
     private void scrollTaskDown() {
         if (canScrollDown()) {
@@ -218,8 +249,8 @@ public class WinInterface extends MenuInterface {
             try {
                 bufferScreen();
                 consoleInstance.restoreLine(consoleInstance.getPrompt(),
-                                            consoleInstance.getCursorBuffer().
-                                                current());
+                                            consoleInstance.getCursorBuffer()
+                                                .current());
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
             }
@@ -227,7 +258,30 @@ public class WinInterface extends MenuInterface {
     }
 
     /**
-     * Toggles the formatter datestamp between 12 hour and 24 hour format.
+     * Returns a boolean that represents whether a scroll up function can be
+     * done. <p/> return true if task data can be scrolled up else false
+     *
+     * @return true if task data can be scrolled up else false
+     */
+    private boolean canScrollUp() {
+        return lastTaskIndex != NOT_IN_BUFFER &&
+               lastTaskIndex >= INDEX_FOOTER - INDEX_VIEW_START;
+    }
+
+    /**
+     * Returns a boolean that represents whether a scroll down function can be
+     * done.
+     *
+     * @return true if task data can be scrolled down else false
+     */
+    private boolean canScrollDown() {
+        return lastTaskIndex != NOT_IN_BUFFER &&
+               lastTaskIndex < taskBuffer.size() - 1 &&
+               taskBuffer.size() > INDEX_FOOTER - INDEX_VIEW_START;
+    }
+
+    /**
+     * Toggles the formatter date format between 12 hour and 24 hour format.
      */
     private void toggleTimeFormat() {
         Formatter.toggleTimeFormat();
@@ -238,16 +292,16 @@ public class WinInterface extends MenuInterface {
         try {
             printOutput(r);
             consoleInstance.restoreLine(consoleInstance.getPrompt(),
-                                        consoleInstance.getCursorBuffer().
-                                            current());
+                                        consoleInstance.getCursorBuffer()
+                                            .current());
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
         }
     }
 
     /**
-     * Used to get the response which contains the welcome screen that shows the
-     * relevant information when user first execute the program.
+     * Returns a Response object that contains the welcome screen that shows the
+     * relevant information when user first execute RubberDuck.
      *
      * @return Response object that contains the welcome information
      */
@@ -263,8 +317,11 @@ public class WinInterface extends MenuInterface {
     }
 
     /**
-     * Update the console buffer based on the user's response and flush the
-     * terminal buffer to reflect output changes.
+     * Updates the console buffer based on the Response object and buffer the
+     * terminal to reflect output changes.
+     *
+     * @param res Response object to update the buffer with
+     * @throws IOException occurs when ConsoleReader encounters an I/O error
      */
     private void printOutput(Response res) throws IOException {
         updateBuffer(res);
@@ -272,13 +329,14 @@ public class WinInterface extends MenuInterface {
     }
 
     /**
-     * Update console buffer based on the response provided in the arguments.
+     * Updates the console buffer based on the Response object provided in the
+     * arguments.
      *
-     * @param res Response object to update with
+     * @param res Response object to update the buffer with
      */
     private void updateBuffer(Response res) {
         if (res.isOverwrite()) {
-            /* Since isOverwrite is true, display only what is in the response */
+            /* if isOverwrite is true, display only what is in the messages */
             String[] messages = res.getMessages();
             for (int i = 0; i < consoleBuffer.length; i++) {
                 if (i < messages.length) {
@@ -289,6 +347,7 @@ public class WinInterface extends MenuInterface {
             }
             lastTaskIndex = NOT_IN_BUFFER;
         } else {
+            /* Update messages into the messages area in the Buffer */
             String[] messages = res.getMessages();
             for (int i = INDEX_MESSAGE_START; i < INDEX_VIEW_COUNT; i++) {
                 if (i - INDEX_MESSAGE_START < messages.length) {
@@ -298,6 +357,7 @@ public class WinInterface extends MenuInterface {
                 }
             }
 
+            /* Update viewCount into the viewCount area in the Buffer */
             String viewCount = res.getViewCount();
             if (viewCount != null) {
                 taskViewBuffer = viewCount;
@@ -306,11 +366,12 @@ public class WinInterface extends MenuInterface {
                 consoleBuffer[INDEX_VIEW_COUNT] = taskViewBuffer;
             }
 
+            /* Update viewData into the tasks area in the Buffer */
             String viewData = res.getViewData();
             if (viewData != null || lastTaskIndex == NOT_IN_BUFFER) {
                 if (viewData != null) {
-                    String[] viewSplit =
-                        res.getViewData().split(System.lineSeparator());
+                    String[] viewSplit = res.getViewData()
+                        .split(System.lineSeparator());
 
                     taskBuffer =
                         new ArrayList<String>(Arrays.asList(viewSplit));
@@ -340,7 +401,8 @@ public class WinInterface extends MenuInterface {
     }
 
     /**
-     * Get a String representation of the footer depending on the task data.
+     * Returns a String representation of the footer depending on the task data
+     * and lastTaskIndex.
      *
      * @return correct footer based on scrollability of task data
      */
@@ -357,31 +419,8 @@ public class WinInterface extends MenuInterface {
     }
 
     /**
-     * Returns a boolean that represents whether a scroll up function can be
-     * done. <p/> return true if task data can be scrolled up else false
-     *
-     * @return true if task data can be scrolled up else false
-     */
-    private boolean canScrollUp() {
-        return lastTaskIndex != NOT_IN_BUFFER &&
-               lastTaskIndex >= INDEX_FOOTER - INDEX_VIEW_START;
-    }
-
-    /**
-     * Returns a boolean that represents whether a scroll down function can be
-     * done.
-     *
-     * @return true if task data can be scrolled down else false
-     */
-    private boolean canScrollDown() {
-        return lastTaskIndex != NOT_IN_BUFFER &&
-               lastTaskIndex < taskBuffer.size() - 1 &&
-               taskBuffer.size() > INDEX_FOOTER - INDEX_VIEW_START;
-    }
-
-    /**
-     * Clear the screen of the console and output everything in the console
-     * buffer into PrintWriter.
+     * Clears the screen of the console and output everything in the console
+     * buffer into PrintWriter and proceed to flush to reflect changes.
      *
      * @throws IOException occurs when ConsoleReader encounters an I/O error
      */
@@ -391,31 +430,5 @@ public class WinInterface extends MenuInterface {
             out.println(s);
         }
         out.flush();
-    }
-
-    /**
-     * Displays a prompt midway through an execution of a command and request an
-     * input from the user which will be returned to the command execution
-     * flow.
-     *
-     * @param prompt String literals to be displayed to the user
-     * @return response by the user
-     */
-    @Override
-    public String requestPrompt(String... prompt) {
-        try {
-            StringBuilder sb = new StringBuilder();
-            for (String p : prompt) {
-                if (sb.length() > 0) {
-                    sb.append(System.lineSeparator());
-                }
-                sb.append(p);
-            }
-            printOutput(new Response(sb.toString(), true));
-            return consoleInstance.readLine(DEFAULT_PROMPT);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
-            return MESSAGE_ERROR_CR_IOEXCEPTION;
-        }
     }
 }

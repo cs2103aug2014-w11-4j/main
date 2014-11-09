@@ -2,12 +2,15 @@ package com.rubberduck.menu;
 
 import java.util.logging.Logger;
 
-/**
- * This class focuses on handling the user interface of the entire application
- * which accepts the user's input, call the parser and execute the command
- * returned from the parser.
- */
 //@author A0111736M
+
+/**
+ * This abstract class acts as the Factory class of the different interfaces
+ * object. It handles the instantiation of a concrete MenuInterface class
+ * dependent on the operating system the user is on. It also provides the
+ * necessary attributes and methods for concrete classes to implement and handle
+ * user input and output.
+ */
 public abstract class MenuInterface {
 
     /* Global logger to log information and exception. */
@@ -49,16 +52,16 @@ public abstract class MenuInterface {
     }
 
     /**
-     * Handle the interface of RubberDuck involving receiving inputs and outputs
-     * as required.
+     * Handles the interface of RubberDuck involving handling inputs and outputs
+     * for the user as required.
      */
     public abstract void handleInterface();
 
     /**
-     * Prompt user for an input and return the input back to caller.
+     * Prompts user for an input and return the input back to caller.
      *
-     * @param prompt String literals to prompt the user
+     * @param prompts String literals to prompt the user
      * @return user input
      */
-    public abstract String requestPrompt(String... prompt);
+    public abstract String requestPrompt(String... prompts);
 }

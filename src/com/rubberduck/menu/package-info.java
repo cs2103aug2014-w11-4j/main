@@ -1,7 +1,7 @@
 /**
- * Provide the necessary classes to handle the interface portion of application.
- * It is responsible for accepting input from the user and passing to the correct
- * packages. Classes then sends output to interface will also be processed
- * by classes in this package.
+ * Provide the necessary classes to handle the Menu component of application.
+ * It is responsible for accepting input from the user and passing it to the
+ * Parser in Logic. Parser will then sends output to interface which will also
+ * be handled by classes in this package/component.
  */
 package com.rubberduck.menu;
