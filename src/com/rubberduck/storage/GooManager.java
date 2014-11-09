@@ -326,6 +326,7 @@ public class GooManager {
      * @throws GoogleJsonResponseException if the operation cannot be finished.
      */
     public static Task getRemoteTask(String remoteId) throws NetworkException, GoogleJsonResponseException {
+        assert initialized;
         try {
             return tasksClient.tasks().get(taskListId, remoteId).execute();
         } catch (GoogleJsonResponseException e) {
@@ -351,6 +352,7 @@ public class GooManager {
      * * @throws GoogleJsonResponseException if the operation cannot be finished.
      */
     public static Event getRemoteEvent(String remoteId) throws NetworkException, GoogleJsonResponseException {
+        assert initialized;
         try {
             return calendarClient.events().get(calendarId, remoteId).execute();
         } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
@@ -376,6 +378,7 @@ public class GooManager {
      * @throws NetworkException if network failure happens.
      */
     public static boolean isInRemote(com.rubberduck.common.datatransfer.Task task) throws NetworkException {
+        assert initialized;
         try {
             if (isPushedAsTask(task)) {
                 return (getRemoteTask(getRemoteUuid(task)) != null);
@@ -396,6 +399,7 @@ public class GooManager {
      * @throws NetworkException if network failure happens.
      */
     public static void deleteTask(com.rubberduck.common.datatransfer.Task localTask) throws NetworkException {
+        assert initialized;
         try {
             if (isPushedAsTask(localTask)) {
                 tasksClient.tasks().delete(taskListId, getRemoteUuid(localTask)).execute();
@@ -417,6 +421,7 @@ public class GooManager {
      * @throws NetworkException if network failure happens.
      */
     public static void pushTask(com.rubberduck.common.datatransfer.Task localTask) throws NetworkException {
+        assert initialized;
         try {
             /*
              * We need to see if a copy exists on the server. If so, we need to use update instead of insert.
@@ -469,6 +474,7 @@ public class GooManager {
      * @throws UnsupportedOperationException if the task is never pushed.
      */
     public static com.rubberduck.common.datatransfer.Task pullTask(String localId) throws NetworkException {
+        assert initialized;
         try {
             com.rubberduck.common.datatransfer.Task task;
             if (isLocalTaskUuid(localId)) {
@@ -637,6 +643,7 @@ public class GooManager {
      * @throws NetworkException if network failure happens.
      */
     public static ArrayList<Task> getRemoteTaskList(boolean filterByUpdateTime) throws NetworkException {
+        assert initialized;
         try {
             ArrayList<Task> remoteTaskList = new ArrayList<Task>();
 
@@ -668,6 +675,7 @@ public class GooManager {
      * @throws NetworkException if network failure happens.
      */
     public static ArrayList<Event> getRemoteEventList(boolean filterByUpdateTime) throws NetworkException {
+        assert initialized;
         try {
             ArrayList<Event> remoteEventList = new ArrayList<Event>();
 
@@ -695,6 +703,7 @@ public class GooManager {
      * @throws NetworkException if network failure happens.
      */
     public static void clearRemoteTasks() throws NetworkException {
+        assert initialized;
         try {
             tasksClient.tasks().clear(taskListId).execute();
         } catch (IOException e) {
@@ -708,6 +717,7 @@ public class GooManager {
      * @throws NetworkException if network failure happens.
      */
     public static void clearRemoteEvents() throws NetworkException {
+        assert initialized;
         try {
             calendarClient.calendars().clear(calendarId);
         } catch (IOException e) {
@@ -723,6 +733,7 @@ public class GooManager {
      * @throws NetworkException if network failure happens.
      */
     public static void pushAll(DatabaseManager<com.rubberduck.common.datatransfer.Task> dbManager) throws IOException {
+        assert initialized;
         LOGGER.info(LOG_MESSAGE_PUSHING);
         for (Long databaseId : dbManager.getValidIdList()) {
             com.rubberduck.common.datatransfer.Task localTask = dbManager.getInstance(databaseId);
@@ -747,6 +758,7 @@ public class GooManager {
      * @throws NetworkException if network failure happens.
      */
     public static void pullAll(DatabaseManager<com.rubberduck.common.datatransfer.Task> dbManager) throws IOException {
+        assert initialized;
         LOGGER.info(LOG_MESSAGE_PULLING);
         HashMap<String, Long> uuidMap = new HashMap<String, Long>();
         for (Long databaseId : dbManager.getValidIdList()) {
@@ -783,6 +795,7 @@ public class GooManager {
      * @throws NetworkException if network failure happens.
      */
     public static void forcePushAll(DatabaseManager<com.rubberduck.common.datatransfer.Task> dbManager) throws IOException {
+        assert initialized;
         clearRemoteEvents();
         clearRemoteTasks();
         pushAll(dbManager);
@@ -796,6 +809,7 @@ public class GooManager {
      * @throws NetworkException if network failure happens.
      */
     public static void forcePullAll(DatabaseManager<com.rubberduck.common.datatransfer.Task> dbManager) throws IOException {
+        assert initialized;
         dbManager.resetDatabase();
         pullAll(dbManager);
     }
@@ -808,6 +822,7 @@ public class GooManager {
      * @throws NetworkException if network failure happens.
      */
     public static void twoWaySync(DatabaseManager<com.rubberduck.common.datatransfer.Task> dbManager) throws IOException {
+        assert initialized;
         LOGGER.info(LOG_MESSAGE_TWO_WAY);
 
         lastSyncTime = getLastSyncTime();
