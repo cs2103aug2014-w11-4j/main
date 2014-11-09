@@ -39,7 +39,7 @@ public class WinInterface extends MenuInterface {
     private static final String MESSAGE_ERROR_CMD =
         "Interrupted when executing console setup command.";
     private static final String[] ARGUMENTS_VIEW =
-        new String[]{"all", "deadline", "task", "schedule", "completed",
+        new String[]{"all", "deadline", "float", "schedule", "completed",
                      "overdue"};
 
     /* Separator Strings to format mock GUI */

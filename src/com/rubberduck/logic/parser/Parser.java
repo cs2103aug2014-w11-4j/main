@@ -49,8 +49,6 @@ public class Parser {
         "Please enter a keyword to search for.";
     private static final String MESSAGE_ADD_ERROR_NO_DESC =
         "Please enter a task description to add.";
-    private static final String MESSAGE_VIEW_ERROR_EMPTY =
-        "Please enter a valid date range to view.";
     private static final String MESSAGE_DELETE_ERROR_INVALID =
         "Please enter a task id to delete.";
     private static final String MESSAGE_UPDATE_ERROR_INVALID =
@@ -226,7 +224,7 @@ public class Parser {
         /* Setup view filter specified by user */
         ArrayList<ViewCommand.ViewFilter> viewList =
             new ArrayList<ViewFilter>();
-        if (args.contains("task")) {
+        if (args.contains("float")) {
             viewList.add(ViewFilter.FLOATING);
         }
         if (args.contains("deadline")) {
