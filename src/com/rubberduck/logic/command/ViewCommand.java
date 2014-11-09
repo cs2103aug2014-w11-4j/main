@@ -53,6 +53,8 @@ public class ViewCommand extends Command {
         "from %s to %s";
     private static final String MESSAGE_ONE_DAY =
         "on %s";
+    private static final String MESSAGE_VIEWTYPE_TASK_ALERT = 
+        "Please note that all task have no date, thus it will be omitted in search result.";
 
     private static final ArrayList<ViewFilter> VIEW_SELECTION_ALL =
         new ArrayList<ViewFilter>(
@@ -299,7 +301,7 @@ public class ViewCommand extends Command {
         setPreviousDisplayCommand(this);
         String taskData = Formatter.formatTaskList(getDisplayedTasksList(),
                                                    getDbManager());
-        return new Response("", viewCount.toString() + " "
+        return new Response("" + taskFilterAlert() , viewCount.toString() + " "
                                 + viewSelectionToString(), taskData);
     }
 
@@ -361,10 +363,24 @@ public class ViewCommand extends Command {
             for (int i = 0; i < viewSelection.size(); i++) {
                 viewSelectionList += viewSelection.get(i);
                 if (i < viewSelection.size() - 1) {
-                    viewSelectionList += ",";
+                    viewSelectionList += ", ";
                 }
             }
         }
         return ColorFormatter.format(viewSelectionList + "]", headerColor);
+    }
+    
+    /**
+     * Check if it is view by dateRange, 
+     * and return message to warn that the search will be omitted
+     * 
+     * @return String containing the alert message if there is any
+     */
+    private String taskFilterAlert(){
+        String alert= "";
+        if(viewSelection.contains(ViewFilter.TASK)){
+            alert += MESSAGE_VIEWTYPE_TASK_ALERT;
+        }
+        return ColorFormatter.format(alert, Color.RED);
     }
 }
