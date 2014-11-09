@@ -227,7 +227,7 @@ public class Parser {
         ArrayList<ViewCommand.ViewFilter> viewList =
             new ArrayList<ViewFilter>();
         if (args.contains("task")) {
-            viewList.add(ViewFilter.TASK);
+            viewList.add(ViewFilter.FLOATING);
         }
         if (args.contains("deadline")) {
             viewList.add(ViewCommand.ViewFilter.DEADLINE);

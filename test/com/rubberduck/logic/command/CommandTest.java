@@ -101,7 +101,7 @@ public class CommandTest {
     	ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
 		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
 		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.TASK);
+		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
 		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
 		viewCommand.execute();
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
@@ -147,7 +147,7 @@ public class CommandTest {
 		ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
 		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
 		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.TASK);
+		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
 		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
 		viewCommand.execute();
 		Command.setPreviousDisplayCommand(viewCommand);
@@ -178,7 +178,7 @@ public class CommandTest {
     	ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
 		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
 		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.TASK);
+		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
 		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
 		viewCommand.execute();
 		Command.setPreviousDisplayCommand(viewCommand);
@@ -216,7 +216,7 @@ public class CommandTest {
     	ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
 		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
 		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.TASK);
+		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
 		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
 		viewCommand.execute();
 		Command.setPreviousDisplayCommand(viewCommand);
@@ -249,7 +249,7 @@ public class CommandTest {
     	ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
 		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
 		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.TASK);
+		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
 		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
 		viewCommand.execute();
 		Command.setPreviousDisplayCommand(viewCommand);
@@ -275,7 +275,7 @@ public class CommandTest {
         ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
         viewCommand.execute();
         Command.setPreviousDisplayCommand(viewCommand);
@@ -305,7 +305,7 @@ public class CommandTest {
     	ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
 		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
 		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.TASK);
+		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
 		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
 		viewCommand.execute();
 		Command.setPreviousDisplayCommand(viewCommand);
@@ -332,7 +332,7 @@ public class CommandTest {
         ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
         viewCommand.execute();
         Command.setPreviousDisplayCommand(viewCommand);
@@ -459,7 +459,7 @@ public class CommandTest {
     	ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
 		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
 		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.TASK);
+		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
 		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
 		viewCommand.execute();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
@@ -483,7 +483,7 @@ public class CommandTest {
     	ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
 		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
 		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.TASK);
+		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
 		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
 		viewCommand.execute();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
@@ -511,7 +511,7 @@ public class CommandTest {
             new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
                 new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
 
@@ -543,7 +543,7 @@ public class CommandTest {
             new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
@@ -583,7 +583,7 @@ public class CommandTest {
             new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
@@ -613,7 +613,7 @@ public class CommandTest {
             new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
                 new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
         viewCommand.execute();
@@ -655,7 +655,7 @@ public class CommandTest {
             new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
                 new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
         viewCommand.execute();
@@ -692,7 +692,7 @@ public class CommandTest {
             new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
                 new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
         viewCommand.execute();
@@ -737,7 +737,7 @@ public class CommandTest {
             new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
                 new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
             viewCommand.execute();
@@ -778,7 +778,7 @@ public class CommandTest {
             new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
         ViewCommand viewCommand =
@@ -814,7 +814,7 @@ public class CommandTest {
             new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
                 new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
             viewCommand.execute();
@@ -842,7 +842,7 @@ public class CommandTest {
             new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
                 new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
             viewCommand.execute();
@@ -898,7 +898,7 @@ public class CommandTest {
             new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
                 new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
             viewCommand.execute();
@@ -950,7 +950,7 @@ public class CommandTest {
             new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
                 new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
             viewCommand.execute();
@@ -988,7 +988,7 @@ public class CommandTest {
             new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
                 new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
             viewCommand.execute();
@@ -1041,7 +1041,7 @@ public class CommandTest {
             new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-        viewChoice.add(ViewCommand.ViewFilter.TASK);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
                 new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
         viewCommand.execute();

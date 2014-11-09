@@ -25,7 +25,7 @@ public class ViewCommand extends Command {
      * Enumeration of all types of view filter
      */
     public enum ViewFilter {
-        TASK, DEADLINE, SCHEDULE
+        FLOATING, DEADLINE, SCHEDULE
     }
 
     /**
@@ -59,7 +59,7 @@ public class ViewCommand extends Command {
     private static final ArrayList<ViewFilter> VIEW_SELECTION_ALL =
         new ArrayList<ViewFilter>(
             Arrays.asList(ViewFilter.DEADLINE, ViewFilter.SCHEDULE,
-                          ViewFilter.TASK));
+                          ViewFilter.FLOATING));
 
     private DatePair viewRange;
     private boolean completed;
@@ -314,7 +314,7 @@ public class ViewCommand extends Command {
      */
     private Response viewPrev() throws IOException {
         if (viewSelection.size() == 1 &&
-            viewSelection.contains(ViewFilter.TASK)) {
+            viewSelection.contains(ViewFilter.FLOATING)) {
             this.viewType = ViewType.ALL;
             return execute();
         }
@@ -338,7 +338,7 @@ public class ViewCommand extends Command {
 
     private ViewFilter getTaskType(Task task) {
         if (task.isFloatingTask()) {
-            return ViewFilter.TASK;
+            return ViewFilter.FLOATING;
         } else if (task.isDeadline()) {
             return ViewFilter.DEADLINE;
         } else {
@@ -377,7 +377,7 @@ public class ViewCommand extends Command {
      */
     private String taskFilterAlert(){
         String alert = "";
-        if(viewSelection.contains(ViewFilter.TASK)){
+        if(viewSelection.contains(ViewFilter.FLOATING)){
             alert += MESSAGE_VIEWTYPE_TASK_ALERT;
         }
         return ColorFormatter.format(alert, Color.RED);
