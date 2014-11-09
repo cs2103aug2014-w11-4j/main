@@ -6,23 +6,24 @@ import com.rubberduck.common.formatter.ColorFormatter.Color;
 
 import java.io.IOException;
 
+//@author A0111736M
+
 /**
  * Concrete Command Class that can be executed to close the DatabaseManager and
  * exit the application.
  */
-//@author A0111736M
 public class ExitCommand extends Command {
 
     private static final String MESSAGE_EXIT =
-        "Closing Rubberduck.";
+        "Closing RubberDuck...";
     private static final String MESSAGE_CLOSING_DB =
-        "Closing database.";
+        "Closing database...";
 
     /**
-     * Close the DatabaseManager and related I/O files and exit the
-     * application.
+     * Close the DatabaseManager and related I/O files and terminate the
+     * application and its JVM with a code indicating normal termination.
      *
-     * @throws IOException that the logger might encounter
+     * @throws IOException occurs when there is problem closing databaseManager
      */
     @Override
     public Response execute() throws IOException {
@@ -33,6 +34,7 @@ public class ExitCommand extends Command {
 
         LOGGER.info(MESSAGE_EXIT);
         System.exit(0);
+
         return new Response(ColorFormatter.format(MESSAGE_EXIT, Color.RED),
                             true);
     }
