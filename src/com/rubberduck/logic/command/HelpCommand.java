@@ -4,6 +4,7 @@ import com.rubberduck.logic.formatter.ColorFormatter;
 import com.rubberduck.logic.formatter.ColorFormatter.Color;
 
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * Concrete Command Class that can be executed to show the list of available
@@ -20,23 +21,30 @@ public class HelpCommand extends Command {
         "More information about your queried command.";
     private static final String HELP_SPECIFIC_FORMAT =
         "%-15s%-65s";
+    private static final String HELP_SPECIFIC_ALIAS =
+        " \nSupported Alias";
+
     private static final String[][] COMMANDS = {
         {"view", "View your agenda given a date range or \"all\".",
-         "[date | all]"},
+         "[date | all | overdue] [deadline] [task] [schedule]"},
         {"search", "Search for tasks related to the given keyword.",
          "[keyword]"},
         {"add", "Add a new task of provided description with optional date.",
-         "<description> [date...]"},
-        {"delete", "Delete a task from the system given task ID.", "<task id>"},
+         "<description> [date | date range] | [date range or...]"},
+        {"delete", "Delete a task from the system given task ID.",
+         "<task id>"},
         {"update", "Update task given task ID and new information.",
-         "<task id> [description] [date...]"},
-        {"undo", "Undo your previous action.", "-"},
-        {"redo", "Redo your undone action.", "-"},
+         "<task id> [description] [date | date range] | [date range or...]"},
+        {"undo", "Undo your previous action.",
+         "-"},
+        {"redo", "Redo your undone action.",
+         "-"},
         {"mark", "Mark any task to complete/incomplete given task ID.",
          "<task id>"},
         {"confirm", "Confirm any tentative task given task ID and date ID.",
          "<task id> <date id>"},
-        {"sync", "Initiate 2-way synchronisation with Google.", "-"},
+        {"sync", "Initiate 2-way synchronisation with Google.",
+         "[force] [push | pull]"},
         {"clear", "Clear the screen of RubberDuck.", "-"},
         {"exit", "Exit from RubberDuck.", "-"},
         {"help", "Get help information on commands available and specifics.",
@@ -81,9 +89,24 @@ public class HelpCommand extends Command {
                 sb.append(ColorFormatter.format(HELP_SPECIFIC_HEADER,
                                                 Color.YELLOW));
                 sb.append(System.lineSeparator());
+                sb.append(String.format(HELP_SPECIFIC_FORMAT, "Command Type",
+                                        "Parameters"));
+                sb.append(System.lineSeparator());
                 sb.append(String.format(HELP_SPECIFIC_FORMAT,
                                         COMMANDS[ct.ordinal()][COMMANDS_NAME],
                                         COMMANDS[ct.ordinal()][COMMANDS_ARG]));
+
+                sb.append(System.lineSeparator());
+                sb.append(HELP_SPECIFIC_ALIAS);
+                sb.append(System.lineSeparator());
+
+                Set<String> allAlias = Command.CommandType.getAlias(ct);
+                StringBuilder aliasBuilder = new StringBuilder();
+                for (String alias : allAlias) {
+                    aliasBuilder.append(alias);
+                    aliasBuilder.append("   ");
+                }
+                sb.append(aliasBuilder.toString());
             }
         } else {
             sb.append(ColorFormatter.format(HELP_ALL_HEADER, Color.YELLOW));
