@@ -27,7 +27,7 @@ public class HelpCommand extends Command {
 
     private static final String[][] COMMANDS = {
         {"view", "View your agenda given a date range or \"all\".",
-         "[date | all | overdue] [deadline] [task] [schedule]"},
+         "[date | all | overdue] [deadline] [float] [schedule]"},
         {"search", "Search for tasks related to the given keyword.",
          "[keyword]"},
         {"add", "Add a new task of provided description with optional date.",
@@ -45,7 +45,7 @@ public class HelpCommand extends Command {
         {"confirm", "Confirm any tentative task given task ID and date ID.",
          "<task id> <date id>"},
         {"sync", "Initiate 2-way synchronisation with Google.",
-         "[force] [push | pull]"},
+         "[force] [push | pull] | [logout]"},
         {"clear", "Clear the screen of RubberDuck.", "-"},
         {"exit", "Exit from RubberDuck.", "-"},
         {"help", "Get help information on commands available and specifics.",

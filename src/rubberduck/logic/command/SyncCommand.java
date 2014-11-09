@@ -37,6 +37,8 @@ public class SyncCommand extends Command {
         "Successfully pulled (forced) data from Google.";
     private static final String MESSAGE_TWOWAY_SUCCESS =
         "Successfully synchronise between RubberDuck and Google.";
+    private static final String MESSAGE_LOGOUT_SUCCESS =
+        "Successfully logged out from Google.";
     private static final String EXCEPTION_UNSUPPORTED_TYPE =
         "Type has not been implemented.";
 
@@ -44,7 +46,7 @@ public class SyncCommand extends Command {
      * Enumeration of all the different Sync type
      */
     public enum SyncType {
-        PUSH, PULL, FORCE_PUSH, FORCE_PULL, TWO_WAY
+        PUSH, PULL, FORCE_PUSH, FORCE_PULL, TWO_WAY, LOGOUT
     }
 
     private SyncType type;
@@ -120,6 +122,11 @@ public class SyncCommand extends Command {
                     GooManager.twoWaySync(getDbManager());
                     return new Response(ColorFormatter.format(
                         MESSAGE_TWOWAY_SUCCESS, Color.GREEN), true);
+
+                case LOGOUT:
+                    GooManager.logOut();
+                    return new Response(ColorFormatter.format(
+                        MESSAGE_LOGOUT_SUCCESS, Color.GREEN), true);
 
                 default:
                     throw new UnsupportedOperationException(

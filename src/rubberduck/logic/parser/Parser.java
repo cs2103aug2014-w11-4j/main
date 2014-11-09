@@ -3,24 +3,6 @@ package rubberduck.logic.parser;
 import com.joestelmach.natty.CalendarSource;
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.ParseLocation;
-import rubberduck.logic.command.AddCommand;
-import rubberduck.logic.command.ClearCommand;
-import rubberduck.logic.command.Command;
-import rubberduck.logic.command.ConfirmCommand;
-import rubberduck.logic.command.DeleteCommand;
-import rubberduck.logic.command.ExitCommand;
-import rubberduck.logic.command.HelpCommand;
-import rubberduck.logic.command.InvalidCommand;
-import rubberduck.logic.command.MarkCommand;
-import rubberduck.logic.command.RedoCommand;
-import rubberduck.common.datatransfer.Response;
-import rubberduck.logic.command.SearchCommand;
-import rubberduck.logic.command.SyncCommand;
-import rubberduck.logic.command.UndoCommand;
-import rubberduck.logic.command.UpdateCommand;
-import rubberduck.logic.command.ViewCommand;
-import rubberduck.logic.command.ViewCommand.ViewFilter;
-import rubberduck.common.datatransfer.DatePair;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,6 +14,25 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import rubberduck.common.datatransfer.DatePair;
+import rubberduck.common.datatransfer.Response;
+import rubberduck.logic.command.AddCommand;
+import rubberduck.logic.command.ClearCommand;
+import rubberduck.logic.command.Command;
+import rubberduck.logic.command.ConfirmCommand;
+import rubberduck.logic.command.DeleteCommand;
+import rubberduck.logic.command.ExitCommand;
+import rubberduck.logic.command.HelpCommand;
+import rubberduck.logic.command.InvalidCommand;
+import rubberduck.logic.command.MarkCommand;
+import rubberduck.logic.command.RedoCommand;
+import rubberduck.logic.command.SearchCommand;
+import rubberduck.logic.command.SyncCommand;
+import rubberduck.logic.command.UndoCommand;
+import rubberduck.logic.command.UpdateCommand;
+import rubberduck.logic.command.ViewCommand;
+import rubberduck.logic.command.ViewCommand.ViewFilter;
 
 /**
  * Parser that reads in raw user input and attempts to translate into the
@@ -130,7 +131,7 @@ public class Parser {
      *
      * @param input String object containing input
      * @return Command object that was parsed
-        */
+     */
     protected Command parse(String input) {
         LOGGER.info("Parsing input: " + input);
         Command.CommandType userCommand = determineCommandType(input);
@@ -477,7 +478,7 @@ public class Parser {
      * @return SYNC command
      */
     private Command parseSync(String args) {
-        args = args.trim();
+        args = args.trim().toLowerCase();
 
         if (args.contains("push") && args.contains("pull")) {
             return new InvalidCommand(MESSAGE_SYNC_INVALID);
@@ -493,6 +494,8 @@ public class Parser {
             } else {
                 return new SyncCommand(SyncCommand.SyncType.PULL);
             }
+        } else if (args.contains("logout")) {
+            return new SyncCommand(SyncCommand.SyncType.LOGOUT);
         } else if (args.isEmpty()) {
             return new SyncCommand(SyncCommand.SyncType.TWO_WAY);
         } else {
