@@ -1,5 +1,5 @@
 /**
- * This package represents the data structures that represents
- * the Task object of the program.
+ * This package represents data structures used to move data between the
+ * components in RubberDuck.
  */
 package rubberduck.common.datatransfer;
