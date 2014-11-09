@@ -1,16 +1,11 @@
 package rubberduck;
 
-import rubberduck.menu.MenuInterface;
-
 import java.io.File;
 import java.io.IOException;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-
 import java.util.Calendar;
 import java.util.Locale;
-
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -18,17 +13,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import rubberduck.menu.MenuInterface;
+
+//@author A0111736M
+
 /**
  * RubberDuck is a CLI Task Manager that stores user's task into a text file and
  * helps the user to handle all his/her tasks via this application.
- *
- * <p>This class is the main class used to start and initialize the
- * program.</p>
+ * <p/>
+ * This class is the main class used to start and initialize the program.
  */
-//@author A0111736M
 public class RubberDuck {
 
-    /* Static variables used to store information about logging in RubberDuck */
+    /* Class variables used to store information about logging in RubberDuck */
     private static final String DATESTAMP_FORMAT =
         "dd-MM-yyyy_HH-mm-ss";
     private static final String LOG_DIR =
@@ -38,10 +35,10 @@ public class RubberDuck {
 
     /**
      * Main method of application as well as the entry point. It setups the
-     * logger, starts the database and finally getting a MenuInterface object
-     * and handle the user's input/output.
+     * global logger used within the application and call the Singleton instance
+     * of MenuInterface to handle user input/output.
      *
-     * @param args argument input from system
+     * @param args argument command line arguments
      */
     public static void main(String[] args) {
         setupGlobalLogger();
@@ -73,9 +70,8 @@ public class RubberDuck {
                                                          Locale.US);
             Calendar cal = Calendar.getInstance();
             String currentTime = dateFormat.format(cal.getTime());
-            FileHandler fileHandler =
-                new FileHandler(LOG_DIR + String.format(LOG_FILENAME,
-                                                        currentTime));
+            String fileName = String.format(LOG_FILENAME, currentTime);
+            FileHandler fileHandler = new FileHandler(LOG_DIR + fileName);
             SimpleFormatter formatter = new SimpleFormatter();
             fileHandler.setFormatter(formatter);
             logger.addHandler(fileHandler);
