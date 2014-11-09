@@ -16,6 +16,12 @@ public class SearchCommand extends Command {
 
     private static final String MESSAGE_SEARCH_RESULT =
         "%s task with \"%s\" has been found.";
+    
+    private static final int FIRST_CHAR = 0; 
+    private static final int SECOND_CHAR = 1;
+    private static final int CHAR_LENGTH_OFFSET = 1;
+    private static final int EMPTY_KEYWORDS_LENGTH = 2;
+    private static final int ONE_WORD = 1;
 
 
     /* Information required for search */
@@ -63,11 +69,14 @@ public class SearchCommand extends Command {
             StringTokenizer keywords =
                 new StringTokenizer(keyword.toLowerCase());
 
-            if (keyword.charAt(0) == '\"'
-                && keyword.charAt(keyword.length() - 1) == '\"') {
-                keyword = keyword.substring(1, keyword.length() - 1);
-                isFound = searchExactKeyword(keyword, taskDescriptions);
-            } else if (keywords.countTokens() == 1) {
+            if (keyword.length() > EMPTY_KEYWORDS_LENGTH && keyword.charAt(FIRST_CHAR) == '\"'
+                && keyword.charAt(keyword.length() - CHAR_LENGTH_OFFSET) == '\"') {
+                                
+                String modifiedKeyword = keyword.substring(SECOND_CHAR, keyword.length() - CHAR_LENGTH_OFFSET); 
+                isFound = searchExactKeyword(modifiedKeyword, taskDescriptions);                
+
+                
+            } else if (keywords.countTokens() == ONE_WORD) {
                 isFound = searchSingleKeyword(keyword, taskDescription);
             } else {
                 isFound = searchMultipleKeyword(keywords, taskDescriptions);
@@ -123,7 +132,9 @@ public class SearchCommand extends Command {
                                        StringTokenizer taskDescriptions) {
 
         while (taskDescriptions.hasMoreElements()) {
-            if (taskDescriptions.nextToken().equalsIgnoreCase(keyword)) {
+            
+            String nextToken = taskDescriptions.nextToken();   
+            if (nextToken.equalsIgnoreCase(keyword) ) {                               
                 return true;
             }
         }
