@@ -1,7 +1,7 @@
 package com.rubberduck.storage.task;
 
-import com.rubberduck.storage.task.DatePair;
-import com.rubberduck.storage.task.Task;
+import com.rubberduck.common.datatransfer.DatePair;
+import com.rubberduck.common.datatransfer.Task;
 
 import org.junit.Test;
 

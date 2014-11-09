@@ -1,10 +1,10 @@
 package com.rubberduck.logic.command;
 
-import com.rubberduck.logic.formatter.ColorFormatter;
-import com.rubberduck.logic.formatter.ColorFormatter.Color;
-import com.rubberduck.logic.formatter.Formatter;
-import com.rubberduck.storage.task.DatePair;
-import com.rubberduck.storage.task.Task;
+import com.rubberduck.common.formatter.ColorFormatter;
+import com.rubberduck.common.formatter.ColorFormatter.Color;
+import com.rubberduck.common.formatter.Formatter;
+import com.rubberduck.common.datatransfer.DatePair;
+import com.rubberduck.common.datatransfer.Task;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -53,7 +53,7 @@ public class ViewCommand extends Command {
         "from %s to %s";
     private static final String MESSAGE_ONE_DAY =
         "on %s";
-    private static final String MESSAGE_VIEWTYPE_TASK_ALERT = 
+    private static final String MESSAGE_VIEWTYPE_TASK_ALERT =
         "Please note that all task have no date, thus it will be omitted in search result.";
 
     private static final ArrayList<ViewFilter> VIEW_SELECTION_ALL =
@@ -368,11 +368,11 @@ public class ViewCommand extends Command {
         }
         return ColorFormatter.format(viewSelectionList + "]", Color.CYAN);
     }
-    
+
     /**
-     * Check if it is view by dateRange, 
+     * Check if it is view by dateRange,
      * and return message to warn that the search will be omitted
-     * 
+     *
      * @return String containing the alert message if there is any
      */
     private String taskFilterAlert(){

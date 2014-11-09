@@ -1,9 +1,9 @@
 package com.rubberduck.logic.command;
 
-import com.rubberduck.logic.formatter.ColorFormatter;
-import com.rubberduck.logic.formatter.ColorFormatter.Color;
-import com.rubberduck.logic.formatter.Formatter;
-import com.rubberduck.storage.task.Task;
+import com.rubberduck.common.formatter.ColorFormatter;
+import com.rubberduck.common.formatter.ColorFormatter.Color;
+import com.rubberduck.common.formatter.Formatter;
+import com.rubberduck.common.datatransfer.Task;
 
 import java.io.IOException;
 

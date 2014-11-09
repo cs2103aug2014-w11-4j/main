@@ -1,9 +1,9 @@
-package com.rubberduck.logic.formatter;
+package com.rubberduck.common.formatter;
 
 import com.rubberduck.storage.DatabaseManager;
-import com.rubberduck.storage.task.DatePair;
-import com.rubberduck.storage.task.Task;
-import com.rubberduck.logic.formatter.ColorFormatter.Color;
+import com.rubberduck.common.datatransfer.DatePair;
+import com.rubberduck.common.datatransfer.Task;
+import com.rubberduck.common.formatter.ColorFormatter.Color;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;

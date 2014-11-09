@@ -3,9 +3,9 @@ package com.rubberduck.menu;
 import com.rubberduck.logic.command.Command;
 import com.rubberduck.logic.command.Response;
 import com.rubberduck.logic.parser.Parser;
-import com.rubberduck.logic.formatter.ColorFormatter;
-import com.rubberduck.logic.formatter.ColorFormatter.Color;
-import com.rubberduck.logic.formatter.Formatter;
+import com.rubberduck.common.formatter.ColorFormatter;
+import com.rubberduck.common.formatter.ColorFormatter.Color;
+import com.rubberduck.common.formatter.Formatter;
 
 import jline.console.ConsoleReader;
 import jline.console.completer.AggregateCompleter;

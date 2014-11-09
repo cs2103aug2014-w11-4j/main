@@ -1,6 +1,6 @@
 package com.rubberduck.logic.command;
 
-import com.rubberduck.logic.formatter.Formatter;
+import com.rubberduck.common.formatter.Formatter;
 
 /**
  * A data structure that must be created by each command and returned back to

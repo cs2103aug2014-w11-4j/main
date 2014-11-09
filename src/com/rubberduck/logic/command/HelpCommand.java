@@ -1,7 +1,7 @@
 package com.rubberduck.logic.command;
 
-import com.rubberduck.logic.formatter.ColorFormatter;
-import com.rubberduck.logic.formatter.ColorFormatter.Color;
+import com.rubberduck.common.formatter.ColorFormatter;
+import com.rubberduck.common.formatter.ColorFormatter.Color;
 
 import java.io.IOException;
 import java.util.Set;
