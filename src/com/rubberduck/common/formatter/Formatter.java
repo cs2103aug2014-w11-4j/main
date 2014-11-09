@@ -24,7 +24,7 @@ public class Formatter {
     public static final String FORMAT_TENTATIVE = "%-7s%-6s%-43s%-19s%-5s";
 
     private static final String SEPARATOR_FLOATING =
-        "--------------------------------[    TASKS    ]---------------------------------";
+        "--------------------------------[  FLOATINGS  ]---------------------------------";
     private static final String SEPARATOR_DEADLINE =
         "--------------------------------[  DEADLINES  ]---------------------------------";
     private static final String SEPARATOR_SCHEDULE =
