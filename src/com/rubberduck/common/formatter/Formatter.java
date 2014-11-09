@@ -1,15 +1,16 @@
 package com.rubberduck.common.formatter;
 
-import com.rubberduck.storage.DatabaseManager;
 import com.rubberduck.common.datatransfer.DatePair;
 import com.rubberduck.common.datatransfer.Task;
 import com.rubberduck.common.formatter.ColorFormatter.Color;
+import com.rubberduck.storage.DatabaseManager;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.Locale;
 
@@ -34,9 +35,9 @@ public class Formatter {
     private static final int ANSI_OFFSET = 7;
 
     /* Values to represent the header type to print */
+
     /**
      * Enumeration of headerType
-     *
      */
     private enum HeaderType {
         NONE, FLOATING, DEADLINE, SCHEDULE,
@@ -50,6 +51,7 @@ public class Formatter {
 
     private static final String DATE_12HOUR_FORMAT = "dd MMM hh:mm aa";
     private static final String DATE_24HOUR_FORMAT = "dd MMM HH:mm";
+    private static final Locale DEFAULT_LOCALE = Locale.UK;
 
     private static String currentTimeFormat = DATE_24HOUR_FORMAT;
 
@@ -95,6 +97,19 @@ public class Formatter {
             i = DESC_MAX_WIDTH;
         }
         return desc.substring(0, i) + "...";
+    }
+
+    /**
+     * Accepts a String object and attempts to parse and return using the
+     * current date format in Formatter.
+     *
+     * @param date the date as String
+     * @return date in either 12/24 hour format based on Formatter
+     */
+    public static String formatDate(Date date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(currentTimeFormat,
+                                                           DEFAULT_LOCALE);
+        return dateFormat.format(date);
     }
 
     /**

@@ -1,14 +1,13 @@
 package com.rubberduck.common.datatransfer;
 
+import com.rubberduck.common.formatter.Formatter;
 import com.rubberduck.storage.DatabaseManager;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Locale;
 
 /**
  * This task class is used to represent a single task object which stores all
@@ -23,7 +22,7 @@ public class Task implements Serializable, Comparable<Task> {
     private boolean isDone;
     private String uuid;
     private Calendar lastUpdate;
-    
+
     private static final int BIGGER = 1;
     private static final int SMALLER = -1;
     private static final int SAME = 0;
@@ -306,26 +305,25 @@ public class Task implements Serializable, Comparable<Task> {
         return false;
     }
 
+    //@author A0111736M
+
     /**
-     * Return the first DatePair from the task as String. Should not be used
-     * with tentative tasks.
+     * Return the first DatePair from Task as String representation based on
+     * Formatter's current stored format.
      *
      * @return String representation of the DatePair in this Task
      */
-    //@author A0111736M
     public String getDateString() {
-        if (isFloatingTask()) {
-            return "No Date";
-        } else {
-            SimpleDateFormat dateFormat =
-                new SimpleDateFormat("dd-MMM hh:mm aa", Locale.US);
+        if (!isFloatingTask()) {
             DatePair dp = dateList.get(0);
             if (dp.hasDateRange()) {
-                return dateFormat.format(dp.getStartDate().getTime())
-                       + " to " + dateFormat.format(dp.getEndDate().getTime());
+                return Formatter.formatDate(dp.getStartDate().getTime()) +
+                       " to " + Formatter.formatDate(dp.getEndDate().getTime());
             } else {
-                return dateFormat.format(dp.getEndDate().getTime());
+                return Formatter.formatDate(dp.getEndDate().getTime());
             }
+        } else {
+            return "No Date";
         }
     }
 
