@@ -54,7 +54,7 @@ public class ViewCommand extends Command {
     private static final String MESSAGE_ONE_DAY =
         "on %s";
     private static final String MESSAGE_VIEWTYPE_TASK_ALERT =
-        "Please note that all task have no date, thus it will be omitted in search result.";
+        "Please note that all task have no date, thus it will be omitted in your agenda.";
 
     private static final ArrayList<ViewFilter> VIEW_SELECTION_ALL =
         new ArrayList<ViewFilter>(
@@ -228,7 +228,7 @@ public class ViewCommand extends Command {
         setPreviousDisplayCommand(this);
         String taskData = Formatter.formatTaskList(getDisplayedTasksList(),
                                                    getDbManager());
-        return new Response("", viewCount.toString() + " "
+        return new Response("" + taskFilterAlert(), viewCount.toString() + " "
                                 + viewSelectionToString(), taskData);
     }
 
