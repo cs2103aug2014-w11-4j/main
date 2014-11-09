@@ -112,6 +112,12 @@ public class GooManager {
     private static final String REMOTE_TASK_TIME_FORMAT = "Due: ";
 
     /**
+     * Color IDs defined by Google Calendar to differentiate completed and uncompleted tasks.
+     */
+    private static final String COLOR_ID_COMPLETED = "2";
+    private static final String COLOR_ID_UNCOMPLETED = "4";
+
+    /**
      * Authorize the application to access Google Accounts.
      *
      * @return Credential required by Google API Clients
@@ -495,19 +501,24 @@ public class GooManager {
         remoteEvent.setEnd(calendarToEventDateTime(datePair.getEndDate()));
         /*
          * Google Calendar does not support mark some event as done, need to store in description.
+         * Furthermore, event color is utilized to store this information.
          */
         if (localTask.getIsDone()) {
             if (remoteEvent.getDescription() == null) {
                 remoteEvent.setDescription(REMOTE_FLAG_COMPLETED);
             } else {
-                remoteEvent.setDescription(REMOTE_FLAG_COMPLETED + remoteEvent.getDescription());
+                String newDescription = remoteEvent.getDescription();
+                newDescription = REMOTE_FLAG_COMPLETED + newDescription.replaceAll(REMOTE_FLAG_COMPLETED, "");
+                remoteEvent.setDescription(newDescription);
             }
+            remoteEvent.setColorId(COLOR_ID_COMPLETED);
         } else {
             if (remoteEvent.getDescription() == null) {
                 remoteEvent.setDescription("");
             } else {
                 remoteEvent.setDescription(remoteEvent.getDescription().replaceAll(REMOTE_FLAG_COMPLETED, ""));
             }
+            remoteEvent.setColorId(COLOR_ID_UNCOMPLETED);
         }
     }
 
@@ -573,10 +584,20 @@ public class GooManager {
         dateList.add(new DatePair(eventDateTimeToCalendar(remoteEvent.getStart()),
                 eventDateTimeToCalendar(remoteEvent.getEnd())));
         localTask.setDateList(dateList);
-        if (remoteEvent.getDescription() != null && remoteEvent.getDescription().contains(REMOTE_FLAG_COMPLETED)) {
+        /*
+         * If the event color is one of the colors that is used to represent isDone, use that.
+         * Otherwise, test if REMOTE_FLAG_COMPLETED exists in the description.
+         */
+        if (remoteEvent.getColorId() != null && remoteEvent.getColorId().equals(COLOR_ID_COMPLETED)) {
             localTask.setIsDone(true);
-        } else {
+        } else if (remoteEvent.getColorId() != null && remoteEvent.getColorId().equals(COLOR_ID_UNCOMPLETED)) {
             localTask.setIsDone(false);
+        } else {
+            if (remoteEvent.getDescription() != null && remoteEvent.getDescription().contains(REMOTE_FLAG_COMPLETED)) {
+                localTask.setIsDone(true);
+            } else {
+                localTask.setIsDone(false);
+            }
         }
         return localTask;
     }
