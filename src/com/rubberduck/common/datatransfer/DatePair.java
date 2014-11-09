@@ -15,6 +15,8 @@ public class DatePair implements Serializable {
 
     private Calendar startDate = null;
     private Calendar endDate = null;
+    
+    private static final int EMPTY_ARRAYLIST_SIZE = 0;
 
     /**
      * Basic Constructor for DatePair, create a DatePair without any
@@ -204,7 +206,7 @@ public class DatePair implements Serializable {
      */
     //@author A0111794E
     public static boolean isDateBeforeNow(ArrayList<DatePair> dateList) {
-        if (dateList.size() > 0) {
+        if (dateList.size() > EMPTY_ARRAYLIST_SIZE) {
             for (DatePair dp : dateList) {
                 if (dp.getEndDate().before(Calendar.getInstance())) {
                     return true;

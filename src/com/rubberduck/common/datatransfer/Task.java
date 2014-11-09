@@ -23,6 +23,10 @@ public class Task implements Serializable, Comparable<Task> {
     private boolean isDone;
     private String uuid;
     private Calendar lastUpdate;
+    
+    private static final int BIGGER = 1;
+    private static final int SMALLER = -1;
+    private static final int SAME = 0;
 
     /**
      * Creates a task with no fields. This should only be used by Java Bean.
@@ -373,17 +377,17 @@ public class Task implements Serializable, Comparable<Task> {
         assert (o != null);
 
         if (this.isSchedule() && !o.isSchedule()) {
-            return -1;
+            return SMALLER;
         } else if (!this.isSchedule() && o.isSchedule()) {
-            return 1;
+            return BIGGER;
         }
 
         if (this.isFloatingTask() && o.isFloatingTask()) {
-            return 0;
+            return SAME;
         } else if (this.isFloatingTask()) {
-            return 1;
+            return BIGGER;
         } else if (o.isFloatingTask()) {
-            return -1;
+            return SMALLER;
         }
 
         return this.getEarliestDate().compareTo(o.getEarliestDate());
