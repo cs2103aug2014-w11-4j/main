@@ -533,10 +533,10 @@ public class GooManager {
     private static com.rubberduck.storage.task.Task constructLocalEvent(Event remoteEvent) {
         com.rubberduck.storage.task.Task localTask = new com.rubberduck.storage.task.Task();
         localTask.setUuid(constructLocalEventUuid(remoteEvent.getId()));
-        if (remoteEvent.getDescription() == null || remoteEvent.getDescription().isEmpty()) {
+        if (remoteEvent.getSummary() == null || remoteEvent.getSummary().isEmpty()) {
             localTask.setDescription(LOCAL_FLAG_UNNAMED_TASK);
         } else {
-            localTask.setDescription(remoteEvent.getDescription());
+            localTask.setDescription(remoteEvent.getSummary());
         }
         ArrayList<DatePair> dateList = new ArrayList<DatePair>();
         dateList.add(new DatePair(eventDateTimeToCalendar(remoteEvent.getStart()),
