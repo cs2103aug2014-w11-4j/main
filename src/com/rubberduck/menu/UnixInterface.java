@@ -96,6 +96,7 @@ public class UnixInterface extends MenuInterface {
      *
      * @param cr ConsoleReader object
      */
+    //@author A0111736M
     private void setKeybinding(ConsoleReader cr) {
         final String insert = "\033[2~";
 
@@ -152,7 +153,6 @@ public class UnixInterface extends MenuInterface {
      *
      * @return Response object that contains the welcome message
      */
-    //@author A0111736M
     private Response getWelcomeMessage() {
         StringBuilder messages = new StringBuilder();
         messages.append(MESSAGE_WELCOME);
