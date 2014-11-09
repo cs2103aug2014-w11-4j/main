@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.logging.Logger;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -80,6 +81,19 @@ public class GooManager {
     private static com.google.api.services.calendar.Calendar calendarClient;
     private static com.google.api.services.tasks.Tasks tasksClient;
 
+    /**
+     * Logger and information strings.
+     */
+    private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final String LOG_MESSAGE_INITIALIZATION = "Google API Initialization finished.";
+    private static final String LOG_MESSAGE_CREATING_CALENDAR = "Remote calendar not found, creating...";
+    private static final String LOG_MESSAGE_CREATING_TASKLIST = "Remote task list not found, creating...";
+    private static final String LOG_MESSAGE_CALENDAR_ID = "Found remote calendar, ID is %s";
+    private static final String LOG_MESSAGE_TASKLIST_ID = "Found remote task list, ID is %s";
+    private static final String LOG_MESSAGE_PUSHING = "Starting pushing...";
+    private static final String LOG_MESSAGE_PULLING = "Starting pulling...";
+    private static final String LOG_MESSAGE_TWO_WAY = "Starting two-way syncing...";
+
     private static String calendarId = null;
     private static String taskListId = null;
 
@@ -144,6 +158,8 @@ public class GooManager {
         tasksClient = new com.google.api.services.tasks.Tasks.Builder(
                 httpTransport, JSON_FACTORY, credential).setApplicationName(
                 APPLICATION_NAME).build();
+
+        LOGGER.info(LOG_MESSAGE_INITIALIZATION);
     }
 
     /**
@@ -176,12 +192,15 @@ public class GooManager {
              * If there is no Calendar named RubberDuck, create a new one.
              */
             if (calendarId == null) {
+                LOGGER.info(LOG_MESSAGE_CREATING_CALENDAR);
                 Calendar calendar = new Calendar();
                 calendar.setSummary(CALENDAR_NAME);
                 calendar.setTimeZone(TimeZone.getDefault().getID());
                 Calendar createdCalendar = calendarClient.calendars().insert(calendar).execute();
                 calendarId = createdCalendar.getId();
             }
+
+            LOGGER.info(String.format(LOG_MESSAGE_CALENDAR_ID, calendarId));
 
             pageToken = null;
             do {
@@ -203,11 +222,14 @@ public class GooManager {
              * If there is no TaskList named RubberDuck, create a new one.
              */
             if (taskListId == null) {
+                LOGGER.info(LOG_MESSAGE_CREATING_TASKLIST);
                 TaskList taskList = new TaskList();
                 taskList.setTitle(CALENDAR_NAME);
                 TaskList createdTaskList = tasksClient.tasklists().insert(taskList).execute();
                 taskListId = createdTaskList.getId();
             }
+
+            LOGGER.info(String.format(LOG_MESSAGE_TASKLIST_ID, taskListId));
         } catch (IOException e) {
             throw new NetworkException(e.getMessage(), e.getCause());
         }
@@ -644,6 +666,7 @@ public class GooManager {
      * @throws NetworkException if network failure happens.
      */
     public static void pushAll(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
+        LOGGER.info(LOG_MESSAGE_PUSHING);
         for (Long databaseId : dbManager.getValidIdList()) {
             com.rubberduck.storage.task.Task localTask = dbManager.getInstance(databaseId);
             if (!(localTask.getDateList().size() > 1)) {
@@ -667,6 +690,7 @@ public class GooManager {
      * @throws NetworkException if network failure happens.
      */
     public static void pullAll(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
+        LOGGER.info(LOG_MESSAGE_PULLING);
         HashMap<String, Long> uuidMap = new HashMap<String, Long>();
         for (Long databaseId : dbManager.getValidIdList()) {
             uuidMap.put(dbManager.getInstance(databaseId).getUuid(), databaseId);
@@ -727,6 +751,7 @@ public class GooManager {
      * @throws NetworkException if network failure happens.
      */
     public static void twoWaySync(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
+        LOGGER.info(LOG_MESSAGE_TWO_WAY);
         lastSyncTime = getLastSyncTime();
         HashMap<String, Long> localUuidMap = new HashMap<String, Long>();
 
