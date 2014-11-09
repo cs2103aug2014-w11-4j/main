@@ -353,8 +353,7 @@ public class ViewCommand extends Command {
      */
 
     private String viewSelectionToString() {
-        Color headerColor = getDisplayedTasksList().isEmpty() ? Color.GREEN
-                                                              : Color.YELLOW;
+
         String viewSelectionList = "[";
 
         if (viewSelection.size() == 3 || viewSelection.size() == 0) {
@@ -367,7 +366,7 @@ public class ViewCommand extends Command {
                 }
             }
         }
-        return ColorFormatter.format(viewSelectionList + "]", headerColor);
+        return ColorFormatter.format(viewSelectionList + "]", Color.CYAN);
     }
     
     /**
@@ -377,7 +376,7 @@ public class ViewCommand extends Command {
      * @return String containing the alert message if there is any
      */
     private String taskFilterAlert(){
-        String alert= "";
+        String alert = "";
         if(viewSelection.contains(ViewFilter.TASK)){
             alert += MESSAGE_VIEWTYPE_TASK_ALERT;
         }
