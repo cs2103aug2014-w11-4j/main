@@ -25,11 +25,11 @@ hs_err_pid*
 # Database File #
 database.xml
 
+# Stored Google OAuth Token Credential #
+StoredCredential
+
 # Log Files #
 /logs/
 *.log
-
-
-
 
 *.MF

@@ -1,5 +1,6 @@
 package com.rubberduck.storage;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
-import com.google.api.client.util.store.MemoryDataStoreFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Calendar;
 import com.google.api.services.calendar.model.CalendarList;
@@ -79,7 +80,15 @@ public class GooManager {
     private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.US);
     private static HttpTransport httpTransport;
-    private static MemoryDataStoreFactory memoryDataStoreFactory = MemoryDataStoreFactory.getDefaultInstance();
+
+    /**
+     * DataStore needed for persisting OAuth Token.
+     */
+    private static FileDataStoreFactory fileDataStoreFactory;
+    private static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
+    private static final String DATA_STORE_DIR = "/";
+    private static final String DATA_STORE_NAME = "StoredCredential";
+
     private static com.google.api.services.calendar.Calendar calendarClient;
     private static com.google.api.services.tasks.Tasks tasksClient;
 
@@ -122,8 +131,9 @@ public class GooManager {
      *
      * @return Credential required by Google API Clients
      * @throws NetworkException if network failure happens
+     * @throws IOException if I/O error happens when reading/writing oauth2 tokens
      */
-    private static Credential authorize() throws NetworkException {
+    private static Credential authorize() throws IOException {
         GoogleClientSecrets.Details details = new GoogleClientSecrets.Details();
         details.setClientId(CLIENT_ID);
         details.setClientSecret(CLIENT_SECRET);
@@ -134,10 +144,12 @@ public class GooManager {
         scopes.add(CalendarScopes.CALENDAR);
         scopes.add(TasksScopes.TASKS);
 
+        fileDataStoreFactory = new FileDataStoreFactory(new File(CURRENT_DIRECTORY + DATA_STORE_DIR));
+
         try {
             GoogleAuthorizationCodeFlow flow =
                     new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets, scopes).
-                            setDataStoreFactory(memoryDataStoreFactory).build();
+                            setDataStoreFactory(fileDataStoreFactory).build();
 
             return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
         } catch (IOException e) {
@@ -150,8 +162,9 @@ public class GooManager {
      *
      * @throws NetworkException         if network failure happens
      * @throws GeneralSecurityException if server cannot be trusted (possible MITM)
+     * @throws IOException              if I/O error happens when reading/writing oauth2 tokens
      */
-    private static void setupConnection() throws NetworkException, GeneralSecurityException {
+    private static void setupConnection() throws IOException, GeneralSecurityException {
         try {
             httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         } catch (IOException e) {
@@ -176,8 +189,9 @@ public class GooManager {
      *
      * @throws NetworkException         if network failure happens
      * @throws GeneralSecurityException if server cannot be trusted (possible MITM)
+     * @throws IOException              if I/O error happens when reading/writing oauth2 tokens
      */
-    public static void initialize() throws NetworkException, GeneralSecurityException {
+    public static void initialize() throws IOException, GeneralSecurityException {
         if (initialized) {
             LOGGER.info(LOG_MESSAGE_INITIALIZED);
         } else {
@@ -248,6 +262,16 @@ public class GooManager {
 
             initialized = true;
         }
+    }
+
+    /**
+     * Logs the user out and clears the credential.
+     *
+     * @throws IOException if happens when writing to the disk.
+     */
+    public static void logOut() throws IOException {
+        initialized = false;
+        new File(CURRENT_DIRECTORY + DATA_STORE_DIR + DATA_STORE_NAME).delete();
     }
 
     /**
