@@ -20,7 +20,7 @@ import com.rubberduck.logic.command.UndoCommand;
 import com.rubberduck.logic.command.UpdateCommand;
 import com.rubberduck.logic.command.ViewCommand;
 import com.rubberduck.logic.command.ViewCommand.ViewFilter;
-import com.rubberduck.storage.task.DatePair;
+import com.rubberduck.common.datatransfer.DatePair;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -132,7 +132,7 @@ public class Parser {
      *
      * @param input String object containing input
      * @return Command object that was parsed
-     */
+        */
     protected Command parse(String input) {
         LOGGER.info("Parsing input: " + input);
         Command.CommandType userCommand = determineCommandType(input);

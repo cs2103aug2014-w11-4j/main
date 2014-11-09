@@ -1,7 +1,7 @@
 package com.rubberduck.logic.command;
 
 import com.rubberduck.storage.DatabaseManager;
-import com.rubberduck.storage.task.Task;
+import com.rubberduck.common.datatransfer.Task;
 
 import java.io.File;
 import java.io.IOException;

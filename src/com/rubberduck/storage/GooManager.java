@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.logging.Logger;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -34,7 +35,7 @@ import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.api.services.tasks.model.TaskLists;
 import com.google.api.services.tasks.model.Tasks;
-import com.rubberduck.storage.task.DatePair;
+import com.rubberduck.common.datatransfer.DatePair;
 
 //@author A0119416H
 
@@ -48,6 +49,8 @@ public class GooManager {
             super(message, cause);
         }
     }
+
+    private static boolean initialized = false;
 
     /**
      * Constants needed for Google API Client
@@ -79,6 +82,20 @@ public class GooManager {
     private static MemoryDataStoreFactory memoryDataStoreFactory = MemoryDataStoreFactory.getDefaultInstance();
     private static com.google.api.services.calendar.Calendar calendarClient;
     private static com.google.api.services.tasks.Tasks tasksClient;
+
+    /**
+     * Logger and information strings.
+     */
+    private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final String LOG_MESSAGE_INITIALIZATION = "Google API Initialization finished.";
+    private static final String LOG_MESSAGE_INITIALIZED = "Already initialized, skipping...";
+    private static final String LOG_MESSAGE_CREATING_CALENDAR = "Remote calendar not found, creating...";
+    private static final String LOG_MESSAGE_CREATING_TASKLIST = "Remote task list not found, creating...";
+    private static final String LOG_MESSAGE_CALENDAR_ID = "Found remote calendar, ID is %s";
+    private static final String LOG_MESSAGE_TASKLIST_ID = "Found remote task list, ID is %s";
+    private static final String LOG_MESSAGE_PUSHING = "Starting pushing...";
+    private static final String LOG_MESSAGE_PULLING = "Starting pulling...";
+    private static final String LOG_MESSAGE_TWO_WAY = "Starting two-way syncing...";
 
     private static String calendarId = null;
     private static String taskListId = null;
@@ -144,6 +161,8 @@ public class GooManager {
         tasksClient = new com.google.api.services.tasks.Tasks.Builder(
                 httpTransport, JSON_FACTORY, credential).setApplicationName(
                 APPLICATION_NAME).build();
+
+        LOGGER.info(LOG_MESSAGE_INITIALIZATION);
     }
 
     /**
@@ -153,63 +172,75 @@ public class GooManager {
      * @throws GeneralSecurityException if server cannot be trusted (possible MITM)
      */
     public static void initialize() throws NetworkException, GeneralSecurityException {
-        setupConnection();
+        if (initialized) {
+            LOGGER.info(LOG_MESSAGE_INITIALIZED);
+        } else {
+            setupConnection();
 
-        try {
-            String pageToken = null;
-            do {
-                CalendarList calendarList = calendarClient.calendarList().list().setPageToken(pageToken).execute();
-                List<CalendarListEntry> items = calendarList.getItems();
-                for (CalendarListEntry calendarListEntry : items) {
-                    if (calendarListEntry.getSummary().equals(CALENDAR_NAME)) {
-                        calendarId = calendarListEntry.getId();
+            try {
+                String pageToken = null;
+                do {
+                    CalendarList calendarList = calendarClient.calendarList().list().setPageToken(pageToken).execute();
+                    List<CalendarListEntry> items = calendarList.getItems();
+                    for (CalendarListEntry calendarListEntry : items) {
+                        if (calendarListEntry.getSummary().equals(CALENDAR_NAME)) {
+                            calendarId = calendarListEntry.getId();
+                            break;
+                        }
+                    }
+                    if (calendarId != null) {
                         break;
                     }
-                }
-                if (calendarId != null) {
-                    break;
-                }
-                pageToken = calendarList.getNextPageToken();
-            } while (pageToken != null);
+                    pageToken = calendarList.getNextPageToken();
+                } while (pageToken != null);
 
-            /*
-             * If there is no Calendar named RubberDuck, create a new one.
-             */
-            if (calendarId == null) {
-                Calendar calendar = new Calendar();
-                calendar.setSummary(CALENDAR_NAME);
-                calendar.setTimeZone(TimeZone.getDefault().getID());
-                Calendar createdCalendar = calendarClient.calendars().insert(calendar).execute();
-                calendarId = createdCalendar.getId();
-            }
+                /*
+                 * If there is no Calendar named RubberDuck, create a new one.
+                 */
+                if (calendarId == null) {
+                    LOGGER.info(LOG_MESSAGE_CREATING_CALENDAR);
+                    Calendar calendar = new Calendar();
+                    calendar.setSummary(CALENDAR_NAME);
+                    calendar.setTimeZone(TimeZone.getDefault().getID());
+                    Calendar createdCalendar = calendarClient.calendars().insert(calendar).execute();
+                    calendarId = createdCalendar.getId();
+                }
 
-            pageToken = null;
-            do {
-                TaskLists taskLists = tasksClient.tasklists().list().setPageToken(pageToken).execute();
-                List<TaskList> items = taskLists.getItems();
-                for (TaskList taskList : items) {
-                    if (taskList.getTitle().equals(CALENDAR_NAME)) {
-                        taskListId = taskList.getId();
+                LOGGER.info(String.format(LOG_MESSAGE_CALENDAR_ID, calendarId));
+
+                pageToken = null;
+                do {
+                    TaskLists taskLists = tasksClient.tasklists().list().setPageToken(pageToken).execute();
+                    List<TaskList> items = taskLists.getItems();
+                    for (TaskList taskList : items) {
+                        if (taskList.getTitle().equals(CALENDAR_NAME)) {
+                            taskListId = taskList.getId();
+                            break;
+                        }
+                    }
+                    if (taskListId != null) {
                         break;
                     }
-                }
-                if (taskListId != null) {
-                    break;
-                }
-                pageToken = taskLists.getNextPageToken();
-            } while (pageToken != null);
+                    pageToken = taskLists.getNextPageToken();
+                } while (pageToken != null);
 
-            /*
-             * If there is no TaskList named RubberDuck, create a new one.
-             */
-            if (taskListId == null) {
-                TaskList taskList = new TaskList();
-                taskList.setTitle(CALENDAR_NAME);
-                TaskList createdTaskList = tasksClient.tasklists().insert(taskList).execute();
-                taskListId = createdTaskList.getId();
+                /*
+                 * If there is no TaskList named RubberDuck, create a new one.
+                 */
+                if (taskListId == null) {
+                    LOGGER.info(LOG_MESSAGE_CREATING_TASKLIST);
+                    TaskList taskList = new TaskList();
+                    taskList.setTitle(CALENDAR_NAME);
+                    TaskList createdTaskList = tasksClient.tasklists().insert(taskList).execute();
+                    taskListId = createdTaskList.getId();
+                }
+
+                LOGGER.info(String.format(LOG_MESSAGE_TASKLIST_ID, taskListId));
+            } catch (IOException e) {
+                throw new NetworkException(e.getMessage(), e.getCause());
             }
-        } catch (IOException e) {
-            throw new NetworkException(e.getMessage(), e.getCause());
+
+            initialized = true;
         }
     }
 
@@ -311,7 +342,7 @@ public class GooManager {
      * @return true if the task exists
      * @throws NetworkException if network failure happens.
      */
-    public static boolean isInRemote(com.rubberduck.storage.task.Task task) throws NetworkException {
+    public static boolean isInRemote(com.rubberduck.common.datatransfer.Task task) throws NetworkException {
         try {
             if (isPushedAsTask(task)) {
                 return (getRemoteTask(getRemoteUuid(task)) != null);
@@ -331,7 +362,7 @@ public class GooManager {
      * @param localTask the local task to be deleted remotely
      * @throws NetworkException if network failure happens.
      */
-    public static void deleteTask(com.rubberduck.storage.task.Task localTask) throws NetworkException {
+    public static void deleteTask(com.rubberduck.common.datatransfer.Task localTask) throws NetworkException {
         try {
             if (isPushedAsTask(localTask)) {
                 tasksClient.tasks().delete(taskListId, getRemoteUuid(localTask)).execute();
@@ -352,7 +383,7 @@ public class GooManager {
      * @param localTask the local task to be pushed
      * @throws NetworkException if network failure happens.
      */
-    public static void pushTask(com.rubberduck.storage.task.Task localTask) throws NetworkException {
+    public static void pushTask(com.rubberduck.common.datatransfer.Task localTask) throws NetworkException {
         try {
             /*
              * We need to see if a copy exists on the server. If so, we need to use update instead of insert.
@@ -404,9 +435,9 @@ public class GooManager {
      * @throws NetworkException                   if network failure happens.
      * @throws UnsupportedOperationException if the task is never pushed.
      */
-    public static com.rubberduck.storage.task.Task pullTask(String localId) throws NetworkException {
+    public static com.rubberduck.common.datatransfer.Task pullTask(String localId) throws NetworkException {
         try {
-            com.rubberduck.storage.task.Task task;
+            com.rubberduck.common.datatransfer.Task task;
             if (isLocalTaskUuid(localId)) {
                 Task remoteTask = getRemoteTask(constructRemoteTaskId(localId));
                 task = constructLocalTask(remoteTask);
@@ -428,7 +459,7 @@ public class GooManager {
      * @param remoteTask the local task to be converted
      * @param localTask  the converted remote Task
      */
-    private static void constructRemoteTask(Task remoteTask, com.rubberduck.storage.task.Task localTask) {
+    private static void constructRemoteTask(Task remoteTask, com.rubberduck.common.datatransfer.Task localTask) {
         remoteTask.setTitle(localTask.getDescription());
         if (isLocalTaskUuid(localTask.getUuid())) {
             remoteTask.setId(constructRemoteTaskId(localTask.getUuid()));
@@ -454,7 +485,7 @@ public class GooManager {
      * @param localTask   the local task to be converted
      * @param remoteEvent the converted remote Event
      */
-    private static void constructRemoteEvent(Event remoteEvent, com.rubberduck.storage.task.Task localTask) {
+    private static void constructRemoteEvent(Event remoteEvent, com.rubberduck.common.datatransfer.Task localTask) {
         remoteEvent.setSummary(localTask.getDescription());
         if (isLocalEventUuid(localTask.getUuid())) {
             remoteEvent.setId(constructRemoteEventId(localTask.getUuid()));
@@ -486,8 +517,8 @@ public class GooManager {
      * @param remoteTask the remote Task to be converted
      * @return the converted local task
      */
-    private static com.rubberduck.storage.task.Task constructLocalTask(Task remoteTask) {
-        com.rubberduck.storage.task.Task localTask = new com.rubberduck.storage.task.Task();
+    private static com.rubberduck.common.datatransfer.Task constructLocalTask(Task remoteTask) {
+        com.rubberduck.common.datatransfer.Task localTask = new com.rubberduck.common.datatransfer.Task();
         localTask.setUuid(constructLocalTaskUuid(remoteTask.getId()));
         /*
          * Remote Task may have an empty title, need to rename it.
@@ -530,13 +561,13 @@ public class GooManager {
      * @param remoteEvent the remote Event to be converted
      * @return the converted local task
      */
-    private static com.rubberduck.storage.task.Task constructLocalEvent(Event remoteEvent) {
-        com.rubberduck.storage.task.Task localTask = new com.rubberduck.storage.task.Task();
+    private static com.rubberduck.common.datatransfer.Task constructLocalEvent(Event remoteEvent) {
+        com.rubberduck.common.datatransfer.Task localTask = new com.rubberduck.common.datatransfer.Task();
         localTask.setUuid(constructLocalEventUuid(remoteEvent.getId()));
-        if (remoteEvent.getDescription() == null || remoteEvent.getDescription().isEmpty()) {
+        if (remoteEvent.getSummary() == null || remoteEvent.getSummary().isEmpty()) {
             localTask.setDescription(LOCAL_FLAG_UNNAMED_TASK);
         } else {
-            localTask.setDescription(remoteEvent.getDescription());
+            localTask.setDescription(remoteEvent.getSummary());
         }
         ArrayList<DatePair> dateList = new ArrayList<DatePair>();
         dateList.add(new DatePair(eventDateTimeToCalendar(remoteEvent.getStart()),
@@ -643,9 +674,10 @@ public class GooManager {
      * @throws IOException if thrown by DatabaseManager.
      * @throws NetworkException if network failure happens.
      */
-    public static void pushAll(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
+    public static void pushAll(DatabaseManager<com.rubberduck.common.datatransfer.Task> dbManager) throws IOException {
+        LOGGER.info(LOG_MESSAGE_PUSHING);
         for (Long databaseId : dbManager.getValidIdList()) {
-            com.rubberduck.storage.task.Task localTask = dbManager.getInstance(databaseId);
+            com.rubberduck.common.datatransfer.Task localTask = dbManager.getInstance(databaseId);
             if (!(localTask.getDateList().size() > 1)) {
                 pushTask(localTask);
                 dbManager.modify(databaseId, localTask, null);
@@ -666,7 +698,8 @@ public class GooManager {
      * @throws IOException if thrown by DatabaseManager.
      * @throws NetworkException if network failure happens.
      */
-    public static void pullAll(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
+    public static void pullAll(DatabaseManager<com.rubberduck.common.datatransfer.Task> dbManager) throws IOException {
+        LOGGER.info(LOG_MESSAGE_PULLING);
         HashMap<String, Long> uuidMap = new HashMap<String, Long>();
         for (Long databaseId : dbManager.getValidIdList()) {
             uuidMap.put(dbManager.getInstance(databaseId).getUuid(), databaseId);
@@ -701,7 +734,7 @@ public class GooManager {
      * @throws IOException if thrown by DatabaseManager.
      * @throws NetworkException if network failure happens.
      */
-    public static void forcePushAll(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
+    public static void forcePushAll(DatabaseManager<com.rubberduck.common.datatransfer.Task> dbManager) throws IOException {
         clearRemoteEvents();
         clearRemoteTasks();
         pushAll(dbManager);
@@ -714,7 +747,7 @@ public class GooManager {
      * @throws IOException if thrown by DatabaseManager.
      * @throws NetworkException if network failure happens.
      */
-    public static void forcePullAll(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
+    public static void forcePullAll(DatabaseManager<com.rubberduck.common.datatransfer.Task> dbManager) throws IOException {
         dbManager.resetDatabase();
         pullAll(dbManager);
     }
@@ -726,7 +759,9 @@ public class GooManager {
      * @throws IOException if thrown by DatabaseManager.
      * @throws NetworkException if network failure happens.
      */
-    public static void twoWaySync(DatabaseManager<com.rubberduck.storage.task.Task> dbManager) throws IOException {
+    public static void twoWaySync(DatabaseManager<com.rubberduck.common.datatransfer.Task> dbManager) throws IOException {
+        LOGGER.info(LOG_MESSAGE_TWO_WAY);
+
         lastSyncTime = getLastSyncTime();
         HashMap<String, Long> localUuidMap = new HashMap<String, Long>();
 
@@ -743,7 +778,7 @@ public class GooManager {
          * Update remote database with locally modified tasks.
          */
         for (Long databaseId : dbManager.getValidIdList()) {
-            com.rubberduck.storage.task.Task localTask = dbManager.getInstance(databaseId);
+            com.rubberduck.common.datatransfer.Task localTask = dbManager.getInstance(databaseId);
             if (isPushed(localTask)) {
                 localUuidMap.put(localTask.getUuid(), databaseId);
             }
@@ -792,7 +827,7 @@ public class GooManager {
          * Delete locally deleted tasks on remote server if they are not modified remotely.
          */
         for (Long databaseId : dbManager.getDeletedIdList()) {
-            com.rubberduck.storage.task.Task localTask = dbManager.getInstance(databaseId);
+            com.rubberduck.common.datatransfer.Task localTask = dbManager.getInstance(databaseId);
             if (!(localTask.getDateList().size() > 1)) {
                 boolean shouldDelete = false;
                 if (!isPushed(localTask)) {
@@ -867,7 +902,7 @@ public class GooManager {
     }
 
     /*
-     * Some utility methods for EventDateTime, DateTime, java.util.Calendar and java.util.Date
+     * Some utility methods for EventDateTime, DateTime, java.formatter.Calendar and java.formatter.Date
      */
 
     private static boolean isOnSameDate(java.util.Calendar cal1, java.util.Calendar cal2) {
@@ -888,28 +923,36 @@ public class GooManager {
 
     private static java.util.Calendar dateTimeToCalendar(DateTime dateTime) {
         java.util.Calendar calendar = java.util.Calendar.getInstance();
-        calendar.setTimeInMillis(dateTime.getValue());
+        if (dateTime.isDateOnly()) {
+            calendar.setTimeInMillis(dateTime.getValue() - TimeZone.getDefault().getOffset(dateTime.getValue()));
+        } else {
+            calendar.setTimeInMillis(dateTime.getValue());
+        }
         return calendar;
     }
 
     private static java.util.Calendar eventDateTimeToCalendar(
             EventDateTime eventDateTime) {
-        return dateTimeToCalendar(eventDateTime.getDateTime());
+        if (eventDateTime.getDateTime() != null) {
+            return dateTimeToCalendar(eventDateTime.getDateTime());
+        } else {
+            return dateTimeToCalendar(eventDateTime.getDate());
+        }
     }
 
 
     /*
      * Some utility methods for UUIDs
      */
-    private static boolean isPushedAsTask(com.rubberduck.storage.task.Task task) {
+    private static boolean isPushedAsTask(com.rubberduck.common.datatransfer.Task task) {
         return isLocalTaskUuid(task.getUuid());
     }
 
-    private static boolean isPushedAsEvent(com.rubberduck.storage.task.Task task) {
+    private static boolean isPushedAsEvent(com.rubberduck.common.datatransfer.Task task) {
         return isLocalEventUuid(task.getUuid());
     }
 
-    public static boolean isPushed(com.rubberduck.storage.task.Task task) {
+    public static boolean isPushed(com.rubberduck.common.datatransfer.Task task) {
         return isPushedAsTask(task) || isPushedAsEvent(task);
     }
 
@@ -939,7 +982,7 @@ public class GooManager {
         return localUuid.replaceFirst(LOCAL_UUID_PREFIX_EVENT, "");
     }
 
-    private static String getRemoteUuid(com.rubberduck.storage.task.Task task) {
+    private static String getRemoteUuid(com.rubberduck.common.datatransfer.Task task) {
         if (isPushedAsTask(task)) {
             return constructRemoteTaskId(task.getUuid());
         } else if (isPushedAsEvent(task)) {

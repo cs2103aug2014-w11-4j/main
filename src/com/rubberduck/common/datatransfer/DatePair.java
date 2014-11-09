@@ -1,4 +1,4 @@
-package com.rubberduck.storage.task;
+package com.rubberduck.common.datatransfer;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;

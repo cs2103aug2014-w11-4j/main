@@ -1,9 +1,9 @@
-package com.rubberduck.logic.formatter;
+package com.rubberduck.common.formatter;
 
 import com.rubberduck.storage.DatabaseManager;
-import com.rubberduck.storage.task.DatePair;
-import com.rubberduck.storage.task.Task;
-import com.rubberduck.logic.formatter.ColorFormatter.Color;
+import com.rubberduck.common.datatransfer.DatePair;
+import com.rubberduck.common.datatransfer.Task;
+import com.rubberduck.common.formatter.ColorFormatter.Color;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -23,13 +23,15 @@ public class Formatter {
     public static final String FORMAT_TABLE = "%-7s%-6s%-43s%-24s";
     public static final String FORMAT_TENTATIVE = "%-7s%-6s%-43s%-19s%-5s";
 
-    private static final String ANSI_PREFIX = "\u001b[130";
     private static final String SEPARATOR_FLOATING =
         "--------------------------------[    TASKS    ]---------------------------------";
     private static final String SEPARATOR_DEADLINE =
         "--------------------------------[  DEADLINES  ]---------------------------------";
     private static final String SEPARATOR_SCHEDULE =
         "--------------------------------[  SCHEDULES  ]---------------------------------";
+
+    private static final String ANSI_PREFIX = "\u001b[";
+    private static final int ANSI_OFFSET = 7;
 
     /* Values to represent the header type to print */
     /**
@@ -279,7 +281,7 @@ public class Formatter {
         while (!words.isEmpty()) {
             int ansiLength = 0;
             if (words.startsWith(ANSI_PREFIX)) {
-                ansiLength += ANSI_PREFIX.length();
+                ansiLength = ANSI_OFFSET;
             }
             if (words.length() <= maxLength + ansiLength) {
                 wordWrapList.add(words);

@@ -1,21 +1,8 @@
 package com.rubberduck.logic.command;
 
-import com.rubberduck.logic.command.AddCommand;
-import com.rubberduck.logic.command.Command;
-import com.rubberduck.logic.command.ConfirmCommand;
-import com.rubberduck.logic.command.DeleteCommand;
-import com.rubberduck.logic.command.HelpCommand;
-import com.rubberduck.logic.command.InvalidCommand;
-import com.rubberduck.logic.command.MarkCommand;
-import com.rubberduck.logic.command.RedoCommand;
-import com.rubberduck.logic.command.SearchCommand;
-import com.rubberduck.logic.command.UndoCommand;
-import com.rubberduck.logic.command.UpdateCommand;
-import com.rubberduck.logic.command.ViewCommand;
-import com.rubberduck.storage.task.DatePair;
-import com.rubberduck.logic.formatter.ColorFormatter;
-import com.rubberduck.logic.formatter.ColorFormatter.Color;
-import com.rubberduck.logic.command.Response;
+import com.rubberduck.common.datatransfer.DatePair;
+import com.rubberduck.common.formatter.ColorFormatter;
+import com.rubberduck.common.formatter.ColorFormatter.Color;
 
 import org.junit.After;
 import org.junit.Before;
