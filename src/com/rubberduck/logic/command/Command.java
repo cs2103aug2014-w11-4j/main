@@ -130,7 +130,7 @@ public abstract class Command {
      *
      * @return states if the database has been started successfully
      */
-    private static boolean startDatabase() {
+    protected static boolean startDatabase() {
         try {
             dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
                                                   + File.separator
