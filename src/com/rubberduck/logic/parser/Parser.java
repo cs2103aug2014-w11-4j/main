@@ -13,7 +13,7 @@ import com.rubberduck.logic.command.HelpCommand;
 import com.rubberduck.logic.command.InvalidCommand;
 import com.rubberduck.logic.command.MarkCommand;
 import com.rubberduck.logic.command.RedoCommand;
-import com.rubberduck.logic.command.Response;
+import com.rubberduck.common.datatransfer.Response;
 import com.rubberduck.logic.command.SearchCommand;
 import com.rubberduck.logic.command.SyncCommand;
 import com.rubberduck.logic.command.UndoCommand;

@@ -1,7 +1,7 @@
 package com.rubberduck.menu;
 
 import com.rubberduck.logic.command.Command;
-import com.rubberduck.logic.command.Response;
+import com.rubberduck.common.datatransfer.Response;
 import com.rubberduck.logic.parser.Parser;
 import com.rubberduck.common.formatter.ColorFormatter;
 import com.rubberduck.common.formatter.ColorFormatter.Color;

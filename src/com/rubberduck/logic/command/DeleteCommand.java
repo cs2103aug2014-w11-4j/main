@@ -1,5 +1,6 @@
 package com.rubberduck.logic.command;
 
+import com.rubberduck.common.datatransfer.Response;
 import com.rubberduck.common.formatter.ColorFormatter;
 import com.rubberduck.common.formatter.ColorFormatter.Color;
 import com.rubberduck.common.formatter.Formatter;

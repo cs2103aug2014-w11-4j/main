@@ -1,4 +1,4 @@
-package com.rubberduck.logic.command;
+package com.rubberduck.common.datatransfer;
 
 import com.rubberduck.common.formatter.Formatter;
 
