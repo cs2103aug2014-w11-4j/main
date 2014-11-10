@@ -112,8 +112,8 @@ public abstract class Command {
         "I/O Exception has occurred when accessing local storage.";
     private static final String MESSAGE_EXECUTE_INFO =
         "Initiating execution of command.";
-    private static final String DATABASE_NAME =
-        "database.xml";
+    private static final String DATABASE_ABSOLUTE_NAME =
+        "data/database.xml";
     private static final String CURRENT_DIRECTORY =
         System.getProperty("user.dir");
 
@@ -131,7 +131,7 @@ public abstract class Command {
         try {
             dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
                                                   + File.separator
-                                                  + DATABASE_NAME);
+                                                  + DATABASE_ABSOLUTE_NAME);
             return true;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, MESSAGE_DATABASE_IOEXCEPTION, e);
