@@ -1,0 +1,1010 @@
+//@author: a0119504l
+
+
+
+	/**
+	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\Command.java
+	 */
+
+    /**
+     * Check whether given task ID is being displayed.
+     *
+     * @param displayedId the task ID
+     * @return true when it is being displayed else false
+     */
+    protected static boolean isValidDisplayedId(int displayedId) {
+        return !(displayedId > displayedTasksList.size() || displayedId <= 0 ||
+                 displayedTasksList.get(displayedId - 1) == -1);
+    }
+
+	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\Command.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ConfirmCommand.java
+	 */
+
+/**
+ * Concrete Command Class that can be executed to confirm the a tentative task
+ * given a task id displayed on the screen to the user.
+ */
+public class ConfirmCommand extends Command {
+
+    private static final String MESSAGE_CONFIRM =
+        "\"%s\" has been confirmed from %s.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
+        "You have input an invalid task ID.";
+    private static final String MESSAGE_ERROR_NOT_TENTATIVE =
+        "\"%s\" is not tentative and does not need confirmation.";
+    private static final String MESSAGE_ERROR_WRONG_DATE_ID =
+        "You have input an invalid date ID.";
+    private static final String MESSAGE_SCHEDULE_CONFLICT =
+        "Please note that there are conflicting schedule(s). Plan well!";
+    private static final String JOURNAL_MESSAGE_CONFIRM =
+        "Confirmed task \"%s\"";
+
+    private int taskId;
+    private int dateId;
+
+    /**
+     * Public constructor for ConfirmCommand.
+     *
+     * @param taskId id of the task as displayed in the last view command
+     * @param dateId id to be confirmed
+     */
+    public ConfirmCommand(int taskId, int dateId) {
+        this.taskId = taskId;
+        this.dateId = dateId;
+    }
+
+    /**
+     * Getter method for taskId.
+     *
+     * @return taskId as int
+     */
+    protected int getTaskId() {
+        return taskId;
+    }
+
+    /**
+     * Getter method for dateId.
+     *
+     * @return dateId as int
+     */
+    protected int getDateId() {
+        return dateId;
+    }
+
+    /**
+     * Confirm the date of the tentative task to the database.
+     *
+     * @return Response object with appropriate feedback to the user
+     * @throws IOException that the dbManager may encounter
+     */
+    @Override
+    public Response execute() throws IOException {
+        if (!isValidDisplayedId(taskId)) {
+            String errorMessage = ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        long databaseId = getDisplayedTasksList().get(taskId - 1);
+
+        Task task = getDbManager().getInstance(databaseId);
+        String description = Formatter.limitDescription(task.getDescription());
+        ArrayList<DatePair> dateList = task.getDateList();
+
+        if (!task.isTentative()) {
+            String errorMessage = ColorFormatter.format(
+                String.format(MESSAGE_ERROR_NOT_TENTATIVE, description),
+                Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        if (dateList.size() < dateId) {
+            String errorMessage = ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_DATE_ID, Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        DatePair date = dateList.get(dateId - 1);
+        ArrayList<DatePair> newDateList = new ArrayList<DatePair>();
+        newDateList.add(date);
+        task.setDateList(newDateList);
+
+        long newDatabaseId = getDbManager().
+            modify(databaseId, task, String.format(JOURNAL_MESSAGE_CONFIRM,
+                                                   description));
+        boolean hasConflict =
+            task.checkConflictWithDB(getDbManager(), newDatabaseId);
+        getDisplayedTasksList().set(taskId - 1, newDatabaseId);
+
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter.format(
+            String.format(MESSAGE_CONFIRM, description,
+                          task.getDateString()), Color.YELLOW));
+        if (hasConflict) {
+            messages.append(System.lineSeparator());
+            messages.append(ColorFormatter.format(MESSAGE_SCHEDULE_CONFLICT,
+                                                  Color.RED));
+        }
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
+    }
+
+}
+
+	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ConfirmCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\DeleteCommand.java
+	 */
+
+/**
+ * Concrete Command Class that can be executed to delete the task object from
+ * database given the task id displayed on screen to the user.
+ */
+public class DeleteCommand extends Command {
+
+    private static final String MESSAGE_DELETE =
+        "\"%s\" has been successfully deleted from RubberDuck.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
+        "This is not a valid task ID to delete.";
+    private static final String JOURNAL_MESSAGE_DELETE =
+        "Deleted task \"%s\"";
+
+    private int taskId;
+
+    /**
+     * Public Constructor of DeleteCommand that accepts a task ID.
+     *
+     * @param taskId task id of the task displayed on screen
+     */
+    public DeleteCommand(int taskId) {
+        this.taskId = taskId;
+    }
+
+    /**
+     * Getter method for taskId.
+     *
+     * @return taskId as int
+     */
+    protected int getTaskId() {
+        return taskId;
+    }
+
+    /**
+     * Delete given task from database if it exist.
+     *
+     * @return Response with success message and updated table if delete is
+     * successful. else Response with error message.
+     * @throws IOException occurs when DBManager has encountered an I/O Error
+     */
+    @Override
+    public Response execute() throws IOException {
+        if (!isValidDisplayedId(taskId)) {
+            String errorMessage = ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        long databaseId = getDisplayedTasksList().get(taskId - 1);
+        Task oldTask = getDbManager().getInstance(databaseId);
+        String oldDesc = Formatter.limitDescription(oldTask.getDescription());
+        getDbManager().modify(databaseId, null,
+                              String.format(JOURNAL_MESSAGE_DELETE,
+                                            oldDesc));
+        getDisplayedTasksList().set(taskId - 1, (long) -1);
+
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter.format(
+            String.format(MESSAGE_DELETE, oldDesc), Color.YELLOW));
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
+    }
+}
+
+	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\DeleteCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\MarkCommand.java
+	 */
+
+/**
+ * Concrete Command Class that can be executed to mark as completed/incomplete
+ * the task object from database given the task id displayed on screen to the
+ * user.
+ */
+public class MarkCommand extends Command {
+
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
+        "You have input an invalid ID.";
+    private static final String JOURNAL_MESSAGE_MARK_AS_COMPLETED =
+        "Marked task \"%s\" as completed";
+    private static final String JOURNAL_MESSAGE_MARK_AS_INCOMPLETE =
+        "Marked task \"%s\" as incomplete";
+    private static final String MESSAGE_MARK_COMPLETED =
+        "\"%s\" has been marked to completed.";
+    private static final String MESSAGE_MARK_INCOMPLETE =
+        "\"%s\" has been marked to incomplete.";
+
+    private int taskId;
+
+    /**
+     * Public constructor of MarkCommand that accepts task id to determine what
+     * the command should mark when executed.
+     *
+     * @param taskId displayed id of the task
+     */
+    public MarkCommand(int taskId) {
+        this.taskId = taskId;
+    }
+
+    /**
+     * Getter method of taskId.
+     *
+     * @return taskId as int
+     */
+    protected int getTaskId() {
+        return taskId;
+    }
+
+    /**
+     * Mark a task (completed to uncompleted and vice versa).
+     *
+     * @return message of mark
+     * @throws IOException that might occur
+     */
+    @Override
+    public Response execute() throws IOException {
+        if (!isValidDisplayedId(taskId)) {
+            String errorMessage = ColorFormatter.format(
+                MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        if (isCompletedTask(taskId)) {
+            return markTaskIncomplete(taskId);
+        } else {
+            return markTaskCompleted(taskId);
+        }
+    }
+
+    /**
+     * Check whether the task is completed.
+     *
+     * @param displayedId of the task
+     * @return true if the task is completed
+     * @throws IOException occurs when dbManager encounters a problem with file
+     */
+    private boolean isCompletedTask(int displayedId) throws IOException {
+        long databaseId = getDisplayedTasksList().get(displayedId - 1);
+        Task oldTask = getDbManager().getInstance(databaseId);
+        return oldTask.getIsDone();
+    }
+
+    /**
+     * Mark a incomplete task as completed.
+     *
+     * @param displayedId displayed id of the task
+     * @return Response object containing results of the operation
+     * @throws IOException occurs when dbManager encounters a problem with file
+     */
+    private Response markTaskCompleted(int displayedId) throws IOException {
+        long databaseId = getDisplayedTasksList().get(displayedId - 1);
+        Task oldTask = getDbManager().getInstance(databaseId);
+        assert !oldTask.getIsDone() : "Should be incomplete task.";
+        oldTask.setIsDone(true);
+
+        String desc = Formatter.limitDescription(oldTask.getDescription());
+
+        long newTaskId = getDbManager().modify(databaseId, oldTask, String
+            .format(JOURNAL_MESSAGE_MARK_AS_COMPLETED, desc));
+        getDisplayedTasksList().set(displayedId - 1, newTaskId);
+
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter.format(
+            String.format(MESSAGE_MARK_COMPLETED, desc), Color.GREEN));
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
+    }
+
+    /**
+     * Mark a completed task as incomplete.
+     *
+     * @param displayedId displayed id of the task
+     * @return Response object containing results of the operation
+     * @throws IOException occurs when dbManager encounters a problem with file
+     */
+    private Response markTaskIncomplete(int displayedId) throws IOException {
+        long databaseId = getDisplayedTasksList().get(displayedId - 1);
+        Task oldTask = getDbManager().getInstance(databaseId);
+        assert oldTask.getIsDone();
+        oldTask.setIsDone(false);
+
+        String desc = Formatter.limitDescription(oldTask.getDescription());
+
+        long newTaskId =
+            getDbManager().modify(databaseId, oldTask, String.format(
+                JOURNAL_MESSAGE_MARK_AS_INCOMPLETE, desc));
+        getDisplayedTasksList().set(displayedId - 1, newTaskId);
+
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter.format(
+            String.format(MESSAGE_MARK_INCOMPLETE, desc), Color.RED));
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
+    }
+}
+
+	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\MarkCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\UpdateCommand.java
+	 */
+
+/**
+ * Concrete Command Class that can be executed to update the task object from
+ * database given the task id displayed on screen to the user.
+ */
+public class UpdateCommand extends Command {
+
+    private static final String JOURNAL_MESSAGE_UPDATE =
+        "Updated task \"%s\"";
+    private static final String MESSAGE_UPDATE =
+        "\"%s\" has been successfully updated.";
+    private static final String MESSAGE_UPDATE_PAST =
+        "You cannot update the end date that has already passed.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
+        "You have input an invalid ID.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_TYPE =
+        "You have input an invalid task type.";
+    private static final String MESSAGE_SCHEDULE_CONFLICT =
+        "Please note that there are conflicting schedule(s). Plan well!";
+
+    private int taskId;
+    private String description;
+    private ArrayList<DatePair> datePairs;
+
+    /**
+     * Public constructor for UpdateCommand.
+     *
+     * @param taskId      id of the task as displayed in the last view command
+     * @param description updated description, if not changed will be null
+     * @param datePairs   updated date list, if not changed will be null
+     */
+    public UpdateCommand(int taskId, String description,
+                         ArrayList<DatePair> datePairs) {
+        this.taskId = taskId;
+        this.description = description;
+        this.datePairs = datePairs;
+    }
+
+    /**
+     * Getter method for taskId.
+     *
+     * @return taskId as int
+     */
+    protected int getTaskId() {
+        return taskId;
+    }
+
+    /**
+     * Getter method for description.
+     *
+     * @return description as String
+     */
+    protected String getDescription() {
+        return description;
+    }
+
+    /**
+     * Getter method for datePairs.
+     *
+     * @return datePairs as ArrayList<DatePair>
+     */
+    protected ArrayList<DatePair> getDatePairs() {
+        return datePairs;
+    }
+
+    /**
+     * Update the task with provided arguments to the database.
+     *
+     * @return Response containing updated message with the displayed id
+     * @throws IOException that might occur
+     */
+    @Override
+    public Response execute() throws IOException {
+        if (!isValidDisplayedId(taskId)) {
+            String errorMessage = ColorFormatter
+                .format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        if (DatePair.isDateBeforeNow(datePairs)) {
+            String errorMessage = ColorFormatter
+                .format(MESSAGE_UPDATE_PAST, Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        long databaseId = getDisplayedTasksList().get(taskId - 1);
+
+        Task task = getDbManager().getInstance(databaseId);
+        String oldDesc = Formatter.limitDescription(task.getDescription());
+
+        if (!description.isEmpty()) {
+            task.setDescription(description);
+        }
+
+        if (!datePairs.isEmpty()) {
+            if (task.isFloatingTask() || task.isDeadline()) {
+                task.setDateList(datePairs);
+                if (!task.isFloatingTask() && !task.isDeadline()) {
+                    task.resetUuid();
+                }
+            } else {
+                task.setDateList(datePairs);
+                if (task.isFloatingTask() || task.isDeadline()) {
+                    task.resetUuid();
+                }
+            }
+        }
+
+        if (!task.checkValidity()) {
+            String errorMessage = ColorFormatter
+                .format(MESSAGE_ERROR_WRONG_TASK_TYPE, Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        long newDatabaseId = getDbManager()
+            .modify(databaseId, task, String.format(JOURNAL_MESSAGE_UPDATE,
+                                                    oldDesc));
+        boolean hasConflict = task.checkConflictWithDB(getDbManager(),
+                                                       newDatabaseId);
+
+        getDisplayedTasksList().set(taskId - 1, newDatabaseId);
+
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter
+                            .format(String.format(MESSAGE_UPDATE, oldDesc),
+                                    Color.YELLOW));
+        if (hasConflict) {
+            messages.append(System.lineSeparator());
+            messages.append(ColorFormatter.format(MESSAGE_SCHEDULE_CONFLICT,
+                                                  Color.RED));
+        }
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
+    }
+}
+
+	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\UpdateCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\Command.java
+	 */
+
+    /**
+     * Check whether given task ID is being displayed.
+     *
+     * @param displayedId the task ID
+     * @return true when it is being displayed else false
+     */
+    protected static boolean isValidDisplayedId(int displayedId) {
+        return !(displayedId > displayedTasksList.size() || displayedId <= 0 ||
+                 displayedTasksList.get(displayedId - 1) == -1);
+    }
+
+	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\Command.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ConfirmCommand.java
+	 */
+
+/**
+ * Concrete Command Class that can be executed to confirm the a tentative task
+ * given a task id displayed on the screen to the user.
+ */
+public class ConfirmCommand extends Command {
+
+    private static final String MESSAGE_CONFIRM =
+        "\"%s\" has been confirmed from %s.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
+        "You have input an invalid task ID.";
+    private static final String MESSAGE_ERROR_NOT_TENTATIVE =
+        "\"%s\" is not tentative and does not need confirmation.";
+    private static final String MESSAGE_ERROR_WRONG_DATE_ID =
+        "You have input an invalid date ID.";
+    private static final String MESSAGE_SCHEDULE_CONFLICT =
+        "Please note that there are conflicting schedule(s). Plan well!";
+    private static final String JOURNAL_MESSAGE_CONFIRM =
+        "Confirmed task \"%s\"";
+
+    private int taskId;
+    private int dateId;
+
+    /**
+     * Public constructor for ConfirmCommand.
+     *
+     * @param taskId id of the task as displayed in the last view command
+     * @param dateId id to be confirmed
+     */
+    public ConfirmCommand(int taskId, int dateId) {
+        this.taskId = taskId;
+        this.dateId = dateId;
+    }
+
+    /**
+     * Getter method for taskId.
+     *
+     * @return taskId as int
+     */
+    protected int getTaskId() {
+        return taskId;
+    }
+
+    /**
+     * Getter method for dateId.
+     *
+     * @return dateId as int
+     */
+    protected int getDateId() {
+        return dateId;
+    }
+
+    /**
+     * Confirm the date of the tentative task to the database.
+     *
+     * @return Response object with appropriate feedback to the user
+     * @throws IOException that the dbManager may encounter
+     */
+    @Override
+    public Response execute() throws IOException {
+        if (!isValidDisplayedId(taskId)) {
+            String errorMessage = ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        long databaseId = getDisplayedTasksList().get(taskId - 1);
+
+        Task task = getDbManager().getInstance(databaseId);
+        String description = Formatter.limitDescription(task.getDescription());
+        ArrayList<DatePair> dateList = task.getDateList();
+
+        if (!task.isTentative()) {
+            String errorMessage = ColorFormatter.format(
+                String.format(MESSAGE_ERROR_NOT_TENTATIVE, description),
+                Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        if (dateList.size() < dateId) {
+            String errorMessage = ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_DATE_ID, Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        DatePair date = dateList.get(dateId - 1);
+        ArrayList<DatePair> newDateList = new ArrayList<DatePair>();
+        newDateList.add(date);
+        task.setDateList(newDateList);
+
+        long newDatabaseId = getDbManager().
+            modify(databaseId, task, String.format(JOURNAL_MESSAGE_CONFIRM,
+                                                   description));
+        boolean hasConflict =
+            task.checkConflictWithDB(getDbManager(), newDatabaseId);
+        getDisplayedTasksList().set(taskId - 1, newDatabaseId);
+
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter.format(
+            String.format(MESSAGE_CONFIRM, description,
+                          task.getDateString()), Color.YELLOW));
+        if (hasConflict) {
+            messages.append(System.lineSeparator());
+            messages.append(ColorFormatter.format(MESSAGE_SCHEDULE_CONFLICT,
+                                                  Color.RED));
+        }
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
+    }
+
+}
+
+	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ConfirmCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\DeleteCommand.java
+	 */
+
+/**
+ * Concrete Command Class that can be executed to delete the task object from
+ * database given the task id displayed on screen to the user.
+ */
+public class DeleteCommand extends Command {
+
+    private static final String MESSAGE_DELETE =
+        "\"%s\" has been successfully deleted from RubberDuck.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
+        "This is not a valid task ID to delete.";
+    private static final String JOURNAL_MESSAGE_DELETE =
+        "Deleted task \"%s\"";
+
+    private int taskId;
+
+    /**
+     * Public Constructor of DeleteCommand that accepts a task ID.
+     *
+     * @param taskId task id of the task displayed on screen
+     */
+    public DeleteCommand(int taskId) {
+        this.taskId = taskId;
+    }
+
+    /**
+     * Getter method for taskId.
+     *
+     * @return taskId as int
+     */
+    protected int getTaskId() {
+        return taskId;
+    }
+
+    /**
+     * Delete given task from database if it exist.
+     *
+     * @return Response with success message and updated table if delete is
+     * successful. else Response with error message.
+     * @throws IOException occurs when DBManager has encountered an I/O Error
+     */
+    @Override
+    public Response execute() throws IOException {
+        if (!isValidDisplayedId(taskId)) {
+            String errorMessage = ColorFormatter.
+                format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        long databaseId = getDisplayedTasksList().get(taskId - 1);
+        Task oldTask = getDbManager().getInstance(databaseId);
+        String oldDesc = Formatter.limitDescription(oldTask.getDescription());
+        getDbManager().modify(databaseId, null,
+                              String.format(JOURNAL_MESSAGE_DELETE,
+                                            oldDesc));
+        getDisplayedTasksList().set(taskId - 1, (long) -1);
+
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter.format(
+            String.format(MESSAGE_DELETE, oldDesc), Color.YELLOW));
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
+    }
+}
+
+	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\DeleteCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\MarkCommand.java
+	 */
+
+/**
+ * Concrete Command Class that can be executed to mark as completed/incomplete
+ * the task object from database given the task id displayed on screen to the
+ * user.
+ */
+public class MarkCommand extends Command {
+
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
+        "You have input an invalid ID.";
+    private static final String JOURNAL_MESSAGE_MARK_AS_COMPLETED =
+        "Marked task \"%s\" as completed";
+    private static final String JOURNAL_MESSAGE_MARK_AS_INCOMPLETE =
+        "Marked task \"%s\" as incomplete";
+    private static final String MESSAGE_MARK_COMPLETED =
+        "\"%s\" has been marked to completed.";
+    private static final String MESSAGE_MARK_INCOMPLETE =
+        "\"%s\" has been marked to incomplete.";
+
+    private int taskId;
+
+    /**
+     * Public constructor of MarkCommand that accepts task id to determine what
+     * the command should mark when executed.
+     *
+     * @param taskId displayed id of the task
+     */
+    public MarkCommand(int taskId) {
+        this.taskId = taskId;
+    }
+
+    /**
+     * Getter method of taskId.
+     *
+     * @return taskId as int
+     */
+    protected int getTaskId() {
+        return taskId;
+    }
+
+    /**
+     * Mark a task (completed to uncompleted and vice versa).
+     *
+     * @return message of mark
+     * @throws IOException that might occur
+     */
+    @Override
+    public Response execute() throws IOException {
+        if (!isValidDisplayedId(taskId)) {
+            String errorMessage = ColorFormatter.format(
+                MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        if (isCompletedTask(taskId)) {
+            return markTaskIncomplete(taskId);
+        } else {
+            return markTaskCompleted(taskId);
+        }
+    }
+
+    /**
+     * Check whether the task is completed.
+     *
+     * @param displayedId of the task
+     * @return true if the task is completed
+     * @throws IOException occurs when dbManager encounters a problem with file
+     */
+    private boolean isCompletedTask(int displayedId) throws IOException {
+        long databaseId = getDisplayedTasksList().get(displayedId - 1);
+        Task oldTask = getDbManager().getInstance(databaseId);
+        return oldTask.getIsDone();
+    }
+
+    /**
+     * Mark a incomplete task as completed.
+     *
+     * @param displayedId displayed id of the task
+     * @return Response object containing results of the operation
+     * @throws IOException occurs when dbManager encounters a problem with file
+     */
+    private Response markTaskCompleted(int displayedId) throws IOException {
+        long databaseId = getDisplayedTasksList().get(displayedId - 1);
+        Task oldTask = getDbManager().getInstance(databaseId);
+        assert !oldTask.getIsDone() : "Should be incomplete task.";
+        oldTask.setIsDone(true);
+
+        String desc = Formatter.limitDescription(oldTask.getDescription());
+
+        long newTaskId = getDbManager().modify(databaseId, oldTask, String
+            .format(JOURNAL_MESSAGE_MARK_AS_COMPLETED, desc));
+        getDisplayedTasksList().set(displayedId - 1, newTaskId);
+
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter.format(
+            String.format(MESSAGE_MARK_COMPLETED, desc), Color.GREEN));
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
+    }
+
+    /**
+     * Mark a completed task as incomplete.
+     *
+     * @param displayedId displayed id of the task
+     * @return Response object containing results of the operation
+     * @throws IOException occurs when dbManager encounters a problem with file
+     */
+    private Response markTaskIncomplete(int displayedId) throws IOException {
+        long databaseId = getDisplayedTasksList().get(displayedId - 1);
+        Task oldTask = getDbManager().getInstance(databaseId);
+        assert oldTask.getIsDone();
+        oldTask.setIsDone(false);
+
+        String desc = Formatter.limitDescription(oldTask.getDescription());
+
+        long newTaskId =
+            getDbManager().modify(databaseId, oldTask, String.format(
+                JOURNAL_MESSAGE_MARK_AS_INCOMPLETE, desc));
+        getDisplayedTasksList().set(displayedId - 1, newTaskId);
+
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter.format(
+            String.format(MESSAGE_MARK_INCOMPLETE, desc), Color.RED));
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
+    }
+}
+
+	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\MarkCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\UpdateCommand.java
+	 */
+
+/**
+ * Concrete Command Class that can be executed to update the task object from
+ * database given the task id displayed on screen to the user.
+ */
+public class UpdateCommand extends Command {
+
+    private static final String JOURNAL_MESSAGE_UPDATE =
+        "Updated task \"%s\"";
+    private static final String MESSAGE_UPDATE =
+        "\"%s\" has been successfully updated.";
+    private static final String MESSAGE_UPDATE_PAST =
+        "You cannot update the end date that has already passed.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_ID =
+        "You have input an invalid ID.";
+    private static final String MESSAGE_ERROR_WRONG_TASK_TYPE =
+        "You have input an invalid task type.";
+    private static final String MESSAGE_SCHEDULE_CONFLICT =
+        "Please note that there are conflicting schedule(s). Plan well!";
+
+    private int taskId;
+    private String description;
+    private ArrayList<DatePair> datePairs;
+
+    /**
+     * Public constructor for UpdateCommand.
+     *
+     * @param taskId      id of the task as displayed in the last view command
+     * @param description updated description, if not changed will be null
+     * @param datePairs   updated date list, if not changed will be null
+     */
+    public UpdateCommand(int taskId, String description,
+                         ArrayList<DatePair> datePairs) {
+        this.taskId = taskId;
+        this.description = description;
+        this.datePairs = datePairs;
+    }
+
+    /**
+     * Getter method for taskId.
+     *
+     * @return taskId as int
+     */
+    protected int getTaskId() {
+        return taskId;
+    }
+
+    /**
+     * Getter method for description.
+     *
+     * @return description as String
+     */
+    protected String getDescription() {
+        return description;
+    }
+
+    /**
+     * Getter method for datePairs.
+     *
+     * @return datePairs as ArrayList<DatePair>
+     */
+    protected ArrayList<DatePair> getDatePairs() {
+        return datePairs;
+    }
+
+    /**
+     * Update the task with provided arguments to the database.
+     *
+     * @return Response containing updated message with the displayed id
+     * @throws IOException that might occur
+     */
+    @Override
+    public Response execute() throws IOException {
+        if (!isValidDisplayedId(taskId)) {
+            String errorMessage = ColorFormatter
+                .format(MESSAGE_ERROR_WRONG_TASK_ID, Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        if (DatePair.isDateBeforeNow(datePairs)) {
+            String errorMessage = ColorFormatter
+                .format(MESSAGE_UPDATE_PAST, Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        long databaseId = getDisplayedTasksList().get(taskId - 1);
+
+        Task task = getDbManager().getInstance(databaseId);
+        String oldDesc = Formatter.limitDescription(task.getDescription());
+
+        if (!description.isEmpty()) {
+            task.setDescription(description);
+        }
+
+        if (!datePairs.isEmpty()) {
+            if (task.isFloatingTask() || task.isDeadline()) {
+                task.setDateList(datePairs);
+                if (!task.isFloatingTask() && !task.isDeadline()) {
+                    task.resetUuid();
+                }
+            } else {
+                task.setDateList(datePairs);
+                if (task.isFloatingTask() || task.isDeadline()) {
+                    task.resetUuid();
+                }
+            }
+        }
+
+        if (!task.checkValidity()) {
+            String errorMessage = ColorFormatter
+                .format(MESSAGE_ERROR_WRONG_TASK_TYPE, Color.RED);
+            return new Response(errorMessage, false);
+        }
+
+        long newDatabaseId = getDbManager()
+            .modify(databaseId, task, String.format(JOURNAL_MESSAGE_UPDATE,
+                                                    oldDesc));
+        boolean hasConflict = task.checkConflictWithDB(getDbManager(),
+                                                       newDatabaseId);
+
+        getDisplayedTasksList().set(taskId - 1, newDatabaseId);
+
+        StringBuilder messages = new StringBuilder();
+        messages.append(ColorFormatter
+                            .format(String.format(MESSAGE_UPDATE, oldDesc),
+                                    Color.YELLOW));
+        if (hasConflict) {
+            messages.append(System.lineSeparator());
+            messages.append(ColorFormatter.format(MESSAGE_SCHEDULE_CONFLICT,
+                                                  Color.RED));
+        }
+        Response res = getPreviousDisplayCommand().execute();
+        res.setMessages(messages.toString());
+        return res;
+    }
+}
+
+	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\UpdateCommand.java
+
+
+
+
+
