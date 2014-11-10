@@ -14,11 +14,11 @@ import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 import rubberduck.common.formatter.Formatter;
 
+//@author A0111794E
 /**
  * Concrete Command Class that can be executed to return related tasks as a
  * formatted String based on various input upon creation.
  */
-//@author A0111794E
 public class ViewCommand extends Command {
 
     /**
@@ -67,6 +67,27 @@ public class ViewCommand extends Command {
     private ArrayList<ViewFilter> viewSelection;
 
     /**
+     * Public constructor for ViewCommand.
+     *
+     * @param viewType      the type of view to execute
+     * @param completed     true if all completed tasks should be returned
+     *                      instead
+     * @param viewRange     date range to view tasks in
+     * @param viewSelection specified view scope from user
+     */
+    public ViewCommand(ViewType viewType, boolean completed, DatePair viewRange,
+                       ArrayList<ViewFilter> viewSelection) {
+        this.viewType = viewType;
+        this.completed = completed;
+        this.viewRange = viewRange;
+        if (viewSelection != null && viewSelection.isEmpty()) {
+            this.viewSelection = VIEW_SELECTION_ALL;
+        } else {
+            this.viewSelection = viewSelection;
+        }
+    }
+
+    /**
      * Getter method for viewRange.
      *
      * @return viewRange as DatePair
@@ -102,28 +123,6 @@ public class ViewCommand extends Command {
     protected ArrayList<ViewFilter> getViewSelection() {
         return viewSelection;
     }
-
-    /**
-     * Public constructor for ViewCommand.
-     *
-     * @param viewType      the type of view to execute
-     * @param completed     true if all completed tasks should be returned
-     *                      instead
-     * @param viewRange     date range to view tasks in
-     * @param viewSelection specified view scope from user
-     */
-    public ViewCommand(ViewType viewType, boolean completed, DatePair viewRange,
-                       ArrayList<ViewFilter> viewSelection) {
-        this.viewType = viewType;
-        this.completed = completed;
-        this.viewRange = viewRange;
-        if (viewSelection != null && viewSelection.isEmpty()) {
-            this.viewSelection = VIEW_SELECTION_ALL;
-        } else {
-            this.viewSelection = viewSelection;
-        }
-    }
-
 
     /**
      * Check the type of view method requested by user.
@@ -304,6 +303,7 @@ public class ViewCommand extends Command {
         return new Response("" + taskFilterAlert(), header, taskData);
     }
 
+    //@author A0111736M
     /**
      * Execute the previous command with viewSelection and completed of the
      * current command.
@@ -311,7 +311,6 @@ public class ViewCommand extends Command {
      * @return the formatted string of all tasks involved
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    //@author A0111736M
     private Response viewPrev() throws IOException {
         if (viewSelection.size() == VIEW_FILTER_ONE_SELECTED &&
             viewSelection.contains(ViewFilter.FLOATING)) {
@@ -329,13 +328,13 @@ public class ViewCommand extends Command {
         }
     }
 
+    //@author A0111794E
     /**
      * Retrieve the viewType based on the task provided.
      *
      * @param task object to get type
      * @return ViewFilter of the object
      */
-    //@author A0111794E
     private ViewFilter getTaskType(Task task) {
         if (task.isFloatingTask()) {
             return ViewFilter.FLOATING;

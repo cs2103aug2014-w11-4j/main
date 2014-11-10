@@ -22,12 +22,12 @@ import rubberduck.common.formatter.Formatter;
 import rubberduck.logic.command.Command;
 import rubberduck.logic.parser.Parser;
 
+//@author A0111736M
 /**
  * This class handles the user interface of the application that is running on
  * Windows platform. This will handle all input from the user and show the
  * required response back to the user.
  */
-//@author A0111736M
 public class WinInterface extends MenuInterface {
 
     /* CMD command required to forcefully set the width and height of CMD*/

@@ -9,11 +9,11 @@ import rubberduck.logic.command.CommandTest;
 import rubberduck.logic.parser.ParserTest;
 import rubberduck.storage.JournalControllerTest;
 
+//@author A0111736M
 /**
  * Master test suite that developers should run every time they develop or
  * modify something to tackle regression.
  */
-//@author A0111736M
 @RunWith(Suite.class)
 @SuiteClasses({DatePairTest.class, JournalControllerTest.class,
                CommandTest.class, ParserTest.class})

@@ -38,7 +38,6 @@ import com.google.api.services.tasks.model.Tasks;
 import rubberduck.common.datatransfer.DatePair;
 
 //@author A0119416H
-
 /**
  * GooManager is a component that is responsible for all interaction with Google Calendar / Google Tasks.
  */

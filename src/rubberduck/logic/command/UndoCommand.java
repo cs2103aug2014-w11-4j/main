@@ -6,10 +6,10 @@ import rubberduck.common.datatransfer.Response;
 import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 
+//@author A0111736M
 /**
  * Concrete Command Class that can be executed to undo the previous operation.
  */
-//@author A0111736M
 public class UndoCommand extends Command {
 
     private static final String JOURNAL_MESSAGE_UNDONE =

@@ -1,9 +1,9 @@
 package rubberduck.common.formatter;
 
+//@author A0111736M
 /**
  * Color formatter for ANSI-colored output for RubberDuck.
  */
-//@author A0111736M
 public class ColorFormatter {
 
     /**

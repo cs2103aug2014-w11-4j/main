@@ -15,6 +15,7 @@ import java.util.Iterator;
 import rubberduck.common.formatter.CalendarConverter;
 import com.thoughtworks.xstream.XStream;
 
+//@author A0119416H
 /**
  * A synchronized database backend to read/write instances to a file using XML
  * <p/>
@@ -25,7 +26,6 @@ import com.thoughtworks.xstream.XStream;
  *
  * @param <T> The data type, which has to be a Java Bean class.
  */
-//@author A0119416H
 public class DatabaseManager<T extends Serializable & Comparable<T>> implements
         Iterable<T> {
 

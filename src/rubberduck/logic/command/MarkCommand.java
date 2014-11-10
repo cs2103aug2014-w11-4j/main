@@ -8,12 +8,12 @@ import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 import rubberduck.common.formatter.Formatter;
 
+//@author A0119504L
 /**
  * Concrete Command Class that can be executed to mark as completed/incomplete
  * the task object from database given the task id displayed on screen to the
  * user.
  */
-//@author A0119504L
 public class MarkCommand extends Command {
 
     private static final String MESSAGE_ERROR_WRONG_TASK_ID =
@@ -30,15 +30,6 @@ public class MarkCommand extends Command {
     private int taskId;
 
     /**
-     * Getter method of taskId.
-     *
-     * @return taskId as int
-     */
-    protected int getTaskId() {
-        return taskId;
-    }
-
-    /**
      * Public constructor of MarkCommand that accepts task id to determine what
      * the command should mark when executed.
      *
@@ -49,12 +40,20 @@ public class MarkCommand extends Command {
     }
 
     /**
+     * Getter method of taskId.
+     *
+     * @return taskId as int
+     */
+    protected int getTaskId() {
+        return taskId;
+    }
+
+    /**
      * Mark a task (completed to uncompleted and vice versa).
      *
      * @return message of mark
      * @throws IOException that might occur
      */
-    // @author A0119504L
     @Override
     public Response execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
@@ -77,7 +76,6 @@ public class MarkCommand extends Command {
      * @return true if the task is completed
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    //@author A0119504L
     private boolean isCompletedTask(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
@@ -91,7 +89,6 @@ public class MarkCommand extends Command {
      * @return Response object containing results of the operation
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    //@author A0119504L
     private Response markTaskCompleted(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
@@ -100,8 +97,8 @@ public class MarkCommand extends Command {
 
         String desc = Formatter.limitDescription(oldTask.getDescription());
 
-        long newTaskId = getDbManager().modify(databaseId, oldTask, String.
-            format(JOURNAL_MESSAGE_MARK_AS_COMPLETED, desc));
+        long newTaskId = getDbManager().modify(databaseId, oldTask, String
+            .format(JOURNAL_MESSAGE_MARK_AS_COMPLETED, desc));
         getDisplayedTasksList().set(displayedId - 1, newTaskId);
 
         StringBuilder messages = new StringBuilder();
@@ -119,7 +116,6 @@ public class MarkCommand extends Command {
      * @return Response object containing results of the operation
      * @throws IOException occurs when dbManager encounters a problem with file
      */
-    //@author A0119504L
     private Response markTaskIncomplete(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);

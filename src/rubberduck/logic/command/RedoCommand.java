@@ -6,11 +6,11 @@ import rubberduck.common.datatransfer.Response;
 import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 
+//@author A0111736M
 /**
  * Concrete Command Class that can be executed to redo the previous undone
  * operation.
  */
-//@author A0111736M
 public class RedoCommand extends Command {
 
     private static final String JOURNAL_MESSAGE_REDONE =

@@ -5,7 +5,6 @@ import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 
 //@author A0111736M
-
 /**
  * Concrete Command Class that can be executed to clear the screen of the
  * terminal.

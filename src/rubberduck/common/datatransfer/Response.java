@@ -2,11 +2,11 @@ package rubberduck.common.datatransfer;
 
 import rubberduck.common.formatter.Formatter;
 
+//@author A0111736M
 /**
  * A data structure that must be created by each command and returned back to
  * the MenuInterface for formatting into the buffer accordingly.
  */
-//@author A0111736M
 public class Response {
 
     private String[] messages;

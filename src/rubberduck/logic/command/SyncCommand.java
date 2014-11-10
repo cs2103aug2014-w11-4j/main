@@ -10,12 +10,12 @@ import rubberduck.common.formatter.ColorFormatter.Color;
 import rubberduck.menu.MenuInterface;
 import rubberduck.storage.GooManager;
 
+//@author A0111736M
 /**
  * Concrete Command Class that can be executed to perform a synchronization with
  * Google. The synchronization type is passed into the constructor to determine
  * what type of synchronization it should run.
  */
-//@author A0111736M
 public class SyncCommand extends Command {
 
     /**

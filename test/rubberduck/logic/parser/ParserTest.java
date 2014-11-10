@@ -26,11 +26,11 @@ import rubberduck.logic.command.ViewCommand;
 
 import static org.junit.Assert.assertEquals;
 
+//@author A0111736M
 /**
  * Unit Test Cases used in Unit Testing for Parser class. Each test case in the
  * this test unit represents a single method tested in Parser.
  */
-//@author A0111736M
 public class ParserTest {
 
     private Parser parser;

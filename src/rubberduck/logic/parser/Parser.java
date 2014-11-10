@@ -35,13 +35,13 @@ import rubberduck.logic.command.ViewCommand;
 import rubberduck.logic.command.ViewCommand.ViewFilter;
 import rubberduck.logic.command.ViewCommand.ViewType;
 
+//@author A0111736M
 /**
  * Parser that reads in raw user input and attempts to translate into the
  * correct command the user wants to execute. If request is coming from Menu
  * component, proceed to call execute on the Command and return Response back to
  * Menu component.
  */
-//@author A0111736M
 public class Parser {
 
     /* Global logger to log information and exception. */

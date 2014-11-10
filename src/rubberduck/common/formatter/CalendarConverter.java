@@ -13,11 +13,11 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
+//@author A0119416H
 /**
  * A simple XStream converter that converts Calendar objects to a human readable
  * format.
  */
-//@author A0119416H
 public class CalendarConverter implements Converter {
 
     private static final SimpleDateFormat DATE_FORMAT =

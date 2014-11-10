@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
+//@author A0111794E
 /**
  * This DatePair class is used to store a pair of date in the form of Calendar
  * object which represent the possible start date and end date.
  */
-//@author A0111794E
 public class DatePair implements Serializable {
 
     private Calendar startDate = null;
@@ -160,6 +160,7 @@ public class DatePair implements Serializable {
 
     }
 
+    //@author A0119416H
     /**
      * Test if there is overlap between two DatePairs. Null values (no start/end
      * date) are considered as infinitely early/late.
@@ -167,7 +168,6 @@ public class DatePair implements Serializable {
      * @param dateRange another DatePair to be compared with
      * @return true if there is overlap between two DatePairs
      */
-    //@author A0119416H
     public boolean isWithinPeriod(DatePair dateRange) {
         Calendar startDateCriteria = dateRange.getStartDate();
         Calendar endDateCriteria = dateRange.getEndDate();
@@ -197,6 +197,7 @@ public class DatePair implements Serializable {
                endDate.after(startDateCriteria);
     }
 
+    //@author A0111794E
     /**
      * Check if any end date in the DateList has already past the current date
      * and time during execution.
@@ -204,7 +205,6 @@ public class DatePair implements Serializable {
      * @param dateList the ArrayList of DatePair
      * @return true if there is a date that has already past else false
      */
-    //@author A0111794E
     public static boolean isDateBeforeNow(ArrayList<DatePair> dateList) {
         if (dateList.size() > EMPTY_ARRAYLIST_SIZE) {
             for (DatePair dp : dateList) {

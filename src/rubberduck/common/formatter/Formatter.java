@@ -14,11 +14,11 @@ import rubberduck.common.datatransfer.Task;
 import rubberduck.common.formatter.ColorFormatter.Color;
 import rubberduck.storage.DatabaseManager;
 
+//@author A0111736M
 /**
  * Utility class that contains reusable code to squish and format output that is
  * acceptable by the MenuInterface object.
  */
-//@author A0111736M
 public class Formatter {
 
     public static final String FORMAT_TABLE = "%-7s%-6s%-43s%-24s";

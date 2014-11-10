@@ -4,11 +4,11 @@ import rubberduck.common.datatransfer.Response;
 import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 
+//@author A0111736M
 /**
  * Concrete Command Class that can be executed to return an invalid response
  * back to the user.
  */
-//@author A0111736M
 public class InvalidCommand extends Command {
 
     private String errorMessage;

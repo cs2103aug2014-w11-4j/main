@@ -10,11 +10,11 @@ import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 import rubberduck.common.formatter.Formatter;
 
+//@author A0119504L
 /**
  * Concrete Command Class that can be executed to update the task object from
  * database given the task id displayed on screen to the user.
  */
-//@author A0119504L
 public class UpdateCommand extends Command {
 
     private static final String JOURNAL_MESSAGE_UPDATE =
@@ -33,6 +33,20 @@ public class UpdateCommand extends Command {
     private int taskId;
     private String description;
     private ArrayList<DatePair> datePairs;
+
+    /**
+     * Public constructor for UpdateCommand.
+     *
+     * @param taskId      id of the task as displayed in the last view command
+     * @param description updated description, if not changed will be null
+     * @param datePairs   updated date list, if not changed will be null
+     */
+    public UpdateCommand(int taskId, String description,
+                         ArrayList<DatePair> datePairs) {
+        this.taskId = taskId;
+        this.description = description;
+        this.datePairs = datePairs;
+    }
 
     /**
      * Getter method for taskId.
@@ -62,26 +76,11 @@ public class UpdateCommand extends Command {
     }
 
     /**
-     * Public constructor for UpdateCommand.
-     *
-     * @param taskId      id of the task as displayed in the last view command
-     * @param description updated description, if not changed will be null
-     * @param datePairs   updated date list, if not changed will be null
-     */
-    public UpdateCommand(int taskId, String description,
-                         ArrayList<DatePair> datePairs) {
-        this.taskId = taskId;
-        this.description = description;
-        this.datePairs = datePairs;
-    }
-
-    /**
      * Update the task with provided arguments to the database.
      *
      * @return Response containing updated message with the displayed id
      * @throws IOException that might occur
      */
-    // @author A0119504L
     @Override
     public Response execute() throws IOException {
         if (!isValidDisplayedId(taskId)) {
@@ -146,6 +145,4 @@ public class UpdateCommand extends Command {
         res.setMessages(messages.toString());
         return res;
     }
-
-
 }

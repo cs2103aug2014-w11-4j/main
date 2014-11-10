@@ -16,11 +16,11 @@ import rubberduck.common.datatransfer.Response;
 import rubberduck.common.datatransfer.Task;
 import rubberduck.storage.DatabaseManager;
 
+//@author A0111736M
 /**
  * Abstract Class that represents a command object which can be executed in a
  * concrete command class.
  */
-//@author A0111736M
 public abstract class Command {
 
     /* Enum type to store all types of command and their possible variations */
@@ -188,25 +188,25 @@ public abstract class Command {
         return dbManager;
     }
 
+    //@author A0119504L
     /**
      * Check whether given task ID is being displayed.
      *
      * @param displayedId the task ID
      * @return true when it is being displayed else false
      */
-    //@author A0119504L
     protected static boolean isValidDisplayedId(int displayedId) {
         return !(displayedId > displayedTasksList.size() || displayedId <= 0 ||
                  displayedTasksList.get(displayedId - 1) == -1);
     }
 
+    //@author A0111736M
     /**
      * Execute the implemented execute in respective concrete class and catch
      * any exception if occur.
      *
      * @return response object after execution
      */
-    //@author A0111736M
     public Response safeExecute() {
         try {
             LOGGER.info(MESSAGE_EXECUTE_INFO);

@@ -8,11 +8,11 @@ import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 import rubberduck.common.formatter.Formatter;
 
+//@author A0111794E
 /**
  * Concrete Command Class that can be executed to search the data store for
  * tasks containing the provided keyword and returns back the task details.
  */
-//@author A0111794E
 public class SearchCommand extends Command {
 
     private static final String MESSAGE_SEARCH_RESULT =
@@ -24,18 +24,8 @@ public class SearchCommand extends Command {
     private static final int EMPTY_KEYWORDS_LENGTH = 2;
     private static final int ONE_WORD = 1;
 
-
     /* Information required for search */
     private String keyword;
-
-    /**
-     * Getter method for keyword.
-     *
-     * @return String object
-     */
-    protected String getKeyword() {
-        return keyword;
-    }
 
     /**
      * Public constructor of SearchCommand.
@@ -44,6 +34,15 @@ public class SearchCommand extends Command {
      */
     public SearchCommand(String keyword) {
         this.keyword = keyword;
+    }
+
+    /**
+     * Getter method for keyword.
+     *
+     * @return String object
+     */
+    protected String getKeyword() {
+        return keyword;
     }
 
     /**
@@ -68,16 +67,14 @@ public class SearchCommand extends Command {
             StringTokenizer keywords =
                 new StringTokenizer(keyword.toLowerCase());
 
-            if (keyword.length() > EMPTY_KEYWORDS_LENGTH
-                && keyword.charAt(FIRST_CHAR) == '\"'
-                && keyword.charAt(keyword.length() - CHAR_LENGTH_OFFSET)
-                   == '\"') {
+            if (keyword.length() > EMPTY_KEYWORDS_LENGTH &&
+                keyword.charAt(FIRST_CHAR) == '\"' &&
+                keyword.charAt(keyword.length() - CHAR_LENGTH_OFFSET) == '\"') {
 
                 String modifiedKeyword = keyword.substring(SECOND_CHAR,
-                                                           keyword.length()
-                                                           - CHAR_LENGTH_OFFSET);
+                                                           keyword.length() -
+                                                           CHAR_LENGTH_OFFSET);
                 isFound = searchExactKeyword(modifiedKeyword, taskDescriptions);
-
 
             } else if (keywords.countTokens() == ONE_WORD) {
                 isFound = searchSingleKeyword(keyword, taskDescription);

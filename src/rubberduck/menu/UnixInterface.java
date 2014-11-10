@@ -19,12 +19,12 @@ import rubberduck.common.formatter.Formatter;
 import rubberduck.logic.command.Command;
 import rubberduck.logic.parser.Parser;
 
+//@author A0111736M
 /**
  * This class handles the user interface of the application that is running on
  * Mac/Linux. This will handle all input from the user and show the required
  * response back to the user.
  */
-//@author A0111736M
 public class UnixInterface extends MenuInterface {
 
     private static final String MESSAGE_PAGE_PROMPT =
@@ -105,13 +105,13 @@ public class UnixInterface extends MenuInterface {
         }
     }
 
+    //@author A0111794E
     /**
      * Setup and instantiates the ConsoleReader from jLine.
      *
      * @return ConsoleReader object
      * @throws IOException occurs when ConsoleReader has problem with output
      */
-    //@author A0111794E
     private ConsoleReader setupConsoleReader() throws IOException {
         ConsoleReader cr = new ConsoleReader();
         cr.clearScreen();
@@ -121,13 +121,13 @@ public class UnixInterface extends MenuInterface {
         return cr;
     }
 
+    //@author A0111736M
     /**
      * Maps the required keyboard keys to perform the required function when
      * triggered.
      *
      * @param cr ConsoleReader object
      */
-    //@author A0111736M
     private void setKeybinding(ConsoleReader cr) {
         /* Declare ANSI keycode for each required key */
         final String insert = "\033[2~";

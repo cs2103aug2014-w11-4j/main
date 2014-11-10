@@ -9,12 +9,12 @@ import java.util.GregorianCalendar;
 import rubberduck.common.formatter.Formatter;
 import rubberduck.storage.DatabaseManager;
 
+//@author A0111794E
 /**
  * This task class is used to represent a single task object which stores all
  * relevant information about the task and provide the needed getters and
  * setters for retrieval and storage.
  */
-//@author A0111794E
 public class Task implements Serializable, Comparable<Task> {
 
     private String description;
@@ -199,13 +199,13 @@ public class Task implements Serializable, Comparable<Task> {
         return dateList.isEmpty();
     }
 
+    //@author A0119416H
     /**
      * Test if there is overlap with a given DatePair.
      *
      * @param dateRange the DatePair to be compared with
      * @return true if there is overlap with the given DatePair
      */
-    //@author A0119416H
     public boolean isWithinPeriod(DatePair dateRange) {
         if (dateList.isEmpty()) {
             return true;
@@ -286,13 +286,13 @@ public class Task implements Serializable, Comparable<Task> {
         return false;
     }
 
+    //@author A0111736M
     /**
      * Check if the task is strictly a tentative task. It must have at least 2
      * date range.
      *
      * @return if the task is strictly a tentative task
      */
-    //@author A0111736M
     public boolean isTentative() {
         if (dateList.size() > 1) {
             for (DatePair dp : dateList) {
@@ -359,6 +359,7 @@ public class Task implements Serializable, Comparable<Task> {
         return earliestDate;
     }
 
+    //@author A0111794E
     /**
      * Compare both task by their deadline.
      * <p/>
@@ -367,7 +368,6 @@ public class Task implements Serializable, Comparable<Task> {
      * @param o the task object to be compared with the argument
      * @return int ,  0 = equal, -1 = smaller, 1 = bigger
      */
-    //@author A0111794E
     @Override
     public int compareTo(Task o) {
         assert (o != null);

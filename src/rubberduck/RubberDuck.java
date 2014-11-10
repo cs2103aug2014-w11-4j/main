@@ -15,13 +15,13 @@ import java.util.logging.SimpleFormatter;
 
 import rubberduck.menu.MenuInterface;
 
+//@author A0111736M
 /**
  * RubberDuck is a CLI Task Manager that stores user's task into a text file and
  * helps the user to handle all his/her tasks via this application.
  * <p/>
  * This class is the main class used to start and initialize the program.
  */
-//@author A0111736M
 public class RubberDuck {
 
     /* Class variables used to store information about logging in RubberDuck */

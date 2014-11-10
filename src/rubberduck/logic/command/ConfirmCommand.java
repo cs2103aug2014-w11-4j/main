@@ -10,11 +10,11 @@ import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 import rubberduck.common.formatter.Formatter;
 
+//@author A0119504L
 /**
  * Concrete Command Class that can be executed to confirm the a tentative task
  * given a task id displayed on the screen to the user.
  */
-//@author A0119504L
 public class ConfirmCommand extends Command {
 
     private static final String MESSAGE_CONFIRM =
@@ -34,6 +34,17 @@ public class ConfirmCommand extends Command {
     private int dateId;
 
     /**
+     * Public constructor for ConfirmCommand.
+     *
+     * @param taskId id of the task as displayed in the last view command
+     * @param dateId id to be confirmed
+     */
+    public ConfirmCommand(int taskId, int dateId) {
+        this.taskId = taskId;
+        this.dateId = dateId;
+    }
+
+    /**
      * Getter method for taskId.
      *
      * @return taskId as int
@@ -49,17 +60,6 @@ public class ConfirmCommand extends Command {
      */
     protected int getDateId() {
         return dateId;
-    }
-
-    /**
-     * Public constructor for ConfirmCommand.
-     *
-     * @param taskId id of the task as displayed in the last view command
-     * @param dateId id to be confirmed
-     */
-    public ConfirmCommand(int taskId, int dateId) {
-        this.taskId = taskId;
-        this.dateId = dateId;
     }
 
     /**

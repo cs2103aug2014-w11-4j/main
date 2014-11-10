@@ -10,11 +10,11 @@ import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 import rubberduck.common.formatter.Formatter;
 
+//@author A0111794E
 /**
  * Concrete Command Class that can be executed to add a new task (floating,
  * deadline, schedule and tentative) into the database.
  */
-//@author A0111794E
 public class AddCommand extends Command {
 
     private static final String MESSAGE_ADD_FLOAT_SUCCESS =
@@ -40,6 +40,18 @@ public class AddCommand extends Command {
     private ArrayList<DatePair> datePairs;
 
     /**
+     * Public constructor for AddCommand that accepts description and the list
+     * of DatePairs.
+     *
+     * @param description of the task
+     * @param datePairs   list of datePairs if any
+     */
+    public AddCommand(String description, ArrayList<DatePair> datePairs) {
+        this.description = description;
+        this.datePairs = datePairs;
+    }
+
+    /**
      * Getter method for description.
      *
      * @return description as String
@@ -55,18 +67,6 @@ public class AddCommand extends Command {
      */
     protected ArrayList<DatePair> getDatePairs() {
         return datePairs;
-    }
-
-    /**
-     * Public constructor for AddCommand that accepts description and the list
-     * of DatePairs.
-     *
-     * @param description of the task
-     * @param datePairs   list of datePairs if any
-     */
-    public AddCommand(String description, ArrayList<DatePair> datePairs) {
-        this.description = description;
-        this.datePairs = datePairs;
     }
 
     /**

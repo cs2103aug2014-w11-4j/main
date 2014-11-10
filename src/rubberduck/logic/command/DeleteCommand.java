@@ -8,11 +8,11 @@ import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 import rubberduck.common.formatter.Formatter;
 
+//@author A0119504L
 /**
  * Concrete Command Class that can be executed to delete the task object from
  * database given the task id displayed on screen to the user.
  */
-//@author A0119504L
 public class DeleteCommand extends Command {
 
     private static final String MESSAGE_DELETE =
@@ -25,21 +25,21 @@ public class DeleteCommand extends Command {
     private int taskId;
 
     /**
-     * Getter method for taskId.
-     *
-     * @return taskId as int
-     */
-    protected int getTaskId() {
-        return taskId;
-    }
-
-    /**
      * Public Constructor of DeleteCommand that accepts a task ID.
      *
      * @param taskId task id of the task displayed on screen
      */
     public DeleteCommand(int taskId) {
         this.taskId = taskId;
+    }
+
+    /**
+     * Getter method for taskId.
+     *
+     * @return taskId as int
+     */
+    protected int getTaskId() {
+        return taskId;
     }
 
     /**

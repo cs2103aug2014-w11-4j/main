@@ -14,6 +14,7 @@ import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 import rubberduck.logic.command.ViewCommand.ViewFilter;
 import rubberduck.logic.command.ViewCommand.ViewType;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -1110,10 +1111,11 @@ public class CommandTest {
         assertTrue(actual.contains(expected));
     }
 
+    //@author A0111736M
+
     /**
      * Simple check on executing a ClearCommand.
      */
-    //@author A0111736M
     @Test
     public void clearScreen() {
         Response res = new ClearCommand().execute();
@@ -1121,136 +1123,137 @@ public class CommandTest {
                      res.getMessages()[0].contains("Screen cleared."));
         assertEquals("Should be overwritten", true, res.isOverwrite());
     }
-    
+
     /**
      * Test View Floating task
-     * @throws IOException 
-     * 
+     *
+     * @throws IOException
      */
     //@author A0111794E
     @Test
-    public void viewFilterTaskFloating() throws IOException{
+    public void viewFilterTaskFloating() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         AddCommand commandA = new AddCommand(
             "Floating",
-            dpList);        
+            dpList);
         commandA.execute();
-        
+
         Calendar startDate = Calendar.getInstance();
-        startDate.add(1,1);
+        startDate.add(1, 1);
         Calendar endDate = Calendar.getInstance();
-        endDate.add(2,2);                
+        endDate.add(2, 2);
         DatePair dp = new DatePair(startDate, endDate);
         dpList.add(dp);
-        AddCommand commandB = new AddCommand("Schedule",dpList);
+        AddCommand commandB = new AddCommand("Schedule", dpList);
         commandB.execute();
-        
+
         ArrayList<ViewFilter> vs = new ArrayList<ViewFilter>();
         vs.add(ViewFilter.FLOATING);
         ViewCommand commandV = new ViewCommand(ViewType.ALL, false, null, vs);
         Response r = commandV.execute();
-        
+
         String actual = r.getViewCount();
-        String expected = "[1;33mYou have 1 incomplete task(s) in total.[m [1;36m[FLOATING][m";
-        assertEquals(expected,actual);                   
-    }  
-    
+        String expected =
+            "[1;33mYou have 1 incomplete task(s) in total.[m [1;36m[FLOATING][m";
+        assertEquals(expected, actual);
+    }
+
     /**
      * Test View Schedules task
-     * @throws IOException 
-     * 
+     *
+     * @throws IOException
      */
     //@author A0111794E
     @Test
-    public void viewFilterTaskSchedule() throws IOException{
+    public void viewFilterTaskSchedule() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         AddCommand commandA = new AddCommand(
             "Floating",
-            dpList);        
+            dpList);
         commandA.execute();
-        
+
         Calendar startDate = Calendar.getInstance();
-        startDate.add(1,1);
+        startDate.add(1, 1);
         Calendar endDate = Calendar.getInstance();
-        endDate.add(2,2);                
+        endDate.add(2, 2);
         DatePair dp = new DatePair(startDate, endDate);
         dpList.add(dp);
-        AddCommand commandB = new AddCommand("Schedule",dpList);
+        AddCommand commandB = new AddCommand("Schedule", dpList);
         commandB.execute();
-        
+
         ArrayList<ViewFilter> vs = new ArrayList<ViewFilter>();
         vs.add(ViewFilter.SCHEDULE);
         ViewCommand commandV = new ViewCommand(ViewType.ALL, false, null, vs);
         Response r = commandV.execute();
-        
+
         String actual = r.getViewCount();
-        String expected = "[1;33mYou have 1 incomplete task(s) in total.[m [1;36m[SCHEDULE][m";
-        assertEquals(expected,actual);                   
-    }  
-    
+        String expected =
+            "[1;33mYou have 1 incomplete task(s) in total.[m [1;36m[SCHEDULE][m";
+        assertEquals(expected, actual);
+    }
+
     /**
      * Test View Deadline task
-     * @throws IOException 
-     * 
+     *
+     * @throws IOException
      */
     //@author A0111794E
     @Test
-    public void viewFilterTaskDeadline() throws IOException{
+    public void viewFilterTaskDeadline() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         AddCommand commandA = new AddCommand(
             "Floating",
-            dpList);        
+            dpList);
         commandA.execute();
 
         Calendar endDate = Calendar.getInstance();
-        endDate.add(12,12);                
+        endDate.add(12, 12);
         DatePair dp = new DatePair(endDate);
         dpList.add(dp);
-        AddCommand commandB = new AddCommand("Deadline",dpList);
+        AddCommand commandB = new AddCommand("Deadline", dpList);
         commandB.execute();
-        
+
         ArrayList<ViewFilter> vs = new ArrayList<ViewFilter>();
         vs.add(ViewFilter.DEADLINE);
         ViewCommand commandV = new ViewCommand(ViewType.ALL, false, null, vs);
         Response r = commandV.execute();
-        
+
         String actual = r.getViewCount();
-        String expected = "[1;33mYou have 1 incomplete task(s) in total.[m [1;36m[DEADLINE][m";
-        assertEquals(expected,actual);                   
-    }  
-    
+        String expected =
+            "[1;33mYou have 1 incomplete task(s) in total.[m [1;36m[DEADLINE][m";
+        assertEquals(expected, actual);
+    }
+
     /**
      * Test View Double Filter floating and deadline task
-     * @throws IOException 
-     * 
+     *
+     * @throws IOException
      */
     //@author A0111794E
     @Test
-    public void viewDoubleFilterTask() throws IOException{
+    public void viewDoubleFilterTask() throws IOException {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         AddCommand commandA = new AddCommand(
             "Floating",
-            dpList);        
+            dpList);
         commandA.execute();
 
         Calendar endDate = Calendar.getInstance();
-        endDate.add(12,12);                
+        endDate.add(12, 12);
         DatePair dp = new DatePair(endDate);
         dpList.add(dp);
-        AddCommand commandB = new AddCommand("Deadline",dpList);
+        AddCommand commandB = new AddCommand("Deadline", dpList);
         commandB.execute();
-        
+
         ArrayList<ViewFilter> vs = new ArrayList<ViewFilter>();
         vs.add(ViewFilter.DEADLINE);
         vs.add(ViewFilter.FLOATING);
         ViewCommand commandV = new ViewCommand(ViewType.ALL, false, null, vs);
         Response r = commandV.execute();
-        
+
         String actual = r.getViewCount();
-        String expected = "[1;33mYou have 2 incomplete task(s) in total.[m [1;36m[DEADLINE, FLOATING][m";
-        assertEquals(expected,actual);                   
-    } 
-    
-    
-    
+        String expected =
+            "[1;33mYou have 2 incomplete task(s) in total.[m [1;36m[DEADLINE, FLOATING][m";
+        assertEquals(expected, actual);
+    }
 }
