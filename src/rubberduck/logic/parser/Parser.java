@@ -205,7 +205,7 @@ public class Parser {
                 return new InvalidCommand(MESSAGE_INVALID_COMMAND, true);
 
             default: /* all unrecognized command are invalid commands */
-                throw new AssertionError(userCommand);
+                throw new UnsupportedOperationException(userCommand.toString());
         }
     }
 

@@ -1,12 +1,5 @@
 package rubberduck.menu;
 
-import rubberduck.common.datatransfer.Response;
-import rubberduck.common.formatter.ColorFormatter;
-import rubberduck.common.formatter.ColorFormatter.Color;
-import rubberduck.common.formatter.Formatter;
-import rubberduck.logic.command.Command;
-import rubberduck.logic.parser.Parser;
-
 import jline.console.ConsoleReader;
 import jline.console.completer.AggregateCompleter;
 import jline.console.completer.ArgumentCompleter;
@@ -22,13 +15,19 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 
-//@author A0111736M
+import rubberduck.common.datatransfer.Response;
+import rubberduck.common.formatter.ColorFormatter;
+import rubberduck.common.formatter.ColorFormatter.Color;
+import rubberduck.common.formatter.Formatter;
+import rubberduck.logic.command.Command;
+import rubberduck.logic.parser.Parser;
 
 /**
  * This class handles the user interface of the application that is running on
  * Windows platform. This will handle all input from the user and show the
  * required response back to the user.
  */
+//@author A0111736M
 public class WinInterface extends MenuInterface {
 
     /* CMD command required to forcefully set the width and height of CMD*/
@@ -285,7 +284,7 @@ public class WinInterface extends MenuInterface {
      */
     private void toggleTimeFormat() {
         Formatter.toggleTimeFormat();
-        Response r = Command.getPreviousDisplayCommand().safeExecute();
+        Response r = Parser.getInstance().parseInput(TIME_TOGGLE_EXECUTE);
         String toggleMessage = Formatter.is12HourFormat() ? MESSAGE_SET_12HOUR
                                                           : MESSAGE_SET_24HOUR;
         r.setMessages(ColorFormatter.format(toggleMessage, Color.CYAN));

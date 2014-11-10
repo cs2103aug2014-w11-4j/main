@@ -10,8 +10,15 @@ public class ColorFormatter {
      * Private constructor for ColorFormatter as it is a utility class.
      */
     private ColorFormatter() {
-
     }
+
+    /**
+     * Color that can be applied to foreground.
+     */
+    public enum Color {
+        BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
+    }
+
 
     /**
      * Attribute that can be applied to text.
@@ -22,20 +29,13 @@ public class ColorFormatter {
 
         private String stringValue;
 
-        public String toString() {
-            return "" + stringValue;
-        }
-
         private Attribute(int stringValue) {
             this.stringValue = String.valueOf(stringValue);
         }
-    }
 
-    /**
-     * Color that can be applied to foreground or background.
-     */
-    public enum Color {
-        BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
+        public String toString() {
+            return stringValue;
+        }
     }
 
     private static final String PREFIX = "\u001b[";
@@ -43,10 +43,10 @@ public class ColorFormatter {
     private static final String END = PREFIX + SUFFIX;
     private static final String SEPARATOR = ";";
     private static final int FG_SUFFIX = 30;
-    private static final int BG_SUFFIX = 40;
 
     /**
-     * Format input string with given color as foreground.
+     * Formats input string with given color as foreground. Default attribute:
+     * Bright.
      *
      * @param input input string
      * @param fg    foreground color
@@ -57,14 +57,14 @@ public class ColorFormatter {
     }
 
     /**
-     * Format input string with given attribute, foreground color.
+     * Formats input string with given attribute, foreground color.
      *
      * @param input input string
      * @param atr   attribute
      * @param fg    foreground color
      * @return input that is color-coded
      */
-    public static String format(String input, Attribute atr, Color fg) {
+    private static String format(String input, Attribute atr, Color fg) {
         StringBuilder sb = new StringBuilder();
 
         if (atr != null) {

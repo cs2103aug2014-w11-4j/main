@@ -1,10 +1,5 @@
 package rubberduck.common.formatter;
 
-import rubberduck.common.datatransfer.DatePair;
-import rubberduck.common.datatransfer.Task;
-import rubberduck.common.formatter.ColorFormatter.Color;
-import rubberduck.storage.DatabaseManager;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,6 +8,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Locale;
+
+import rubberduck.common.datatransfer.DatePair;
+import rubberduck.common.datatransfer.Task;
+import rubberduck.common.formatter.ColorFormatter.Color;
+import rubberduck.storage.DatabaseManager;
 
 /**
  * Utility class that contains reusable code to squish and format output that is
@@ -24,25 +24,20 @@ public class Formatter {
     public static final String FORMAT_TABLE = "%-7s%-6s%-43s%-24s";
     public static final String FORMAT_TENTATIVE = "%-7s%-6s%-43s%-19s%-5s";
 
-    private static final String SEPARATOR_FLOATING =
-        "--------------------------------[  FLOATINGS  ]---------------------------------";
-    private static final String SEPARATOR_DEADLINE =
-        "--------------------------------[  DEADLINES  ]---------------------------------";
-    private static final String SEPARATOR_SCHEDULE =
-        "--------------------------------[  SCHEDULES  ]---------------------------------";
-
-    private static final String ANSI_PREFIX = "\u001b[";
-    private static final int ANSI_OFFSET = 7;
-
-    /* Values to represent the header type to print */
-
-    /**
-     * Enumeration of headerType
-     */
     private enum HeaderType {
         NONE, FLOATING, DEADLINE, SCHEDULE,
     }
 
+    /* Static constants to represent the header type to print */
+    private static final String SEPARATOR_FLOATING =
+        "--------------------------------[  FLOATING  ]----------------------------------";
+    private static final String SEPARATOR_DEADLINE =
+        "--------------------------------[  DEADLINE  ]----------------------------------";
+    private static final String SEPARATOR_SCHEDULE =
+        "--------------------------------[  SCHEDULE  ]----------------------------------";
+
+    private static final String ANSI_PREFIX = "\u001b[";
+    private static final int ANSI_OFFSET = 7;
 
     private static final int DESC_MAX_WIDTH = 200;
     private static final int DESC_TABLE_MAX_WIDTH = 41;
@@ -63,18 +58,18 @@ public class Formatter {
     }
 
     /**
-     * Toggle the time format within formatter between 12 hours and 24 hours.
+     * Toggles the time format within formatter between 12 hours and 24 hours.
      * Default for Formatter will always start at 24 hours.
      */
     public static void toggleTimeFormat() {
-        currentTimeFormat =
-            is12HourFormat() ? DATE_24HOUR_FORMAT : DATE_12HOUR_FORMAT;
+        currentTimeFormat = is12HourFormat() ? DATE_24HOUR_FORMAT
+                                             : DATE_12HOUR_FORMAT;
     }
 
     /**
      * Return boolean if formatter is set to 12 hour date format.
      *
-     * @return true if formatter is set to 12 hour date format else 24 hour.
+     * @return true if formatter is set to 12 hour date format else false.
      */
     public static boolean is12HourFormat() {
         return currentTimeFormat.equals(DATE_12HOUR_FORMAT);
@@ -84,8 +79,8 @@ public class Formatter {
      * Accepts a String representation of a task description and truncate to the
      * acceptable length to prevent buffer overflow.
      *
-     * @param desc String of description
-     * @return truncated String of description
+     * @param desc description String
+     * @return truncated description as String
      */
     public static String limitDescription(String desc) {
         if (desc.length() <= DESC_MAX_WIDTH) {
@@ -116,7 +111,7 @@ public class Formatter {
      * Accepts a String representation of messages and format it such that it is
      * buffer-friendly.
      *
-     * @param messages String of message
+     * @param messages messages String
      * @return Buffer acceptable String array of messages
      */
     public static String[] formatMessage(String messages) {
@@ -132,17 +127,17 @@ public class Formatter {
     /**
      * Format the list of tasks into a String output and return.
      *
+     * @param dataTable ArrayList containing all the instanceId in data table
+     * @param db        DatabaseManager instance
      * @return the formatted string of all tasks involved
-     * @throws java.io.IOException occurs when dbManager encounters a problem
-     *                             with file
+     * @throws IOException occurs when DatabaseManager encounters an I/O error
      */
     public static String formatTaskList(ArrayList<Long> dataTable,
                                         DatabaseManager<Task> db)
         throws IOException {
-
         Collections.sort(dataTable, db.getInstanceIdComparator());
-        StringBuilder taskData = new StringBuilder();
 
+        StringBuilder taskData = new StringBuilder();
         HeaderType prevType = HeaderType.NONE;
         for (int i = 0; i < dataTable.size(); i++) {
             if (taskData.length() > 0) {
@@ -175,12 +170,13 @@ public class Formatter {
             taskData.append(formatTask(task, i + 1 + ""));
         }
         return taskData.toString();
-
     }
 
     /**
-     * @param t the task object
-     * @return the type of task
+     * Gets the corresponding HeaderType based on the given Task type.
+     *
+     * @param t Task object
+     * @return HeaderType
      */
     private static HeaderType getHeaderType(Task t) {
         if (t.isFloatingTask()) {

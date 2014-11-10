@@ -6,6 +6,7 @@ import rubberduck.common.formatter.Formatter;
  * A data structure that must be created by each command and returned back to
  * the MenuInterface for formatting into the buffer accordingly.
  */
+//@author A0111736M
 public class Response {
 
     private String[] messages;
@@ -22,10 +23,6 @@ public class Response {
      * @param viewData  actual task data of current view format
      */
     public Response(String messages, String viewCount, String viewData) {
-        assert messages != null : "messages cannot be null";
-        assert viewCount != null : "viewCount cannot be null";
-        assert viewData != null : "viewData cannot be null";
-
         setMessages(messages);
         this.viewCount = viewCount;
         this.viewData = viewData;
@@ -36,8 +33,6 @@ public class Response {
      * not be split into three portion but only display the messages instead.
      */
     public Response(String messages, boolean isOverwrite) {
-        assert messages != null : "messages cannot be null";
-
         setMessages(messages);
         this.isOverwrite = isOverwrite;
     }

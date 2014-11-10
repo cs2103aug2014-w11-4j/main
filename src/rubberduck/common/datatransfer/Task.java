@@ -1,13 +1,13 @@
 package rubberduck.common.datatransfer;
 
-import rubberduck.common.formatter.Formatter;
-import rubberduck.storage.DatabaseManager;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
+import rubberduck.common.formatter.Formatter;
+import rubberduck.storage.DatabaseManager;
 
 /**
  * This task class is used to represent a single task object which stores all
@@ -305,7 +305,6 @@ public class Task implements Serializable, Comparable<Task> {
         return false;
     }
 
-    //@author A0111736M
 
     /**
      * Return the first DatePair from Task as String representation based on
@@ -333,8 +332,7 @@ public class Task implements Serializable, Comparable<Task> {
      * @return if the task is a valid task
      */
     public boolean checkValidity() {
-        return isFloatingTask() || isDeadline() || isSchedule() ||
-               isTentative();
+        return isFloatingTask() || isDeadline() || isSchedule();
     }
 
     /**

@@ -81,8 +81,6 @@ public class AddCommand extends Command {
         assert description != null;
         assert !description.equals("");
 
-        LOGGER.info(MESSAGE_EXECUTE_INFO);
-
         if (DatePair.isDateBeforeNow(datePairs)) {
             String errorMessage = ColorFormatter.format(
                 String.format(MESSAGE_ADD_PAST, description), Color.RED);

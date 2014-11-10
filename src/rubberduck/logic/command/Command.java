@@ -1,9 +1,5 @@
 package rubberduck.logic.command;
 
-import rubberduck.common.datatransfer.Response;
-import rubberduck.common.datatransfer.Task;
-import rubberduck.storage.DatabaseManager;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +12,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import rubberduck.common.datatransfer.Response;
+import rubberduck.common.datatransfer.Task;
+import rubberduck.storage.DatabaseManager;
+
 /**
  * Abstract Class that represents a command object which can be executed in a
  * concrete command class.
@@ -25,20 +25,16 @@ public abstract class Command {
 
     /* Enum type to store all types of command and their possible variations */
     public enum CommandType {
-        /*
-         * use var args to populate all possible variations for each command
-         * type
-         */
-        VIEW("view", "display"), SEARCH("find", "lookup", "search"),
-        ADD("add", "insert", "ins", "new"), DELETE("delete", "remove"),
+        VIEW("view", "display", "agenda"), SEARCH("find", "lookup", "search"),
+        ADD("add", "insert", "ins", "new"), DELETE("delete", "remove", "del"),
         UPDATE("change", "update", "edit"), UNDO("undo", "ud"),
         REDO("redo", "rd"), MARK("mark", "completed", "done"),
         CONFIRM("confirm"), SYNC("sync"), CLEAR("cls", "clear"),
         EXIT("exit", "quit"), HELP("?", "help"), INVALID;
 
         private List<String> tags;
-        private static final Map<String, CommandType>
-            ALIAS_MAP = new HashMap<String, CommandType>();
+        private static final Map<String, CommandType> ALIAS_MAP =
+            new HashMap<String, CommandType>();
 
         /**
          * Private constructor that accept literals and instantiate as List of
@@ -48,17 +44,6 @@ public abstract class Command {
          */
         private CommandType(String... tags) {
             this.tags = Arrays.asList(tags);
-        }
-
-        /**
-         * Initialize and populate the tagMap for other methods.
-         */
-        static {
-            for (CommandType command : CommandType.values()) {
-                for (String tag : command.tags) {
-                    ALIAS_MAP.put(tag, command);
-                }
-            }
         }
 
         /**
@@ -72,12 +57,23 @@ public abstract class Command {
                 return CommandType.INVALID;
             }
 
-            CommandType cmd = ALIAS_MAP.get(input.toLowerCase());
+            CommandType type = ALIAS_MAP.get(input.toLowerCase());
 
-            if (cmd == null) {
+            if (type == null) {
                 return CommandType.INVALID;
             } else {
-                return cmd;
+                return type;
+            }
+        }
+
+        /**
+         * Initialize and populate the tagMap for other methods.
+         */
+        static {
+            for (CommandType command : CommandType.values()) {
+                for (String tag : command.tags) {
+                    ALIAS_MAP.put(tag, command);
+                }
             }
         }
 
@@ -93,29 +89,29 @@ public abstract class Command {
         /**
          * Retrieve all available alias found in the specific CommandType.
          *
-         * @param type
-         * @return the set of string containing the alias
+         * @param type CommandType requested
+         * @return the set of string containing the alias of type
          */
         public static Set<String> getAlias(CommandType type) {
-            Set<String> set = new HashSet<String>();
+            Set<String> alias = new HashSet<String>();
             for (Map.Entry<String, CommandType> entry : ALIAS_MAP.entrySet()) {
                 if (entry.getValue().equals(type)) {
-                    set.add(entry.getKey());
+                    alias.add(entry.getKey());
                 }
             }
-            return set;
+            return alias;
         }
     }
 
-    /* Logger variable for usage and shared log messages */
+    /* Global logger to log information and exception. */
     protected static final Logger LOGGER =
         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    protected static final String MESSAGE_EXECUTE_INFO =
-        "Initiating execution of command.";
 
     /* Details about the DataStore/DatabaseManager */
     private static final String MESSAGE_DATABASE_IOEXCEPTION =
-        "Exception has occured when accessing local storage.";
+        "I/O Exception has occurred when accessing local storage.";
+    private static final String MESSAGE_EXECUTE_INFO =
+        "Initiating execution of command.";
     private static final String DATABASE_NAME =
         "database.xml";
     private static final String CURRENT_DIRECTORY =
@@ -126,9 +122,10 @@ public abstract class Command {
     private static DatabaseManager<Task> dbManager;
 
     /**
-     * Start the database, if not found new database will be created.
+     * Starts the local database. If local file not found, new database will be
+     * created.
      *
-     * @return states if the database has been started successfully
+     * @return true if the database has been started successfully
      */
     protected static boolean startDatabase() {
         try {
@@ -137,8 +134,7 @@ public abstract class Command {
                                                   + DATABASE_NAME);
             return true;
         } catch (IOException e) {
-            getLogger().log(Level.SEVERE, MESSAGE_DATABASE_IOEXCEPTION,
-                            e);
+            LOGGER.log(Level.SEVERE, MESSAGE_DATABASE_IOEXCEPTION, e);
             return false;
         }
     }
@@ -146,9 +142,9 @@ public abstract class Command {
     /**
      * Getter method for displayedTaskLists.
      *
-     * @return ArrayList<Long> of task id in displayed lists
+     * @return ArrayList<Long> of instanceId that are currently displayed
      */
-    public static ArrayList<Long> getDisplayedTasksList() {
+    protected static ArrayList<Long> getDisplayedTasksList() {
         return displayedTasksList;
     }
 
@@ -157,7 +153,7 @@ public abstract class Command {
      *
      * @return Command object of type ViewCommand or SearchCommand
      */
-    public static Command getPreviousDisplayCommand() {
+    protected static Command getPreviousDisplayCommand() {
         assert previousDisplayCommand != null : "Should not be null";
         return previousDisplayCommand;
     }
@@ -167,7 +163,7 @@ public abstract class Command {
      *
      * @param c ViewCommand or SearchCommand object
      */
-    public static void setPreviousDisplayCommand(Command c) {
+    protected static void setPreviousDisplayCommand(Command c) {
         if (c instanceof ViewCommand || c instanceof SearchCommand) {
             previousDisplayCommand = c;
         } else {
@@ -176,11 +172,12 @@ public abstract class Command {
     }
 
     /**
-     * Getter method for dbManager.
+     * Getter method for dbManager. Will call startDatabase() if dbManager has
+     * not been initialized yet.
      *
      * @return DatabaseManager<Task> instance
      */
-    public static DatabaseManager<Task> getDbManager() {
+    protected static DatabaseManager<Task> getDbManager() {
         if (dbManager == null) {
             Command.startDatabase();
         }
@@ -194,19 +191,9 @@ public abstract class Command {
      * @return true when it is being displayed else false
      */
     //@author A0119504L
-    public static boolean isValidDisplayedId(int displayedId) {
+    protected static boolean isValidDisplayedId(int displayedId) {
         return !(displayedId > displayedTasksList.size() || displayedId <= 0 ||
                  displayedTasksList.get(displayedId - 1) == -1);
-    }
-
-    /**
-     * Getter method for LOGGER.
-     *
-     * @return Logger instance
-     */
-    //@author A0111736M
-    private static Logger getLogger() {
-        return LOGGER;
     }
 
     /**
@@ -215,11 +202,13 @@ public abstract class Command {
      *
      * @return response object after execution
      */
+    //@author A0111736M
     public Response safeExecute() {
         try {
+            LOGGER.info(MESSAGE_EXECUTE_INFO);
             return execute();
         } catch (IOException e) {
-            getLogger().log(Level.SEVERE, MESSAGE_DATABASE_IOEXCEPTION, e);
+            LOGGER.log(Level.SEVERE, MESSAGE_DATABASE_IOEXCEPTION, e);
             return new Response(MESSAGE_DATABASE_IOEXCEPTION, false);
         }
     }
@@ -227,8 +216,8 @@ public abstract class Command {
     /**
      * Abstract method for implementation by concrete class to execute logic.
      *
-     * @return response object after execution
-     * @throws IOException thrown if DBManager encounter I/O problems
+     * @return Response object after execution
+     * @throws IOException occurs if DatabaseManager encounter I/O problems
      */
     protected abstract Response execute() throws IOException;
 }

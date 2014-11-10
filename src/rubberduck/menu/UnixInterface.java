@@ -1,12 +1,5 @@
 package rubberduck.menu;
 
-import rubberduck.common.datatransfer.Response;
-import rubberduck.common.formatter.ColorFormatter;
-import rubberduck.common.formatter.ColorFormatter.Color;
-import rubberduck.common.formatter.Formatter;
-import rubberduck.logic.command.Command;
-import rubberduck.logic.parser.Parser;
-
 import jline.console.ConsoleReader;
 import jline.console.completer.AggregateCompleter;
 import jline.console.completer.ArgumentCompleter;
@@ -19,13 +12,19 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 
-//@author A0111736M
+import rubberduck.common.datatransfer.Response;
+import rubberduck.common.formatter.ColorFormatter;
+import rubberduck.common.formatter.ColorFormatter.Color;
+import rubberduck.common.formatter.Formatter;
+import rubberduck.logic.command.Command;
+import rubberduck.logic.parser.Parser;
 
 /**
  * This class handles the user interface of the application that is running on
  * Mac/Linux. This will handle all input from the user and show the required
  * response back to the user.
  */
+//@author A0111736M
 public class UnixInterface extends MenuInterface {
 
     private static final String MESSAGE_PAGE_PROMPT =
@@ -107,14 +106,13 @@ public class UnixInterface extends MenuInterface {
         }
     }
 
-    //@author A0111794E
-
     /**
      * Setup and instantiates the ConsoleReader from jLine.
      *
      * @return ConsoleReader object
      * @throws IOException occurs when ConsoleReader has problem with output
      */
+    //@author A0111794E
     private ConsoleReader setupConsoleReader() throws IOException {
         ConsoleReader cr = new ConsoleReader();
         cr.clearScreen();
@@ -124,14 +122,13 @@ public class UnixInterface extends MenuInterface {
         return cr;
     }
 
-    //@author A0111736M
-
     /**
      * Maps the required keyboard keys to perform the required function when
      * triggered.
      *
      * @param cr ConsoleReader object
      */
+    //@author A0111736M
     private void setKeybinding(ConsoleReader cr) {
         /* Declare ANSI keycode for each required key */
         final String insert = "\033[2~";
@@ -149,7 +146,7 @@ public class UnixInterface extends MenuInterface {
      */
     private void toggleTimeFormat() {
         Formatter.toggleTimeFormat();
-        Response r = Command.getPreviousDisplayCommand().safeExecute();
+        Response r = Parser.getInstance().parseInput(TIME_TOGGLE_EXECUTE);
         String toggleMessage = Formatter.is12HourFormat() ? MESSAGE_SET_12HOUR
                                                           : MESSAGE_SET_24HOUR;
         r.setMessages(ColorFormatter.format(toggleMessage, Color.CYAN));

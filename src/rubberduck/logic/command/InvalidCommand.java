@@ -4,8 +4,6 @@ import rubberduck.common.datatransfer.Response;
 import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 
-import java.io.IOException;
-
 /**
  * Concrete Command Class that can be executed to return an invalid response
  * back to the user.
@@ -42,18 +40,11 @@ public class InvalidCommand extends Command {
      * Returns error response provided by application back to user.
      *
      * @return Response object containing the error message
-     * @throws IOException that might occur
      */
     @Override
-    public Response execute() throws IOException {
-        LOGGER.info(MESSAGE_EXECUTE_INFO);
-
-        StringBuilder response = new StringBuilder();
-        response.append(ColorFormatter.format(errorMessage, Color.RED));
-        if (showPrev) {
-            response.append(System.lineSeparator());
-            return new Response(response.toString(), false);
-        }
-        return new Response(response.toString(), true);
+    public Response execute() {
+        String errResponse = (ColorFormatter.format(errorMessage, Color.RED));
+        LOGGER.info(errorMessage);
+        return new Response(errResponse, !showPrev);
     }
 }

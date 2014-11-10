@@ -1,10 +1,10 @@
 package rubberduck.logic.command;
 
+import java.io.IOException;
+
 import rubberduck.common.datatransfer.Response;
 import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
-
-import java.io.IOException;
 
 /**
  * Concrete Command Class that can be executed to redo the previous undone
@@ -22,18 +22,17 @@ public class RedoCommand extends Command {
      * data of previously executed view/search.
      *
      * @return Response object with appropriate messages
-     * @throws IOException occurs when DatabaseManager has I/O issues
+     * @throws IOException occurs when DatabaseManager encounters I/O issues
      */
     @Override
     public Response execute() throws IOException {
-        LOGGER.info(MESSAGE_EXECUTE_INFO);
-
         try {
             String redoMessage = getDbManager().redo();
             Response res = getPreviousDisplayCommand().execute();
             res.setMessages(String.format(
                 ColorFormatter.format(JOURNAL_MESSAGE_REDONE, Color.YELLOW),
                 redoMessage));
+            LOGGER.info(JOURNAL_MESSAGE_REDONE);
             return res;
         } catch (UnsupportedOperationException e) { /* Nothing to redo */
             LOGGER.info(e.getMessage());

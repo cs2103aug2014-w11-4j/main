@@ -1,19 +1,18 @@
 package rubberduck.logic.command;
 
-import rubberduck.common.datatransfer.Response;
-import rubberduck.common.formatter.ColorFormatter;
-import rubberduck.common.formatter.ColorFormatter.Color;
-import rubberduck.common.formatter.Formatter;
-import rubberduck.common.datatransfer.DatePair;
-import rubberduck.common.datatransfer.Task;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.logging.Logger;
+
+import rubberduck.common.datatransfer.DatePair;
+import rubberduck.common.datatransfer.Response;
+import rubberduck.common.datatransfer.Task;
+import rubberduck.common.formatter.ColorFormatter;
+import rubberduck.common.formatter.ColorFormatter.Color;
+import rubberduck.common.formatter.Formatter;
 
 /**
  * Concrete Command Class that can be executed to return related tasks as a
@@ -35,10 +34,6 @@ public class ViewCommand extends Command {
     public enum ViewType {
         ALL, DATE, PREV, OVERDUE
     }
-
-    /* Global logger to log information and exception. */
-    private static final Logger LOGGER =
-        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private static final String MESSAGE_VIEWALL_RESULT =
         "You have %s incomplete task(s) in total.";
@@ -138,8 +133,6 @@ public class ViewCommand extends Command {
      */
     @Override
     public Response execute() throws IOException {
-        LOGGER.info(MESSAGE_EXECUTE_INFO);
-
         switch (viewType) {
             case ALL:
                 return viewAll();
@@ -234,7 +227,8 @@ public class ViewCommand extends Command {
         String taskData = Formatter.formatTaskList(getDisplayedTasksList(),
                                                    getDbManager());
         return new Response("" + taskFilterAlert(), viewCount.toString() + " "
-                                + viewSelectionToString(), taskData);
+                                                    + viewSelectionToString(),
+                            taskData);
     }
 
     /**
@@ -306,8 +300,8 @@ public class ViewCommand extends Command {
         setPreviousDisplayCommand(this);
         String taskData = Formatter.formatTaskList(getDisplayedTasksList(),
                                                    getDbManager());
-        return new Response("" + taskFilterAlert() , viewCount.toString() + " "
-                                + viewSelectionToString(), taskData);
+        String header = viewCount.toString() + " " + viewSelectionToString();
+        return new Response("" + taskFilterAlert(), header, taskData);
     }
 
     /**
@@ -317,6 +311,7 @@ public class ViewCommand extends Command {
      * @return the formatted string of all tasks involved
      * @throws IOException occurs when dbManager encounters a problem with file
      */
+    //@author A0111736M
     private Response viewPrev() throws IOException {
         if (viewSelection.size() == VIEW_FILTER_ONE_SELECTED &&
             viewSelection.contains(ViewFilter.FLOATING)) {
@@ -340,7 +335,7 @@ public class ViewCommand extends Command {
      * @param task object to get type
      * @return ViewFilter of the object
      */
-
+    //@author A0111794E
     private ViewFilter getTaskType(Task task) {
         if (task.isFloatingTask()) {
             return ViewFilter.FLOATING;
@@ -356,12 +351,12 @@ public class ViewCommand extends Command {
      *
      * @return String feedback of user requested filters
      */
-
     private String viewSelectionToString() {
 
         String viewSelectionList = "[";
 
-        if (viewSelection.size() == VIEW_FILTER_ALL_SELECTED || viewSelection.size() == VIEW_FILTER_NONE_SELECTED) {
+        if (viewSelection.size() == VIEW_FILTER_ALL_SELECTED
+            || viewSelection.size() == VIEW_FILTER_NONE_SELECTED) {
             viewSelectionList += "All";
         } else {
             for (int i = 0; i < viewSelection.size(); i++) {
@@ -375,14 +370,14 @@ public class ViewCommand extends Command {
     }
 
     /**
-     * Check if it is view by dateRange,
-     * and return message to warn that the search will be omitted
+     * Check if it is view by dateRange, and return message to warn that the
+     * search will be omitted
      *
      * @return String containing the alert message if there is any
      */
-    private String taskFilterAlert(){
+    private String taskFilterAlert() {
         String alert = "";
-        if(viewSelection.contains(ViewFilter.FLOATING)){
+        if (viewSelection.contains(ViewFilter.FLOATING)) {
             alert += MESSAGE_VIEWTYPE_TASK_ALERT;
         }
         return ColorFormatter.format(alert, Color.RED);

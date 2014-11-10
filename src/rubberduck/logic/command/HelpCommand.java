@@ -1,11 +1,10 @@
 package rubberduck.logic.command;
 
+import java.util.Set;
+
 import rubberduck.common.datatransfer.Response;
 import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
-
-import java.io.IOException;
-import java.util.Set;
 
 /**
  * Concrete Command Class that can be executed to show the list of available
@@ -24,7 +23,6 @@ public class HelpCommand extends Command {
         "%-15s%-65s";
     private static final String HELP_SPECIFIC_ALIAS =
         " \nSupported Alias";
-
     private static final String[][] COMMANDS = {
         {"view", "View your agenda given a date range or \"all\".",
          "[date | all | overdue] [deadline] [float] [schedule]"},
@@ -51,6 +49,7 @@ public class HelpCommand extends Command {
         {"help", "Get help information on commands available and specifics.",
          "[command]"}
     };
+
     private static final int COMMANDS_NAME = 0;
     private static final int COMMANDS_INFO = 1;
     private static final int COMMANDS_ARG = 2;
@@ -63,8 +62,8 @@ public class HelpCommand extends Command {
      * type as String.
      *
      * @param isSpecific if true, users want a specific command information
-     * @param type       null if isSpecific is false else must not be null if
-     *                   true
+     * @param type       null if isSpecific is false, else must not be null if
+     *                   isSpecific is true
      */
     public HelpCommand(boolean isSpecific, String type) {
         this.isSpecific = isSpecific;
@@ -72,56 +71,75 @@ public class HelpCommand extends Command {
     }
 
     /**
-     * Shows the available commands for the end user in the system.
+     * Shows either the list of available commands or specific details about a
+     * command in RubberDuck.
      *
      * @return a Response object containing the command information requested
-     * @throws IOException that might occur
      */
     @Override
-    public Response execute() throws IOException {
-        LOGGER.info(MESSAGE_EXECUTE_INFO);
-
+    public Response execute() {
         StringBuilder sb = new StringBuilder();
         if (isSpecific) {
-            CommandType ct = Command.CommandType.getCommandType(type);
-            if (ct == CommandType.INVALID) {
-                sb.append("No such command/alias.");
-            } else {
-                sb.append(ColorFormatter.format(HELP_SPECIFIC_HEADER,
-                                                Color.YELLOW));
-                sb.append(System.lineSeparator());
-                sb.append(String.format(HELP_SPECIFIC_FORMAT, "Command Type",
-                                        "Parameters"));
-                sb.append(System.lineSeparator());
-                sb.append(String.format(HELP_SPECIFIC_FORMAT,
-                                        COMMANDS[ct.ordinal()][COMMANDS_NAME],
-                                        COMMANDS[ct.ordinal()][COMMANDS_ARG]));
-
-                sb.append(System.lineSeparator());
-                sb.append(HELP_SPECIFIC_ALIAS);
-                sb.append(System.lineSeparator());
-
-                Set<String> allAlias = Command.CommandType.getAlias(ct);
-                StringBuilder aliasBuilder = new StringBuilder();
-                for (String alias : allAlias) {
-                    aliasBuilder.append(alias);
-                    aliasBuilder.append("   ");
-                }
-                sb.append(aliasBuilder.toString());
-            }
+            showSpecific(sb);
         } else {
-            sb.append(ColorFormatter.format(HELP_ALL_HEADER, Color.YELLOW));
-            sb.append(System.lineSeparator());
-            for (int i = 0; i < COMMANDS.length; i++) {
-                String cmdLine = String.format(HELP_ALL_FORMAT,
-                                               COMMANDS[i][COMMANDS_NAME],
-                                               COMMANDS[i][COMMANDS_INFO]);
-                sb.append(cmdLine);
-                if (i != COMMANDS.length - 1) {
-                    sb.append(System.lineSeparator());
-                }
-            }
+            showAll(sb);
         }
         return new Response(sb.toString(), true);
+    }
+
+    /**
+     * Retrieves specific details about a Command in RubberDuck and append to
+     * provided StringBuilder.
+     *
+     * @param sb StringBuilder object
+     */
+    private void showSpecific(StringBuilder sb) {
+        assert (sb != null);
+        CommandType ct = CommandType.getCommandType(type);
+        if (ct == CommandType.INVALID) {
+            sb.append("No such command/alias.");
+        } else {
+            sb.append(ColorFormatter.format(HELP_SPECIFIC_HEADER,
+                                            Color.YELLOW));
+            sb.append(System.lineSeparator());
+            sb.append(String.format(HELP_SPECIFIC_FORMAT, "Command Type",
+                                    "Parameters"));
+            sb.append(System.lineSeparator());
+            sb.append(String.format(HELP_SPECIFIC_FORMAT,
+                                    COMMANDS[ct.ordinal()][COMMANDS_NAME],
+                                    COMMANDS[ct.ordinal()][COMMANDS_ARG]));
+            sb.append(System.lineSeparator());
+            sb.append(HELP_SPECIFIC_ALIAS);
+            sb.append(System.lineSeparator());
+
+            Set<String> aliasSet = CommandType.getAlias(ct);
+            StringBuilder aliasBuilder = new StringBuilder();
+            for (String alias : aliasSet) {
+                aliasBuilder.append(alias);
+                aliasBuilder.append("   ");
+            }
+            sb.append(aliasBuilder.toString());
+        }
+    }
+
+    /**
+     * Retrieves the entire list of commands and their respective description
+     * and append to provided StringBuilder.
+     *
+     * @param sb StringBuilder object
+     */
+    private void showAll(StringBuilder sb) {
+        assert (sb != null);
+        sb.append(ColorFormatter.format(HELP_ALL_HEADER, Color.YELLOW));
+        sb.append(System.lineSeparator());
+        for (int i = 0; i < COMMANDS.length; i++) {
+            String cmdLine = String.format(HELP_ALL_FORMAT,
+                                           COMMANDS[i][COMMANDS_NAME],
+                                           COMMANDS[i][COMMANDS_INFO]);
+            sb.append(cmdLine);
+            if (i != COMMANDS.length - 1) {
+                sb.append(System.lineSeparator());
+            }
+        }
     }
 }
