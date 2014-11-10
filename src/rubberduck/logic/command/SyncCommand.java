@@ -65,6 +65,15 @@ public class SyncCommand extends Command {
     }
 
     /**
+     * Getter method for type.
+     *
+     * @return SyncType enum
+     */
+    protected SyncType getType() {
+        return type;
+    }
+
+    /**
      * Synchronize with Google based on the type user specified. Unless the user
      * specifies logout, a warning will be given first as undo/redo operation
      * can no longer be done and a confirmation will be prompted from the user.

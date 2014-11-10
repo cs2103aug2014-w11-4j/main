@@ -71,6 +71,24 @@ public class HelpCommand extends Command {
     }
 
     /**
+     * Getter method for isSpecific.
+     *
+     * @return boolean representing whether its a specific search or not
+     */
+    protected boolean isSpecific() {
+        return isSpecific;
+    }
+
+    /**
+     * Getter method for type.
+     *
+     * @return String object representing the requested Command
+     */
+    protected String getType() {
+        return type;
+    }
+
+    /**
      * Shows either the list of available commands or specific details about a
      * command in RubberDuck.
      *

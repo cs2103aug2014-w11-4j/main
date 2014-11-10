@@ -1,14 +1,14 @@
 package rubberduck.logic.command;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
+import rubberduck.common.datatransfer.DatePair;
 import rubberduck.common.datatransfer.Response;
+import rubberduck.common.datatransfer.Task;
 import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 import rubberduck.common.formatter.Formatter;
-import rubberduck.common.datatransfer.DatePair;
-import rubberduck.common.datatransfer.Task;
-
-import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * Concrete Command Class that can be executed to add a new task (floating,
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 //@author A0111794E
 public class AddCommand extends Command {
 
-    private static final String MESSAGE_ADD_TASK_SUCCESS =
+    private static final String MESSAGE_ADD_FLOAT_SUCCESS =
         "\"%s\" has been successfully added.";
     private static final String MESSAGE_ADD_DEADLINE_SUCCESS =
         "\"%s\" has been successfully added on %s.";
@@ -44,7 +44,7 @@ public class AddCommand extends Command {
      *
      * @return description as String
      */
-    public String getDescription() {
+    protected String getDescription() {
         return description;
     }
 
@@ -53,7 +53,7 @@ public class AddCommand extends Command {
      *
      * @return datePairs as ArrayList<DatePair>
      */
-    public ArrayList<DatePair> getDatePairs() {
+    protected ArrayList<DatePair> getDatePairs() {
         return datePairs;
     }
 
@@ -112,7 +112,7 @@ public class AddCommand extends Command {
                 MESSAGE_ADD_TENTATIVE_SUCCESS, recordDesc), Color.YELLOW));
         } else if (task.isFloatingTask()) {
             messages.append(ColorFormatter.format(
-                String.format(MESSAGE_ADD_TASK_SUCCESS, recordDesc),
+                String.format(MESSAGE_ADD_FLOAT_SUCCESS, recordDesc),
                 Color.YELLOW));
         } else if (task.isDeadline()) {
             messages.append(ColorFormatter.format(String.format(

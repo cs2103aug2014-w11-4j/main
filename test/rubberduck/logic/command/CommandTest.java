@@ -1,10 +1,5 @@
 package rubberduck.logic.command;
 
-import rubberduck.common.datatransfer.DatePair;
-import rubberduck.common.datatransfer.Response;
-import rubberduck.common.formatter.ColorFormatter;
-import rubberduck.common.formatter.ColorFormatter.Color;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,11 +8,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import rubberduck.common.datatransfer.DatePair;
+import rubberduck.common.datatransfer.Response;
+import rubberduck.common.formatter.ColorFormatter;
+import rubberduck.common.formatter.ColorFormatter.Color;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
 public class CommandTest {
+
     @Before
     public void setUp() throws IOException {
         Command.startDatabase();
@@ -30,11 +31,11 @@ public class CommandTest {
     }
 
     /**
-     * Test adding of task with todays date
-     *
-     * Add a task with todays date and current time
-     * Response from command will be check to make sure it produces the appropriate message,
-     * Signifying that task added successfully
+     * Test adding of task with today's date
+     * <p/>
+     * Add a task with today's date and current time Response from command will
+     * be check to make sure it produces the appropriate message, Signifying
+     * that task added successfully
      */
     //@author A0111794E
     @Test
@@ -48,13 +49,14 @@ public class CommandTest {
             datePairList);
         Response s = command.execute();
         String actual = s.getMessages()[0];
-        String expected = "[1;33m\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been";
-        assertEquals(expected,actual);
+        String expected =
+            "[1;33m\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully";
+        assertEquals(expected, actual);
     }
 
     /**
      * Adding Task without start date / end date
-     *
+     * <p/>
      * Add a task without specifying any date After retrieving the value, mark
      * it as invalid
      */
@@ -67,13 +69,14 @@ public class CommandTest {
             dpList);
         Response r = command.execute();
         String actual = r.getMessages()[0];
-        String expected = "[1;33m\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been";
+        String expected =
+            "[1;33m\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully";
         assertEquals(expected, actual);
     }
 
     /**
      * Adding Task with end date without start date
-     *
+     * <p/>
      * Adding Task without a start date After retrieving the value, mark it as
      * invalid
      */
@@ -89,7 +92,8 @@ public class CommandTest {
             dpList);
         Response r = command.execute();
         String actual = r.getMessages()[0];
-        String expected = "[1;33m\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been";
+        String expected =
+            "[1;33m\"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\" has been successfully";
         assertEquals(expected, actual);
     }
 
@@ -99,12 +103,14 @@ public class CommandTest {
     //@author A0119504L
     @Test
     public void addTentativeTask() throws IOException {
-    	ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
-		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
-		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
-		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
-		viewCommand.execute();
+        ArrayList<ViewCommand.ViewFilter> viewChoice =
+            new ArrayList<ViewCommand.ViewFilter>();
+        viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
+        viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
+        ViewCommand viewCommand =
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        viewCommand.execute();
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
@@ -140,18 +146,19 @@ public class CommandTest {
 
     /**
      * add task which deadline have passed
-     *
      */
     //@author A0119504L
     @Test
     public void addTaskPassed() throws IOException {
-		ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
-		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
-		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
-		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
-		viewCommand.execute();
-		Command.setPreviousDisplayCommand(viewCommand);
+        ArrayList<ViewCommand.ViewFilter> viewChoice =
+            new ArrayList<ViewCommand.ViewFilter>();
+        viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
+        viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
+        ViewCommand viewCommand =
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         date.add(Calendar.DAY_OF_MONTH, -5);
@@ -163,26 +170,25 @@ public class CommandTest {
             datePairList);
         String actual = addCommand.execute().getMessages()[1];
 
-        String expected =
-            "as the end date has already passed the current time.";
+        String expected = "end date has already passed the current time.";
         assertTrue(actual.contains(expected));
     }
 
     /**
-     * add conflict task
-     * test the warning message came out
-     *
+     * add conflict task test the warning message came out
      */
     //@author A0119504L
     @Test
     public void addConflictTask() throws IOException {
-    	ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
-		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
-		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
-		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
-		viewCommand.execute();
-		Command.setPreviousDisplayCommand(viewCommand);
+        ArrayList<ViewCommand.ViewFilter> viewChoice =
+            new ArrayList<ViewCommand.ViewFilter>();
+        viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
+        viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
+        ViewCommand viewCommand =
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         ArrayList<DatePair> datePairList2 = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
@@ -214,13 +220,15 @@ public class CommandTest {
     //@author A0119504L
     @Test
     public void addTaskWrongType() throws IOException {
-    	ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
-		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
-		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
-		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
-		viewCommand.execute();
-		Command.setPreviousDisplayCommand(viewCommand);
+        ArrayList<ViewCommand.ViewFilter> viewChoice =
+            new ArrayList<ViewCommand.ViewFilter>();
+        viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
+        viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
+        ViewCommand viewCommand =
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
@@ -232,12 +240,12 @@ public class CommandTest {
         datePairList.add(dp2);
 
         AddCommand addCommand = new AddCommand(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                datePairList);
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            datePairList);
         String actual = addCommand.execute().getMessages()[0];
 
         String expected =
-                "Tentative task must be strictly for schedule(s) only.";
+            "Tentative task must be strictly for schedule(s) only.";
         assertTrue(actual.contains(expected));
     }
 
@@ -247,13 +255,15 @@ public class CommandTest {
     //@author A0111794E
     @Test
     public void searchKeywordTest() throws IOException {
-    	ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
-		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
-		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
-		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
-		viewCommand.execute();
-		Command.setPreviousDisplayCommand(viewCommand);
+        ArrayList<ViewCommand.ViewFilter> viewChoice =
+            new ArrayList<ViewCommand.ViewFilter>();
+        viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
+        viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
+        ViewCommand viewCommand =
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
         AddCommand addCommand = new AddCommand(
@@ -273,11 +283,13 @@ public class CommandTest {
     //@author A0111794E
     @Test
     public void searchExactKeywordTest() throws IOException {
-        ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
+        ArrayList<ViewCommand.ViewFilter> viewChoice =
+            new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
         viewChoice.add(ViewCommand.ViewFilter.FLOATING);
-        ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        ViewCommand viewCommand =
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
         viewCommand.execute();
         Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
@@ -287,13 +299,13 @@ public class CommandTest {
             dpList);
         addCommand.execute();
         addCommand = new AddCommand(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. test",
-                dpList);
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. test",
+            dpList);
         addCommand.execute();
 
         SearchCommand searchCommand = new SearchCommand("\"#test\"");
         String actual = searchCommand.execute().getViewCount();
-        String expected = "[1;32m1 task with \"#test\" has been found.[m";
+        String expected = "[1;32m1 task with \"\"#test\"\" has been found.[m";
         assertEquals(expected, actual);
     }
 
@@ -303,13 +315,15 @@ public class CommandTest {
     //@author A0119504L
     @Test
     public void searchKeywordNotExistTest() throws IOException {
-    	ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
-		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
-		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
-		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
-		viewCommand.execute();
-		Command.setPreviousDisplayCommand(viewCommand);
+        ArrayList<ViewCommand.ViewFilter> viewChoice =
+            new ArrayList<ViewCommand.ViewFilter>();
+        viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
+        viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
+        ViewCommand viewCommand =
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
         AddCommand addCommand = new AddCommand(
@@ -324,17 +338,19 @@ public class CommandTest {
     }
 
     /**
-     * Search for keyword not exist
-     * Applying new enchance search function where description are tokenie before being searched.
+     * Search for keyword not exist Applying new enhance search function where
+     * description are tokenized before being searched.
      */
     //@author A0111794E
     @Test
     public void searchKeywordNotExistTest2() throws IOException {
-        ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
+        ArrayList<ViewCommand.ViewFilter> viewChoice =
+            new ArrayList<ViewCommand.ViewFilter>();
         viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
         viewChoice.add(ViewCommand.ViewFilter.FLOATING);
-        ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        ViewCommand viewCommand =
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
         viewCommand.execute();
         Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
@@ -457,12 +473,14 @@ public class CommandTest {
     //@author A0119504L
     @Test
     public void deleteExistTask() throws IOException {
-    	ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
-		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
-		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
-		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
-		viewCommand.execute();
+        ArrayList<ViewCommand.ViewFilter> viewChoice =
+            new ArrayList<ViewCommand.ViewFilter>();
+        viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
+        viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
+        ViewCommand viewCommand =
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        viewCommand.execute();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
         AddCommand addCommand = new AddCommand(
@@ -481,12 +499,14 @@ public class CommandTest {
     //@author A0119504L
     @Test
     public void deleteNotExistTask() throws IOException {
-    	ArrayList<ViewCommand.ViewFilter> viewChoice = new ArrayList<ViewCommand.ViewFilter>();
-		viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
-		viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
-		viewChoice.add(ViewCommand.ViewFilter.FLOATING);
-		ViewCommand viewCommand = new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
-		viewCommand.execute();
+        ArrayList<ViewCommand.ViewFilter> viewChoice =
+            new ArrayList<ViewCommand.ViewFilter>();
+        viewChoice.add(ViewCommand.ViewFilter.DEADLINE);
+        viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
+        viewChoice.add(ViewCommand.ViewFilter.FLOATING);
+        ViewCommand viewCommand =
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        viewCommand.execute();
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
         AddCommand addCommand = new AddCommand(
@@ -497,7 +517,7 @@ public class CommandTest {
         DeleteCommand deleteCommand = new DeleteCommand(2);
 
         String expected = deleteCommand.execute().getMessages()[0];
-        assertTrue(expected.contains( ColorFormatter.
+        assertTrue(expected.contains(ColorFormatter.
             format("This is not a valid task ID to delete.", Color.RED)));
     }
 
@@ -514,7 +534,7 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
         viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
-                new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
 
         viewCommand.execute();
         Command.setPreviousDisplayCommand(viewCommand);
@@ -549,7 +569,7 @@ public class CommandTest {
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
         ViewCommand viewCommand =
-                new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
         viewCommand.execute();
         Command.setPreviousDisplayCommand(viewCommand);
         addCommand.execute();
@@ -589,7 +609,7 @@ public class CommandTest {
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             dpList);
         ViewCommand viewCommand =
-                new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
         viewCommand.execute();
         Command.setPreviousDisplayCommand(viewCommand);
         addCommand.execute();
@@ -616,7 +636,7 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
         viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
-                new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
         viewCommand.execute();
         Command.setPreviousDisplayCommand(viewCommand);
         AddCommand addCommand = new AddCommand(
@@ -658,7 +678,7 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
         viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
-                new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
         viewCommand.execute();
         Command.setPreviousDisplayCommand(viewCommand);
         AddCommand addCommand = new AddCommand(
@@ -695,7 +715,7 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
         viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
-                new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
         viewCommand.execute();
         Command.setPreviousDisplayCommand(viewCommand);
 
@@ -740,8 +760,8 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
         viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
-                new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
-            viewCommand.execute();
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        viewCommand.execute();
         Command.setPreviousDisplayCommand(viewCommand);
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -783,8 +803,8 @@ public class CommandTest {
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
 
         ViewCommand viewCommand =
-                new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
-            viewCommand.execute();
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        viewCommand.execute();
         Command.setPreviousDisplayCommand(viewCommand);
         AddCommand addCommand = new AddCommand(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -817,8 +837,8 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
         viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
-                new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
-            viewCommand.execute();
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        viewCommand.execute();
         Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> dpList = new ArrayList<DatePair>();
         AddCommand addCommand = new AddCommand(
@@ -845,9 +865,9 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
         viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
-                new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
-            viewCommand.execute();
-            Command.setPreviousDisplayCommand(viewCommand);
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
@@ -901,9 +921,9 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
         viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
-                new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
-            viewCommand.execute();
-            Command.setPreviousDisplayCommand(viewCommand);
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
@@ -953,9 +973,9 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
         viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
-                new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
-            viewCommand.execute();
-            Command.setPreviousDisplayCommand(viewCommand);
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
@@ -973,9 +993,7 @@ public class CommandTest {
         ConfirmCommand confirmCommand = new ConfirmCommand(1, 2);
         String actual = confirmCommand.execute().getMessages()[1];
 
-
-        String expected ="tentative and does not need confirmation.";
-
+        String expected = "does not need confirmation.";
         assertTrue(actual.contains(expected));
     }
 
@@ -991,9 +1009,9 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
         viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
-                new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
-            viewCommand.execute();
-            Command.setPreviousDisplayCommand(viewCommand);
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+        viewCommand.execute();
+        Command.setPreviousDisplayCommand(viewCommand);
         ArrayList<DatePair> datePairList = new ArrayList<DatePair>();
         Calendar date = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
@@ -1044,7 +1062,7 @@ public class CommandTest {
         viewChoice.add(ViewCommand.ViewFilter.SCHEDULE);
         viewChoice.add(ViewCommand.ViewFilter.FLOATING);
         ViewCommand viewCommand =
-                new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
+            new ViewCommand(ViewCommand.ViewType.ALL, false, null, viewChoice);
         viewCommand.execute();
         Command.setPreviousDisplayCommand(viewCommand);
 
@@ -1075,8 +1093,8 @@ public class CommandTest {
         datePairList2.add(dp2);
 
         AddCommand addCommand2 = new AddCommand(
-                "Lonsectetur adipiscing elit.",
-                datePairList2);
+            "Lonsectetur adipiscing elit.",
+            datePairList2);
         addCommand2.execute();
 
         AddCommand addCommand = new AddCommand(
@@ -1092,4 +1110,15 @@ public class CommandTest {
         assertTrue(actual.contains(expected));
     }
 
+    /**
+     * Simple check on executing a ClearCommand.
+     */
+    //@author A0111736M
+    @Test
+    public void clearScreen() {
+        Response res = new ClearCommand().execute();
+        assertEquals("Should contain the message", true,
+                     res.getMessages()[0].contains("Screen cleared."));
+        assertEquals("Should be overwritten", true, res.isOverwrite());
+    }
 }

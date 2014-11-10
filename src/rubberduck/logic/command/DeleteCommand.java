@@ -29,7 +29,7 @@ public class DeleteCommand extends Command {
      *
      * @return taskId as int
      */
-    public int getTaskId() {
+    protected int getTaskId() {
         return taskId;
     }
 

@@ -1,14 +1,14 @@
 package rubberduck.logic.command;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
+import rubberduck.common.datatransfer.DatePair;
 import rubberduck.common.datatransfer.Response;
+import rubberduck.common.datatransfer.Task;
 import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 import rubberduck.common.formatter.Formatter;
-import rubberduck.common.datatransfer.DatePair;
-import rubberduck.common.datatransfer.Task;
-
-import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * Concrete Command Class that can be executed to confirm the a tentative task
@@ -38,7 +38,7 @@ public class ConfirmCommand extends Command {
      *
      * @return taskId as int
      */
-    public int getTaskId() {
+    protected int getTaskId() {
         return taskId;
     }
 
@@ -47,7 +47,7 @@ public class ConfirmCommand extends Command {
      *
      * @return dateId as int
      */
-    public int getDateId() {
+    protected int getDateId() {
         return dateId;
     }
 

@@ -1,7 +1,4 @@
-package rubberduck.storage.task;
-
-import rubberduck.common.datatransfer.DatePair;
-import rubberduck.common.datatransfer.Task;
+package rubberduck.common.datatransfer;
 
 import org.junit.Test;
 
@@ -129,7 +126,7 @@ public class DatePairTest {
     /**
      * Task Boundary test : 20 aug 2014 View Scope :19 aug 2014 - 30 aug 2014
      * Expected: true
-     *
+     * <p/>
      * Range = 19 - 30 Test Value 20
      */
 
@@ -157,7 +154,7 @@ public class DatePairTest {
     /**
      * Task Boundary Test: 19 aug 2014 View Scope :19 aug 2014 - 30 aug 2014
      * Expected: true
-     *
+     * <p/>
      * Range = 19 - 30 Test Value 19
      */
 
@@ -182,9 +179,9 @@ public class DatePairTest {
     }
 
     /**
-     * Task Boundary Test : 17 aug - 18 aug 2014 View Scope :19 aug 2014 - 30 aug 2014
-     * Expected: false
-     *
+     * Task Boundary Test : 17 aug - 18 aug 2014 View Scope :19 aug 2014 - 30
+     * aug 2014 Expected: false
+     * <p/>
      * Range = 19 - 30 Test Value 17 aug - 18 aug
      */
 
@@ -195,7 +192,7 @@ public class DatePairTest {
         endDate.set(2014, Calendar.AUGUST, 18);
         Calendar startDate = Calendar.getInstance();
         startDate.set(2014, Calendar.AUGUST, 17);
-        DatePair dp = new DatePair(startDate,endDate);
+        DatePair dp = new DatePair(startDate, endDate);
         dpList.add(dp);
         Task task = new Task("Test Date", dpList);
 
@@ -211,11 +208,10 @@ public class DatePairTest {
     }
 
 
-
     /**
      * Task Boundary Test : 24 aug 2014 View Scope :19 aug 2014 - 25 aug 2014
      * Expected: true
-     *
+     * <p/>
      * Range = 19 - 25 Test Value 24
      */
 
@@ -242,7 +238,7 @@ public class DatePairTest {
     /**
      * Task Boundary Test: 24 aug 2014 View Scope :19 aug 2014 - 25 aug 2014
      * Expected: true
-     *
+     * <p/>
      * Range = 19 - 25 Test Value 24
      */
 
@@ -269,7 +265,7 @@ public class DatePairTest {
     /**
      * Task Boundary Test : 26 aug 2014 27 aug 2014 View Scope : 19 aug 2014 -
      * 25 aug 2014 Expected: false
-     *
+     * <p/>
      * Range = 19 - 25 Test Value 26 start, 27 end; need to have 2 dates, as
      * those with no start date = infinite early
      */
@@ -310,7 +306,8 @@ public class DatePairTest {
         DatePair datePairDoubleNull = new DatePair(); // null-null
         DatePair datePairStartNull = new DatePair(tempDate); // null-20/08
         DatePair datePairEndNull = new DatePair(tempDate, null); // 20/08-null
-        DatePair datePairDoubleNotNull = new DatePair(tempDate, tempDate); // 20/08-20/08
+        DatePair datePairDoubleNotNull =
+            new DatePair(tempDate, tempDate); // 20/08-20/08
 
         // If one of DatePair has null start & end, always true.
 

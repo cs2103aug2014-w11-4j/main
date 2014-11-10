@@ -24,6 +24,9 @@ public class Formatter {
     public static final String FORMAT_TABLE = "%-7s%-6s%-43s%-24s";
     public static final String FORMAT_TENTATIVE = "%-7s%-6s%-43s%-19s%-5s";
 
+    /**
+     * Enum to represent the type of header should be allocated for the task.
+     */
     private enum HeaderType {
         NONE, FLOATING, DEADLINE, SCHEDULE,
     }

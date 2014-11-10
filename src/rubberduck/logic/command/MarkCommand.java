@@ -1,12 +1,12 @@
 package rubberduck.logic.command;
 
+import java.io.IOException;
+
 import rubberduck.common.datatransfer.Response;
+import rubberduck.common.datatransfer.Task;
 import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 import rubberduck.common.formatter.Formatter;
-import rubberduck.common.datatransfer.Task;
-
-import java.io.IOException;
 
 /**
  * Concrete Command Class that can be executed to mark as completed/incomplete
@@ -34,7 +34,7 @@ public class MarkCommand extends Command {
      *
      * @return taskId as int
      */
-    public int getTaskId() {
+    protected int getTaskId() {
         return taskId;
     }
 
@@ -92,7 +92,7 @@ public class MarkCommand extends Command {
      * @throws IOException occurs when dbManager encounters a problem with file
      */
     //@author A0119504L
-    public Response markTaskCompleted(int displayedId) throws IOException {
+    private Response markTaskCompleted(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
         assert !oldTask.getIsDone() : "Should be incomplete task.";
@@ -120,7 +120,7 @@ public class MarkCommand extends Command {
      * @throws IOException occurs when dbManager encounters a problem with file
      */
     //@author A0119504L
-    public Response markTaskIncomplete(int displayedId) throws IOException {
+    private Response markTaskIncomplete(int displayedId) throws IOException {
         long databaseId = getDisplayedTasksList().get(displayedId - 1);
         Task oldTask = getDbManager().getInstance(databaseId);
         assert oldTask.getIsDone();

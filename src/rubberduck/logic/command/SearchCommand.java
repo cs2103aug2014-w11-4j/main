@@ -1,12 +1,12 @@
 package rubberduck.logic.command;
 
+import java.io.IOException;
+import java.util.StringTokenizer;
+
 import rubberduck.common.datatransfer.Response;
 import rubberduck.common.formatter.ColorFormatter;
 import rubberduck.common.formatter.ColorFormatter.Color;
 import rubberduck.common.formatter.Formatter;
-
-import java.io.IOException;
-import java.util.StringTokenizer;
 
 /**
  * Concrete Command Class that can be executed to search the data store for
@@ -33,7 +33,7 @@ public class SearchCommand extends Command {
      *
      * @return String object
      */
-    public String getKeyword() {
+    protected String getKeyword() {
         return keyword;
     }
 
@@ -68,10 +68,14 @@ public class SearchCommand extends Command {
             StringTokenizer keywords =
                 new StringTokenizer(keyword.toLowerCase());
 
-            if (keyword.length() > EMPTY_KEYWORDS_LENGTH && keyword.charAt(FIRST_CHAR) == '\"'
-                && keyword.charAt(keyword.length() - CHAR_LENGTH_OFFSET) == '\"') {
+            if (keyword.length() > EMPTY_KEYWORDS_LENGTH
+                && keyword.charAt(FIRST_CHAR) == '\"'
+                && keyword.charAt(keyword.length() - CHAR_LENGTH_OFFSET)
+                   == '\"') {
 
-                String modifiedKeyword = keyword.substring(SECOND_CHAR, keyword.length() - CHAR_LENGTH_OFFSET);
+                String modifiedKeyword = keyword.substring(SECOND_CHAR,
+                                                           keyword.length()
+                                                           - CHAR_LENGTH_OFFSET);
                 isFound = searchExactKeyword(modifiedKeyword, taskDescriptions);
 
 
@@ -133,7 +137,7 @@ public class SearchCommand extends Command {
         while (taskDescriptions.hasMoreElements()) {
 
             String nextToken = taskDescriptions.nextToken();
-            if (nextToken.equalsIgnoreCase(keyword) ) {
+            if (nextToken.equalsIgnoreCase(keyword)) {
                 return true;
             }
         }

@@ -39,7 +39,7 @@ public class UpdateCommand extends Command {
      *
      * @return taskId as int
      */
-    public int getTaskId() {
+    protected int getTaskId() {
         return taskId;
     }
 
@@ -48,7 +48,7 @@ public class UpdateCommand extends Command {
      *
      * @return description as String
      */
-    public String getDescription() {
+    protected String getDescription() {
         return description;
     }
 
@@ -57,7 +57,7 @@ public class UpdateCommand extends Command {
      *
      * @return datePairs as ArrayList<DatePair>
      */
-    public ArrayList<DatePair> getDatePairs() {
+    protected ArrayList<DatePair> getDatePairs() {
         return datePairs;
     }
 

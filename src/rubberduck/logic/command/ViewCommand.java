@@ -71,7 +71,7 @@ public class ViewCommand extends Command {
      *
      * @return viewRange as DatePair
      */
-    public DatePair getViewRange() {
+    protected DatePair getViewRange() {
         return viewRange;
     }
 
@@ -81,7 +81,7 @@ public class ViewCommand extends Command {
      *
      * @return completed as boolean
      */
-    public boolean isCompleted() {
+    protected boolean isCompleted() {
         return completed;
     }
 
@@ -90,7 +90,7 @@ public class ViewCommand extends Command {
      *
      * @return viewType as ViewType
      */
-    public ViewType getViewType() {
+    protected ViewType getViewType() {
         return viewType;
     }
 
@@ -99,7 +99,7 @@ public class ViewCommand extends Command {
      *
      * @return viewSelection as ArrayList
      */
-    public ArrayList<ViewFilter> getViewSelection() {
+    protected ArrayList<ViewFilter> getViewSelection() {
         return viewSelection;
     }
 

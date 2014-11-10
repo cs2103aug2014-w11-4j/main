@@ -350,7 +350,7 @@ public class Parser {
 
             String descString = extractDateFromDesc(input, datePairs);
 
-            if (datePairs.isEmpty() && !descString.isEmpty()) {
+            if (datePairs.isEmpty() && descString.isEmpty()) {
                 return new InvalidCommand(MESSAGE_UPDATE_ERROR_EMPTY, true);
             }
 
@@ -653,6 +653,7 @@ public class Parser {
      * dates parsed.
      *
      * @param input the input as String
+     * @return DatePair object
      */
     private DatePair extractViewRange(String input) {
         DatePair date = new DatePair();
