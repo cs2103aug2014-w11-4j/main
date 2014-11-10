@@ -3,7 +3,154 @@
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\DatePair.java
+	 * origin: E:\main\test\rubberduck\common\datatransfer\DatePairTest.java
+	 */
+
+    @Test
+    public void nullDates() throws IOException {
+        DatePair tempDatePair;
+
+        Calendar tempDate = Calendar.getInstance();
+        tempDate.set(2014, Calendar.AUGUST, 20);
+
+        DatePair datePairDoubleNull = new DatePair(); // null-null
+        DatePair datePairStartNull = new DatePair(tempDate); // null-20/08
+        DatePair datePairEndNull = new DatePair(tempDate, null); // 20/08-null
+        DatePair datePairDoubleNotNull =
+            new DatePair(tempDate, tempDate); // 20/08-20/08
+
+        // If one of DatePair has null start & end, always true.
+
+        assertTrue(datePairDoubleNull.isWithinPeriod(datePairDoubleNotNull));
+        // null-null against 20/08-20/08
+
+        assertTrue(datePairStartNull.isWithinPeriod(datePairDoubleNull));
+        // 20/08-null against null-null
+
+        // If one of DatePair has null start, as long as the other one does not
+        // start after its endDate, should be true.
+
+        assertTrue(datePairStartNull.isWithinPeriod(datePairEndNull));
+        // null-20/08 against 20/08-null
+
+        // Construct one DatePair start after its endDate
+        tempDate = Calendar.getInstance();
+        tempDate.set(2014, Calendar.AUGUST, 21);
+        tempDatePair = new DatePair(tempDate, null); // 21/08-null
+
+        assertFalse(tempDatePair.isWithinPeriod(datePairStartNull));
+        // 21/08-null against null-20/08
+
+        // If one of DatePair has null end, as long as the other one does not
+        // end before its startDate, should be true.
+
+        assertTrue(datePairEndNull.isWithinPeriod(tempDatePair));
+        // 20/08-null against 21/08-null
+
+        // Construct one DatePair end before its startDate
+        tempDate = Calendar.getInstance();
+        tempDate.set(2014, Calendar.AUGUST, 19);
+        tempDatePair = new DatePair(tempDate); // null-19/08
+
+        assertFalse(tempDatePair.isWithinPeriod(datePairEndNull));
+        // null-19/08 against 20/08-null
+    }
+
+}
+
+	// End of segment: E:\main\test\rubberduck\common\datatransfer\DatePairTest.java
+
+
+
+
+
+	/**
+	 * origin: E:\main\test\rubberduck\storage\JournalControllerTest.java
+	 */
+
+public class JournalControllerTest {
+
+    DatabaseManager<String> dbManager;
+
+    @Before
+    public void setUp() throws Exception {
+        dbManager = new DatabaseManager<String>(File.createTempFile(
+            "rubberduck.storage.JournalControllerTest", ".tmp").getPath());
+    }
+
+    @Test
+    public void testRecordAction() throws Exception {
+        Long newId = dbManager.modify(null, "Test 0", "create instance");
+
+        newId = dbManager.modify(null, "Test 1", "create instance");
+
+        Long modifiedId =
+            dbManager.modify(newId, "Modified test 1", "modify instance");
+
+        dbManager.modify(modifiedId, null, "delete instance");
+
+        assertEquals(dbManager.getValidIdList().size(), 1);
+        assertEquals(dbManager.getJournal().getUndoStackSize(), 4);
+        assertEquals(dbManager.getJournal().getRedoStackSize(), 0);
+    }
+
+    @Test
+    public void testUndo() throws Exception {
+        Long newId = dbManager.modify(null, "Test 0", "create instance");
+
+        newId = dbManager.modify(null, "Test 1", "create instance");
+
+        Long modifiedId =
+            dbManager.modify(newId, "Modified test 1", "modify instance");
+
+        dbManager.modify(modifiedId, null, "delete instance");
+
+        dbManager.undo();
+        assertEquals(dbManager.getValidIdList().size(), 2);
+        assertEquals(dbManager.getJournal().getUndoStackSize(), 3);
+        assertEquals(dbManager.getJournal().getRedoStackSize(), 1);
+
+        dbManager.undo();
+        assertEquals(dbManager.getValidIdList().size(), 2);
+        assertEquals(dbManager.getJournal().getUndoStackSize(), 2);
+        assertEquals(dbManager.getJournal().getRedoStackSize(), 2);
+    }
+
+    @Test
+    public void testRedo() throws Exception {
+        Long newId = dbManager.modify(null, "Test 0", "create instance");
+
+        newId = dbManager.modify(null, "Test 1", "create instance");
+
+        Long modifiedId =
+            dbManager.modify(newId, "Modified test 1", "modify instance");
+
+        dbManager.modify(modifiedId, null, "delete instance");
+
+        dbManager.undo();
+        dbManager.undo();
+
+        dbManager.redo();
+        assertEquals(dbManager.getValidIdList().size(), 2);
+
+        dbManager.redo();
+        assertEquals(dbManager.getValidIdList().size(), 1);
+
+        dbManager.undo();
+        assertEquals(dbManager.getValidIdList().size(), 2);
+        newId = dbManager.modify(null, "Test clear redo", "create instance");
+        assertEquals(dbManager.getJournal().getRedoStackSize(), 0);
+    }
+}
+
+	// End of segment: E:\main\test\rubberduck\storage\JournalControllerTest.java
+
+
+
+
+
+	/**
+	 * origin: E:\main\src\rubberduck\common\datatransfer\DatePair.java
 	 */
 
     /**
@@ -42,14 +189,14 @@
                endDate.after(startDateCriteria);
     }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\DatePair.java
+	// End of segment: E:\main\src\rubberduck\common\datatransfer\DatePair.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\Task.java
+	 * origin: E:\main\src\rubberduck\common\datatransfer\Task.java
 	 */
 
     /**
@@ -138,14 +285,14 @@
         return false;
     }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\Task.java
+	// End of segment: E:\main\src\rubberduck\common\datatransfer\Task.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\common\formatter\CalendarConverter.java
+	 * origin: E:\main\src\rubberduck\common\formatter\CalendarConverter.java
 	 */
 
 /**
@@ -202,14 +349,14 @@ public class CalendarConverter implements Converter {
     }
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\common\formatter\CalendarConverter.java
+	// End of segment: E:\main\src\rubberduck\common\formatter\CalendarConverter.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\storage\DatabaseManager.java
+	 * origin: E:\main\src\rubberduck\storage\DatabaseManager.java
 	 */
 
 /**
@@ -711,14 +858,14 @@ public class DatabaseManager<T extends Serializable & Comparable<T>> implements
 
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\storage\DatabaseManager.java
+	// End of segment: E:\main\src\rubberduck\storage\DatabaseManager.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\storage\GooManager.java
+	 * origin: E:\main\src\rubberduck\storage\GooManager.java
 	 */
 
 /**
@@ -1735,14 +1882,14 @@ public class GooManager {
 
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\storage\GooManager.java
+	// End of segment: E:\main\src\rubberduck\storage\GooManager.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\storage\JournalController.java
+	 * origin: E:\main\src\rubberduck\storage\JournalController.java
 	 */
 
 /**
@@ -1860,1871 +2007,7 @@ public class JournalController<T extends Serializable & Comparable<T>> {
 
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\storage\JournalController.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\DatePair.java
-	 */
-
-    /**
-     * Test if there is overlap between two DatePairs. Null values (no start/end
-     * date) are considered as infinitely early/late.
-     *
-     * @param dateRange another DatePair to be compared with
-     * @return true if there is overlap between two DatePairs
-     */
-    public boolean isWithinPeriod(DatePair dateRange) {
-        Calendar startDateCriteria = dateRange.getStartDate();
-        Calendar endDateCriteria = dateRange.getEndDate();
-
-        if ((startDate == null && endDate == null) ||
-            (startDateCriteria == null && endDateCriteria == null)) {
-            return true;
-        }
-
-        if (startDateCriteria == null) {
-            return (startDate == null) || (!startDate.after(endDateCriteria));
-        }
-
-        if (endDateCriteria == null) {
-            return (endDate == null) || (!endDate.before(startDateCriteria));
-        }
-
-        if (endDate == null) {
-            return (!startDate.after(endDateCriteria));
-        }
-
-        if (startDate == null) {
-            return (!endDate.after(endDateCriteria));
-        }
-
-        return startDate.before(endDateCriteria) &&
-               endDate.after(startDateCriteria);
-    }
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\DatePair.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\Task.java
-	 */
-
-    /**
-     * Test if there is overlap with a given DatePair.
-     *
-     * @param dateRange the DatePair to be compared with
-     * @return true if there is overlap with the given DatePair
-     */
-    public boolean isWithinPeriod(DatePair dateRange) {
-        if (dateList.isEmpty()) {
-            return true;
-        }
-        for (DatePair datePair : dateList) {
-            if (datePair.isWithinPeriod(dateRange)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Test whether current Task object has conflict with given Task object.
-     * Only applicable for schedules and tentative schedules.
-     *
-     * @param t another Task object to compare
-     * @return true if conflict else false
-     */
-    public boolean hasConflictWith(Task t) {
-        if (isDeadline() || isFloatingTask()) {
-            return false;
-        }
-
-        ArrayList<DatePair> dpList = t.getDateList();
-        for (DatePair dp : dpList) {
-            if (!t.isDeadline() && isWithinPeriod(dp)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Reset the UUID to an empty string.
-     */
-    public void resetUuid() {
-        this.uuid = "";
-        updateLastUpdate();
-    }
-
-    /**
-     * Check if the task is a floating task.
-     *
-     * @return if the task is a floating task
-     */
-
-    public boolean isFloatingTask() {
-        return dateList.isEmpty();
-    }
-
-    /**
-     * Check if the task is a deadline only task.
-     *
-     * @return if the task is a deadline only task
-     */
-
-    public boolean isDeadline() {
-        return (dateList.size() == 1 && dateList.get(0).isDeadline());
-    }
-
-    /**
-     * Check if the task is a schedule task. Do note that a tentative task is
-     * also a schedule task in this implementation.
-     *
-     * @return if the task is a schedule task or tentative task
-     */
-    public boolean isSchedule() {
-        if (dateList.size() > 0) {
-            for (DatePair dp : dateList) {
-                if (!dp.hasDateRange()) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\Task.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\common\formatter\CalendarConverter.java
-	 */
-
-/**
- * A simple XStream converter that converts Calendar objects to a human readable
- * format.
- */
-public class CalendarConverter implements Converter {
-
-    private static final SimpleDateFormat DATE_FORMAT =
-        new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.US);
-
-    /**
-     * Tells the caller that it can convert anything as long it extends
-     * Calendar.
-     *
-     * @param clazz T Any class object
-     * @return true if it can be converted, else false
-     */
-    public boolean canConvert(Class clazz) {
-        return Calendar.class.isAssignableFrom(clazz);
-    }
-
-    /**
-     * Converts Calendar object into localized String.
-     *
-     * @param value   Calendar object
-     * @param writer  HierarchicalStreamWriter object
-     * @param context MarshallingContext object
-     */
-    public void marshal(Object value, HierarchicalStreamWriter writer,
-                        MarshallingContext context) {
-        Calendar calendar = (Calendar) value;
-        writer.setValue(DATE_FORMAT.format(calendar.getTime()));
-    }
-
-    /**
-     * Retrieves and converts the localized DateFormat instance and parses the
-     * String into a Date and puts this date into original GregorianCalendar
-     * object
-     *
-     * @param reader  HierarchicalStreamReader object
-     * @param context UnmarshallingContext object
-     * @return Calendar object
-     */
-    public Object unmarshal(HierarchicalStreamReader reader,
-                            UnmarshallingContext context) {
-        GregorianCalendar calendar = new GregorianCalendar();
-        try {
-            calendar.setTime(DATE_FORMAT.parse(reader.getValue()));
-        } catch (ParseException e) {
-            throw new ConversionException(e.getMessage(), e);
-        }
-        return calendar;
-    }
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\common\formatter\CalendarConverter.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\storage\DatabaseManager.java
-	 */
-
-/**
- * A synchronized database backend to read/write instances to a file using XML
- * <p/>
- * All instances are stored on the disk and fetched on spot.
- * <p/>
- * A written instance cannot be modified, modifying must be done by removing the
- * old instance (by marking as invalid) and insert the new one.
- *
- * @param <T> The data type, which has to be a Java Bean class.
- */
-public class DatabaseManager<T extends Serializable & Comparable<T>> implements
-        Iterable<T> {
-
-    private class InstanceIdComparator implements Comparator<Long> {
-        @Override
-        public int compare(Long o1, Long o2) {
-            try {
-                return getInstance(o1).compareTo(getInstance(o2));
-            } catch (IOException e) {
-                throw new UnsupportedOperationException("IOException: "
-                        + e.getMessage());
-            }
-        }
-    }
-
-    public Comparator<Long> getInstanceIdComparator() {
-        return new InstanceIdComparator();
-    }
-
-    private class InstanceIterator implements Iterator<T> {
-        private Iterator<Long> offsetIterator = validInstancesMap.keySet()
-                .iterator();
-
-        @Override
-        public boolean hasNext() {
-            return offsetIterator.hasNext();
-        }
-
-        @Override
-        public T next() {
-            try {
-                return getInstance(offsetIterator.next());
-            } catch (IOException e) {
-                throw new UnsupportedOperationException("IOException: "
-                        + e.getMessage());
-            }
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException("Cannot remove instance.");
-        }
-    }
-
-    /**
-     * Returns an iterator over valid instances in the database. Note that
-     * IOException happened while reading instances will be thrown as
-     * UnsupportedOperationException.
-     *
-     * @return an Iterator over valid instances in the database.
-     */
-    @Override
-    public Iterator<T> iterator() {
-        return new InstanceIterator();
-    }
-
-    /**
-     * Flags to be used to mark the entity.
-     */
-    private static String VALID_FLAG = "#DBMNGR_VALID";
-    private static String INVALID_FLAG = "#DBMNGR_INVAL";
-    private static String DELETED_FLAG = "#DBMNGR_DELED";
-
-    /**
-     * eofOffset records the end of the file, which is needed to insert new
-     * instances.
-     */
-    private RandomAccessFile randomAccessFile = null;
-    private String filePath;
-    private long eofOffset;
-
-    /**
-     * Store the IDs of both valid and invalid instances and their offset.
-     */
-    private HashMap<Long, Long> validInstancesMap = null;
-    private HashMap<Long, Long> invalidInstancesMap = null;
-    private HashMap<Long, Long> deletedInstancesMap = null;
-    private long currentId;
-
-    private JournalController<T> journal;
-
-    private static XStream xstream = new XStream();
-
-    /**
-     * Construct a backend database with the given file path.
-     *
-     * @param filePath path to the database file. If exists it must be readable
-     *            and writable.
-     * @throws FileNotFoundException if the file cannot be opened (non-writable)
-     * @throws IOException
-     */
-    public DatabaseManager(String filePath) throws IOException {
-        xstream.registerConverter(new CalendarConverter());
-        this.filePath = filePath;
-        openFile();
-        scanFile();
-    }
-
-    private long createNewId() {
-        currentId++;
-        return currentId;
-    }
-
-    private void resetId() {
-        currentId = 0;
-    }
-
-    private void resetJournal() {
-        journal = new JournalController<T>(this);
-    }
-
-    /**
-     * Attempt to open the file for r/w
-     *
-     * @throws FileNotFoundException if the file cannot be opened (non-writable)
-     */
-    private void openFile() throws FileNotFoundException {
-        randomAccessFile = new RandomAccessFile(new File(filePath), "rws");
-    }
-
-    /**
-     * Attempt to scan the file to get the offsets for existing valid instances.
-     *
-     * @throws IOException
-     */
-    private void scanFile() throws IOException {
-        resetId();
-        resetJournal();
-        validInstancesMap = new HashMap<Long, Long>();
-        invalidInstancesMap = new HashMap<Long, Long>();
-        deletedInstancesMap = new HashMap<Long, Long>();
-        randomAccessFile.seek(0);
-        long offset = randomAccessFile.getFilePointer();
-        String line;
-        while ((line = randomAccessFile.readLine()) != null) {
-            if (line.equals(VALID_FLAG)) {
-                validInstancesMap.put(createNewId(), offset);
-            } else if (line.equals(DELETED_FLAG)) {
-                deletedInstancesMap.put(createNewId(), offset);
-            }
-            offset = randomAccessFile.getFilePointer();
-        }
-        eofOffset = offset;
-    }
-
-    /**
-     * Write the changes and close the file.
-     *
-     * @throws IOException
-     */
-    public void closeFile() throws IOException {
-        writeChangesAndClose(false);
-    }
-
-    /**
-     * Write all the changes and remove invalid instances. Then reopen the file.
-     * Note that IDs of instances will change after the operation.
-     *
-     * @param removeDeleted whether instances marked as deleted should really be removed
-     * @throws IOException
-     */
-    public void rewriteFile(boolean removeDeleted) throws IOException {
-        writeChangesAndClose(removeDeleted);
-        openFile();
-        scanFile();
-    }
-
-    /**
-     * Delete all instances and reset the database.
-     *
-     * @throws IOException
-     */
-    public void resetDatabase() throws IOException {
-        randomAccessFile.setLength(0);
-        rewriteFile(true);
-    }
-
-    /**
-     * Rewrite the file with all valid instances and close the file. All invalid
-     * instances are discarded.
-     *
-     * @param removeDeleted whether instances marked as deleted should really be removed
-     * @throws IOException
-     */
-    private void writeChangesAndClose(boolean removeDeleted) throws IOException {
-        File tempFile = File.createTempFile("DBMNGR", ".tmp");
-        tempFile.deleteOnExit();
-        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(
-                tempFile));
-        randomAccessFile.seek(0);
-        String line;
-        boolean willCopy = false;
-        while ((line = randomAccessFile.readLine()) != null) {
-            if (line.equals(VALID_FLAG)) {
-                willCopy = true;
-            } else if (line.equals(INVALID_FLAG)) {
-                willCopy = false;
-            } else if (line.equals(DELETED_FLAG)) {
-                willCopy = !removeDeleted;
-            }
-            if (willCopy) {
-                bufferedWriter.write(line);
-                bufferedWriter.write(System.getProperty("line.separator"));
-            }
-        }
-        bufferedWriter.close();
-        randomAccessFile.close();
-        tempFile.renameTo(new File(filePath));
-    }
-
-    private String getStringAtOffset(long offset) throws IOException {
-        randomAccessFile.seek(offset);
-        String line = randomAccessFile.readLine();
-        if (line.equals(VALID_FLAG) || line.equals(DELETED_FLAG)) {
-            StringBuilder xmlString = new StringBuilder();
-            while ((line = randomAccessFile.readLine()) != null
-                    && !(line.equals(VALID_FLAG) || line.equals(INVALID_FLAG) || line.equals(DELETED_FLAG))) {
-                xmlString.append(System.getProperty("line.separator"));
-                xmlString.append(line);
-            }
-            return xmlString.toString();
-        } else {
-            return null;
-        }
-    }
-
-    private void writeStringAtEnd(String string) throws IOException {
-        randomAccessFile.seek(eofOffset);
-        randomAccessFile.writeBytes(VALID_FLAG
-                + System.getProperty("line.separator"));
-        randomAccessFile.writeBytes(string);
-        randomAccessFile.writeBytes(System.getProperty("line.separator"));
-        eofOffset = randomAccessFile.getFilePointer();
-    }
-
-    private T xmlToInstance(String xmlString) {
-        @SuppressWarnings("unchecked")
-        T instance = (T) xstream.fromXML(xmlString);
-        return instance;
-    }
-
-    private String instanceToXml(T instance) throws IOException {
-        return xstream.toXML(instance);
-    }
-
-    /**
-     * Get an ArrayList of IDs of all valid instances.
-     *
-     * @return the list of all valid IDs
-     */
-    public ArrayList<Long> getValidIdList() {
-        return new ArrayList<Long>(validInstancesMap.keySet());
-    }
-
-    /**
-     * Get an ArrayList of IDs of all invalid instances.
-     *
-     * @return the list of all invalid IDs
-     */
-    public ArrayList<Long> getInvalidIdList() {
-        return new ArrayList<Long>(invalidInstancesMap.keySet());
-    }
-
-    /**
-     * Get an ArrayList of IDs of all invalid instances.
-     *
-     * @return the list of all invalid IDs
-     */
-    public ArrayList<Long> getDeletedIdList() {
-        return new ArrayList<Long>(deletedInstancesMap.keySet());
-    }
-
-    /**
-     * Write a new instance to the database.
-     *
-     * @param instance the new instance to be inserted
-     * @return ID of the inserted instance
-     * @throws IOException
-     */
-    private long putInstance(T instance) throws IOException {
-        long instanceId = createNewId();
-        validInstancesMap.put(instanceId, eofOffset);
-        writeStringAtEnd(instanceToXml(instance));
-        return instanceId;
-    }
-
-    /**
-     * Get the instance with the given ID from the database.
-     *
-     * @param instanceId The ID of instance to be fetched.
-     * @return The reconstructed instance. Note that it is not the same object
-     *         with the one that was written to the file.
-     * @throws IOException
-     * @throws IndexOutOfBoundsException if the instance is invalid or does not exist.
-     */
-    public T getInstance(long instanceId) throws IOException {
-        if (isValidId(instanceId)) {
-            return xmlToInstance(getStringAtOffset(validInstancesMap.get(instanceId)));
-        } else if (isDeletedId(instanceId)) {
-            return xmlToInstance(getStringAtOffset(deletedInstancesMap.get(instanceId)));
-        } else if (isInvalidId(instanceId)) {
-            throw new IndexOutOfBoundsException("Instance is invalid.");
-        } else {
-            throw new IndexOutOfBoundsException("Instance doe not exist.");
-        }
-    }
-
-    /**
-     * Mark the instance with the given ID as invalid.
-     *
-     * @param instanceId the ID of the instance to be marked.
-     * @throws IndexOutOfBoundsException if the ID is not found (or it is
-     *             not valid)
-     * @throws IOException
-     */
-    protected void markAsInvalid(long instanceId) throws IOException {
-        if (!isValidId(instanceId)) {
-            throw new IndexOutOfBoundsException();
-        }
-        long offset = validInstancesMap.get(instanceId);
-        randomAccessFile.seek(offset);
-        String line = randomAccessFile.readLine();
-        if (line.equals(VALID_FLAG)) {
-            randomAccessFile.seek(offset);
-            randomAccessFile.writeBytes(INVALID_FLAG);
-            validInstancesMap.remove(instanceId);
-            invalidInstancesMap.put(instanceId, offset);
-        } else {
-            throw new AssertionError();
-        }
-    }
-
-    /**
-     * Mark the instance with the given ID as valid.
-     *
-     * @param instanceId the ID of the instance to be marked.
-     * @throws IndexOutOfBoundsException if the ID is not found (or it is
-     *             already valid)
-     * @throws IOException
-     */
-    protected void markAsValid(long instanceId) throws IOException {
-        long offset;
-        if (isInvalidId(instanceId)) {
-            offset = invalidInstancesMap.get(instanceId);
-        } else if (isDeletedId(instanceId)) {
-            offset = deletedInstancesMap.get(instanceId);
-        } else {
-            throw new IndexOutOfBoundsException();
-        }
-        randomAccessFile.seek(offset);
-        String line = randomAccessFile.readLine();
-        if (line.equals(INVALID_FLAG) || line.equals(DELETED_FLAG)) {
-            randomAccessFile.seek(offset);
-            randomAccessFile.writeBytes(VALID_FLAG);
-            if (isInvalidId(instanceId)) {
-                invalidInstancesMap.remove(instanceId);
-            } else {
-                deletedInstancesMap.remove(instanceId);
-            }
-            validInstancesMap.put(instanceId, offset);
-        } else {
-            throw new AssertionError();
-        }
-    }
-
-    /**
-     * Mark the instance with the given ID as deleted.
-     *
-     * @param instanceId the ID of the instance to be marked.
-     * @throws IndexOutOfBoundsException if the ID is not found (or it is
-     *             not valid)
-     * @throws IOException
-     */
-    protected void markAsDeleted(long instanceId) throws IOException {
-        if (!isValidId(instanceId)) {
-            throw new IndexOutOfBoundsException();
-        }
-        long offset = validInstancesMap.get(instanceId);
-        randomAccessFile.seek(offset);
-        String line = randomAccessFile.readLine();
-        if (line.equals(VALID_FLAG)) {
-            randomAccessFile.seek(offset);
-            randomAccessFile.writeBytes(DELETED_FLAG);
-            validInstancesMap.remove(instanceId);
-            deletedInstancesMap.put(instanceId, offset);
-        } else {
-            throw new AssertionError();
-        }
-    }
-
-    /**
-     * Check whether an ID exists (either represents a valid or invalid
-     * instance).
-     *
-     * @param instanceId the ID to be checked
-     * @return if the ID exists
-     */
-    public boolean contains(long instanceId) {
-        return (isValidId(instanceId) || isInvalidId(instanceId) || isDeletedId(instanceId));
-    }
-
-    /**
-     * Check whether an ID represents a valid instance.
-     *
-     * @param instanceId the ID to be checked
-     * @return if the ID represents a valid instance.
-     */
-    public boolean isValidId(long instanceId) {
-        return validInstancesMap.containsKey(instanceId);
-    }
-
-    /**
-     * Check whether an ID represents an invalid instance.
-     *
-     * @param instanceId the ID to be checked
-     * @return if the ID represents an invalid instance.
-     */
-    public boolean isInvalidId(long instanceId) {
-        return invalidInstancesMap.containsKey(instanceId);
-    }
-
-    /**
-     * Check whether an ID represents a deleted instance.
-     *
-     * @param instanceId the ID to be checked
-     * @return if the ID represents a deleted instance.
-     */
-    public boolean isDeletedId(long instanceId) {
-        return deletedInstancesMap.containsKey(instanceId);
-    }
-
-    /**
-     * Make modification to the database.
-     *
-     * @param previousId the ID of instance to be removed, or null if no removal
-     *            is needed.
-     * @param newInstance the new instance to be put into the database, or null
-     *            if no inserting is needed.
-     * @param description the description of the action, which will be returned
-     *            when undo/redo.
-     * @return the ID of the new instance, or null if no new instance is
-     *         created.
-     * @throws IOException
-     */
-    public Long modify(Long previousId, T newInstance, String description)
-            throws IOException {
-        Long newId = null;
-        if (newInstance != null) {
-            newId = putInstance(newInstance);
-        }
-        if (previousId != null) {
-            if (newInstance != null) {
-                markAsInvalid(previousId);
-            } else {
-                markAsDeleted(previousId);
-            }
-        }
-        journal.recordAction(previousId, newId, description);
-        return newId;
-    }
-
-    /**
-     * Undo the last action.
-     *
-     * @return the description of the undone action as in modify().
-     * @throws IOException
-     * @throws UnsupportedOperationException if there is nothing to undo.
-     */
-    public String undo() throws IOException, UnsupportedOperationException {
-        return journal.undo();
-    }
-
-    /**
-     * Redo the last undo action.
-     *
-     * @return the description of the redone action as in modify().
-     * @throws IOException
-     * @throws UnsupportedOperationException if there is nothing to redo.
-     */
-    public String redo() throws IOException, UnsupportedOperationException {
-        return journal.redo();
-    }
-
-    public JournalController<T> getJournal() {
-        return journal;
-    }
-
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\storage\DatabaseManager.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\storage\GooManager.java
-	 */
-
-/**
- * GooManager is a component that is responsible for all interaction with Google Calendar / Google Tasks.
- */
-public class GooManager {
-
-    /**
-     * A dummy Exception for differentiating IOException happened due to network error and disk error.
-     */
-    public static class NetworkException extends IOException {
-        public NetworkException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
-
-    private static boolean initialized = false;
-
-    /**
-     * Constants needed for Google API Client
-     */
-    private static final String CLIENT_ID = "849841048712-0t9rn1vi1nch19cqsuaaaj19oo7c7pl3.apps.googleusercontent.com";
-    private static final String CLIENT_SECRET = "Zq0v8OByEqQfPMXZis8Iw86D";
-    private static final String APPLICATION_NAME = "RubberDuck/0.5";
-    private static final String CALENDAR_NAME = "RubberDuck";
-
-    /**
-     * To mark completed timed tasks remotely as Google Calendar does not have such function.
-     */
-    private static final String REMOTE_FLAG_COMPLETED = "[Completed]\n";
-
-    /**
-     * To be used to set unnamed tasks as both Google Calendar and Tasks support items with empty title.
-     */
-    private static final String LOCAL_FLAG_UNNAMED_TASK = "[Unnamed]";
-
-    /**
-     * Flags to store UUID locally after being pushed to the server.
-     */
-    private static final String LOCAL_UUID_PREFIX_TASK = "_RD_T_";
-    private static final String LOCAL_UUID_PREFIX_EVENT = "_RD_E_";
-
-    private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.US);
-    private static HttpTransport httpTransport;
-
-    /**
-     * DataStore needed for persisting OAuth Token.
-     */
-    private static FileDataStoreFactory fileDataStoreFactory;
-    private static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
-    private static final String DATA_STORE_DIR = "/data/sync/";
-    private static final String DATA_STORE_NAME = "StoredCredential";
-
-    /**
-     * Keep a record of when the last sync happened.
-     */
-    //private static final String REMOTE_SYNC_FLAG_FORMAT = "Last Synced on: ";
-    private static Date lastSyncTime;
-    private static final String LAST_SYNC_FILE_NAME = "LastSync";
-
-    private static com.google.api.services.calendar.Calendar calendarClient;
-    private static com.google.api.services.tasks.Tasks tasksClient;
-
-    /**
-     * Logger and information strings.
-     */
-    private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    private static final String LOG_MESSAGE_INITIALIZATION = "Google API Initialization finished.";
-    private static final String LOG_MESSAGE_INITIALIZED = "Already initialized, skipping...";
-    private static final String LOG_MESSAGE_CREATING_CALENDAR = "Remote calendar not found, creating...";
-    private static final String LOG_MESSAGE_CREATING_TASKLIST = "Remote task list not found, creating...";
-    private static final String LOG_MESSAGE_CALENDAR_ID = "Found remote calendar, ID is %s";
-    private static final String LOG_MESSAGE_TASKLIST_ID = "Found remote task list, ID is %s";
-    private static final String LOG_MESSAGE_PUSHING = "Starting pushing...";
-    private static final String LOG_MESSAGE_PULLING = "Starting pulling...";
-    private static final String LOG_MESSAGE_TWO_WAY = "Starting two-way syncing...";
-
-    private static String calendarId = null;
-    private static String taskListId = null;
-
-    /**
-     * As Google Tasks does not support set due date to some specific time, this information will be stored in its notes.
-     */
-    private static final String REMOTE_TASK_TIME_FORMAT = "Due: ";
-
-    /**
-     * Color IDs defined by Google Calendar to differentiate completed and uncompleted tasks.
-     */
-    private static final String COLOR_ID_COMPLETED = "2";
-    private static final String COLOR_ID_UNCOMPLETED = "4";
-
-    /**
-     * Private constructor since GooManager is a static class.
-     */
-    private GooManager() {
-    }
-
-    /**
-     * Authorize the application to access Google Accounts.
-     *
-     * @return Credential required by Google API Clients
-     * @throws NetworkException if network failure happens
-     * @throws IOException if I/O error happens when reading/writing oauth2 tokens
-     */
-    private static Credential authorize() throws IOException {
-        GoogleClientSecrets.Details details = new GoogleClientSecrets.Details();
-        details.setClientId(CLIENT_ID);
-        details.setClientSecret(CLIENT_SECRET);
-        GoogleClientSecrets clientSecrets = new GoogleClientSecrets();
-        clientSecrets.setInstalled(details);
-
-        ArrayList<String> scopes = new ArrayList<String>();
-        scopes.add(CalendarScopes.CALENDAR);
-        scopes.add(TasksScopes.TASKS);
-
-        fileDataStoreFactory = new FileDataStoreFactory(new File(CURRENT_DIRECTORY + DATA_STORE_DIR));
-
-        try {
-            GoogleAuthorizationCodeFlow flow =
-                    new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets, scopes).
-                            setDataStoreFactory(fileDataStoreFactory).build();
-
-            return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
-        } catch (IOException e) {
-            throw new NetworkException(e.getMessage(), e.getCause());
-        }
-    }
-
-    /**
-     * Set up Google API Clients
-     *
-     * @throws NetworkException         if network failure happens
-     * @throws GeneralSecurityException if server cannot be trusted (possible MITM)
-     * @throws IOException              if I/O error happens when reading/writing oauth2 tokens
-     */
-    private static void setupConnection() throws IOException, GeneralSecurityException {
-        try {
-            httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        } catch (IOException e) {
-            throw new NetworkException(e.getMessage(), e.getCause());
-        }
-
-        Credential credential = authorize();
-
-        calendarClient = new com.google.api.services.calendar.Calendar.Builder(
-                httpTransport, JSON_FACTORY, credential).setApplicationName(
-                APPLICATION_NAME).build();
-
-        tasksClient = new com.google.api.services.tasks.Tasks.Builder(
-                httpTransport, JSON_FACTORY, credential).setApplicationName(
-                APPLICATION_NAME).build();
-
-        LOGGER.info(LOG_MESSAGE_INITIALIZATION);
-    }
-
-    /**
-     * Initialize GooManager to authorize and get information about Calendar and TaskList RubberDuck should write to.
-     *
-     * @throws NetworkException         if network failure happens
-     * @throws GeneralSecurityException if server cannot be trusted (possible MITM)
-     * @throws IOException              if I/O error happens when reading/writing oauth2 tokens
-     */
-    public static void initialize() throws IOException, GeneralSecurityException {
-        if (initialized) {
-            LOGGER.info(LOG_MESSAGE_INITIALIZED);
-        } else {
-            setupConnection();
-
-            try {
-                String pageToken = null;
-                do {
-                    CalendarList calendarList = calendarClient.calendarList().list().setPageToken(pageToken).execute();
-                    List<CalendarListEntry> items = calendarList.getItems();
-                    for (CalendarListEntry calendarListEntry : items) {
-                        if (calendarListEntry.getSummary().equals(CALENDAR_NAME)) {
-                            calendarId = calendarListEntry.getId();
-                            break;
-                        }
-                    }
-                    if (calendarId != null) {
-                        break;
-                    }
-                    pageToken = calendarList.getNextPageToken();
-                } while (pageToken != null);
-
-                /*
-                 * If there is no Calendar named RubberDuck, create a new one.
-                 */
-                if (calendarId == null) {
-                    LOGGER.info(LOG_MESSAGE_CREATING_CALENDAR);
-                    Calendar calendar = new Calendar();
-                    calendar.setSummary(CALENDAR_NAME);
-                    calendar.setTimeZone(TimeZone.getDefault().getID());
-                    Calendar createdCalendar = calendarClient.calendars().insert(calendar).execute();
-                    calendarId = createdCalendar.getId();
-                }
-
-                LOGGER.info(String.format(LOG_MESSAGE_CALENDAR_ID, calendarId));
-
-                pageToken = null;
-                do {
-                    TaskLists taskLists = tasksClient.tasklists().list().setPageToken(pageToken).execute();
-                    List<TaskList> items = taskLists.getItems();
-                    for (TaskList taskList : items) {
-                        if (taskList.getTitle().equals(CALENDAR_NAME)) {
-                            taskListId = taskList.getId();
-                            break;
-                        }
-                    }
-                    if (taskListId != null) {
-                        break;
-                    }
-                    pageToken = taskLists.getNextPageToken();
-                } while (pageToken != null);
-
-                /*
-                 * If there is no TaskList named RubberDuck, create a new one.
-                 */
-                if (taskListId == null) {
-                    LOGGER.info(LOG_MESSAGE_CREATING_TASKLIST);
-                    TaskList taskList = new TaskList();
-                    taskList.setTitle(CALENDAR_NAME);
-                    TaskList createdTaskList = tasksClient.tasklists().insert(taskList).execute();
-                    taskListId = createdTaskList.getId();
-                }
-
-                LOGGER.info(String.format(LOG_MESSAGE_TASKLIST_ID, taskListId));
-            } catch (IOException e) {
-                throw new NetworkException(e.getMessage(), e.getCause());
-            }
-
-            initialized = true;
-        }
-    }
-
-    /**
-     * Log the user out and clear the credential.
-     *
-     * @throws IOException if fail to delete the credential.
-     */
-    public static void logOut() throws IOException {
-        initialized = false;
-        new File(CURRENT_DIRECTORY + DATA_STORE_DIR + DATA_STORE_NAME).delete();
-    }
-
-    /**
-     * Set last sync time on server to current time.
-     *
-     * @throws IOException if fails to write to file
-     */
-    private static void setLastSyncTime() throws IOException {
-        FileWriter fileWriter = new FileWriter(CURRENT_DIRECTORY + DATA_STORE_DIR + LAST_SYNC_FILE_NAME, false);
-        String line = DATE_FORMAT.format(java.util.Calendar.getInstance().getTime());
-        fileWriter.write(line);
-        fileWriter.close();
-    }
-
-    /**
-     * Get last sync time on server.
-     *
-     * @return last time a sync was finished, or null if never synced.
-     * @throws IOException if fails to write to file
-     */
-    private static Date getLastSyncTime() throws IOException {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(CURRENT_DIRECTORY + DATA_STORE_DIR + LAST_SYNC_FILE_NAME));
-            String line = br.readLine();
-            return DATE_FORMAT.parse(line);
-        } catch (FileNotFoundException e) {
-            return null;
-        } catch (ParseException e) {
-            return null;
-        }
-    }
-
-    /**
-     * Get the remote Task
-     *
-     * @param remoteId Remote ID of the task
-     * @return the remote task inquired
-     * @throws NetworkException                 if network failure happens.
-     * @throws GoogleJsonResponseException if the operation cannot be finished.
-     */
-    public static Task getRemoteTask(String remoteId) throws NetworkException, GoogleJsonResponseException {
-        assert initialized;
-        try {
-            return tasksClient.tasks().get(taskListId, remoteId).execute();
-        } catch (GoogleJsonResponseException e) {
-            /*
-             * This happens when the requested ID cannot be found.
-             */
-            if (e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value")) {
-                return null;
-            } else {
-                throw e;
-            }
-        } catch (IOException e) {
-            throw new NetworkException(e.getMessage(), e.getCause());
-        }
-    }
-
-    /**
-     * Get the remote Event
-     *
-     * @param remoteId Remote ID of the event
-     * @return the remote event inquired
-     * @throws NetworkException if network failure happens.
-     * * @throws GoogleJsonResponseException if the operation cannot be finished.
-     */
-    public static Event getRemoteEvent(String remoteId) throws NetworkException, GoogleJsonResponseException {
-        assert initialized;
-        try {
-            return calendarClient.events().get(calendarId, remoteId).execute();
-        } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
-            /*
-             * This happens when the requested ID cannot be found.
-             */
-            if ((e.getDetails().getCode() == 400 && e.getDetails().getMessage().equals("Invalid Value"))
-                    || (e.getDetails().getCode() == 404 && e.getDetails().getMessage().equals("Not Found"))) {
-                return null;
-            } else {
-                throw e;
-            }
-        } catch (IOException e) {
-            throw new NetworkException(e.getMessage(), e.getCause());
-        }
-    }
-
-    /**
-     * Test if a task exists in remote database.
-     *
-     * @param task the local task to be tested
-     * @return true if the task exists
-     * @throws NetworkException if network failure happens.
-     */
-    public static boolean isInRemote(rubberduck.common.datatransfer.Task task) throws NetworkException {
-        assert initialized;
-        try {
-            if (isPushedAsTask(task)) {
-                return (getRemoteTask(getRemoteUuid(task)) != null);
-            } else if (isPushedAsEvent(task)) {
-                return (getRemoteEvent(getRemoteUuid(task)) != null);
-            } else {
-                return false;
-            }
-        } catch (GoogleJsonResponseException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Delete the given task on remote server.
-     *
-     * @param localTask the local task to be deleted remotely
-     * @throws NetworkException if network failure happens.
-     */
-    public static void deleteTask(rubberduck.common.datatransfer.Task localTask) throws NetworkException {
-        assert initialized;
-        try {
-            if (isPushedAsTask(localTask)) {
-                tasksClient.tasks().delete(taskListId, getRemoteUuid(localTask)).execute();
-            }
-            if (isPushedAsEvent(localTask)) {
-                calendarClient.events().delete(calendarId, getRemoteUuid(localTask)).execute();
-            }
-        } catch (IOException e) {
-            throw new NetworkException(e.getMessage(), e.getCause());
-        }
-    }
-
-    /**
-     * Push the given task to remote server and overwrite any existing copy.
-     * Note that after this, UUID of the task will be overwritten and it should be kept
-     * by saving to the database.
-     *
-     * @param localTask the local task to be pushed
-     * @throws NetworkException if network failure happens.
-     */
-    public static void pushTask(rubberduck.common.datatransfer.Task localTask) throws NetworkException {
-        assert initialized;
-        try {
-            /*
-             * We need to see if a copy exists on the server. If so, we need to use update instead of insert.
-             */
-            boolean shouldUpdate = true;
-            if (localTask.isFloatingTask() || localTask.isDeadline()) {
-                Task remoteTask = null;
-                if (isPushedAsTask(localTask)) {
-                    remoteTask = getRemoteTask(getRemoteUuid(localTask));
-                }
-                if (remoteTask == null) {
-                    remoteTask = new Task();
-                    shouldUpdate = false;
-                }
-                constructRemoteTask(remoteTask, localTask);
-                if (shouldUpdate) {
-                    remoteTask = tasksClient.tasks().update(taskListId, remoteTask.getId(), remoteTask).execute();
-                } else {
-                    remoteTask = tasksClient.tasks().insert(taskListId, remoteTask).execute();
-                }
-                localTask.setUuid(constructLocalTaskUuid(remoteTask.getId()));
-            } else {
-                Event remoteEvent = null;
-                if (isPushedAsEvent(localTask)) {
-                    remoteEvent = getRemoteEvent(getRemoteUuid(localTask));
-                }
-                if (remoteEvent == null) {
-                    remoteEvent = new Event();
-                    shouldUpdate = false;
-                }
-                constructRemoteEvent(remoteEvent, localTask);
-                if (shouldUpdate) {
-                    remoteEvent = calendarClient.events().update(calendarId, remoteEvent.getId(), remoteEvent).execute();
-                } else {
-                    remoteEvent = calendarClient.events().insert(calendarId, remoteEvent).execute();
-                }
-                localTask.setUuid(constructLocalEventUuid(remoteEvent.getId()));
-            }
-        } catch (IOException e) {
-            throw new NetworkException(e.getMessage(), e.getCause());
-        }
-    }
-
-    /**
-     * Pull the requested task from remote server.
-     *
-     * @param localId the localId of the requested task.
-     * @return the local task pulled
-     * @throws NetworkException                   if network failure happens.
-     * @throws UnsupportedOperationException if the task is never pushed.
-     */
-    public static rubberduck.common.datatransfer.Task pullTask(String localId) throws NetworkException {
-        assert initialized;
-        try {
-            rubberduck.common.datatransfer.Task task;
-            if (isLocalTaskUuid(localId)) {
-                Task remoteTask = getRemoteTask(constructRemoteTaskId(localId));
-                task = constructLocalTask(remoteTask);
-            } else if (isLocalEventUuid(localId)) {
-                Event remoteEvent = getRemoteEvent(constructRemoteEventId(localId));
-                task = constructLocalEvent(remoteEvent);
-            } else {
-                throw new UnsupportedOperationException("This task is not pushed.");
-            }
-            return task;
-        } catch (IOException e) {
-            throw new NetworkException(e.getMessage(), e.getCause());
-        }
-    }
-
-    /**
-     * Convert a local task to a remote Task.
-     *
-     * @param remoteTask the local task to be converted
-     * @param localTask  the converted remote Task
-     */
-    private static void constructRemoteTask(Task remoteTask, rubberduck.common.datatransfer.Task localTask) {
-        remoteTask.setTitle(localTask.getDescription());
-        if (isLocalTaskUuid(localTask.getUuid())) {
-            remoteTask.setId(constructRemoteTaskId(localTask.getUuid()));
-        }
-        if (!localTask.isFloatingTask()) {
-            remoteTask.setDue(calendarToDateTime(localTask.getEarliestDate()));
-            /*
-             * Google Tasks only supports set it to a date, so need to store the information in notes.
-             */
-            remoteTask.setNotes(REMOTE_TASK_TIME_FORMAT + DATE_FORMAT.format(localTask.getEarliestDate().getTime()));
-        }
-        if (localTask.getIsDone()) {
-            remoteTask.setStatus("completed");
-        } else {
-            remoteTask.setStatus("needsAction");
-            remoteTask.setCompleted(null);
-        }
-    }
-
-    /**
-     * Convert a local task to a remote Event.
-     *
-     * @param localTask   the local task to be converted
-     * @param remoteEvent the converted remote Event
-     */
-    private static void constructRemoteEvent(Event remoteEvent, rubberduck.common.datatransfer.Task localTask) {
-        remoteEvent.setSummary(localTask.getDescription());
-        if (isLocalEventUuid(localTask.getUuid())) {
-            remoteEvent.setId(constructRemoteEventId(localTask.getUuid()));
-        }
-        DatePair datePair = localTask.getDateList().get(0);
-        remoteEvent.setStart(calendarToEventDateTime(datePair.getStartDate()));
-        remoteEvent.setEnd(calendarToEventDateTime(datePair.getEndDate()));
-        /*
-         * Google Calendar does not support mark some event as done, need to store in description.
-         * Furthermore, event color is utilized to store this information.
-         */
-        if (localTask.getIsDone()) {
-            if (remoteEvent.getDescription() == null) {
-                remoteEvent.setDescription(REMOTE_FLAG_COMPLETED);
-            } else {
-                String newDescription = remoteEvent.getDescription();
-                newDescription = REMOTE_FLAG_COMPLETED + newDescription.replaceAll(REMOTE_FLAG_COMPLETED, "");
-                remoteEvent.setDescription(newDescription);
-            }
-            remoteEvent.setColorId(COLOR_ID_COMPLETED);
-        } else {
-            if (remoteEvent.getDescription() == null) {
-                remoteEvent.setDescription("");
-            } else {
-                remoteEvent.setDescription(remoteEvent.getDescription().replaceAll(REMOTE_FLAG_COMPLETED, ""));
-            }
-            remoteEvent.setColorId(COLOR_ID_UNCOMPLETED);
-        }
-    }
-
-    /**
-     * Convert a remote Task to a local task.
-     *
-     * @param remoteTask the remote Task to be converted
-     * @return the converted local task
-     */
-    private static rubberduck.common.datatransfer.Task constructLocalTask(Task remoteTask) {
-        rubberduck.common.datatransfer.Task localTask = new rubberduck.common.datatransfer.Task();
-        localTask.setUuid(constructLocalTaskUuid(remoteTask.getId()));
-        /*
-         * Remote Task may have an empty title, need to rename it.
-         */
-        if (remoteTask.getTitle() == null || remoteTask.getTitle().isEmpty()) {
-            localTask.setDescription(LOCAL_FLAG_UNNAMED_TASK);
-        } else {
-            localTask.setDescription(remoteTask.getTitle());
-        }
-        if (remoteTask.getStatus().equals("completed")) {
-            localTask.setIsDone(true);
-        } else {
-            localTask.setIsDone(false);
-        }
-        if (remoteTask.getDue() != null) {
-            java.util.Calendar remoteDueDate = dateTimeToCalendar(remoteTask.getDue());
-            String line = remoteTask.getNotes();
-            if (line != null && line.startsWith(REMOTE_TASK_TIME_FORMAT)) {
-                try {
-                    java.util.Calendar recordedDueDate = java.util.Calendar.getInstance();
-                    recordedDueDate.setTime(DATE_FORMAT.parse(line.replace(REMOTE_TASK_TIME_FORMAT, "")));
-                    if (isOnSameDate(remoteDueDate, recordedDueDate)) {
-                        remoteDueDate = recordedDueDate;
-                    }
-                } catch (ParseException e) {
-                }
-            }
-            ArrayList<DatePair> dateList = new ArrayList<DatePair>();
-            dateList.add(new DatePair(remoteDueDate));
-            localTask.setDateList(dateList);
-        } else {
-            localTask.setDateList(new ArrayList<DatePair>());
-        }
-        return localTask;
-    }
-
-    /**
-     * Convert a remote Event to a local task.
-     *
-     * @param remoteEvent the remote Event to be converted
-     * @return the converted local task
-     */
-    private static rubberduck.common.datatransfer.Task constructLocalEvent(Event remoteEvent) {
-        rubberduck.common.datatransfer.Task localTask = new rubberduck.common.datatransfer.Task();
-        localTask.setUuid(constructLocalEventUuid(remoteEvent.getId()));
-        if (remoteEvent.getSummary() == null || remoteEvent.getSummary().isEmpty()) {
-            localTask.setDescription(LOCAL_FLAG_UNNAMED_TASK);
-        } else {
-            localTask.setDescription(remoteEvent.getSummary());
-        }
-        ArrayList<DatePair> dateList = new ArrayList<DatePair>();
-        dateList.add(new DatePair(eventDateTimeToCalendar(remoteEvent.getStart()),
-                eventDateTimeToCalendar(remoteEvent.getEnd())));
-        localTask.setDateList(dateList);
-        /*
-         * If the event color is one of the colors that is used to represent isDone, use that.
-         * Otherwise, test if REMOTE_FLAG_COMPLETED exists in the description.
-         */
-        if (remoteEvent.getColorId() != null && remoteEvent.getColorId().equals(COLOR_ID_COMPLETED)) {
-            localTask.setIsDone(true);
-        } else if (remoteEvent.getColorId() != null && remoteEvent.getColorId().equals(COLOR_ID_UNCOMPLETED)) {
-            localTask.setIsDone(false);
-        } else {
-            if (remoteEvent.getDescription() != null && remoteEvent.getDescription().contains(REMOTE_FLAG_COMPLETED)) {
-                localTask.setIsDone(true);
-            } else {
-                localTask.setIsDone(false);
-            }
-        }
-        return localTask;
-    }
-
-    /**
-     * Get a list of remote Tasks
-     *
-     * @param filterByUpdateTime if the result should only contain items that were updated since last sync
-     * @return the list of remote Tasks
-     * @throws NetworkException if network failure happens.
-     */
-    public static ArrayList<Task> getRemoteTaskList(boolean filterByUpdateTime) throws NetworkException {
-        assert initialized;
-        try {
-            ArrayList<Task> remoteTaskList = new ArrayList<Task>();
-
-            String pageToken = null;
-            do {
-                com.google.api.services.tasks.Tasks.TasksOperations.List listOperation =
-                        tasksClient.tasks().list(taskListId).setShowDeleted(true);
-                if (filterByUpdateTime && lastSyncTime != null) {
-                    listOperation.setUpdatedMin(new DateTime(lastSyncTime, TimeZone.getDefault()).toStringRfc3339());
-                }
-                Tasks tasks = listOperation.setPageToken(pageToken).execute();
-                if (tasks != null && tasks.getItems() != null) {
-                    remoteTaskList.addAll(tasks.getItems());
-                }
-                pageToken = tasks.getNextPageToken();
-            } while (pageToken != null);
-
-            return remoteTaskList;
-        } catch (IOException e) {
-            throw new NetworkException(e.getMessage(), e.getCause());
-        }
-    }
-
-    /**
-     * Get a list of remote Events
-     *
-     * @param filterByUpdateTime if the result should only contain items that were updated since last sync
-     * @return the list of remote Events
-     * @throws NetworkException if network failure happens.
-     */
-    public static ArrayList<Event> getRemoteEventList(boolean filterByUpdateTime) throws NetworkException {
-        assert initialized;
-        try {
-            ArrayList<Event> remoteEventList = new ArrayList<Event>();
-
-            String pageToken = null;
-            do {
-                com.google.api.services.calendar.Calendar.Events.List listOperation =
-                        calendarClient.events().list(calendarId).setShowDeleted(true);
-                if (filterByUpdateTime && lastSyncTime != null) {
-                    listOperation = listOperation.setUpdatedMin(new DateTime(lastSyncTime, TimeZone.getDefault()));
-                }
-                Events events = listOperation.setPageToken(pageToken).execute();
-                remoteEventList.addAll(events.getItems());
-                pageToken = events.getNextPageToken();
-            } while (pageToken != null);
-
-            return remoteEventList;
-        } catch (IOException e) {
-            throw new NetworkException(e.getMessage(), e.getCause());
-        }
-    }
-
-    /**
-     * Delete all Tasks on the server.
-     *
-     * @throws NetworkException if network failure happens.
-     */
-    public static void clearRemoteTasks() throws NetworkException {
-        assert initialized;
-        try {
-            tasksClient.tasks().clear(taskListId).execute();
-        } catch (IOException e) {
-            throw new NetworkException(e.getMessage(), e.getCause());
-        }
-    }
-
-    /**
-     * Delete all Events on the server.
-     *
-     * @throws NetworkException if network failure happens.
-     */
-    public static void clearRemoteEvents() throws NetworkException {
-        assert initialized;
-        try {
-            calendarClient.calendars().clear(calendarId);
-        } catch (IOException e) {
-            throw new NetworkException(e.getMessage(), e.getCause());
-        }
-    }
-
-    /**
-     * Push all local tasks to remote server and overwrite if exists.
-     *
-     * @param dbManager the DatabaseManager instance that stores tasks
-     * @throws IOException if thrown by DatabaseManager.
-     * @throws NetworkException if network failure happens.
-     */
-    public static void pushAll(DatabaseManager<rubberduck.common.datatransfer.Task> dbManager) throws IOException {
-        assert initialized;
-        LOGGER.info(LOG_MESSAGE_PUSHING);
-        for (Long databaseId : dbManager.getValidIdList()) {
-            rubberduck.common.datatransfer.Task localTask = dbManager.getInstance(databaseId);
-            if (!(localTask.getDateList().size() > 1)) {
-                pushTask(localTask);
-                dbManager.modify(databaseId, localTask, null);
-            }
-        }
-        for (Long databaseId : dbManager.getDeletedIdList()) {
-            if (isPushed(dbManager.getInstance(databaseId))) {
-                deleteTask(dbManager.getInstance(databaseId));
-            }
-        }
-        dbManager.rewriteFile(true);
-    }
-
-    /**
-     * Pull all tasks from remote server and overwrite if exists.
-     *
-     * @param dbManager the DatabaseManager instance that stores tasks
-     * @throws IOException if thrown by DatabaseManager.
-     * @throws NetworkException if network failure happens.
-     */
-    public static void pullAll(DatabaseManager<rubberduck.common.datatransfer.Task> dbManager) throws IOException {
-        assert initialized;
-        LOGGER.info(LOG_MESSAGE_PULLING);
-        HashMap<String, Long> uuidMap = new HashMap<String, Long>();
-        for (Long databaseId : dbManager.getValidIdList()) {
-            uuidMap.put(dbManager.getInstance(databaseId).getUuid(), databaseId);
-        }
-        for (Task remoteTask : getRemoteTaskList(false)) {
-            String localUuid = constructLocalTaskUuid(remoteTask.getId());
-            if (remoteTask.getDeleted() != null && remoteTask.getDeleted()) {
-                if (uuidMap.containsKey(localUuid)) {
-                    dbManager.markAsInvalid(uuidMap.get(localUuid));
-                }
-            } else {
-                dbManager.modify(uuidMap.get(localUuid), constructLocalTask(remoteTask), null);
-            }
-        }
-        for (Event remoteEvent : getRemoteEventList(false)) {
-            String localUuid = constructLocalEventUuid(remoteEvent.getId());
-            if (remoteEvent.getStatus().equals("cancelled")) {
-                if (uuidMap.containsKey(localUuid)) {
-                    dbManager.markAsInvalid(uuidMap.get(localUuid));
-                }
-            } else {
-                dbManager.modify(uuidMap.get(localUuid), constructLocalEvent(remoteEvent), null);
-            }
-        }
-        dbManager.rewriteFile(true);
-    }
-
-    /**
-     * Overwrite the whole remote database with local one.
-     *
-     * @param dbManager the DatabaseManager instance that stores tasks
-     * @throws IOException if thrown by DatabaseManager.
-     * @throws NetworkException if network failure happens.
-     */
-    public static void forcePushAll(DatabaseManager<rubberduck.common.datatransfer.Task> dbManager) throws IOException {
-        assert initialized;
-        clearRemoteEvents();
-        clearRemoteTasks();
-        pushAll(dbManager);
-    }
-
-    /**
-     * Overwrite the whole local database with remote one.
-     *
-     * @param dbManager the DatabaseManager instance that stores tasks
-     * @throws IOException if thrown by DatabaseManager.
-     * @throws NetworkException if network failure happens.
-     */
-    public static void forcePullAll(DatabaseManager<rubberduck.common.datatransfer.Task> dbManager) throws IOException {
-        assert initialized;
-        dbManager.resetDatabase();
-        pullAll(dbManager);
-    }
-
-    /**
-     * Perform a two-way synchronization and update both databases with latest modified tasks.
-     *
-     * @param dbManager the DatabaseManager instance that stores tasks
-     * @throws IOException if thrown by DatabaseManager.
-     * @throws NetworkException if network failure happens.
-     */
-    public static void twoWaySync(DatabaseManager<rubberduck.common.datatransfer.Task> dbManager) throws IOException {
-        assert initialized;
-        LOGGER.info(LOG_MESSAGE_TWO_WAY);
-
-        lastSyncTime = getLastSyncTime();
-        HashMap<String, Long> localUuidMap = new HashMap<String, Long>();
-
-        HashMap<String, Task> remoteModifiedTasks = new HashMap<String, Task>();
-        for (Task remoteTask : getRemoteTaskList(true)) {
-            remoteModifiedTasks.put(remoteTask.getId(), remoteTask);
-        }
-        HashMap<String, Event> remoteModifiedEvents = new HashMap<String, Event>();
-        for (Event remoteEvent : getRemoteEventList(true)) {
-            remoteModifiedEvents.put(remoteEvent.getId(), remoteEvent);
-        }
-
-        /*
-         * Update remote database with locally modified tasks.
-         */
-        for (Long databaseId : dbManager.getValidIdList()) {
-            rubberduck.common.datatransfer.Task localTask = dbManager.getInstance(databaseId);
-            if (isPushed(localTask)) {
-                localUuidMap.put(localTask.getUuid(), databaseId);
-            }
-            if (lastSyncTime == null || localTask.getLastUpdate().getTime().after(lastSyncTime)) {
-                if (!(localTask.getDateList().size() > 1)) {
-                    boolean shouldPush = false;
-                    if (!isPushed(localTask)) {
-                        shouldPush = true;
-                    } else {
-                        java.util.Calendar localUpdateTime = localTask.getLastUpdate();
-                        if (localTask.isDeadline() || localTask.isFloatingTask()) {
-                            String remoteUuid = constructRemoteTaskId(localTask.getUuid());
-                            if (remoteModifiedTasks.containsKey(remoteUuid)) {
-                                Task remoteTask = remoteModifiedTasks.get(remoteUuid);
-                                if ((remoteTask.getDeleted() != null && remoteTask.getDeleted()) ||
-                                        dateTimeToCalendar(remoteTask.getUpdated()).after(localUpdateTime)) {
-                                    shouldPush = true;
-                                    remoteModifiedTasks.remove(remoteUuid);
-                                }
-                            } else {
-                                shouldPush = true;
-                            }
-                        } else {
-                            String remoteUuid = constructRemoteEventId(localTask.getUuid());
-                            if (remoteModifiedEvents.containsKey(remoteUuid)) {
-                                Event remoteEvent = remoteModifiedEvents.get(remoteUuid);
-                                if (remoteEvent.getStatus().equals("cancelled") ||
-                                        dateTimeToCalendar(remoteEvent.getUpdated()).after(localUpdateTime)) {
-                                    shouldPush = true;
-                                    remoteModifiedEvents.remove(remoteUuid);
-                                }
-                            } else {
-                                shouldPush = true;
-                            }
-                        }
-                    }
-                    if (shouldPush) {
-                        pushTask(localTask);
-                        dbManager.modify(databaseId, localTask, null);
-                    }
-                }
-            }
-        }
-
-        /*
-         * Delete locally deleted tasks on remote server if they are not modified remotely.
-         */
-        for (Long databaseId : dbManager.getDeletedIdList()) {
-            rubberduck.common.datatransfer.Task localTask = dbManager.getInstance(databaseId);
-            if (!(localTask.getDateList().size() > 1)) {
-                boolean shouldDelete = false;
-                if (!isPushed(localTask)) {
-                    shouldDelete = false;
-                } else {
-                    if (localTask.isDeadline() || localTask.isFloatingTask()) {
-                        String remoteUuid = constructRemoteTaskId(localTask.getUuid());
-                        if (remoteModifiedTasks.containsKey(remoteUuid)) {
-                            shouldDelete = false;
-                            if (remoteModifiedTasks.get(remoteUuid).getDeleted() != null && remoteModifiedTasks.get(remoteUuid).getDeleted()) {
-                                remoteModifiedTasks.remove(remoteUuid);
-                            }
-                        } else {
-                            shouldDelete = true;
-                        }
-                    } else {
-                        String remoteUuid = constructRemoteEventId(localTask.getUuid());
-                        if (remoteModifiedEvents.containsKey(remoteUuid)) {
-                            shouldDelete = false;
-                            if (remoteModifiedEvents.get(remoteUuid).getStatus().equals("cancelled")) {
-                                remoteModifiedEvents.remove(remoteUuid);
-                            }
-                        } else {
-                            shouldDelete = true;
-                        }
-                    }
-                }
-                if (shouldDelete) {
-                    deleteTask(localTask);
-                }
-            }
-        }
-
-        /*
-         * Update local database with modified or deleted Tasks in remote database.
-         */
-        for (Task remoteTask : remoteModifiedTasks.values()) {
-            String localUuid = constructLocalTaskUuid(remoteTask.getId());
-            if (localUuidMap.containsKey(localUuid)) {
-                if (remoteTask.getDeleted() != null && remoteTask.getDeleted()) {
-                    dbManager.modify(localUuidMap.get(localUuid), null, null);
-                } else {
-                    dbManager.modify(localUuidMap.get(localUuid), constructLocalTask(remoteTask), null);
-                }
-            } else {
-                if (remoteTask.getDeleted() == null || !remoteTask.getDeleted()) {
-                    dbManager.modify(null, constructLocalTask(remoteTask), null);
-                }
-            }
-        }
-
-        /*
-         * Update local database with modified or deleted Events in remote database.
-         */
-        for (Event remoteEvent : remoteModifiedEvents.values()) {
-            String localUuid = constructLocalEventUuid(remoteEvent.getId());
-            if (localUuidMap.containsKey(localUuid)) {
-                if (remoteEvent.getStatus().equals("cancelled")) {
-                    dbManager.modify(localUuidMap.get(localUuid), null, null);
-                } else {
-                    dbManager.modify(localUuidMap.get(localUuid), constructLocalEvent(remoteEvent), null);
-                }
-            } else {
-                if (!remoteEvent.getStatus().equals("cancelled")) {
-                    dbManager.modify(null, constructLocalEvent(remoteEvent), null);
-                }
-            }
-        }
-
-        dbManager.rewriteFile(true);
-        setLastSyncTime();
-    }
-
-    /*
-     * Some utility methods for EventDateTime, DateTime, java.formatter.Calendar and java.formatter.Date
-     */
-
-    private static boolean isOnSameDate(java.util.Calendar cal1, java.util.Calendar cal2) {
-        return cal1.get(java.util.Calendar.YEAR) == cal2.get(java.util.Calendar.YEAR) &&
-                cal1.get(java.util.Calendar.DAY_OF_YEAR) == cal2.get(java.util.Calendar.DAY_OF_YEAR);
-    }
-
-    private static DateTime calendarToDateTime(java.util.Calendar calendar) {
-        return new DateTime(calendar.getTime(), calendar.getTimeZone());
-    }
-
-    private static EventDateTime calendarToEventDateTime(
-            java.util.Calendar calendar) {
-        EventDateTime eventDateTime = new EventDateTime();
-        eventDateTime.setDateTime(calendarToDateTime(calendar));
-        return eventDateTime;
-    }
-
-    private static java.util.Calendar dateTimeToCalendar(DateTime dateTime) {
-        java.util.Calendar calendar = java.util.Calendar.getInstance();
-        if (dateTime.isDateOnly()) {
-            calendar.setTimeInMillis(dateTime.getValue() - TimeZone.getDefault().getOffset(dateTime.getValue()));
-        } else {
-            calendar.setTimeInMillis(dateTime.getValue());
-        }
-        return calendar;
-    }
-
-    private static java.util.Calendar eventDateTimeToCalendar(
-            EventDateTime eventDateTime) {
-        if (eventDateTime.getDateTime() != null) {
-            return dateTimeToCalendar(eventDateTime.getDateTime());
-        } else {
-            return dateTimeToCalendar(eventDateTime.getDate());
-        }
-    }
-
-
-    /*
-     * Some utility methods for UUIDs
-     */
-    private static boolean isPushedAsTask(rubberduck.common.datatransfer.Task task) {
-        return isLocalTaskUuid(task.getUuid());
-    }
-
-    private static boolean isPushedAsEvent(rubberduck.common.datatransfer.Task task) {
-        return isLocalEventUuid(task.getUuid());
-    }
-
-    private static boolean isPushed(rubberduck.common.datatransfer.Task task) {
-        return isPushedAsTask(task) || isPushedAsEvent(task);
-    }
-
-    private static boolean isLocalTaskUuid(String localUuid) {
-        return localUuid.startsWith(LOCAL_UUID_PREFIX_TASK);
-    }
-
-    private static boolean isLocalEventUuid(String localUuid) {
-        return localUuid.startsWith(LOCAL_UUID_PREFIX_EVENT);
-    }
-
-    private static String constructLocalTaskUuid(String remoteUuid) {
-        return LOCAL_UUID_PREFIX_TASK + remoteUuid;
-    }
-
-    private static String constructLocalEventUuid(String remoteUuid) {
-        return LOCAL_UUID_PREFIX_EVENT + remoteUuid;
-    }
-
-    private static String constructRemoteTaskId(String localUuid) {
-        assert isLocalTaskUuid(localUuid);
-        return localUuid.replaceFirst(LOCAL_UUID_PREFIX_TASK, "");
-    }
-
-    private static String constructRemoteEventId(String localUuid) {
-        assert isLocalEventUuid(localUuid);
-        return localUuid.replaceFirst(LOCAL_UUID_PREFIX_EVENT, "");
-    }
-
-    private static String getRemoteUuid(rubberduck.common.datatransfer.Task task) {
-        if (isPushedAsTask(task)) {
-            return constructRemoteTaskId(task.getUuid());
-        } else if (isPushedAsEvent(task)) {
-            return constructRemoteEventId(task.getUuid());
-        } else {
-            throw new UnsupportedOperationException("This task is not pushed.");
-        }
-    }
-
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\storage\GooManager.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\storage\JournalController.java
-	 */
-
-/**
- * This class records all the actions done and controls undo/redo operations.
- */
-public class JournalController<T extends Serializable & Comparable<T>> {
-
-    private class IDPair {
-        private Long previousId;
-        private Long newId;
-        private String description;
-
-        public IDPair(Long previousId, Long newId, String description) {
-            this.previousId = previousId;
-            this.newId = newId;
-            this.description = description;
-        }
-
-        public Long getPreviousId() {
-            return previousId;
-        }
-
-        public Long getNewId() {
-            return newId;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-    }
-
-    private Stack<IDPair> undoStack = new Stack<IDPair>();
-    private Stack<IDPair> redoStack = new Stack<IDPair>();
-
-    private DatabaseManager<T> dbManager;
-
-    /**
-     * Initialize the JournalController with the given dbManager.
-     *
-     * @param dbManager an initialized instance of DatabaseManager
-     */
-    public JournalController(DatabaseManager<T> dbManager) {
-        this.dbManager = dbManager;
-    }
-
-    /**
-     * Record an action taken.
-     *
-     * @param previousId the ID of the old instance, can be null if the action
-     *            is add
-     * @param newId the ID of the new instance, can be null if the action is
-     *            delete
-     * @param description the description of the recorded action
-     */
-    public void recordAction(Long previousId, Long newId, String description) {
-        redoStack.clear();
-        undoStack.add(new IDPair(previousId, newId, description));
-    }
-
-    /**
-     * Undo the last action
-     *
-     * @return the description of the undone action
-     * @throws IOException if file IO failed in dbManager
-     * @throws UnsupportedOperationException if there is no action to undo
-     */
-    public String undo() throws IOException, UnsupportedOperationException {
-        if (undoStack.size() == 0) {
-            throw new UnsupportedOperationException("Nothing to undo.");
-        }
-        IDPair lastAction = undoStack.pop();
-        if (lastAction.getNewId() != null) {
-            dbManager.markAsInvalid(lastAction.getNewId());
-        }
-        if (lastAction.getPreviousId() != null) {
-            dbManager.markAsValid(lastAction.getPreviousId());
-        }
-        redoStack.push(lastAction);
-        return lastAction.getDescription();
-    }
-
-    /**
-     * Redo the last undo action
-     *
-     * @return the description of the redone action
-     * @throws IOException if file IO failed in dbManager
-     * @throws UnsupportedOperationException if there is no action to redo
-     */
-    public String redo() throws IOException, UnsupportedOperationException {
-        if (redoStack.size() == 0) {
-            throw new UnsupportedOperationException("Nothing to redo.");
-        }
-        IDPair lastAction = redoStack.pop();
-        if (lastAction.getPreviousId() != null) {
-            if (lastAction.getNewId() == null) {
-                dbManager.markAsDeleted(lastAction.getPreviousId());
-            } else {
-                dbManager.markAsInvalid(lastAction.getPreviousId());
-            }
-        }
-        if (lastAction.getNewId() != null) {
-            dbManager.markAsValid(lastAction.getNewId());
-        }
-        undoStack.push(lastAction);
-        return lastAction.getDescription();
-    }
-
-    public int getUndoStackSize() {
-        return undoStack.size();
-    }
-
-    public int getRedoStackSize() {
-        return redoStack.size();
-    }
-
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\storage\JournalController.java
+	// End of segment: E:\main\src\rubberduck\storage\JournalController.java
 
 
 

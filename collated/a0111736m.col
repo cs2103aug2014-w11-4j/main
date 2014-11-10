@@ -3,7 +3,603 @@
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\Response.java
+	 * origin: E:\main\test\rubberduck\AllTests.java
+	 */
+
+/**
+ * Master test suite that developers should run every time they develop or
+ * modify something to tackle regression.
+ */
+@RunWith(Suite.class)
+@SuiteClasses({DatePairTest.class, JournalControllerTest.class,
+               CommandTest.class, ParserTest.class})
+public class AllTests {
+
+}
+
+	// End of segment: E:\main\test\rubberduck\AllTests.java
+
+
+
+
+
+	/**
+	 * origin: E:\main\test\rubberduck\logic\command\CommandTest.java
+	 */
+
+
+    /**
+     * Simple check on executing a ClearCommand.
+     */
+    @Test
+    public void clearScreen() {
+        Response res = new ClearCommand().execute();
+        assertEquals("Should contain the message", true,
+                     res.getMessages()[0].contains("Screen cleared."));
+        assertEquals("Should be overwritten", true, res.isOverwrite());
+    }
+
+    /**
+     * Test View Floating task
+     *
+     * @throws IOException
+     */
+	// End of segment: E:\main\test\rubberduck\logic\command\CommandTest.java
+
+
+
+
+
+	/**
+	 * origin: E:\main\test\rubberduck\logic\parser\ParserTest.java
+	 */
+
+/**
+ * Unit Test Cases used in Unit Testing for Parser class. Each test case in the
+ * this test unit represents a single method tested in Parser.
+ */
+public class ParserTest {
+
+    private Parser parser;
+
+    @Before
+    public void setParser() {
+        parser = Parser.getInstance();
+    }
+
+    @Test
+    public void parseView() {
+        try {
+            /* Use Reflection to Make Private/Protected Methods Accessible */
+            Method viewRangeMethod = ViewCommand.class.getDeclaredMethod(
+                "getViewRange");
+            viewRangeMethod.setAccessible(true);
+            Method viewTypeMethod = ViewCommand.class.getDeclaredMethod(
+                "getViewType");
+            viewTypeMethod.setAccessible(true);
+            ViewCommand.ViewType type;
+            DatePair range;
+
+            /* Testing for arguments (number and validity) in input */
+            /* Boundary case for 'prev' partition / no arguments */
+            String noArgument = "view";
+            Command noCommand = parser.parse(noArgument);
+            assertEquals("will return VIEW command (prev)", true,
+                         noCommand instanceof ViewCommand);
+            type = (ViewCommand.ViewType) viewTypeMethod.invoke(noCommand);
+            assertEquals("must be PREV view", ViewCommand.ViewType.PREV, type);
+
+            /* Boundary case for date only partition */
+            String dateArgument = "view 25 Oct";
+            Command dateCommand = parser.parse(dateArgument);
+            assertEquals("must be VIEW command", true,
+                         dateCommand instanceof ViewCommand);
+            range = (DatePair) viewRangeMethod.invoke(dateCommand);
+            assertEquals("must have a view date", true, range.hasEndDate());
+            type = (ViewCommand.ViewType) viewTypeMethod.invoke(dateCommand);
+            assertEquals("must be DATE view", ViewCommand.ViewType.DATE, type);
+
+
+            /* Boundary case for date range partition */
+            String rangeArgument = "view 25 Oct - 30 Oct";
+            Command rangeCommand = parser.parse(rangeArgument);
+            assertEquals("must be VIEW command", true,
+                         rangeCommand instanceof ViewCommand);
+            range = (DatePair) viewRangeMethod.invoke(rangeCommand);
+            assertEquals("must have a view range", true, range.hasDateRange());
+            type = (ViewCommand.ViewType) viewTypeMethod.invoke(rangeCommand);
+            assertEquals("must be DATE view", ViewCommand.ViewType.DATE, type);
+
+            /* Boundary case for 'all' partition */
+            String allArgument = "view all";
+            Command allCommand = parser.parse(allArgument);
+            assertEquals("must be VIEW command", true,
+                         allCommand instanceof ViewCommand);
+            type = (ViewCommand.ViewType) viewTypeMethod.invoke(allCommand);
+            assertEquals("must be ALL view", ViewCommand.ViewType.ALL, type);
+
+            /* Boundary case for other String input partition / prev */
+            String otherArgument = "view randomstring";
+            Command otherCommand = parser.parse(otherArgument);
+            assertEquals("will return VIEW command (prev)",
+                         true, otherCommand instanceof ViewCommand);
+            type = (ViewCommand.ViewType) viewTypeMethod.invoke(otherCommand);
+            assertEquals("must be PREV view", ViewCommand.ViewType.PREV, type);
+
+            /* Boundary case for 'overdue' partition */
+            String overdueArgument = "view overdue";
+            Command overdueCommand = parser.parse(overdueArgument);
+            assertEquals("must be VIEW command", true,
+                         overdueCommand instanceof ViewCommand);
+            type = (ViewCommand.ViewType) viewTypeMethod.invoke(overdueCommand);
+            assertEquals("must be OVERDUE view", ViewCommand.ViewType.OVERDUE,
+                         type);
+
+            /* Testing for different alias with valid input */
+            assertEquals(true, parser.parse("view 25 oct 2014") instanceof
+                ViewCommand);
+            assertEquals(true, parser.parse("display this week") instanceof
+                ViewCommand);
+            assertEquals(true, parser.parse("agenda today") instanceof
+                ViewCommand);
+
+        } catch (NoSuchMethodException | IllegalAccessException |
+            InvocationTargetException e) {
+            System.out.println("Error when performing reflection in VIEW.");
+        }
+    }
+
+    @Test
+    public void parseSearch() {
+        try {
+            /* Use Reflection to Make Private/Protected Methods Accessible */
+            Method keywordMethod = SearchCommand.class.getDeclaredMethod(
+                "getKeyword");
+            keywordMethod.setAccessible(true);
+
+            /* Testing for number of arguments in input */
+            /* Boundary case for no argument partition */
+            String noArgument = "search";
+            Command noCommand = parser.parse(noArgument);
+            assertEquals("will return INVALID command due to no argument", true,
+                         noCommand instanceof InvalidCommand);
+
+            /* Boundary case for valid argument (String) partition */
+            String stringArgument = "search meeting with boss";
+            Command stringCommand = parser.parse(stringArgument);
+            assertEquals("must be SEARCH command", true,
+                         stringCommand instanceof SearchCommand);
+            String keyword = (String) keywordMethod.invoke(stringCommand);
+            assertEquals("keyword must be properly stored", "meeting with boss",
+                         keyword);
+
+            /* Testing for different alias with valid input */
+            assertEquals(true,
+                         parser.parse("search me") instanceof SearchCommand);
+            assertEquals(true,
+                         parser.parse("find urgent") instanceof SearchCommand);
+            assertEquals(true,
+                         parser.parse("lookup hw") instanceof SearchCommand);
+
+        } catch (NoSuchMethodException | IllegalAccessException |
+            InvocationTargetException e) {
+            System.out.println("Error when performing reflection in SEARCH.");
+        }
+    }
+
+    @Test
+    public void parseAdd() {
+        try {
+            /* Use Reflection to Make Private/Protected Methods Accessible */
+            Method descriptionMethod = AddCommand.class.getDeclaredMethod(
+                "getDescription");
+            descriptionMethod.setAccessible(true);
+            Method datePairsMethod = AddCommand.class.getDeclaredMethod(
+                "getDatePairs");
+            datePairsMethod.setAccessible(true);
+            String desc;
+            ArrayList dpList;
+
+        /* Testing for number of arguments in input */
+        /* Boundary case for no argument partition */
+            String noArgument = "add";
+            Command noCommand = parser.parse(noArgument);
+            assertEquals("will return INVALID command due to no argument", true,
+                         noCommand instanceof InvalidCommand);
+
+        /* Boundary case for date only partition */
+            String dateArgument = "add today";
+            Command dateCommand = parser.parse(dateArgument);
+            assertEquals(
+                "will return INVALID command due to lack of description",
+                true, dateCommand instanceof InvalidCommand);
+
+        /* Boundary case for description only partition */
+            String descArgument = "add meeting";
+            Command descCommand = parser.parse(descArgument);
+            assertEquals("must be ADD command", true,
+                         descCommand instanceof AddCommand);
+            desc = (String) descriptionMethod.invoke(descCommand);
+            assertEquals("description must be assigned", "meeting", desc);
+
+        /* Boundary case for date and description partition */
+            String descDateArgument = "add meeting today";
+            Command descDateCommand = parser.parse(descDateArgument);
+            assertEquals("must be ADD command", true,
+                         descDateCommand instanceof AddCommand);
+            desc = (String) descriptionMethod.invoke(descDateCommand);
+            dpList = (ArrayList) datePairsMethod.invoke(descDateCommand);
+            assertEquals("description must be assigned", "meeting", desc);
+            assertEquals("date must be assigned", false, dpList.isEmpty());
+
+        /* Testing for different alias with valid input */
+            assertEquals(true,
+                         parser.parse("add meeting") instanceof AddCommand);
+            assertEquals(true,
+                         parser.parse("insert meeting") instanceof AddCommand);
+            assertEquals(true,
+                         parser.parse("ins meeting") instanceof AddCommand);
+            assertEquals(true,
+                         parser.parse("new meeting") instanceof AddCommand);
+        } catch (NoSuchMethodException | IllegalAccessException |
+            InvocationTargetException e) {
+            System.out.println("Error when performing reflection in ADD.");
+        }
+    }
+
+    @Test
+    public void parseDelete() {
+        try {
+            /* Use Reflection to Make Private/Protected Methods Accessible */
+            Method taskIdMethod = DeleteCommand.class.getDeclaredMethod(
+                "getTaskId");
+            taskIdMethod.setAccessible(true);
+            int taskId;
+
+            /* Testing for number of arguments in input */
+            /* Boundary case for no argument partition */
+            String noArgument = "delete";
+            Command noCommand = parser.parse(noArgument);
+            assertEquals("will return INVALID command due to no argument", true,
+                         noCommand instanceof InvalidCommand);
+
+            /* Boundary case for > 1 argument partition */
+            String twoArgument = "delete 1 2";
+            Command twoCommand = parser.parse(twoArgument);
+            assertEquals("must be DELETE command", true,
+                         twoCommand instanceof DeleteCommand);
+            taskId = (Integer) taskIdMethod.invoke(twoCommand);
+            assertEquals("Only first argument will be parsed and assigned", 1,
+                         taskId);
+
+            /* Boundary case for 1 valid argument partition */
+            String oneArgument = "delete 4";
+            Command oneCommand = parser.parse(oneArgument);
+            assertEquals("must be DELETE command", true,
+                         oneCommand instanceof DeleteCommand);
+            taskId = (Integer) taskIdMethod.invoke(oneCommand);
+            assertEquals("Task ID should be properly assigned", 4, taskId);
+
+            /* Testing for invalid arguments in input */
+            String notInteger = "delete notinteger";
+            Command notIntCommand = parser.parse(notInteger);
+            assertEquals("will return INVALID command due to String argument",
+                         true, notIntCommand instanceof InvalidCommand);
+
+            /* Testing for different alias with valid input */
+            assertEquals(true,
+                         parser.parse("delete 1") instanceof DeleteCommand);
+            assertEquals(true,
+                         parser.parse("remove 2") instanceof DeleteCommand);
+        } catch (NoSuchMethodException | IllegalAccessException |
+            InvocationTargetException e) {
+            System.out.println("Error when performing reflection in DELETE.");
+        }
+    }
+
+    @Test
+    public void parseUpdate() {
+        try {
+            /* Use Reflection to Make Private/Protected Methods Accessible */
+            Method descriptionMethod = UpdateCommand.class.getDeclaredMethod(
+                "getDescription");
+            descriptionMethod.setAccessible(true);
+            Method datePairsMethod = UpdateCommand.class.getDeclaredMethod(
+                "getDatePairs");
+            datePairsMethod.setAccessible(true);
+            String desc;
+            ArrayList list;
+
+            /* Testing for number of arguments in input */
+            /* Boundary case for no task ID partition */
+            String noIdArgument = "update no meeting";
+            Command noIdCommand = parser.parse(noIdArgument);
+            assertEquals("will return INVALID command due to no task ID", true,
+                         noIdCommand instanceof InvalidCommand);
+
+            /* Boundary case for task ID w/o argument partition */
+            String noArgument = "update 2";
+            Command noCommand = parser.parse(noArgument);
+            assertEquals("will return INVALID command due to no args", true,
+                         noCommand instanceof InvalidCommand);
+
+            /* Boundary case for task ID w/ argument */
+            String haveArgument = "update 2 desc today";
+            Command haveCommand = parser.parse(haveArgument);
+            assertEquals("will return UPDATE command since valid", true,
+                         haveCommand instanceof UpdateCommand);
+            desc = (String) descriptionMethod.invoke(haveCommand);
+            list = (ArrayList) datePairsMethod.invoke(haveCommand);
+            assertEquals("description must be assigned", "desc", desc);
+            assertEquals("date must be assigned", false, list.isEmpty());
+
+            /* Testing for different alias with valid input */
+            assertEquals(true,
+                         parser
+                             .parse("change 1 desc") instanceof UpdateCommand);
+            assertEquals(true,
+                         parser
+                             .parse("update 2 desc") instanceof UpdateCommand);
+            assertEquals(true,
+                         parser
+                             .parse("edit 2 25 Nov") instanceof UpdateCommand);
+        } catch (NoSuchMethodException | IllegalAccessException |
+            InvocationTargetException e) {
+            System.out.println("Error when performing reflection in UPDATE.");
+        }
+    }
+
+    @Test
+    public void parseUndo() {
+        /* Testing for different alias for UNDO command */
+        assertEquals(true, parser.parse("undo") instanceof UndoCommand);
+        assertEquals(true, parser.parse("ud") instanceof UndoCommand);
+    }
+
+    @Test
+    public void parseRedo() {
+        /* Testing for different alias for REDO command */
+        assertEquals(true, parser.parse("redo") instanceof RedoCommand);
+        assertEquals(true, parser.parse("rd") instanceof RedoCommand);
+    }
+
+    @Test
+    public void parseMark() {
+        try {
+            /* Use Reflection to Make Private/Protected Methods Accessible */
+            Method taskIdMethod = MarkCommand.class.getDeclaredMethod(
+                "getTaskId");
+            taskIdMethod.setAccessible(true);
+            int taskId;
+
+            /* Testing for number of arguments in input */
+            /* Boundary case for no arguments partition */
+            String noArgument = "mark";
+            Command noCommand = parser.parse(noArgument);
+            assertEquals("Will return INVALID command due to lack of arguments",
+                         true, noCommand instanceof InvalidCommand);
+
+            /* Boundary case for >1 arguments partition */
+            String twoArgument = "mark 1 2";
+            Command twoCommand = parser.parse(twoArgument);
+            assertEquals("Must be a MARK command", true,
+                         twoCommand instanceof MarkCommand);
+            taskId = (Integer) taskIdMethod.invoke(twoCommand);
+            assertEquals("Will only accept first argument", 1, taskId);
+
+            /* Boundary case for 1 argument partition */
+            String oneArgument = "mark 4";
+            Command oneCommand = parser.parse(oneArgument);
+            assertEquals("Must be a MARK command", true,
+                         oneCommand instanceof MarkCommand);
+            taskId = (Integer) taskIdMethod.invoke(oneCommand);
+            assertEquals("Task ID should be properly recorded", 4, taskId);
+
+            /* Testing for invalid arguments in input */
+            String notInteger = "mark asamplestring";
+            Command notIntCommand = parser.parse(notInteger);
+            assertEquals("Will return INVALID command due to invalid task id",
+                         true, notIntCommand instanceof InvalidCommand);
+
+            /* Testing for different alias with valid input */
+            String markAlias = "mark 2";
+            Command markCommand = parser.parse(markAlias);
+            assertEquals("Must be a MARK command", true,
+                         markCommand instanceof MarkCommand);
+
+            String completedAlias = "completed 5";
+            Command completedCommand = parser.parse(completedAlias);
+            assertEquals("Must be a MARK command", true,
+                         completedCommand instanceof MarkCommand);
+
+            String doneAlias = "done 3";
+            Command doneCommand = parser.parse(doneAlias);
+            assertEquals("Must be a MARK command", true,
+                         doneCommand instanceof MarkCommand);
+        } catch (NoSuchMethodException | IllegalAccessException |
+            InvocationTargetException e) {
+            System.out.println("Error when performing reflection in MARK.");
+        }
+    }
+
+    @Test
+    public void parseConfirm() {
+        try {
+            /* Use Reflection to Make Private/Protected Methods Accessible */
+            Method taskIdMethod = ConfirmCommand.class.getDeclaredMethod(
+                "getTaskId");
+            taskIdMethod.setAccessible(true);
+            Method dateIdMethod = ConfirmCommand.class.getDeclaredMethod(
+                "getDateId");
+            dateIdMethod.setAccessible(true);
+            int taskId;
+            int dateId;
+
+            /* Testing for number of arguments in input */
+            /* Boundary case for < 2 arguments partition */
+            String oneArgument = "confirm 1";
+            Command oneCommand = parser.parse(oneArgument);
+            assertEquals("Will return INVALID command due to lack of arguments",
+                         true, oneCommand instanceof InvalidCommand);
+
+            /* Boundary case for > 2 arguments partition */
+            String threeArgument = "confirm 1 2 3";
+            Command threeCommand = parser.parse(threeArgument);
+            assertEquals("Must be a CONFIRM command", true,
+                         threeCommand instanceof ConfirmCommand);
+            taskId = (Integer) taskIdMethod.invoke(threeCommand);
+            dateId = (Integer) dateIdMethod.invoke(threeCommand);
+            assertEquals("Will only accept first two arguments", 1, taskId);
+            assertEquals("Will only accept first two arguments", 2, dateId);
+
+            /* Boundary case for 2 arguments partition */
+            String twoArgument = "confirm 1 2";
+            Command twoCommand = parser.parse(twoArgument);
+            assertEquals("Must be a CONFIRM command", true,
+                         twoCommand instanceof ConfirmCommand);
+            taskId = (Integer) taskIdMethod.invoke(twoCommand);
+            dateId = (Integer) dateIdMethod.invoke(twoCommand);
+            assertEquals("Task ID should be the first argument", 1, taskId);
+            assertEquals("Date ID should be the second argument", 2, dateId);
+
+            /* Testing for invalid arguments in input */
+            String notInteger = "mark asamplestring";
+            Command notIntCommand = parser.parse(notInteger);
+            assertEquals("Will return INVALID command due to invalid task id",
+                         true, notIntCommand instanceof InvalidCommand);
+        } catch (NoSuchMethodException | IllegalAccessException |
+            InvocationTargetException e) {
+            System.out.println("Error when performing reflection in CONFIRM.");
+        }
+    }
+
+    @Test
+    public void parseSync() {
+        try {
+            /* Use Reflection to Make Private/Protected Methods Accessible */
+            Method syncTypeMethod = SyncCommand.class.getDeclaredMethod(
+                "getType");
+            syncTypeMethod.setAccessible(true);
+            SyncCommand.SyncType st;
+
+            /* Testing for all different SyncType for SYNC command */
+            String forcePush = "sync force push";
+            Command fPushCommand = parser.parse(forcePush);
+            st = (SyncCommand.SyncType) syncTypeMethod.invoke(fPushCommand);
+            assertEquals("Must be FORCE_PUSH", SyncCommand.SyncType.FORCE_PUSH,
+                         st);
+
+            String forcePull = "sync force pull";
+            Command fPullCommand = parser.parse(forcePull);
+            st = (SyncCommand.SyncType) syncTypeMethod.invoke(fPullCommand);
+            assertEquals("Must be FORCE_PULL", SyncCommand.SyncType.FORCE_PULL,
+                         st);
+
+            String push = "sync push";
+            Command pushCommand = parser.parse(push);
+            st = (SyncCommand.SyncType) syncTypeMethod.invoke(pushCommand);
+            assertEquals("Must be PUSH", SyncCommand.SyncType.PUSH,
+                         st);
+
+            String pull = "sync pull";
+            Command pullCommand = parser.parse(pull);
+            st = (SyncCommand.SyncType) syncTypeMethod.invoke(pullCommand);
+            assertEquals("Must be PULL", SyncCommand.SyncType.PULL,
+                         st);
+
+            String twoWay = "sync";
+            Command twoWayCommand = parser.parse(twoWay);
+            st = (SyncCommand.SyncType) syncTypeMethod.invoke(twoWayCommand);
+            assertEquals("Must be TWO_WAY", SyncCommand.SyncType.TWO_WAY,
+                         st);
+
+            String logout = "sync logout";
+            Command logoutCommand = parser.parse(logout);
+            st = (SyncCommand.SyncType) syncTypeMethod.invoke(logoutCommand);
+            assertEquals("Must be LOGOUT", SyncCommand.SyncType.LOGOUT,
+                         st);
+
+            /* Boundary case for random String arguments input*/
+            String invalid = "sync randomstring123 123";
+            Command invalidCommand = parser.parse(invalid);
+            assertEquals("Must be INVALID", true, invalidCommand instanceof
+                InvalidCommand);
+
+        } catch (NoSuchMethodException | IllegalAccessException |
+            InvocationTargetException e) {
+            System.out.println("Error when performing reflection in SYNC.");
+        }
+    }
+
+    @Test
+    public void parseHelp() {
+        /* Testing for different help mode for HELP command */
+        try {
+            /* Use Reflection to Make Private/Protected Methods Accessible */
+            Method typeMethod = HelpCommand.class.getDeclaredMethod(
+                "getType");
+            typeMethod.setAccessible(true);
+            Method isSpecificMethod = HelpCommand.class.getDeclaredMethod(
+                "isSpecific");
+            isSpecificMethod.setAccessible(true);
+            String type;
+            boolean isSpecific;
+
+            /* Testing for different way of parsing HELP command */
+            String allHelp = "help";
+            Command allHelpCommand = parser.parse(allHelp);
+            type = (String) typeMethod.invoke(allHelpCommand);
+            isSpecific = (boolean) isSpecificMethod.invoke(allHelpCommand);
+            assertEquals("Should be null.", null, type);
+            assertEquals("Must be not specific.", false, isSpecific);
+
+            String specificHelp = "help view";
+            Command specificHelpCommand = parser.parse(specificHelp);
+            type = (String) typeMethod.invoke(specificHelpCommand);
+            isSpecific = (boolean) isSpecificMethod.invoke(specificHelpCommand);
+            assertEquals("Should be the argument.", "view", type);
+            assertEquals("Must be specific.", true, isSpecific);
+
+            /* Only the first argument is taken and no arg validation is done */
+            String invalidHelp = "help random guy";
+            Command invalidHelpCommand = parser.parse(invalidHelp);
+            type = (String) typeMethod.invoke(invalidHelpCommand);
+            isSpecific = (boolean) isSpecificMethod.invoke(invalidHelpCommand);
+            assertEquals("Should be the argument.", "random", type);
+            assertEquals("Must be specific.", true, isSpecific);
+        } catch (NoSuchMethodException | IllegalAccessException |
+            InvocationTargetException e) {
+            System.out.println("Error when performing reflection in HELP.");
+        }
+
+        /* Testing for different alias for HELP command */
+        assertEquals(true, parser.parse("help") instanceof HelpCommand);
+        assertEquals(true, parser.parse("?") instanceof HelpCommand);
+    }
+
+    @Test
+    public void parseClear() {
+        /* Testing for different alias for CLEAR command */
+        assertEquals(true, parser.parse("clear") instanceof ClearCommand);
+        assertEquals(true, parser.parse("cls") instanceof ClearCommand);
+    }
+
+    @Test
+    public void parseExit() {
+        /* Testing for different alias for EXIT command */
+        assertEquals(true, parser.parse("exit") instanceof ExitCommand);
+        assertEquals(true, parser.parse("quit") instanceof ExitCommand);
+    }
+}
+
+	// End of segment: E:\main\test\rubberduck\logic\parser\ParserTest.java
+
+
+
+
+
+	/**
+	 * origin: E:\main\src\rubberduck\common\datatransfer\Response.java
 	 */
 
 /**
@@ -87,14 +683,14 @@ public class Response {
     }
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\Response.java
+	// End of segment: E:\main\src\rubberduck\common\datatransfer\Response.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\Task.java
+	 * origin: E:\main\src\rubberduck\common\datatransfer\Task.java
 	 */
 
     /**
@@ -169,14 +765,14 @@ public class Response {
         return earliestDate;
     }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\Task.java
+	// End of segment: E:\main\src\rubberduck\common\datatransfer\Task.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\common\formatter\ColorFormatter.java
+	 * origin: E:\main\src\rubberduck\common\formatter\ColorFormatter.java
 	 */
 
 /**
@@ -264,14 +860,14 @@ public class ColorFormatter {
     }
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\common\formatter\ColorFormatter.java
+	// End of segment: E:\main\src\rubberduck\common\formatter\ColorFormatter.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\common\formatter\Formatter.java
+	 * origin: E:\main\src\rubberduck\common\formatter\Formatter.java
 	 */
 
 /**
@@ -572,14 +1168,14 @@ public class Formatter {
     }
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\common\formatter\Formatter.java
+	// End of segment: E:\main\src\rubberduck\common\formatter\Formatter.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ClearCommand.java
+	 * origin: E:\main\src\rubberduck\logic\command\ClearCommand.java
 	 */
 
 /**
@@ -603,14 +1199,14 @@ public class ClearCommand extends Command {
     }
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ClearCommand.java
+	// End of segment: E:\main\src\rubberduck\logic\command\ClearCommand.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\Command.java
+	 * origin: E:\main\src\rubberduck\logic\command\Command.java
 	 */
 
 /**
@@ -784,14 +1380,14 @@ public abstract class Command {
         return dbManager;
     }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\Command.java
+	// End of segment: E:\main\src\rubberduck\logic\command\Command.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\Command.java
+	 * origin: E:\main\src\rubberduck\logic\command\Command.java
 	 */
 
     /**
@@ -819,14 +1415,14 @@ public abstract class Command {
     protected abstract Response execute() throws IOException;
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\Command.java
+	// End of segment: E:\main\src\rubberduck\logic\command\Command.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ExitCommand.java
+	 * origin: E:\main\src\rubberduck\logic\command\ExitCommand.java
 	 */
 
 /**
@@ -857,14 +1453,14 @@ public class ExitCommand extends Command {
     }
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ExitCommand.java
+	// End of segment: E:\main\src\rubberduck\logic\command\ExitCommand.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\HelpCommand.java
+	 * origin: E:\main\src\rubberduck\logic\command\HelpCommand.java
 	 */
 
 /**
@@ -1022,14 +1618,14 @@ public class HelpCommand extends Command {
     }
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\HelpCommand.java
+	// End of segment: E:\main\src\rubberduck\logic\command\HelpCommand.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\InvalidCommand.java
+	 * origin: E:\main\src\rubberduck\logic\command\InvalidCommand.java
 	 */
 
 /**
@@ -1076,14 +1672,14 @@ public class InvalidCommand extends Command {
     }
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\InvalidCommand.java
+	// End of segment: E:\main\src\rubberduck\logic\command\InvalidCommand.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\RedoCommand.java
+	 * origin: E:\main\src\rubberduck\logic\command\RedoCommand.java
 	 */
 
 /**
@@ -1120,14 +1716,14 @@ public class RedoCommand extends Command {
     }
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\RedoCommand.java
+	// End of segment: E:\main\src\rubberduck\logic\command\RedoCommand.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\SyncCommand.java
+	 * origin: E:\main\src\rubberduck\logic\command\SyncCommand.java
 	 */
 
 /**
@@ -1275,14 +1871,14 @@ public class SyncCommand extends Command {
     }
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\SyncCommand.java
+	// End of segment: E:\main\src\rubberduck\logic\command\SyncCommand.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\UndoCommand.java
+	 * origin: E:\main\src\rubberduck\logic\command\UndoCommand.java
 	 */
 
 /**
@@ -1318,14 +1914,14 @@ public class UndoCommand extends Command {
     }
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\UndoCommand.java
+	// End of segment: E:\main\src\rubberduck\logic\command\UndoCommand.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ViewCommand.java
+	 * origin: E:\main\src\rubberduck\logic\command\ViewCommand.java
 	 */
 
     /**
@@ -1352,14 +1948,14 @@ public class UndoCommand extends Command {
         }
     }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ViewCommand.java
+	// End of segment: E:\main\src\rubberduck\logic\command\ViewCommand.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\parser\Parser.java
+	 * origin: E:\main\src\rubberduck\logic\parser\Parser.java
 	 */
 
 /**
@@ -2200,14 +2796,14 @@ public class Parser {
     }
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\parser\Parser.java
+	// End of segment: E:\main\src\rubberduck\logic\parser\Parser.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\menu\MenuInterface.java
+	 * origin: E:\main\src\rubberduck\menu\MenuInterface.java
 	 */
 
 /**
@@ -2275,14 +2871,14 @@ public abstract class MenuInterface {
     public abstract String requestPrompt(String... prompts);
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\menu\MenuInterface.java
+	// End of segment: E:\main\src\rubberduck\menu\MenuInterface.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\menu\UnixInterface.java
+	 * origin: E:\main\src\rubberduck\menu\UnixInterface.java
 	 */
 
 /**
@@ -2370,14 +2966,14 @@ public class UnixInterface extends MenuInterface {
         }
     }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\menu\UnixInterface.java
+	// End of segment: E:\main\src\rubberduck\menu\UnixInterface.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\menu\UnixInterface.java
+	 * origin: E:\main\src\rubberduck\menu\UnixInterface.java
 	 */
 
     /**
@@ -2522,14 +3118,14 @@ public class UnixInterface extends MenuInterface {
     }
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\menu\UnixInterface.java
+	// End of segment: E:\main\src\rubberduck\menu\UnixInterface.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\menu\WinInterface.java
+	 * origin: E:\main\src\rubberduck\menu\WinInterface.java
 	 */
 
 /**
@@ -2941,14 +3537,14 @@ public class WinInterface extends MenuInterface {
     }
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\menu\WinInterface.java
+	// End of segment: E:\main\src\rubberduck\menu\WinInterface.java
 
 
 
 
 
 	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\RubberDuck.java
+	 * origin: E:\main\src\rubberduck\RubberDuck.java
 	 */
 
 /**
@@ -3015,2952 +3611,7 @@ public class RubberDuck {
     }
 }
 
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\RubberDuck.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\Response.java
-	 */
-
-/**
- * A data structure that must be created by each command and returned back to
- * the MenuInterface for formatting into the buffer accordingly.
- */
-public class Response {
-
-    private String[] messages;
-    private String viewCount;
-    private String viewData;
-    private boolean isOverwrite;
-
-    /**
-     * Public constructor for Response which accepts all three input, messages,
-     * view count and the view data.
-     *
-     * @param messages  message displayed at the top portion
-     * @param viewCount data which explains the view table
-     * @param viewData  actual task data of current view format
-     */
-    public Response(String messages, String viewCount, String viewData) {
-        setMessages(messages);
-        this.viewCount = viewCount;
-        this.viewData = viewData;
-    }
-
-    /**
-     * Public constructor for Response which accepts only messages. Buffer will
-     * not be split into three portion but only display the messages instead.
-     */
-    public Response(String messages, boolean isOverwrite) {
-        setMessages(messages);
-        this.isOverwrite = isOverwrite;
-    }
-
-    /**
-     * Public getter method for messages.
-     *
-     * @return messages as String array
-     */
-    public String[] getMessages() {
-        return messages;
-    }
-
-    /**
-     * Public setter method for messages.
-     *
-     * @param messages to overwrite
-     */
-    public void setMessages(String messages) {
-        this.messages = Formatter.formatMessage(messages);
-    }
-
-    /**
-     * Public getter method for viewCount.
-     *
-     * @return viewCount as String
-     */
-    public String getViewCount() {
-        return viewCount;
-    }
-
-    /**
-     * Public getter method for viewData.
-     *
-     * @return viewData as String
-     */
-    public String getViewData() {
-        return viewData;
-    }
-
-    /**
-     * Public getter method for isOverwrite. If true, menu should overwrite
-     * buffer, else retain old task buffer.
-     *
-     * @return if the value isOverwrite
-     */
-    public boolean isOverwrite() {
-        return isOverwrite;
-    }
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\Response.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\Task.java
-	 */
-
-    /**
-     * Check if the task is strictly a tentative task. It must have at least 2
-     * date range.
-     *
-     * @return if the task is strictly a tentative task
-     */
-    public boolean isTentative() {
-        if (dateList.size() > 1) {
-            for (DatePair dp : dateList) {
-                if (!dp.hasDateRange()) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
-
-    /**
-     * Return the first DatePair from Task as String representation based on
-     * Formatter's current stored format.
-     *
-     * @return String representation of the DatePair in this Task
-     */
-    public String getDateString() {
-        if (!isFloatingTask()) {
-            DatePair dp = dateList.get(0);
-            if (dp.hasDateRange()) {
-                return Formatter.formatDate(dp.getStartDate().getTime()) +
-                       " to " + Formatter.formatDate(dp.getEndDate().getTime());
-            } else {
-                return Formatter.formatDate(dp.getEndDate().getTime());
-            }
-        } else {
-            return "No Date";
-        }
-    }
-
-    /**
-     * Check if the task is a valid task.
-     *
-     * @return if the task is a valid task
-     */
-    public boolean checkValidity() {
-        return isFloatingTask() || isDeadline() || isSchedule();
-    }
-
-    /**
-     * Get the earliest Date of the task.
-     *
-     * @return the earliest Date of the task
-     */
-    public Calendar getEarliestDate() {
-        assert !isFloatingTask() : "No date in a floating task.";
-
-        Calendar earliestDate = null;
-
-        for (DatePair dp : dateList) {
-            if (dp.hasStartDate() && (earliestDate == null ||
-                                      dp.getStartDate().before(earliestDate))) {
-                earliestDate = dp.getStartDate();
-            }
-            if (dp.hasEndDate() && (earliestDate == null ||
-                                    dp.getEndDate().before(earliestDate))) {
-                earliestDate = dp.getEndDate();
-            }
-        }
-
-        return earliestDate;
-    }
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\common\datatransfer\Task.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\common\formatter\ColorFormatter.java
-	 */
-
-/**
- * Color formatter for ANSI-colored output for RubberDuck.
- */
-public class ColorFormatter {
-
-    /**
-     * Private constructor for ColorFormatter as it is a utility class.
-     */
-    private ColorFormatter() {
-    }
-
-    /**
-     * Color that can be applied to foreground.
-     */
-    public enum Color {
-        BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
-    }
-
-
-    /**
-     * Attribute that can be applied to text.
-     */
-    public enum Attribute {
-        NORMAL(0), BRIGHT(1), DIM(2), UNDERLINE(4), BLINK(5), REVERSE(7),
-        HIDDEN(8);
-
-        private String stringValue;
-
-        private Attribute(int stringValue) {
-            this.stringValue = String.valueOf(stringValue);
-        }
-
-        public String toString() {
-            return stringValue;
-        }
-    }
-
-    private static final String PREFIX = "\u001b[";
-    private static final String SUFFIX = "m";
-    private static final String END = PREFIX + SUFFIX;
-    private static final String SEPARATOR = ";";
-    private static final int FG_SUFFIX = 30;
-
-    /**
-     * Formats input string with given color as foreground. Default attribute:
-     * Bright.
-     *
-     * @param input input string
-     * @param fg    foreground color
-     * @return input that is color-coded
-     */
-    public static String format(String input, Color fg) {
-        return format(input, Attribute.BRIGHT, fg);
-    }
-
-    /**
-     * Formats input string with given attribute, foreground color.
-     *
-     * @param input input string
-     * @param atr   attribute
-     * @param fg    foreground color
-     * @return input that is color-coded
-     */
-    private static String format(String input, Attribute atr, Color fg) {
-        StringBuilder sb = new StringBuilder();
-
-        if (atr != null) {
-            sb.append(atr);
-        }
-
-        if (fg != null) {
-            if (sb.length() > 0) {
-                sb.append(SEPARATOR);
-            }
-            sb.append(FG_SUFFIX + fg.ordinal());
-        }
-
-        sb.insert(0, PREFIX);
-        sb.append(SUFFIX);
-        sb.append(input);
-        sb.append(END);
-        return sb.toString();
-    }
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\common\formatter\ColorFormatter.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\common\formatter\Formatter.java
-	 */
-
-/**
- * Utility class that contains reusable code to squish and format output that is
- * acceptable by the MenuInterface object.
- */
-public class Formatter {
-
-    public static final String FORMAT_TABLE = "%-7s%-6s%-43s%-24s";
-    public static final String FORMAT_TENTATIVE = "%-7s%-6s%-43s%-19s%-5s";
-
-    /**
-     * Enum to represent the type of header should be allocated for the task.
-     */
-    private enum HeaderType {
-        NONE, FLOATING, DEADLINE, SCHEDULE,
-    }
-
-    /* Static constants to represent the header type to print */
-    private static final String SEPARATOR_FLOATING =
-        "--------------------------------[  FLOATING  ]----------------------------------";
-    private static final String SEPARATOR_DEADLINE =
-        "--------------------------------[  DEADLINE  ]----------------------------------";
-    private static final String SEPARATOR_SCHEDULE =
-        "--------------------------------[  SCHEDULE  ]----------------------------------";
-
-    private static final String ANSI_PREFIX = "\u001b[";
-    private static final int ANSI_OFFSET = 7;
-
-    private static final int DESC_MAX_WIDTH = 200;
-    private static final int DESC_TABLE_MAX_WIDTH = 41;
-    private static final int SENTENCE_WIDTH = 80;
-    private static final int WORD_LONGER_THAN_MAX = -1;
-
-    private static final String DATE_12HOUR_FORMAT = "dd MMM hh:mm aa";
-    private static final String DATE_24HOUR_FORMAT = "dd MMM HH:mm";
-    private static final Locale DEFAULT_LOCALE = Locale.US;
-
-    private static String currentTimeFormat = DATE_24HOUR_FORMAT;
-
-    /**
-     * Private constructor as Formatter is a utility class and cannot be
-     * instantiated.
-     */
-    private Formatter() {
-    }
-
-    /**
-     * Toggles the time format within formatter between 12 hours and 24 hours.
-     * Default for Formatter will always start at 24 hours.
-     */
-    public static void toggleTimeFormat() {
-        currentTimeFormat = is12HourFormat() ? DATE_24HOUR_FORMAT
-                                             : DATE_12HOUR_FORMAT;
-    }
-
-    /**
-     * Return boolean if formatter is set to 12 hour date format.
-     *
-     * @return true if formatter is set to 12 hour date format else false.
-     */
-    public static boolean is12HourFormat() {
-        return currentTimeFormat.equals(DATE_12HOUR_FORMAT);
-    }
-
-    /**
-     * Accepts a String representation of a task description and truncate to the
-     * acceptable length to prevent buffer overflow.
-     *
-     * @param desc description String
-     * @return truncated description as String
-     */
-    public static String limitDescription(String desc) {
-        if (desc.length() <= DESC_MAX_WIDTH) {
-            return desc;
-        }
-
-        int i = desc.lastIndexOf(" ", DESC_MAX_WIDTH);
-        if (i == WORD_LONGER_THAN_MAX) {
-            i = DESC_MAX_WIDTH;
-        }
-        return desc.substring(0, i) + "...";
-    }
-
-    /**
-     * Accepts a String object and attempts to parse and return using the
-     * current date format in Formatter.
-     *
-     * @param date the date as String
-     * @return date in either 12/24 hour format based on Formatter
-     */
-    public static String formatDate(Date date) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(currentTimeFormat,
-                                                           DEFAULT_LOCALE);
-        return dateFormat.format(date);
-    }
-
-    /**
-     * Accepts a String representation of messages and format it such that it is
-     * buffer-friendly.
-     *
-     * @param messages messages String
-     * @return Buffer acceptable String array of messages
-     */
-    public static String[] formatMessage(String messages) {
-        String[] lines = messages.split(System.lineSeparator());
-        LinkedList<String> formattedList = new LinkedList<String>();
-        for (String line : lines) {
-            formattedList.addAll(splitWords(line, SENTENCE_WIDTH));
-        }
-        String[] formattedArray = new String[formattedList.size()];
-        return formattedList.toArray(formattedArray);
-    }
-
-    /**
-     * Format the list of tasks into a String output and return.
-     *
-     * @param dataTable ArrayList containing all the instanceId in data table
-     * @param db        DatabaseManager instance
-     * @return the formatted string of all tasks involved
-     * @throws IOException occurs when DatabaseManager encounters an I/O error
-     */
-    public static String formatTaskList(ArrayList<Long> dataTable,
-                                        DatabaseManager<Task> db)
-        throws IOException {
-        Collections.sort(dataTable, db.getInstanceIdComparator());
-
-        StringBuilder taskData = new StringBuilder();
-        HeaderType prevType = HeaderType.NONE;
-        for (int i = 0; i < dataTable.size(); i++) {
-            if (taskData.length() > 0) {
-                taskData.append(System.lineSeparator());
-            }
-
-            Task task = db.getInstance(dataTable.get(i));
-
-            HeaderType currentType = getHeaderType(task);
-            if (currentType != prevType) {
-                switch (currentType) {
-                    case FLOATING:
-                        taskData.append(SEPARATOR_FLOATING);
-                        break;
-
-                    case DEADLINE:
-                        taskData.append(SEPARATOR_DEADLINE);
-                        break;
-
-                    case SCHEDULE:
-                        taskData.append(SEPARATOR_SCHEDULE);
-                        break;
-
-                    default:
-                        break;
-                }
-                taskData.append(System.lineSeparator());
-            }
-            prevType = currentType;
-            taskData.append(formatTask(task, i + 1 + ""));
-        }
-        return taskData.toString();
-    }
-
-    /**
-     * Gets the corresponding HeaderType based on the given Task type.
-     *
-     * @param t Task object
-     * @return HeaderType
-     */
-    private static HeaderType getHeaderType(Task t) {
-        if (t.isFloatingTask()) {
-            return HeaderType.FLOATING;
-        } else if (t.isDeadline()) {
-            return HeaderType.DEADLINE;
-        } else {
-            return HeaderType.SCHEDULE;
-        }
-    }
-
-    /**
-     * Format the task information provided into a buffer-friendly and organised
-     * output.
-     *
-     * @param t  the Task object to format
-     * @param id the display ID it should display
-     * @return Buffer acceptable String of Task
-     */
-    private static String formatTask(Task t, String id) {
-        /* Setup variables and information about the task provided */
-        StringBuilder taskBuilder = new StringBuilder();
-        boolean overdue = false;
-        String description = t.getDescription();
-        ArrayList<DatePair> dates = t.getDateList();
-        char isDone = t.getIsDone() ? 'Y' : 'N';
-        SimpleDateFormat dateFormat = new SimpleDateFormat(currentTimeFormat,
-                                                           DEFAULT_LOCALE);
-        if (t.isTentative()) {
-            description += " (tentative)";
-        }
-
-        /* Split the description into separate lines based on max width*/
-        LinkedList<String> wordWrapList = splitWords(description,
-                                                     DESC_TABLE_MAX_WIDTH);
-
-
-        /* Break all dates in the task into their respective format */
-        LinkedList<String> dateList = new LinkedList<String>();
-        for (DatePair dp : dates) {
-            if (dp.hasDateRange()) {
-                dateList.add(dateFormat.format(dp.getStartDate().getTime())
-                             + " to");
-                dateList.add(dateFormat.format(dp.getEndDate().getTime()));
-            } else if (dp.hasEndDate()) {
-                dateList.add(dateFormat.format(dp.getEndDate().getTime()));
-            }
-            /* If end date has passed current time, set flag to overdue */
-            if (dp.getEndDate().before(Calendar.getInstance())) {
-                overdue = true;
-            }
-        }
-
-        /* Format all fragments in desc and date into multiple lines */
-        int dateId = 1;
-        boolean rangeFlag = true;
-        while (!wordWrapList.isEmpty() || !dateList.isEmpty()) {
-            String desc = wordWrapList.isEmpty() ? ""
-                                                 : wordWrapList.removeFirst();
-
-            String date = dateList.isEmpty() ? "" : dateList.removeFirst();
-
-            if (t.isTentative() && rangeFlag) {
-                if (taskBuilder.length() != 0) {
-                    taskBuilder.append(System.lineSeparator());
-                    taskBuilder.
-                        append(
-                            String.format(FORMAT_TENTATIVE, "", "",
-                                          desc, date, "[" + dateId++ + "]"));
-                } else {
-                    taskBuilder.
-                        append(String.format(FORMAT_TENTATIVE, id, isDone, desc,
-                                             date, "[" + dateId++ + "]"));
-                }
-
-                if (date.contains("to")) {
-                    rangeFlag = false;
-                }
-            } else {
-                if (taskBuilder.length() != 0) {
-                    taskBuilder.append(System.lineSeparator());
-                    taskBuilder.append(String.format(FORMAT_TABLE, "", "", desc,
-                                                     date));
-                } else {
-                    taskBuilder.append(String.format(FORMAT_TABLE,
-                                                     id, isDone, desc, date));
-                }
-
-                rangeFlag = true;
-            }
-        }
-
-        String output = taskBuilder.toString().trim();
-
-        if (overdue && !t.getIsDone()) {
-            output = ColorFormatter.format(output, Color.RED);
-        }
-
-        return output;
-    }
-
-    /**
-     * Split a String into multiple lines where each line can only have a max
-     * length that is provided.
-     *
-     * @param words     the String to split
-     * @param maxLength maximum length per line
-     * @return List of Strings that were split
-     */
-    private static LinkedList<String> splitWords(String words, int maxLength) {
-    /* Break sentences into multiple lines and add into list */
-        LinkedList<String> wordWrapList = new LinkedList<String>();
-        while (!words.isEmpty()) {
-            int ansiLength = 0;
-            if (words.startsWith(ANSI_PREFIX)) {
-                ansiLength = ANSI_OFFSET;
-            }
-            if (words.length() <= maxLength + ansiLength) {
-                wordWrapList.add(words);
-                words = "";
-            } else {
-                int i = words.lastIndexOf(" ", maxLength + ansiLength);
-                if (i == WORD_LONGER_THAN_MAX) {
-                    i = maxLength + ansiLength;
-                }
-                wordWrapList.add(words.substring(0, i));
-                words = words.substring(i + 1);
-            }
-        }
-        return wordWrapList;
-    }
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\common\formatter\Formatter.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ClearCommand.java
-	 */
-
-/**
- * Concrete Command Class that can be executed to clear the screen of the
- * terminal.
- */
-public class ClearCommand extends Command {
-
-    private static final String MESSAGE_CLEAR =
-        "Screen cleared.";
-
-    /**
-     * Clear the screen of the current terminal by returning an appropriate
-     * Response object back to the caller.
-     */
-    @Override
-    public Response execute() {
-        String response = ColorFormatter.format(MESSAGE_CLEAR, Color.YELLOW);
-        LOGGER.info(MESSAGE_CLEAR);
-        return new Response(response, true);
-    }
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ClearCommand.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\Command.java
-	 */
-
-/**
- * Abstract Class that represents a command object which can be executed in a
- * concrete command class.
- */
-public abstract class Command {
-
-    /* Enum type to store all types of command and their possible variations */
-    public enum CommandType {
-        VIEW("view", "display", "agenda"), SEARCH("find", "lookup", "search"),
-        ADD("add", "insert", "ins", "new"), DELETE("delete", "remove", "del"),
-        UPDATE("change", "update", "edit"), UNDO("undo", "ud"),
-        REDO("redo", "rd"), MARK("mark", "completed", "done"),
-        CONFIRM("confirm"), SYNC("sync"), CLEAR("cls", "clear"),
-        EXIT("exit", "quit"), HELP("?", "help"), INVALID;
-
-        private List<String> tags;
-        private static final Map<String, CommandType> ALIAS_MAP =
-            new HashMap<String, CommandType>();
-
-        /**
-         * Private constructor that accept literals and instantiate as List of
-         * String.
-         *
-         * @param tags String literals
-         */
-        private CommandType(String... tags) {
-            this.tags = Arrays.asList(tags);
-        }
-
-        /**
-         * Return the appropriate CommandType enum based on user input.
-         *
-         * @param input the input to retrieve command
-         * @return the correct CommandType enum based on input
-         */
-        public static CommandType getCommandType(String input) {
-            if (input == null || input.isEmpty()) {
-                return CommandType.INVALID;
-            }
-
-            CommandType type = ALIAS_MAP.get(input.toLowerCase());
-
-            if (type == null) {
-                return CommandType.INVALID;
-            } else {
-                return type;
-            }
-        }
-
-        /**
-         * Initialize and populate the tagMap for other methods.
-         */
-        static {
-            for (CommandType command : CommandType.values()) {
-                for (String tag : command.tags) {
-                    ALIAS_MAP.put(tag, command);
-                }
-            }
-        }
-
-        /**
-         * Retrieve all available alias found in Command.
-         *
-         * @return Set object that contains all alias
-         */
-        public static Set<String> getAlias() {
-            return ALIAS_MAP.keySet();
-        }
-
-        /**
-         * Retrieve all available alias found in the specific CommandType.
-         *
-         * @param type CommandType requested
-         * @return the set of string containing the alias of type
-         */
-        public static Set<String> getAlias(CommandType type) {
-            Set<String> alias = new HashSet<String>();
-            for (Map.Entry<String, CommandType> entry : ALIAS_MAP.entrySet()) {
-                if (entry.getValue().equals(type)) {
-                    alias.add(entry.getKey());
-                }
-            }
-            return alias;
-        }
-    }
-
-    /* Global logger to log information and exception. */
-    protected static final Logger LOGGER =
-        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-
-    /* Details about the DataStore/DatabaseManager */
-    private static final String MESSAGE_DATABASE_IOEXCEPTION =
-        "I/O Exception has occurred when accessing local storage.";
-    private static final String MESSAGE_EXECUTE_INFO =
-        "Initiating execution of command.";
-    private static final String DATABASE_DIRECTORY =
-        "data/";
-    private static final String DATABASE_NAME =
-        "database.xml";
-    private static final String CURRENT_DIRECTORY =
-        System.getProperty("user.dir");
-
-    private static ArrayList<Long> displayedTasksList = new ArrayList<Long>();
-    private static Command previousDisplayCommand;
-    private static DatabaseManager<Task> dbManager;
-
-    /**
-     * Starts the local database. If local file not found, new database will be
-     * created.
-     *
-     * @return true if the database has been started successfully
-     */
-    protected static boolean startDatabase() {
-        try {
-            new File(DATABASE_DIRECTORY).mkdirs();
-            dbManager = new DatabaseManager<Task>(CURRENT_DIRECTORY
-                                                  + File.separator
-                                                  + DATABASE_DIRECTORY
-                                                  + DATABASE_NAME);
-            return true;
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, MESSAGE_DATABASE_IOEXCEPTION, e);
-            return false;
-        }
-    }
-
-    /**
-     * Getter method for displayedTaskLists.
-     *
-     * @return ArrayList<Long> of instanceId that are currently displayed
-     */
-    protected static ArrayList<Long> getDisplayedTasksList() {
-        return displayedTasksList;
-    }
-
-    /**
-     * Getter method for previousDisplayCommand.
-     *
-     * @return Command object of type ViewCommand or SearchCommand
-     */
-    protected static Command getPreviousDisplayCommand() {
-        assert previousDisplayCommand != null : "Should not be null";
-        return previousDisplayCommand;
-    }
-
-    /**
-     * Setter method for previousDisplayCommand.
-     *
-     * @param c ViewCommand or SearchCommand object
-     */
-    protected static void setPreviousDisplayCommand(Command c) {
-        if (c instanceof ViewCommand || c instanceof SearchCommand) {
-            previousDisplayCommand = c;
-        } else {
-            assert false : "Must only be VIEW or SEARCH.";
-        }
-    }
-
-    /**
-     * Getter method for dbManager. Will call startDatabase() if dbManager has
-     * not been initialized yet.
-     *
-     * @return DatabaseManager<Task> instance
-     */
-    protected static DatabaseManager<Task> getDbManager() {
-        if (dbManager == null) {
-            Command.startDatabase();
-        }
-        return dbManager;
-    }
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\Command.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\Command.java
-	 */
-
-    /**
-     * Execute the implemented execute in respective concrete class and catch
-     * any exception if occur.
-     *
-     * @return response object after execution
-     */
-    public Response safeExecute() {
-        try {
-            LOGGER.info(MESSAGE_EXECUTE_INFO);
-            return execute();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, MESSAGE_DATABASE_IOEXCEPTION, e);
-            return new Response(MESSAGE_DATABASE_IOEXCEPTION, false);
-        }
-    }
-
-    /**
-     * Abstract method for implementation by concrete class to execute logic.
-     *
-     * @return Response object after execution
-     * @throws IOException occurs if DatabaseManager encounter I/O problems
-     */
-    protected abstract Response execute() throws IOException;
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\Command.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ExitCommand.java
-	 */
-
-/**
- * Concrete Command Class that can be executed to close the DatabaseManager and
- * exit the application.
- */
-public class ExitCommand extends Command {
-
-    private static final String MESSAGE_EXIT =
-        "Closing RubberDuck...";
-    private static final String MESSAGE_CLOSING_DB =
-        "Closing database...";
-
-    /**
-     * Close the DatabaseManager and related I/O files and terminate the
-     * application and its JVM with a code indicating normal termination.
-     *
-     * @throws IOException occurs when DatabaseManager encounters closing error
-     */
-    @Override
-    public Response execute() throws IOException {
-        LOGGER.info(MESSAGE_CLOSING_DB);
-        getDbManager().closeFile();
-        LOGGER.info(MESSAGE_EXIT);
-        System.exit(0);
-        return new Response(ColorFormatter.format(MESSAGE_EXIT, Color.RED),
-                            true);
-    }
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ExitCommand.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\HelpCommand.java
-	 */
-
-/**
- * Concrete Command Class that can be executed to show the list of available
- * commands and their description.
- */
-public class HelpCommand extends Command {
-
-    private static final String HELP_ALL_HEADER =
-        "Here are for the available commands in RubberDuck.";
-    private static final String HELP_ALL_FORMAT =
-        "%-15s%-65s";
-    private static final String HELP_SPECIFIC_HEADER =
-        "More information about your queried command.";
-    private static final String HELP_SPECIFIC_FORMAT =
-        "%-15s%-65s";
-    private static final String HELP_SPECIFIC_ALIAS =
-        " \nSupported Alias";
-    private static final String[][] COMMANDS = {
-        {"view", "View your agenda given a date range or \"all\".",
-         "[date | all | overdue] [deadline] [float] [schedule]"},
-        {"search", "Search for tasks related to the given keyword.",
-         "[keyword]"},
-        {"add", "Add a new task of provided description with optional date.",
-         "<description> [date | date range] | [date range or...]"},
-        {"delete", "Delete a task from the system given task ID.",
-         "<task id>"},
-        {"update", "Update task given task ID and new information.",
-         "<task id> [description] [date | date range] | [date range or...]"},
-        {"undo", "Undo your previous action.",
-         "-"},
-        {"redo", "Redo your undone action.",
-         "-"},
-        {"mark", "Mark any task to complete/incomplete given task ID.",
-         "<task id>"},
-        {"confirm", "Confirm any tentative task given task ID and date ID.",
-         "<task id> <date id>"},
-        {"sync", "Initiate 2-way synchronisation with Google.",
-         "[force] [push | pull] | [logout]"},
-        {"clear", "Clear the screen of RubberDuck.", "-"},
-        {"exit", "Exit from RubberDuck.", "-"},
-        {"help", "Get help information on commands available and specifics.",
-         "[command]"}
-    };
-
-    private static final int COMMANDS_NAME = 0;
-    private static final int COMMANDS_INFO = 1;
-    private static final int COMMANDS_ARG = 2;
-
-    private boolean isSpecific;
-    private String type;
-
-    /**
-     * Public constructor for HelpCommand that accepts a boolean and a command
-     * type as String.
-     *
-     * @param isSpecific if true, users want a specific command information
-     * @param type       null if isSpecific is false, else must not be null if
-     *                   isSpecific is true
-     */
-    public HelpCommand(boolean isSpecific, String type) {
-        this.isSpecific = isSpecific;
-        this.type = type;
-    }
-
-    /**
-     * Getter method for isSpecific.
-     *
-     * @return boolean representing whether its a specific search or not
-     */
-    protected boolean isSpecific() {
-        return isSpecific;
-    }
-
-    /**
-     * Getter method for type.
-     *
-     * @return String object representing the requested Command
-     */
-    protected String getType() {
-        return type;
-    }
-
-    /**
-     * Shows either the list of available commands or specific details about a
-     * command in RubberDuck.
-     *
-     * @return a Response object containing the command information requested
-     */
-    @Override
-    public Response execute() {
-        StringBuilder sb = new StringBuilder();
-        if (isSpecific) {
-            showSpecific(sb);
-        } else {
-            showAll(sb);
-        }
-        return new Response(sb.toString(), true);
-    }
-
-    /**
-     * Retrieves specific details about a Command in RubberDuck and append to
-     * provided StringBuilder.
-     *
-     * @param sb StringBuilder object
-     */
-    private void showSpecific(StringBuilder sb) {
-        assert (sb != null);
-        CommandType ct = CommandType.getCommandType(type);
-        if (ct == CommandType.INVALID) {
-            sb.append("No such command/alias.");
-        } else {
-            sb.append(ColorFormatter.format(HELP_SPECIFIC_HEADER,
-                                            Color.YELLOW));
-            sb.append(System.lineSeparator());
-            sb.append(String.format(HELP_SPECIFIC_FORMAT, "Command Type",
-                                    "Parameters"));
-            sb.append(System.lineSeparator());
-            sb.append(String.format(HELP_SPECIFIC_FORMAT,
-                                    COMMANDS[ct.ordinal()][COMMANDS_NAME],
-                                    COMMANDS[ct.ordinal()][COMMANDS_ARG]));
-            sb.append(System.lineSeparator());
-            sb.append(HELP_SPECIFIC_ALIAS);
-            sb.append(System.lineSeparator());
-
-            Set<String> aliasSet = CommandType.getAlias(ct);
-            StringBuilder aliasBuilder = new StringBuilder();
-            for (String alias : aliasSet) {
-                aliasBuilder.append(alias);
-                aliasBuilder.append("   ");
-            }
-            sb.append(aliasBuilder.toString());
-        }
-    }
-
-    /**
-     * Retrieves the entire list of commands and their respective description
-     * and append to provided StringBuilder.
-     *
-     * @param sb StringBuilder object
-     */
-    private void showAll(StringBuilder sb) {
-        assert (sb != null);
-        sb.append(ColorFormatter.format(HELP_ALL_HEADER, Color.YELLOW));
-        sb.append(System.lineSeparator());
-        for (int i = 0; i < COMMANDS.length; i++) {
-            String cmdLine = String.format(HELP_ALL_FORMAT,
-                                           COMMANDS[i][COMMANDS_NAME],
-                                           COMMANDS[i][COMMANDS_INFO]);
-            sb.append(cmdLine);
-            if (i != COMMANDS.length - 1) {
-                sb.append(System.lineSeparator());
-            }
-        }
-    }
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\HelpCommand.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\InvalidCommand.java
-	 */
-
-/**
- * Concrete Command Class that can be executed to return an invalid response
- * back to the user.
- */
-public class InvalidCommand extends Command {
-
-    private String errorMessage;
-    private boolean showPrev;
-
-    /**
-     * Public constructor of InvalidCommand that accepts an error message. By
-     * default, the system will not show the previous view table.
-     *
-     * @param errorMessage that is to be displayed to the user
-     */
-    public InvalidCommand(String errorMessage) {
-        this(errorMessage, false);
-    }
-
-    /**
-     * Public constructor of InvalidCommand that accepts an error message and a
-     * boolean to indicate whether to show previous view table.
-     *
-     * @param errorMessage that is to be displayed to the user
-     * @param showPrev     true if system to display prev view
-     */
-    public InvalidCommand(String errorMessage, boolean showPrev) {
-        this.errorMessage = errorMessage;
-        this.showPrev = showPrev;
-    }
-
-    /**
-     * Returns error response provided by application back to user.
-     *
-     * @return Response object containing the error message
-     */
-    @Override
-    public Response execute() {
-        String errResponse = (ColorFormatter.format(errorMessage, Color.RED));
-        LOGGER.info(errorMessage);
-        return new Response(errResponse, !showPrev);
-    }
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\InvalidCommand.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\RedoCommand.java
-	 */
-
-/**
- * Concrete Command Class that can be executed to redo the previous undone
- * operation.
- */
-public class RedoCommand extends Command {
-
-    private static final String JOURNAL_MESSAGE_REDONE =
-        "Redone action \"%s\".";
-
-    /**
-     * Redo previous action that was undone in the journal by the user. Returns
-     * a response back with the appropriate response message and updated view
-     * data of previously executed view/search.
-     *
-     * @return Response object with appropriate messages
-     * @throws IOException occurs when DatabaseManager encounters I/O issues
-     */
-    @Override
-    public Response execute() throws IOException {
-        try {
-            String redoMessage = getDbManager().redo();
-            Response res = getPreviousDisplayCommand().execute();
-            res.setMessages(String.format(
-                ColorFormatter.format(JOURNAL_MESSAGE_REDONE, Color.YELLOW),
-                redoMessage));
-            LOGGER.info(JOURNAL_MESSAGE_REDONE);
-            return res;
-        } catch (UnsupportedOperationException e) { /* Nothing to redo */
-            LOGGER.info(e.getMessage());
-            return new Response(e.getMessage(), false);
-        }
-    }
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\RedoCommand.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\SyncCommand.java
-	 */
-
-/**
- * Concrete Command Class that can be executed to perform a synchronization with
- * Google. The synchronization type is passed into the constructor to determine
- * what type of synchronization it should run.
- */
-public class SyncCommand extends Command {
-
-    /**
-     * The type of synchronization that is supported.
-     */
-    public enum SyncType {
-        PUSH, PULL, FORCE_PUSH, FORCE_PULL, TWO_WAY, LOGOUT
-    }
-
-    private static final String MESSAGE_ERROR_FAIL_SAFE_CONNECTION =
-        "Failed to initialize safe connection with server.";
-    private static final String MESSAGE_ERROR_NETWORK_IOEXCEPTION =
-        "Failed to connect to the server.";
-    private static final String MESSAGE_UNDO_WARNING =
-        "Note that once synchronization is done, you cannot undo previous actions.";
-    private static final String MESSAGE_CONFIRM_PROMPT =
-        "Are you sure you want to continue with the operation? (Y/N)";
-    private static final String MESSAGE_SYNC_START =
-        "Initiated syncing with Google.";
-    private static final String MESSAGE_SYNC_CANCELLED =
-        "Sync operation cancelled by user.";
-    private static final String MESSAGE_PUSH_SUCCESS =
-        "Successfully pushed data to Google.";
-    private static final String MESSAGE_PULL_SUCCESS =
-        "Successfully pulled data from Google.";
-    private static final String MESSAGE_FORCEPUSH_SUCCESS =
-        "Successfully pushed (forced) data to Google.";
-    private static final String MESSAGE_FORCEPULL_SUCCESS =
-        "Successfully pulled (forced) data from Google.";
-    private static final String MESSAGE_TWOWAY_SUCCESS =
-        "Successfully synchronise between RubberDuck and Google.";
-    private static final String MESSAGE_LOGOUT_SUCCESS =
-        "Successfully logged out from Google.";
-    private static final String EXCEPTION_UNSUPPORTED_TYPE =
-        "SyncType has not been implemented.";
-
-    private SyncType type;
-
-    /**
-     * Public constructor of SyncCommand that accepts SyncType argument to
-     * determine what type of synchronization to execute.
-     *
-     * @param type SyncType to represent what to sync
-     */
-    public SyncCommand(SyncType type) {
-        this.type = type;
-    }
-
-    /**
-     * Getter method for type.
-     *
-     * @return SyncType enum
-     */
-    protected SyncType getType() {
-        return type;
-    }
-
-    /**
-     * Synchronize with Google based on the type user specified. Unless the user
-     * specifies logout, a warning will be given first as undo/redo operation
-     * can no longer be done and a confirmation will be prompted from the user.
-     *
-     * @return Response containing success or error message based on execution
-     * @throws IOException occurs then GooManager encounters an I/O error
-     */
-    @Override
-    public Response execute() throws IOException {
-        if (type == SyncType.LOGOUT) {
-            GooManager.logOut();
-            return new Response(ColorFormatter.format(MESSAGE_LOGOUT_SUCCESS,
-                                                      Color.GREEN), true);
-        } else {
-            String response = MenuInterface.getInstance().requestPrompt(
-                ColorFormatter.format(MESSAGE_UNDO_WARNING, Color.YELLOW),
-                ColorFormatter.format(MESSAGE_CONFIRM_PROMPT, Color.YELLOW));
-
-            if (response.toLowerCase().contains("y")) {
-                LOGGER.info(MESSAGE_SYNC_START);
-                getDisplayedTasksList().clear();
-                return startSync();
-            } else {
-                LOGGER.info(MESSAGE_SYNC_CANCELLED);
-                return new Response(ColorFormatter.format(
-                    MESSAGE_SYNC_CANCELLED, Color.RED), true);
-            }
-        }
-    }
-
-    /**
-     * Synchronize with Google based on the SyncType the user specifies.
-     *
-     * @return Response object after synchronization
-     * @throws IOException occurs then GooManager encounters an I/O error
-     */
-    private Response startSync() throws IOException {
-        assert type != null : "Type must be initialized before syncing.";
-        try {
-            GooManager.initialize();
-            switch (type) {
-                case PUSH:
-                    GooManager.pushAll(getDbManager());
-                    return new Response(ColorFormatter.format(
-                        MESSAGE_PUSH_SUCCESS, Color.GREEN), true);
-
-                case PULL:
-                    GooManager.pullAll(getDbManager());
-                    return new Response(ColorFormatter.format(
-                        MESSAGE_PULL_SUCCESS, Color.GREEN), true);
-
-                case FORCE_PUSH:
-                    GooManager.forcePushAll(getDbManager());
-                    return new Response(ColorFormatter.format(
-                        MESSAGE_FORCEPUSH_SUCCESS, Color.GREEN), true);
-
-                case FORCE_PULL:
-                    GooManager.forcePullAll(getDbManager());
-                    return new Response(ColorFormatter.format(
-                        MESSAGE_FORCEPULL_SUCCESS, Color.GREEN), true);
-
-                case TWO_WAY:
-                    GooManager.twoWaySync(getDbManager());
-                    return new Response(ColorFormatter.format(
-                        MESSAGE_TWOWAY_SUCCESS, Color.GREEN), true);
-
-                default:
-                    throw new UnsupportedOperationException(
-                        EXCEPTION_UNSUPPORTED_TYPE);
-            }
-        } catch (GeneralSecurityException e) {
-            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_FAIL_SAFE_CONNECTION, e);
-            return new Response(ColorFormatter.format(
-                MESSAGE_ERROR_FAIL_SAFE_CONNECTION, Color.RED), true);
-        } catch (GooManager.NetworkException e) {
-            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_NETWORK_IOEXCEPTION, e);
-            return new Response(ColorFormatter.format(
-                MESSAGE_ERROR_NETWORK_IOEXCEPTION, Color.RED), true);
-        }
-    }
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\SyncCommand.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\UndoCommand.java
-	 */
-
-/**
- * Concrete Command Class that can be executed to undo the previous operation.
- */
-public class UndoCommand extends Command {
-
-    private static final String JOURNAL_MESSAGE_UNDONE =
-        "Undone previous action \"%s\".";
-
-    /**
-     * Undo the operation done by the user. Returns a response back with the
-     * appropriate response message and updated view data of previously executed
-     * view/search.
-     *
-     * @return Response object with appropriate messages
-     * @throws IOException occurs when DatabaseManager encounters I/O issues
-     */
-    @Override
-    public Response execute() throws IOException {
-        try {
-            String undoMessage = getDbManager().undo();
-            Response res = getPreviousDisplayCommand().execute();
-            res.setMessages(String.format(
-                ColorFormatter.format(JOURNAL_MESSAGE_UNDONE, Color.YELLOW),
-                undoMessage));
-            LOGGER.info(JOURNAL_MESSAGE_UNDONE);
-            return res;
-        } catch (UnsupportedOperationException e) { /* Nothing to undo */
-            LOGGER.info(e.getMessage());
-            return new Response(e.getMessage(), false);
-        }
-    }
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\UndoCommand.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ViewCommand.java
-	 */
-
-    /**
-     * Execute the previous command with viewSelection and completed of the
-     * current command.
-     *
-     * @return the formatted string of all tasks involved
-     * @throws IOException occurs when dbManager encounters a problem with file
-     */
-    private Response viewPrev() throws IOException {
-        if (viewSelection.size() == VIEW_FILTER_ONE_SELECTED &&
-            viewSelection.contains(ViewFilter.FLOATING)) {
-            this.viewType = ViewType.ALL;
-            return execute();
-        }
-
-        if (getPreviousDisplayCommand() instanceof ViewCommand) {
-            ViewCommand prev = (ViewCommand) getPreviousDisplayCommand();
-            this.viewType = prev.getViewType();
-            this.viewRange = prev.getViewRange();
-            return execute();
-        } else {
-            return getPreviousDisplayCommand().execute();
-        }
-    }
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\command\ViewCommand.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\logic\parser\Parser.java
-	 */
-
-/**
- * Parser that reads in raw user input and attempts to translate into the
- * correct command the user wants to execute. If request is coming from Menu
- * component, proceed to call execute on the Command and return Response back to
- * Menu component.
- */
-public class Parser {
-
-    /* Global logger to log information and exception. */
-    private static final Logger LOGGER =
-        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-
-    /* Parser specific error messages to return */
-    private static final String MESSAGE_SEARCH_ERROR_EMPTY =
-        "Please enter a keyword to search for.";
-    private static final String MESSAGE_ADD_ERROR_NO_DESC =
-        "Please enter a task description to add.";
-    private static final String MESSAGE_DELETE_ERROR_INVALID =
-        "Please enter a task id to delete.";
-    private static final String MESSAGE_UPDATE_ERROR_INVALID =
-        "Please enter a task id to update.";
-    private static final String MESSAGE_CONFIRM_ERROR_INVALID =
-        "Please enter a task and date id to confirm task.";
-    private static final String MESSAGE_MARK_ERROR_INVALID =
-        "Please enter a task id to mark.";
-    private static final String MESSAGE_UPDATE_ERROR_EMPTY =
-        "Please enter something to update.";
-    private static final String MESSAGE_SYNC_ERROR_INVALID =
-        "Please enter a valid sync type.";
-    private static final String MESSAGE_COMMAND_ERROR_INVALID =
-        "Please enter a valid command. Press <Tab> or Enter ? for help.";
-
-    /* List of words/connectors to remove that appear before a date parsed */
-    private static final String[] DATE_WORDS =
-        new String[]{"by", "on", "at", "from", "during", "@", "in", "for"};
-
-    private static final int DEFAULT_START_HOUR = 0;
-    private static final int DEFAULT_START_MINUTE = 0;
-    private static final int DEFAULT_START_SECOND = 0;
-    private static final int DEFAULT_START_MILLISECOND = 0;
-    private static final int DEFAULT_END_HOUR = 23;
-    private static final int DEFAULT_END_MINUTE = 59;
-    private static final int DEFAULT_END_SECOND = 0;
-    private static final int DEFAULT_END_MILLISECOND = 0;
-    private static final int DAYS_IN_WEEK = 7;
-    private static final int DESC_NO_OR = 1;
-    private static final int NO_DATE_PARSED = -1;
-
-    /* Static member that holds the single instance */
-    private static Parser parserInstance;
-
-    /* Used specifically to parse date from user's input */
-    private com.joestelmach.natty.Parser dateParser;
-
-    /**
-     * Private Constructor for Singleton Implementation.
-     */
-    private Parser() {
-        dateParser = new com.joestelmach.natty.Parser();
-        setBaseCalendar();
-    }
-
-    /**
-     * Sets the base calendar to the default end date time declared.
-     */
-    private void setBaseCalendar() {
-        Calendar today = Calendar.getInstance();
-        today.set(Calendar.HOUR_OF_DAY, DEFAULT_END_HOUR);
-        today.set(Calendar.MINUTE, DEFAULT_END_MINUTE);
-        today.set(Calendar.SECOND, DEFAULT_END_SECOND);
-        today.set(Calendar.MILLISECOND, DEFAULT_END_MILLISECOND);
-        CalendarSource.setBaseDate(today.getTime());
-    }
-
-    /**
-     * Retrieves the singleton instance of the Parser.
-     *
-     * @return instance of Parser
-     */
-    public static Parser getInstance() {
-        if (parserInstance == null) {
-            parserInstance = new Parser();
-        }
-        return parserInstance;
-    }
-
-    /**
-     * Accepts an input from the menuInterface and executes the Command after
-     * parsing into a Command object.
-     *
-     * @param input the raw input user provides
-     * @return Response object containing data after execution of Command
-     */
-    public Response parseInput(String input) {
-        return parse(input).safeExecute();
-    }
-
-    /**
-     * Accepts a String input and parses it into a Command object by calling the
-     * various sub-methods.
-     *
-     * @param input String object containing input
-     * @return Command object that was parsed
-     */
-    protected Command parse(String input) {
-        LOGGER.info("Parsing input: " + input);
-        Command.CommandType userCommand = determineCommandType(input);
-        LOGGER.info("CommandType requested: " + userCommand.toString());
-        String args = removeFirstWord(input).trim();
-        return parseCommand(userCommand, args);
-    }
-
-    /**
-     * Retrieves the command (from the first word) and return the command type
-     * the user specifies.
-     *
-     * @param input the raw input user provides
-     * @return the command type of the input
-     */
-    private Command.CommandType determineCommandType(String input) {
-        String command = getFirstWord(input);
-        return Command.CommandType.getCommandType(command);
-    }
-
-    /**
-     * Parses command arguments from user input and return the correct Command
-     * object with its valid arguments.
-     *
-     * @param userCommand the type of command the user initiated
-     * @param args        arguments that the user input
-     * @return the correct command object intended by user
-     */
-    private Command parseCommand(Command.CommandType userCommand, String args) {
-        assert userCommand != null : "userCommand should not be null";
-        switch (userCommand) {
-            case VIEW:
-                return parseView(args);
-
-            case SEARCH:
-                return parseSearch(args);
-
-            case ADD:
-                return parseAdd(args);
-
-            case DELETE:
-                return parseDelete(args);
-
-            case UPDATE:
-                return parseUpdate(args);
-
-            case UNDO:
-                return parseUndo(args);
-
-            case REDO:
-                return parseRedo(args);
-
-            case MARK:
-                return parseMark(args);
-
-            case CONFIRM:
-                return parseConfirm(args);
-
-            case SYNC:
-                return parseSync(args);
-
-            case HELP:
-                return parseHelp(args);
-
-            case CLEAR:
-                return parseClear(args);
-
-            case EXIT:
-                return parseExit(args);
-
-            case INVALID:
-                return new InvalidCommand(MESSAGE_COMMAND_ERROR_INVALID, true);
-
-            default: /* this should never occur unless there is a bug */
-                throw new AssertionError(userCommand.toString());
-        }
-    }
-
-    /**
-     * Parses view command from user with natural language support. Current
-     * limitation is restricted to at most one date range.
-     *
-     * @param args the arguments the user input
-     * @return either a VIEW command or INVALID command
-     */
-    private Command parseView(String args) {
-        /* Change to lower case for easier parsing */
-        args = args.toLowerCase();
-
-        /* Setup view filter specified by user */
-        ArrayList<ViewFilter> viewList = new ArrayList<ViewFilter>();
-        if (args.contains("float")) {
-            viewList.add(ViewFilter.FLOATING);
-        }
-        if (args.contains("deadline")) {
-            viewList.add(ViewFilter.DEADLINE);
-        }
-        if (args.contains("schedule")) {
-            viewList.add(ViewFilter.SCHEDULE);
-        }
-
-        boolean isCompleted = args.contains("complete");
-        DatePair date = new DatePair();
-
-        /* If user decides to view overdue tasks */
-        if (args.contains("overdue")) {
-            return new ViewCommand(ViewType.OVERDUE, false, date, viewList);
-        }
-
-        /* If user decides to view all tasks */
-        if (args.contains("all")) {
-            return new ViewCommand(ViewType.ALL, isCompleted, date, viewList);
-        }
-
-        /* Parse all US Date to SG Date Formal Format */
-        String input = parseUStoSGDate(args);
-
-        /* Pre-process and expand certain terms for Natty parser */
-        input = parseSpecialTerms(input);
-
-        date = extractViewRange(input);
-
-        /* If no matched dates, execute previous view/search command */
-        if (!date.hasEndDate()) {
-            return new ViewCommand(ViewType.PREV, isCompleted, date, viewList);
-        }
-
-        /* Return view command with retrieved arguments */
-        return new ViewCommand(ViewCommand.ViewType.DATE, isCompleted, date,
-                               viewList);
-    }
-
-    /**
-     * Parses search command from user on the basis of keywords.
-     *
-     * @param args user given arguments
-     * @return either a SEARCH or INVALID command
-     */
-    private Command parseSearch(String args) {
-        if (args.isEmpty()) {
-            return new InvalidCommand(MESSAGE_SEARCH_ERROR_EMPTY, true);
-        } else {
-            return new SearchCommand(args);
-        }
-    }
-
-    /**
-     * Parses add command from user with natural language support.
-     *
-     * @param args the arguments the user input
-     * @return either a ADD command or INVALID command
-     */
-    private Command parseAdd(String args) {
-        /* Parse all US Date to SG Date Formal Format */
-        String input = parseUStoSGDate(args);
-
-        /* Pre-process certain terms for Natty parser */
-        input = parseSpecialTerms(input);
-
-        /* ArrayList to store all possible DatePair from input */
-        ArrayList<DatePair> datePairs = new ArrayList<DatePair>();
-
-        String descString = extractDateFromDesc(input, datePairs);
-
-        if (descString.isEmpty()) {
-            return new InvalidCommand(MESSAGE_ADD_ERROR_NO_DESC, true);
-        } else {
-            return new AddCommand(descString, datePairs);
-        }
-
-    }
-
-    /**
-     * Parses delete command from user by getting the deleteId.
-     *
-     * @param args the arguments the user input
-     * @return either a DELETE command or INVALID command
-     */
-    private Command parseDelete(String args) {
-        try {
-            int deleteId = Integer.parseInt(getFirstWord(args).trim());
-            return new DeleteCommand(deleteId);
-        } catch (NumberFormatException e) {
-            return new InvalidCommand(MESSAGE_DELETE_ERROR_INVALID, true);
-        }
-    }
-
-    /**
-     * Parses update command from user with natural language support.
-     *
-     * @param args the arguments the user input
-     * @return either a UPDATE command or INVALID command
-     */
-    private Command parseUpdate(String args) {
-        try {
-            /* Get Task ID to update */
-            int updateId = Integer.parseInt(getFirstWord(args));
-            args = removeFirstWord(args);
-
-            /* Parse all US Date to SG Date Formal Format */
-            String input = parseUStoSGDate(args);
-
-            /* Pre-process certain terms for Natty parser */
-            input = parseSpecialTerms(input);
-
-            /* ArrayList to store all possible DatePair from input */
-            ArrayList<DatePair> datePairs = new ArrayList<DatePair>();
-
-            String descString = extractDateFromDesc(input, datePairs);
-
-            if (datePairs.isEmpty() && descString.isEmpty()) {
-                return new InvalidCommand(MESSAGE_UPDATE_ERROR_EMPTY, true);
-            }
-
-            return new UpdateCommand(updateId, descString, datePairs);
-        } catch (NumberFormatException e) {
-            return new InvalidCommand(MESSAGE_UPDATE_ERROR_INVALID, true);
-        }
-
-    }
-
-    /**
-     * Parses undo command from user. Arguments are ignored and not considered
-     * as error.
-     *
-     * @param args the arguments the user input
-     * @return UNDO command
-     */
-    private Command parseUndo(String args) {
-        return new UndoCommand();
-    }
-
-    /**
-     * Parses redo command from user. Arguments are ignored and not considered
-     * as error.
-     *
-     * @param args the arguments the user input
-     * @return REDO command
-     */
-    private Command parseRedo(String args) {
-        return new RedoCommand();
-    }
-
-    /**
-     * Parses mark command from user by getting markId from input.
-     *
-     * @param args the arguments the user input
-     * @return either a MARK or INVALID command
-     */
-    private Command parseMark(String args) {
-        try {
-            int markId = Integer.parseInt(getFirstWord(args).trim());
-            return new MarkCommand(markId);
-        } catch (NumberFormatException e) {
-            return new InvalidCommand(MESSAGE_MARK_ERROR_INVALID, true);
-        }
-    }
-
-    /**
-     * Parses confirm command from user by getting taskId and dateId from the
-     * first two argument passed in by the user, separated by white space.
-     *
-     * @param args the arguments the user input
-     * @return either a CONFIRM command or INVALID command
-     */
-    private Command parseConfirm(String args) {
-        try {
-            String[] substrings = args.split("\\s+");
-            if (substrings.length < 2) {
-                return new InvalidCommand(MESSAGE_CONFIRM_ERROR_INVALID, true);
-            }
-            int confirmId = Integer.parseInt(substrings[0].trim());
-            int dateId = Integer.parseInt(substrings[1].trim());
-            return new ConfirmCommand(confirmId, dateId);
-        } catch (NumberFormatException e) {
-            return new InvalidCommand(MESSAGE_CONFIRM_ERROR_INVALID, true);
-        }
-    }
-
-    /**
-     * Parses sync command from user. Checks for arguments to determine
-     * synchronization type.
-     *
-     * @param args the arguments the user input
-     * @return SYNC command
-     */
-    private Command parseSync(String args) {
-        args = args.trim().toLowerCase();
-
-        if (args.contains("push") && args.contains("pull")) {
-            return new InvalidCommand(MESSAGE_SYNC_ERROR_INVALID);
-        } else if (args.contains("push")) {
-            if (args.contains("force")) {
-                return new SyncCommand(SyncCommand.SyncType.FORCE_PUSH);
-            } else {
-                return new SyncCommand(SyncCommand.SyncType.PUSH);
-            }
-        } else if (args.contains("pull")) {
-            if (args.contains("force")) {
-                return new SyncCommand(SyncCommand.SyncType.FORCE_PULL);
-            } else {
-                return new SyncCommand(SyncCommand.SyncType.PULL);
-            }
-        } else if (args.contains("logout")) {
-            return new SyncCommand(SyncCommand.SyncType.LOGOUT);
-        } else if (args.isEmpty()) {
-            return new SyncCommand(SyncCommand.SyncType.TWO_WAY);
-        } else {
-            return new InvalidCommand(MESSAGE_SYNC_ERROR_INVALID);
-        }
-    }
-
-    /**
-     * Parses help command from user. If no argument, construct the correct help
-     * command to specify list of commands instead. Only reads first argument.
-     *
-     * @param args the arguments the user input
-     * @return HELP command
-     */
-    private Command parseHelp(String args) {
-        if (args.isEmpty()) {
-            return new HelpCommand(false, null);
-        } else {
-            return new HelpCommand(true, getFirstWord(args));
-        }
-    }
-
-    /**
-     * Parses clear command from user.
-     *
-     * @param args the arguments the user input
-     * @return CLEAR command
-     */
-    private Command parseClear(String args) {
-        return new ClearCommand();
-    }
-
-    /**
-     * Parses exit command from user.
-     *
-     * @param args the arguments the user input
-     * @return EXIT command
-     */
-    private Command parseExit(String args) {
-        return new ExitCommand();
-    }
-
-    /* Helper Methods for Parser */
-
-    /**
-     * Parses any form of valid US date of mmddyyyy to the UK/SG standard of
-     * ddmmyyyy for convention and locale purposes.
-     *
-     * @param input the input from the user
-     * @return a modified string if there is a US date in the string
-     */
-    private String parseUStoSGDate(String input) {
-        /* Extract mmddyyyy formal date format from user's input */
-        String dateRegex =
-            "(0[1-9]|[12][0-9]|3[01])[-\\s\\/.](0[1-9]|1[012])[-\\s\\/.]?((?:19|20)\\d\\d)?";
-        Pattern datePattern = Pattern.compile(dateRegex);
-        Matcher dateMatcher = datePattern.matcher(input);
-        final int yearGroupIndex = 3;
-        final int dayGroupIndex = 2;
-        final int monthGroupIndex = 1;
-
-        /* Swap to SG Format of ddmmyyyy */
-        while (dateMatcher.find()) {
-            if (dateMatcher.group(yearGroupIndex) != null) {
-                input = input.replace(
-                    dateMatcher.group().trim(),
-                    dateMatcher.group(dayGroupIndex) + "/" +
-                    dateMatcher.group(monthGroupIndex) + "/" +
-                    dateMatcher.group(yearGroupIndex));
-            } else {
-                input = input.replace(
-                    dateMatcher.group().trim(),
-                    dateMatcher.group(dayGroupIndex) + "/" +
-                    dateMatcher.group(monthGroupIndex));
-            }
-        }
-
-        return input;
-    }
-
-    /**
-     * Parses and expands special occurrences of terms from the user input so
-     * that the resulting output parsed into Natty lib will be more accurate and
-     * correct.
-     *
-     * @param input the input from the user
-     * @return a modified string if there is any occurrence of identified terms.
-     */
-    private String parseSpecialTerms(String input) {
-        /* Check if any usage of until */
-        String untilTerm = "\\b(until)\\b";
-        Pattern textPattern = Pattern.compile(untilTerm);
-        Matcher textMatcher = textPattern.matcher(input);
-
-        while (textMatcher.find()) {
-            input = input.replace(textMatcher.group().trim(), "today to");
-        }
-
-        /* Check if any usage of next week */
-        String weekTerm = "\\b(next\\s+week)\\b";
-        String weekFormat = "%s to %s";
-        textPattern = Pattern.compile(weekTerm);
-        textMatcher = textPattern.matcher(input);
-
-        /* Expand next week to a DatePair with the range of next week */
-        while (textMatcher.find()) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy",
-                                                               Locale.US);
-            Calendar nextWeekDate = Calendar.getInstance(Locale.UK);
-            nextWeekDate.add(Calendar.DATE, DAYS_IN_WEEK);
-            int firstDayOfWeek = nextWeekDate.getFirstDayOfWeek();
-
-            Calendar startDate = Calendar.getInstance(Locale.UK);
-            startDate.setTime(nextWeekDate.getTime());
-            int days = (startDate.get(Calendar.DAY_OF_WEEK) + DAYS_IN_WEEK -
-                        firstDayOfWeek) % DAYS_IN_WEEK;
-            startDate.add(Calendar.DATE, -days);
-
-            Calendar endDate = Calendar.getInstance(Locale.UK);
-            endDate.setTime(startDate.getTime());
-            endDate.add(Calendar.DATE, DAYS_IN_WEEK - 1);
-
-            input = input.
-                replace(textMatcher.group().trim(),
-                        String.format(weekFormat,
-                                      dateFormat.format(startDate.getTime()),
-                                      dateFormat.format(endDate.getTime())));
-        }
-
-        /* Check if any usage of next month */
-        String monthTerm = "\\b(next\\s+month)\\b";
-        String monthFormat = "%s to %s";
-        textPattern = Pattern.compile(monthTerm);
-        textMatcher = textPattern.matcher(input);
-
-        /* Expand next month to a DatePair with the range of next month */
-        while (textMatcher.find()) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy",
-                                                               Locale.US);
-
-            Calendar startDate = Calendar.getInstance(Locale.UK);
-            startDate.add(Calendar.MONTH, 1);
-            startDate.set(Calendar.DAY_OF_MONTH,
-                          startDate.getActualMinimum(Calendar.DAY_OF_MONTH));
-
-            Calendar endDate = Calendar.getInstance(Locale.UK);
-            endDate.add(Calendar.MONTH, 1);
-            endDate.set(Calendar.DAY_OF_MONTH,
-                        endDate.getActualMaximum(Calendar.DAY_OF_MONTH));
-
-            input = input.
-                replace(textMatcher.group().trim(),
-                        String.format(monthFormat,
-                                      dateFormat.format(startDate.getTime()),
-                                      dateFormat.format(endDate.getTime())));
-        }
-
-        /* Check if any usage of next year */
-        String yearTerm = "\\b(next\\s+year)\\b";
-        String yearFormat = "1 Jan %s to 31 Dec %s";
-        textPattern = Pattern.compile(yearTerm);
-        textMatcher = textPattern.matcher(input);
-
-        /* Expand next year to a DatePair with the range of next year */
-        while (textMatcher.find()) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy",
-                                                               Locale.US);
-            Calendar yearCalendar = Calendar.getInstance(Locale.UK);
-            yearCalendar.add(Calendar.YEAR, 1);
-
-            String year = dateFormat.format(yearCalendar.getTime());
-
-            input = input.replace(textMatcher.group().trim(),
-                                  String.format(yearFormat, year, year));
-        }
-
-        return input;
-    }
-
-    /**
-     * Remove any valid word that is before a parsed date. For example, "by",
-     * "on", etc.
-     *
-     * @param input     the input to parse
-     * @param dateIndex the index of the parsed date
-     * @return Parsed string that removed any word from the date phrase list
-     */
-    private static String removeWordBeforeDate(String input, int dateIndex) {
-        String textBeforeDate = input.substring(0, dateIndex).trim();
-        String textAfter = input.substring(dateIndex, input.length());
-        String lastWord = textBeforeDate.
-            substring(textBeforeDate.lastIndexOf(" ") + 1);
-        for (String preposition : DATE_WORDS) {
-            if (lastWord.equalsIgnoreCase(preposition)) {
-                textBeforeDate = textBeforeDate.
-                    substring(0, textBeforeDate.length() - lastWord.length());
-                break;
-            }
-        }
-
-        return textBeforeDate + " " + textAfter;
-    }
-
-    /**
-     * Attempts to read the input and return a DatePair object containing the
-     * dates parsed.
-     *
-     * @param input the input as String
-     * @return DatePair object
-     */
-    private DatePair extractViewRange(String input) {
-        DatePair date = new DatePair();
-
-    /* Use Natty library to parse date specified by user */
-        List<DateGroup> groups = dateParser.parse(input);
-
-        /* Extract up to two dates from user's input */
-        for (DateGroup group : groups) {
-            List<Date> dates = group.getDates();
-
-            /* If date range is parsed */
-            if (dates.size() >= 2) {
-                Calendar startDate = dateToCalendar(dates.get(0));
-                Calendar endDate = dateToCalendar(dates.get(1));
-
-                /* Swap date if necessary */
-                if (startDate.after(endDate)) {
-                    Calendar temp = endDate;
-                    endDate = startDate;
-                    startDate = temp;
-                }
-
-                /* If no time specified, set default timings */
-                if (group.isTimeInferred()) {
-                    startDate.set(Calendar.HOUR_OF_DAY,
-                                  DEFAULT_START_HOUR);
-                    startDate.set(Calendar.MINUTE,
-                                  DEFAULT_START_MINUTE);
-                    startDate.set(Calendar.SECOND,
-                                  DEFAULT_START_SECOND);
-                    startDate.set(Calendar.MILLISECOND,
-                                  DEFAULT_START_MILLISECOND);
-
-                    endDate.set(Calendar.HOUR_OF_DAY,
-                                DEFAULT_END_HOUR);
-                    endDate.set(Calendar.MINUTE,
-                                DEFAULT_END_MINUTE);
-                    endDate.set(Calendar.SECOND,
-                                DEFAULT_END_SECOND);
-                    endDate.set(Calendar.MILLISECOND,
-                                DEFAULT_END_MILLISECOND);
-                }
-
-                date.setStartDate(startDate);
-                date.setEndDate(endDate);
-            } else if (dates.size() == 1) {
-                /* Set start date to be on the same day with default time */
-                date.setStartDate(dateToCalendar(dates.get(0)));
-                date.getStartDate().set(Calendar.HOUR_OF_DAY,
-                                        DEFAULT_START_HOUR);
-                date.getStartDate().set(Calendar.MINUTE,
-                                        DEFAULT_START_MINUTE);
-                date.getStartDate().set(Calendar.SECOND,
-                                        DEFAULT_START_SECOND);
-                date.getStartDate().set(Calendar.MILLISECOND,
-                                        DEFAULT_START_MILLISECOND);
-                date.setEndDate(dateToCalendar(dates.get(0)));
-            }
-        }
-
-        return date;
-    }
-
-    /**
-     * Separate the date and the actual description from the input.
-     *
-     * @param input the String to parse
-     * @param dp    ArrayList to store any parsed date
-     * @return the actual description as String
-     */
-    private String extractDateFromDesc(String input, ArrayList<DatePair> dp) {
-        /* Support tentative task by splitting with 'or' */
-        String[] tentatives = input.split("\\bor\\b");
-        StringBuilder sb = new StringBuilder();
-        int firstDateIndex = NO_DATE_PARSED;
-
-        /* For each possible tentative date */
-        for (int i = 0; i < tentatives.length; i++) {
-            String tentative = tentatives[i];
-            String tokens = tentative;
-            boolean replaceOr = tentatives.length != DESC_NO_OR && i != 0;
-            /* Continue parsing tokens until retrieved valid date */
-            while (true) {
-                /* Use Natty library to parse date specified by user */
-                List<DateGroup> groups = dateParser.parse(tokens);
-                boolean skipIteration = false;
-
-                for (DateGroup group : groups) {
-                    List<Date> dates = group.getDates();
-
-                    /* Restrict parsing of natty by analysing parsing location*/
-                    Map<String, List<ParseLocation>> map =
-                        group.getParseLocations();
-
-                    boolean haveDate = map.get("date") != null;
-                    boolean haveAMPM = map.get("meridian_indicator") != null;
-                    boolean haveMinutes = map.get("minutes") != null;
-                    boolean haveHour = map.get("hours") != null;
-
-                    if (!haveDate) {
-                        tokens = tokens.replaceFirst(group.getText(), "");
-                        skipIteration = true;
-                        break;
-                    } else if (!(haveAMPM || haveMinutes) && haveHour) {
-                        List<ParseLocation> hoursList = map.get("hours");
-                        if (!hoursList.isEmpty()) {
-                            String ignoredText = hoursList.get(0).getText();
-                            tokens = tokens.replaceFirst(ignoredText, "");
-                        }
-                        skipIteration = true;
-                        break;
-                    }
-
-                    if (dates.size() == 2) {
-                        Calendar startDate = dateToCalendar(dates.get(0));
-                        Calendar endDate = dateToCalendar(dates.get(1));
-
-                        /* Swap date if necessary */
-                        if (startDate.after(endDate)) {
-                            Calendar temp = endDate;
-                            endDate = startDate;
-                            startDate = temp;
-                        }
-
-                        /* If no time specified, set default timings */
-                        if (group.isTimeInferred()) {
-                            startDate.set(Calendar.HOUR_OF_DAY,
-                                          DEFAULT_START_HOUR);
-                            startDate.set(Calendar.MINUTE,
-                                          DEFAULT_START_MINUTE);
-                            startDate.set(Calendar.SECOND,
-                                          DEFAULT_START_SECOND);
-                            startDate.set(Calendar.MILLISECOND,
-                                          DEFAULT_START_MILLISECOND);
-
-                            endDate.set(Calendar.HOUR_OF_DAY,
-                                        DEFAULT_END_HOUR);
-                            endDate.set(Calendar.MINUTE,
-                                        DEFAULT_END_MINUTE);
-                            endDate.set(Calendar.SECOND,
-                                        DEFAULT_END_SECOND);
-                            endDate.set(Calendar.MILLISECOND,
-                                        DEFAULT_END_MILLISECOND);
-                        }
-
-                        dp.add(new DatePair(startDate, endDate));
-                    } else if (dates.size() == 1) {
-                        dp.add(new DatePair(dateToCalendar(dates.get(0))));
-                    }
-
-                    if (i == 0) {
-                        firstDateIndex = group.getPosition();
-                    }
-
-                    /* Replace parsed date from description */
-                    tentative = tentative.replace(group.getText(), "");
-                    if (!tentative.trim().isEmpty() && replaceOr) {
-                         /* Compensate 'or' as it does not belong to date */
-                        sb.append("or");
-                    }
-                    sb.append(tentative);
-                }
-
-                if (skipIteration) {
-                    continue;
-                }
-
-                /* If token does not have any date parsed, just append to sb */
-                if (groups.isEmpty()) {
-                    if (replaceOr) {
-                        sb.append("or");
-                    }
-                    sb.append(tentative);
-                }
-                break;
-            }
-        }
-
-        if (firstDateIndex != NO_DATE_PARSED) {
-            return removeWordBeforeDate(sb.toString(), firstDateIndex).trim();
-        } else {
-            return sb.toString().trim();
-        }
-    }
-
-    /**
-     * Gets the first word from a given String object.
-     *
-     * @param input String object
-     * @return a String object containing the first word
-     */
-    private static String getFirstWord(String input) {
-        return input.trim().split("\\s+", 2)[0];
-    }
-
-    /**
-     * Removes the first word from a given String object.
-     *
-     * @param input String object
-     * @return a String object without the first word
-     */
-    private static String removeFirstWord(String input) {
-        String[] splitWord = input.trim().split("\\s+", 2);
-        return splitWord.length == 1 ? "" : splitWord[1];
-    }
-
-    /**
-     * Converts a Date object passed in and returns a Calendar object.
-     *
-     * @param date the date object to convert
-     * @return the calendar object after conversion
-     */
-    private static Calendar dateToCalendar(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return cal;
-    }
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\logic\parser\Parser.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\menu\MenuInterface.java
-	 */
-
-/**
- * This abstract class acts as the Factory class of the different interfaces
- * object. It handles the instantiation of a concrete MenuInterface class,
- * dependent on the operating system the user is on.
- * <p/>
- * It also provides the necessary attributes and methods for concrete classes to
- * implement and handle user input and output.
- */
-public abstract class MenuInterface {
-
-    /* Global logger to log information and exception. */
-    protected static final Logger LOGGER =
-        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-
-    protected static final String MESSAGE_WELCOME =
-        "Welcome to RubberDuck. Here's your agenda for today.";
-    protected static final String MESSAGE_HELP =
-        "If you need a list of commands, type ? or help.";
-    protected static final String MESSAGE_ERROR_CR_IOEXCEPTION =
-        "Problem with ConsoleReader Operation (I/O).";
-    protected static final String MESSAGE_ERROR_CR_SETUP =
-        "Problem setting up ConsoleReader as it encounters I/O issues.";
-    protected static final String DEFAULT_PROMPT =
-        ">";
-    protected static final String WELCOME_EXECUTE =
-        "view today";
-    protected static final String TIME_TOGGLE_EXECUTE =
-        "view";
-
-    private static MenuInterface menuInstance;
-
-    /**
-     * Retrieves the singleton instance of the MenuInterface. The MenuInterface
-     * will be of type WinInterface if running on Windows, else it will be of
-     * type UnixInterface.
-     *
-     * @return instance of MenuInterface
-     */
-    public static MenuInterface getInstance() {
-        if (menuInstance == null) {
-            String userOS = System.getProperty("os.name");
-            if (userOS.toLowerCase().contains("win")) {
-                menuInstance = new WinInterface();
-            } else {
-                menuInstance = new UnixInterface();
-            }
-        }
-        return menuInstance;
-    }
-
-    /**
-     * Handles the interface of RubberDuck involving handling inputs and outputs
-     * for the user as required.
-     */
-    public abstract void handleInterface();
-
-    /**
-     * Prompts user for an input and return the input back to caller.
-     *
-     * @param prompts String literals to prompt the user
-     * @return user input
-     */
-    public abstract String requestPrompt(String... prompts);
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\menu\MenuInterface.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\menu\UnixInterface.java
-	 */
-
-/**
- * This class handles the user interface of the application that is running on
- * Mac/Linux. This will handle all input from the user and show the required
- * response back to the user.
- */
-public class UnixInterface extends MenuInterface {
-
-    private static final String MESSAGE_PAGE_PROMPT =
-        "Press [Enter] to continue...";
-    private static final String MESSAGE_SET_24HOUR =
-        "Successfully toggled time formatting to 24 hour format.";
-    private static final String MESSAGE_SET_12HOUR =
-        "Successfully toggled time formatting to 12 hour format.";
-    private static final String MESSAGE_ASSERT_RESPONSE =
-        "Response object returned must not be null.";
-    private static final String[] ARGUMENTS_VIEW =
-        new String[]{"all", "deadline", "float", "schedule", "completed",
-                     "overdue"};
-
-    /* Separator String that is used to display as Footer of UnixInterface */
-    private static final String SEPARATOR_BORDER =
-        "--------------------------------------------------------------------------------";
-
-    private static final int BUFFER_HEIGHT_OFFSET = 2;
-
-    private ConsoleReader consoleInstance;
-
-    /**
-     * Default constructor of UnixInterface that setup the consoleReader
-     * instance.
-     */
-    protected UnixInterface() {
-        try {
-            consoleInstance = setupConsoleReader();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_SETUP, e);
-        }
-    }
-
-    /**
-     * Handles the interface of the program. It prompts input from user and
-     * passes to the parser to determine the command to be executed. It then
-     * proceed to print the returned response to the user.
-     */
-    @Override
-    public void handleInterface() {
-        try {
-            showToUser(getWelcomeMessage());
-            while (true) {
-                String line = consoleInstance.readLine(DEFAULT_PROMPT);
-                Response res = Parser.getInstance().parseInput(line);
-                assert res != null : MESSAGE_ASSERT_RESPONSE;
-                showToUser(res);
-            }
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
-        }
-    }
-
-    /**
-     * Displays a prompt midway through an execution of a command and request an
-     * input from the user which will be returned to the command execution
-     * flow.
-     *
-     * @param prompt String literals to be displayed to the user
-     * @return response by the user
-     */
-    @Override
-    public String requestPrompt(String... prompt) {
-        try {
-            StringBuilder sb = new StringBuilder();
-            for (String p : prompt) {
-                if (sb.length() > 0) {
-                    sb.append(System.lineSeparator());
-                }
-                sb.append(p);
-            }
-            showToUser(new Response(sb.toString(), true));
-            return consoleInstance.readLine(DEFAULT_PROMPT);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
-            return MESSAGE_ERROR_CR_IOEXCEPTION;
-        }
-    }
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\menu\UnixInterface.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\menu\UnixInterface.java
-	 */
-
-    /**
-     * Maps the required keyboard keys to perform the required function when
-     * triggered.
-     *
-     * @param cr ConsoleReader object
-     */
-    private void setKeybinding(ConsoleReader cr) {
-        /* Declare ANSI keycode for each required key */
-        final String insert = "\033[2~";
-
-        cr.getKeys().bind(insert, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                toggleTimeFormat();
-            }
-        });
-    }
-
-    /**
-     * Toggles the formatter date format between 12 hour and 24 hour format.
-     */
-    private void toggleTimeFormat() {
-        Formatter.toggleTimeFormat();
-        Response r = Parser.getInstance().parseInput(TIME_TOGGLE_EXECUTE);
-        String toggleMessage = Formatter.is12HourFormat() ? MESSAGE_SET_12HOUR
-                                                          : MESSAGE_SET_24HOUR;
-        r.setMessages(ColorFormatter.format(toggleMessage, Color.CYAN));
-        try {
-            showToUser(r);
-            consoleInstance.restoreLine(consoleInstance.getPrompt(),
-                                        consoleInstance.getCursorBuffer()
-                                            .current());
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
-        }
-    }
-
-    /**
-     * Sets up the auto-complete feature by specifying the required completers
-     * into the consoleReader.
-     *
-     * @param cr ConsoleReader object
-     */
-    private void setCompleter(ConsoleReader cr) {
-        Set<String> viewAliasSet =
-            Command.CommandType.getAlias(Command.CommandType.VIEW);
-        Set<String> otherAliasSet =
-            new HashSet<String>(Command.CommandType.getAlias());
-        otherAliasSet.removeAll(viewAliasSet);
-
-        StringsCompleter otherCompleter = new StringsCompleter(otherAliasSet);
-        ArgumentCompleter viewCompleter = new ArgumentCompleter(
-            new StringsCompleter(viewAliasSet),
-            new StringsCompleter(ARGUMENTS_VIEW));
-        cr.addCompleter(new AggregateCompleter(otherCompleter, viewCompleter));
-    }
-
-    /**
-     * Returns messages and information to display on startup when user opens
-     * application for the first time.
-     *
-     * @return Response object that contains the welcome message
-     */
-    private Response getWelcomeMessage() {
-        StringBuilder messages = new StringBuilder();
-        messages.append(MESSAGE_WELCOME);
-        messages.append(System.lineSeparator());
-        messages.append(ColorFormatter.format(MESSAGE_HELP, Color.YELLOW));
-
-        Response res = Parser.getInstance().parseInput(WELCOME_EXECUTE);
-        res.setMessages(messages.toString());
-        return res;
-    }
-
-    /**
-     * Formats and outputs a Response object returned by Parser to the
-     * ConsoleReader instance which will then be visible to the user.
-     *
-     * @param res Response object to be displayed
-     * @throws IOException occurs when ConsoleReader encounters I/O error
-     */
-    private void showToUser(Response res) throws IOException {
-        consoleInstance.clearScreen();
-        String[] messages = res.getMessages();
-        String viewCount = res.getViewCount();
-        String viewData = res.getViewData();
-
-        String header = String.format(Formatter.FORMAT_TABLE, "ID",
-                                      "Done", "Task", "Date");
-
-        StringBuilder collatedBuilder = new StringBuilder();
-
-        for (String m : messages) {
-            if (collatedBuilder.length() > 0) {
-                collatedBuilder.append(System.lineSeparator());
-            }
-            collatedBuilder.append(m);
-        }
-
-        if (viewCount != null) {
-            if (collatedBuilder.length() > 0) {
-                collatedBuilder.append(System.lineSeparator());
-            }
-            collatedBuilder.append(viewCount);
-        }
-
-        if (viewData != null && !viewData.trim().isEmpty()) {
-            collatedBuilder.append(System.lineSeparator());
-            collatedBuilder.append(SEPARATOR_BORDER);
-            collatedBuilder.append(System.lineSeparator());
-            collatedBuilder.append(header);
-            collatedBuilder.append(System.lineSeparator());
-            collatedBuilder.append(SEPARATOR_BORDER);
-
-            String[] tasks = viewData.split(System.lineSeparator());
-            for (String task : tasks) {
-                collatedBuilder.append(System.lineSeparator());
-                collatedBuilder.append(task);
-            }
-
-            collatedBuilder.append(System.lineSeparator());
-            collatedBuilder.append(SEPARATOR_BORDER);
-        }
-
-        /* Additional one way paging to not overwhelm the user at one go. */
-        String collatedResponse = collatedBuilder.toString();
-        String[] pageBuffer = collatedResponse.split(System.lineSeparator());
-        int bufferHeight = consoleInstance.getTerminal().getHeight() -
-                           BUFFER_HEIGHT_OFFSET;
-
-        for (int i = 0; i < pageBuffer.length; i++) {
-            consoleInstance.println(pageBuffer[i]);
-            if (i >= bufferHeight) {
-                consoleInstance.readLine(
-                    ColorFormatter.format(MESSAGE_PAGE_PROMPT, Color.CYAN));
-                consoleInstance.clearScreen();
-                bufferHeight += bufferHeight + 1;
-            }
-        }
-    }
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\menu\UnixInterface.java
-
-
-
-
-
-	/**
-	 * origin: C:\Users\Jason\Desktop\main\src\rubberduck\menu\WinInterface.java
-	 */
-
-/**
- * This class handles the user interface of the application that is running on
- * Windows platform. This will handle all input from the user and show the
- * required response back to the user.
- */
-public class WinInterface extends MenuInterface {
-
-    /* CMD command required to forcefully set the width and height of CMD*/
-    private static final String COMMAND_SET_CONSOLE =
-        "mode.com con cols=81 lines=41";
-
-    private static final String MESSAGE_ERROR_CMD =
-        "Interrupted when executing console setup command.";
-    private static final String MESSAGE_SET_24HOUR =
-        "Successfully toggled time formatting to 24 hour format.";
-    private static final String MESSAGE_SET_12HOUR =
-        "Successfully toggled time formatting to 12 hour format.";
-    private static final String MESSAGE_ASSERT_RESPONSE =
-        "Response object returned must not be null.";
-    private static final String[] ARGUMENTS_VIEW =
-        new String[]{"all", "deadline", "float", "schedule", "completed",
-                     "overdue"};
-
-    /* Separator Strings that are used to display as Footer of WinInterface */
-    private static final String SEPARATOR_BORDER =
-        "--------------------------------------------------------------------------------";
-    private static final String SEPARATOR_PAGEUP =
-        "-------------------[Page Up]----------------------------------------------------";
-    private static final String SEPARATOR_PAGEDOWN =
-        "--------------------------------------------------[Page Down]-------------------";
-    private static final String SEPARATOR_PAGEUPDOWN =
-        "-------------------[Page Up]----------------------[Page Down]-------------------";
-
-    /* Margins & Useful Indexes for ConsoleBuffer */
-    private static final int LINES_RESPONSE_AREA = 5;
-    private static final int LINES_TASK_AREA = 34;
-    private static final int INDEX_MESSAGE_START = 0;
-    private static final int INDEX_VIEW_COUNT = 5;
-    private static final int INDEX_HEADER_START = 6;
-    private static final int INDEX_VIEW_START = 9;
-    private static final int INDEX_FOOTER = 38;
-
-    private ConsoleReader consoleInstance;
-    private PrintWriter out;
-
-    /* Local Buffer Variables */
-    private String[] consoleBuffer;
-    private String taskViewBuffer;
-    private ArrayList<String> taskBuffer;
-    private int lastTaskIndex;
-    private static final int NOT_IN_BUFFER = -1;
-
-    /**
-     * Default constructor of WinInterface that initialises all the required
-     * class variable and setup the consoleReader instance.
-     */
-    protected WinInterface() {
-        consoleBuffer = new String[LINES_RESPONSE_AREA + LINES_TASK_AREA];
-        taskBuffer = new ArrayList<String>();
-        taskViewBuffer = "";
-        lastTaskIndex = NOT_IN_BUFFER;
-
-        try {
-            consoleInstance = setupConsoleReader();
-            out = new PrintWriter(consoleInstance.getOutput());
-            Process p = Runtime.getRuntime().exec(COMMAND_SET_CONSOLE);
-            p.waitFor();
-        } catch (IOException e1) {
-            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_SETUP, e1);
-        } catch (InterruptedException e2) {
-            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CMD, e2);
-        }
-    }
-
-    /**
-     * Handles the interface of the program. It prompts input from user and
-     * passes to the parser. It then proceeds to print the output based on the
-     * Response object returned from the Parser.
-     */
-    @Override
-    public void handleInterface() {
-        try {
-            printOutput(getWelcomeMessage());
-            while (true) {
-                String line = consoleInstance.readLine(DEFAULT_PROMPT);
-                Response res = Parser.getInstance().parseInput(line);
-                assert res != null : MESSAGE_ASSERT_RESPONSE;
-                printOutput(res);
-            }
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
-        }
-    }
-
-    /**
-     * Displays a prompt midway through an execution of a command and request an
-     * input from the user which will be returned to the command execution
-     * flow.
-     *
-     * @param prompts String literals to be displayed to the user
-     * @return response by the user
-     */
-    @Override
-    public String requestPrompt(String... prompts) {
-        try {
-            StringBuilder sb = new StringBuilder();
-            for (String p : prompts) {
-                if (sb.length() > 0) {
-                    sb.append(System.lineSeparator());
-                }
-                sb.append(p);
-            }
-            printOutput(new Response(sb.toString(), true));
-            return consoleInstance.readLine(DEFAULT_PROMPT);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
-            return MESSAGE_ERROR_CR_IOEXCEPTION;
-        }
-    }
-
-    /**
-     * Setup and instantiates the ConsoleReader from jLine.
-     *
-     * @return ConsoleReader object
-     * @throws IOException occurs when ConsoleReader has problem with output
-     */
-    private ConsoleReader setupConsoleReader() throws IOException {
-        ConsoleReader cr = new ConsoleReader();
-        cr.clearScreen();
-        cr.setPrompt(DEFAULT_PROMPT);
-        setCompleter(cr);
-        setKeybinding(cr);
-        return cr;
-    }
-
-    /**
-     * Sets up the auto-complete feature by specifying the required completers
-     * into the consoleReader object.
-     *
-     * @param cr ConsoleReader object
-     */
-    private void setCompleter(ConsoleReader cr) {
-        Set<String> viewAliasSet =
-            Command.CommandType.getAlias(Command.CommandType.VIEW);
-        Set<String> otherAliasSet =
-            new HashSet<String>(Command.CommandType.getAlias());
-        otherAliasSet.removeAll(viewAliasSet);
-
-        StringsCompleter otherCompleter = new StringsCompleter(otherAliasSet);
-        ArgumentCompleter viewCompleter = new ArgumentCompleter(
-            new StringsCompleter(viewAliasSet),
-            new StringsCompleter(ARGUMENTS_VIEW));
-        cr.addCompleter(new AggregateCompleter(otherCompleter, viewCompleter));
-    }
-
-    /**
-     * Maps the required keyboard keys to perform the required functionality
-     * when triggered.
-     *
-     * @param cr ConsoleReader object
-     */
-    private void setKeybinding(ConsoleReader cr) {
-        /* Declare ANSI keycode for each required key */
-        final String pageUp = "\033[5~";
-        final String pageDown = "\033[6~";
-        final String insert = "\033[2~";
-
-        cr.getKeys().bind(pageUp, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                scrollTaskUp();
-            }
-        });
-
-        cr.getKeys().bind(pageDown, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                scrollTaskDown();
-            }
-        });
-
-        cr.getKeys().bind(insert, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                toggleTimeFormat();
-            }
-        });
-    }
-
-    /**
-     * Scrolls the task area of the interface upwards if possible.
-     */
-    private void scrollTaskUp() {
-        if (canScrollUp()) {
-            int j = --lastTaskIndex;
-            for (int i = INDEX_FOOTER - 1; i >= INDEX_VIEW_START; i--) {
-                consoleBuffer[i] = taskBuffer.get(j--);
-            }
-            consoleBuffer[INDEX_FOOTER] = getFooter();
-
-            try {
-                bufferScreen();
-                consoleInstance.restoreLine(consoleInstance.getPrompt(),
-                                            consoleInstance.getCursorBuffer()
-                                                .current());
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
-            }
-        }
-    }
-
-    /**
-     * Scrolls the task area of the interface downwards if possible.
-     */
-    private void scrollTaskDown() {
-        if (canScrollDown()) {
-            int j = ++lastTaskIndex;
-            for (int i = INDEX_FOOTER - 1; i >= INDEX_VIEW_START; i--) {
-                consoleBuffer[i] = taskBuffer.get(j--);
-            }
-            consoleBuffer[INDEX_FOOTER] = getFooter();
-
-            try {
-                bufferScreen();
-                consoleInstance.restoreLine(consoleInstance.getPrompt(),
-                                            consoleInstance.getCursorBuffer()
-                                                .current());
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
-            }
-        }
-    }
-
-    /**
-     * Returns a boolean that represents whether a scroll up function can be
-     * done. <p/> return true if task data can be scrolled up else false
-     *
-     * @return true if task data can be scrolled up else false
-     */
-    private boolean canScrollUp() {
-        return lastTaskIndex != NOT_IN_BUFFER &&
-               lastTaskIndex >= INDEX_FOOTER - INDEX_VIEW_START;
-    }
-
-    /**
-     * Returns a boolean that represents whether a scroll down function can be
-     * done.
-     *
-     * @return true if task data can be scrolled down else false
-     */
-    private boolean canScrollDown() {
-        return lastTaskIndex != NOT_IN_BUFFER &&
-               lastTaskIndex < taskBuffer.size() - 1 &&
-               taskBuffer.size() > INDEX_FOOTER - INDEX_VIEW_START;
-    }
-
-    /**
-     * Toggles the formatter date format between 12 hour and 24 hour format.
-     */
-    private void toggleTimeFormat() {
-        Formatter.toggleTimeFormat();
-        Response r = Parser.getInstance().parseInput(TIME_TOGGLE_EXECUTE);
-        String toggleMessage = Formatter.is12HourFormat() ? MESSAGE_SET_12HOUR
-                                                          : MESSAGE_SET_24HOUR;
-        r.setMessages(ColorFormatter.format(toggleMessage, Color.CYAN));
-        try {
-            printOutput(r);
-            consoleInstance.restoreLine(consoleInstance.getPrompt(),
-                                        consoleInstance.getCursorBuffer()
-                                            .current());
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, MESSAGE_ERROR_CR_IOEXCEPTION, e);
-        }
-    }
-
-    /**
-     * Returns a Response object that contains the welcome screen that shows the
-     * relevant information when user first execute RubberDuck.
-     *
-     * @return Response object that contains the welcome information
-     */
-    private Response getWelcomeMessage() {
-        StringBuilder messages = new StringBuilder();
-        messages.append(MESSAGE_WELCOME);
-        messages.append(System.lineSeparator());
-        messages.append(ColorFormatter.format(MESSAGE_HELP, Color.YELLOW));
-
-        Response res = Parser.getInstance().parseInput(WELCOME_EXECUTE);
-        res.setMessages(messages.toString());
-        return res;
-    }
-
-    /**
-     * Updates the console buffer based on the Response object and buffer the
-     * terminal to reflect output changes.
-     *
-     * @param res Response object to update the buffer with
-     * @throws IOException occurs when ConsoleReader encounters an I/O error
-     */
-    private void printOutput(Response res) throws IOException {
-        updateBuffer(res);
-        bufferScreen();
-    }
-
-    /**
-     * Updates the console buffer based on the Response object provided in the
-     * arguments.
-     *
-     * @param res Response object to update the buffer with
-     */
-    private void updateBuffer(Response res) {
-        if (res.isOverwrite()) {
-            /* if isOverwrite is true, display only what is in the messages */
-            String[] messages = res.getMessages();
-            for (int i = 0; i < consoleBuffer.length; i++) {
-                if (i < messages.length) {
-                    consoleBuffer[i] = messages[i - INDEX_MESSAGE_START];
-                } else {
-                    consoleBuffer[i] = "";
-                }
-            }
-            lastTaskIndex = NOT_IN_BUFFER;
-        } else {
-            /* Update messages into the messages area in the Buffer */
-            String[] messages = res.getMessages();
-            for (int i = INDEX_MESSAGE_START; i < INDEX_VIEW_COUNT; i++) {
-                if (i - INDEX_MESSAGE_START < messages.length) {
-                    consoleBuffer[i] = messages[i - INDEX_MESSAGE_START];
-                } else {
-                    consoleBuffer[i] = "";
-                }
-            }
-
-            /* Update viewCount into the viewCount area in the Buffer */
-            String viewCount = res.getViewCount();
-            if (viewCount != null) {
-                taskViewBuffer = viewCount;
-                consoleBuffer[INDEX_VIEW_COUNT] = viewCount;
-            } else if (lastTaskIndex == NOT_IN_BUFFER) {
-                consoleBuffer[INDEX_VIEW_COUNT] = taskViewBuffer;
-            }
-
-            /* Update viewData into the tasks area in the Buffer */
-            String viewData = res.getViewData();
-            if (viewData != null || lastTaskIndex == NOT_IN_BUFFER) {
-                if (viewData != null) {
-                    String[] viewSplit = res.getViewData()
-                        .split(System.lineSeparator());
-
-                    taskBuffer =
-                        new ArrayList<String>(Arrays.asList(viewSplit));
-                }
-
-                String header = String.format(Formatter.FORMAT_TABLE, "ID",
-                                              "Done", "Task", "Date");
-
-                /* Format the table header portion of the GUI */
-                consoleBuffer[INDEX_HEADER_START] = SEPARATOR_BORDER;
-                consoleBuffer[INDEX_HEADER_START + 1] = header;
-                consoleBuffer[INDEX_HEADER_START + 2] = SEPARATOR_BORDER;
-
-                for (int i = INDEX_VIEW_START; i < INDEX_FOOTER; i++) {
-                    if (i - INDEX_VIEW_START < taskBuffer.size()) {
-                        consoleBuffer[i] = taskBuffer.get(i - INDEX_VIEW_START);
-                        lastTaskIndex = i - INDEX_VIEW_START;
-                    } else {
-                        consoleBuffer[i] = "";
-                    }
-                }
-
-                /* Update and format the table footer of the GUI */
-                consoleBuffer[INDEX_FOOTER] = getFooter();
-            }
-        }
-    }
-
-    /**
-     * Returns a String representation of the footer depending on the task data
-     * and lastTaskIndex.
-     *
-     * @return correct footer based on scrollability of task data
-     */
-    private String getFooter() {
-        if (canScrollDown() && canScrollUp()) {
-            return SEPARATOR_PAGEUPDOWN;
-        } else if (canScrollDown()) {
-            return SEPARATOR_PAGEDOWN;
-        } else if (canScrollUp()) {
-            return SEPARATOR_PAGEUP;
-        } else {
-            return SEPARATOR_BORDER;
-        }
-    }
-
-    /**
-     * Clears the screen of the console and output everything in the console
-     * buffer into PrintWriter and proceed to flush to reflect changes.
-     *
-     * @throws IOException occurs when ConsoleReader encounters an I/O error
-     */
-    private void bufferScreen() throws IOException {
-        consoleInstance.clearScreen();
-        for (String s : consoleBuffer) {
-            out.println(s);
-        }
-        out.flush();
-    }
-}
-
-	// End of segment: C:\Users\Jason\Desktop\main\src\rubberduck\menu\WinInterface.java
+	// End of segment: E:\main\src\rubberduck\RubberDuck.java
 
 
 
