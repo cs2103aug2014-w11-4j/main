@@ -33,10 +33,13 @@ import rubberduck.logic.command.UndoCommand;
 import rubberduck.logic.command.UpdateCommand;
 import rubberduck.logic.command.ViewCommand;
 import rubberduck.logic.command.ViewCommand.ViewFilter;
+import rubberduck.logic.command.ViewCommand.ViewType;
 
 /**
  * Parser that reads in raw user input and attempts to translate into the
- * correct command the user wants to execute.
+ * correct command the user wants to execute. If request is coming from Menu
+ * component, proceed to call execute on the Command and return Response back to
+ * Menu component.
  */
 //@author A0111736M
 public class Parser {
@@ -60,14 +63,14 @@ public class Parser {
         "Please enter a task id to mark.";
     private static final String MESSAGE_UPDATE_ERROR_EMPTY =
         "Please enter something to update.";
-    private static final String MESSAGE_SYNC_INVALID =
+    private static final String MESSAGE_SYNC_ERROR_INVALID =
         "Please enter a valid sync type.";
-    private static final String MESSAGE_INVALID_COMMAND =
+    private static final String MESSAGE_COMMAND_ERROR_INVALID =
         "Please enter a valid command. Press <Tab> or Enter ? for help.";
 
-    /* List of words to remove that appear before a date parsed */
+    /* List of words/connectors to remove that appear before a date parsed */
     private static final String[] DATE_WORDS =
-        new String[]{"by", "on", "at", "from", "during", "@", "in"};
+        new String[]{"by", "on", "at", "from", "during", "@", "in", "for"};
 
     private static final int DEFAULT_START_HOUR = 0;
     private static final int DEFAULT_START_MINUTE = 0;
@@ -92,9 +95,14 @@ public class Parser {
      */
     private Parser() {
         dateParser = new com.joestelmach.natty.Parser();
-        Calendar today = Calendar.getInstance();
+        setBaseCalendar();
+    }
 
-        /* Set the base calendar time to the default time declared. */
+    /**
+     * Sets the base calendar to the default end date time declared.
+     */
+    private void setBaseCalendar() {
+        Calendar today = Calendar.getInstance();
         today.set(Calendar.HOUR_OF_DAY, DEFAULT_END_HOUR);
         today.set(Calendar.MINUTE, DEFAULT_END_MINUTE);
         today.set(Calendar.SECOND, DEFAULT_END_SECOND);
@@ -153,7 +161,7 @@ public class Parser {
     }
 
     /**
-     * Parses command arguments from user input and return the correct command
+     * Parses command arguments from user input and return the correct Command
      * object with its valid arguments.
      *
      * @param userCommand the type of command the user initiated
@@ -202,16 +210,16 @@ public class Parser {
                 return parseExit(args);
 
             case INVALID:
-                return new InvalidCommand(MESSAGE_INVALID_COMMAND, true);
+                return new InvalidCommand(MESSAGE_COMMAND_ERROR_INVALID, true);
 
-            default: /* all unrecognized command are invalid commands */
-                throw new UnsupportedOperationException(userCommand.toString());
+            default: /* this should never occur unless there is a bug */
+                throw new AssertionError(userCommand.toString());
         }
     }
 
     /**
      * Parses view command from user with natural language support. Current
-     * limitation is restricted to only one DatePair.
+     * limitation is restricted to at most one date range.
      *
      * @param args the arguments the user input
      * @return either a VIEW command or INVALID command
@@ -220,34 +228,30 @@ public class Parser {
         /* Change to lower case for easier parsing */
         args = args.toLowerCase();
 
-        boolean isCompleted = args.contains("complete");
-
         /* Setup view filter specified by user */
-        ArrayList<ViewCommand.ViewFilter> viewList =
+        ArrayList<ViewFilter> viewList =
             new ArrayList<ViewFilter>();
         if (args.contains("float")) {
             viewList.add(ViewFilter.FLOATING);
         }
         if (args.contains("deadline")) {
-            viewList.add(ViewCommand.ViewFilter.DEADLINE);
+            viewList.add(ViewFilter.DEADLINE);
         }
         if (args.contains("schedule")) {
             viewList.add(ViewFilter.SCHEDULE);
         }
 
-        /* Create empty DatePair object */
+        boolean isCompleted = args.contains("complete");
         DatePair date = new DatePair();
 
         /* If user decides to view overdue tasks */
         if (args.contains("overdue")) {
-            return new ViewCommand(ViewCommand.ViewType.OVERDUE, false, date,
-                                   viewList);
+            return new ViewCommand(ViewType.OVERDUE, false, date, viewList);
         }
 
         /* If user decides to view all tasks */
         if (args.contains("all")) {
-            return new ViewCommand(ViewCommand.ViewType.ALL, isCompleted, date,
-                                   viewList);
+            return new ViewCommand(ViewType.ALL, isCompleted, date, viewList);
         }
 
         /* Parse all US Date to SG Date Formal Format */
@@ -256,66 +260,11 @@ public class Parser {
         /* Pre-process and expand certain terms for Natty parser */
         input = parseSpecialTerms(input);
 
-        /* Use Natty library to parse date specified by user */
-        List<DateGroup> groups = dateParser.parse(input);
+        date = extractViewRange(input);
 
         /* If no matched dates, execute previous view/search command */
-        if (groups.isEmpty()) {
-            return new ViewCommand(ViewCommand.ViewType.PREV, isCompleted, date,
-                                   viewList);
-        }
-
-        /* Extract up to two dates from user's input */
-        for (DateGroup group : groups) {
-            List<Date> dates = group.getDates();
-
-            /* If date range is parsed */
-            if (dates.size() >= 2) {
-                Calendar startDate = dateToCalendar(dates.get(0));
-                Calendar endDate = dateToCalendar(dates.get(1));
-
-                /* Swap date if necessary */
-                if (startDate.after(endDate)) {
-                    Calendar temp = endDate;
-                    endDate = startDate;
-                    startDate = temp;
-                }
-
-                /* If no time specified, set default timings */
-                if (group.isTimeInferred()) {
-                    startDate.set(Calendar.HOUR_OF_DAY,
-                                  DEFAULT_START_HOUR);
-                    startDate.set(Calendar.MINUTE,
-                                  DEFAULT_START_MINUTE);
-                    startDate.set(Calendar.SECOND,
-                                  DEFAULT_START_SECOND);
-                    startDate.set(Calendar.MILLISECOND,
-                                  DEFAULT_START_MILLISECOND);
-
-                    endDate.set(Calendar.HOUR_OF_DAY,
-                                DEFAULT_END_HOUR);
-                    endDate.set(Calendar.MINUTE,
-                                DEFAULT_END_MINUTE);
-                    endDate.set(Calendar.SECOND,
-                                DEFAULT_END_SECOND);
-                    endDate.set(Calendar.MILLISECOND,
-                                DEFAULT_END_MILLISECOND);
-                }
-
-                date.setStartDate(startDate);
-                date.setEndDate(endDate);
-            } else if (dates.size() == 1) {
-                date.setStartDate(dateToCalendar(dates.get(0)));
-                date.getStartDate().set(Calendar.HOUR_OF_DAY,
-                                        DEFAULT_START_HOUR);
-                date.getStartDate().set(Calendar.MINUTE,
-                                        DEFAULT_START_MINUTE);
-                date.getStartDate().set(Calendar.SECOND,
-                                        DEFAULT_START_SECOND);
-                date.getStartDate().set(Calendar.MILLISECOND,
-                                        DEFAULT_START_MILLISECOND);
-                date.setEndDate(dateToCalendar(dates.get(0)));
-            }
+        if (!date.hasEndDate()) {
+            return new ViewCommand(ViewType.PREV, isCompleted, date, viewList);
         }
 
         /* Return view command with retrieved arguments */
@@ -330,7 +279,7 @@ public class Parser {
      * @return either a SEARCH or INVALID command
      */
     private Command parseSearch(String args) {
-        if (args.trim().isEmpty()) {
+        if (args.isEmpty()) {
             return new InvalidCommand(MESSAGE_SEARCH_ERROR_EMPTY, true);
         } else {
             return new SearchCommand(args);
@@ -401,7 +350,7 @@ public class Parser {
 
             String descString = extractDateFromDesc(input, datePairs);
 
-            if (!(!datePairs.isEmpty() || !descString.isEmpty())) {
+            if (datePairs.isEmpty() && !descString.isEmpty()) {
                 return new InvalidCommand(MESSAGE_UPDATE_ERROR_EMPTY, true);
             }
 
@@ -450,8 +399,8 @@ public class Parser {
     }
 
     /**
-     * Parses confirm command from user by getting taskId and dateId from
-     * input.
+     * Parses confirm command from user by getting taskId and dateId from the
+     * first two argument passed in by the user, separated by white space.
      *
      * @param args the arguments the user input
      * @return either a CONFIRM command or INVALID command
@@ -462,7 +411,6 @@ public class Parser {
             if (substrings.length < 2) {
                 return new InvalidCommand(MESSAGE_CONFIRM_ERROR_INVALID, true);
             }
-
             int confirmId = Integer.parseInt(substrings[0].trim());
             int dateId = Integer.parseInt(substrings[1].trim());
             return new ConfirmCommand(confirmId, dateId);
@@ -472,7 +420,8 @@ public class Parser {
     }
 
     /**
-     * Parses sync command from user.
+     * Parses sync command from user. Checks for arguments to determine
+     * synchronization type.
      *
      * @param args the arguments the user input
      * @return SYNC command
@@ -481,7 +430,7 @@ public class Parser {
         args = args.trim().toLowerCase();
 
         if (args.contains("push") && args.contains("pull")) {
-            return new InvalidCommand(MESSAGE_SYNC_INVALID);
+            return new InvalidCommand(MESSAGE_SYNC_ERROR_INVALID);
         } else if (args.contains("push")) {
             if (args.contains("force")) {
                 return new SyncCommand(SyncCommand.SyncType.FORCE_PUSH);
@@ -499,12 +448,13 @@ public class Parser {
         } else if (args.isEmpty()) {
             return new SyncCommand(SyncCommand.SyncType.TWO_WAY);
         } else {
-            return new InvalidCommand(MESSAGE_SYNC_INVALID);
+            return new InvalidCommand(MESSAGE_SYNC_ERROR_INVALID);
         }
     }
 
     /**
-     * Parses help command from user.
+     * Parses help command from user. If no argument, construct the correct help
+     * command to specify list of commands instead. Only reads first argument.
      *
      * @param args the arguments the user input
      * @return HELP command
@@ -576,8 +526,8 @@ public class Parser {
     }
 
     /**
-     * Parses and expan special occurrences of terms from the user input so that
-     * the resulting output parsed into Natty lib will be more accurate and
+     * Parses and expands special occurrences of terms from the user input so
+     * that the resulting output parsed into Natty lib will be more accurate and
      * correct.
      *
      * @param input the input from the user
@@ -696,6 +646,74 @@ public class Parser {
         }
 
         return textBeforeDate + " " + textAfter;
+    }
+
+    /**
+     * Attempts to read the input and return a DatePair object containing the
+     * dates parsed.
+     *
+     * @param input the input as String
+     */
+    private DatePair extractViewRange(String input) {
+        DatePair date = new DatePair();
+
+    /* Use Natty library to parse date specified by user */
+        List<DateGroup> groups = dateParser.parse(input);
+
+        /* Extract up to two dates from user's input */
+        for (DateGroup group : groups) {
+            List<Date> dates = group.getDates();
+
+            /* If date range is parsed */
+            if (dates.size() >= 2) {
+                Calendar startDate = dateToCalendar(dates.get(0));
+                Calendar endDate = dateToCalendar(dates.get(1));
+
+                /* Swap date if necessary */
+                if (startDate.after(endDate)) {
+                    Calendar temp = endDate;
+                    endDate = startDate;
+                    startDate = temp;
+                }
+
+                /* If no time specified, set default timings */
+                if (group.isTimeInferred()) {
+                    startDate.set(Calendar.HOUR_OF_DAY,
+                                  DEFAULT_START_HOUR);
+                    startDate.set(Calendar.MINUTE,
+                                  DEFAULT_START_MINUTE);
+                    startDate.set(Calendar.SECOND,
+                                  DEFAULT_START_SECOND);
+                    startDate.set(Calendar.MILLISECOND,
+                                  DEFAULT_START_MILLISECOND);
+
+                    endDate.set(Calendar.HOUR_OF_DAY,
+                                DEFAULT_END_HOUR);
+                    endDate.set(Calendar.MINUTE,
+                                DEFAULT_END_MINUTE);
+                    endDate.set(Calendar.SECOND,
+                                DEFAULT_END_SECOND);
+                    endDate.set(Calendar.MILLISECOND,
+                                DEFAULT_END_MILLISECOND);
+                }
+
+                date.setStartDate(startDate);
+                date.setEndDate(endDate);
+            } else if (dates.size() == 1) {
+                date.setStartDate(dateToCalendar(dates.get(0)));
+                date.getStartDate().set(Calendar.HOUR_OF_DAY,
+                                        DEFAULT_START_HOUR);
+                date.getStartDate().set(Calendar.MINUTE,
+                                        DEFAULT_START_MINUTE);
+                date.getStartDate().set(Calendar.SECOND,
+                                        DEFAULT_START_SECOND);
+                date.getStartDate().set(Calendar.MILLISECOND,
+                                        DEFAULT_START_MILLISECOND);
+                date.setEndDate(dateToCalendar(dates.get(0)));
+            }
+        }
+
+        return date;
     }
 
     /**
