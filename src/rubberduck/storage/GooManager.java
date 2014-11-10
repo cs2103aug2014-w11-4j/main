@@ -1,7 +1,6 @@
 package rubberduck.storage;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -89,8 +88,15 @@ public class GooManager {
      */
     private static FileDataStoreFactory fileDataStoreFactory;
     private static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
-    private static final String DATA_STORE_DIR = "/";
+    private static final String DATA_STORE_DIR = "/sync/";
     private static final String DATA_STORE_NAME = "StoredCredential";
+
+    /**
+     * Keep a record of when the last sync happened.
+     */
+    //private static final String REMOTE_SYNC_FLAG_FORMAT = "Last Synced on: ";
+    private static Date lastSyncTime;
+    private static final String LAST_SYNC_FILE_NAME = "LastSync";
 
     private static com.google.api.services.calendar.Calendar calendarClient;
     private static com.google.api.services.tasks.Tasks tasksClient;
@@ -111,12 +117,6 @@ public class GooManager {
 
     private static String calendarId = null;
     private static String taskListId = null;
-
-    /**
-     * To be set in Calendar Description remotely to keep a record of when the last sync happened.
-     */
-    private static final String REMOTE_SYNC_FLAG_FORMAT = "Last Synced on: ";
-    private static Date lastSyncTime;
 
     /**
      * As Google Tasks does not support set due date to some specific time, this information will be stored in its notes.
@@ -280,40 +280,30 @@ public class GooManager {
     /**
      * Set last sync time on server to current time.
      *
-     * @throws NetworkException if network failure happens
+     * @throws IOException if fails to write to file
      */
-    private static void setLastSyncTime() throws NetworkException {
-        try {
-            Calendar calendar = calendarClient.calendars().get(calendarId).execute();
-            calendar.setDescription(REMOTE_SYNC_FLAG_FORMAT +
-                    DATE_FORMAT.format(java.util.Calendar.getInstance().getTime()));
-            calendarClient.calendars().update(calendarId, calendar).execute();
-        } catch (IOException e) {
-            throw new NetworkException(e.getMessage(), e.getCause());
-        }
+    private static void setLastSyncTime() throws IOException {
+        FileWriter fileWriter = new FileWriter(CURRENT_DIRECTORY + DATA_STORE_DIR + LAST_SYNC_FILE_NAME, false);
+        String line = DATE_FORMAT.format(java.util.Calendar.getInstance().getTime());
+        fileWriter.write(line);
+        fileWriter.close();
     }
 
     /**
      * Get last sync time on server.
      *
      * @return last time a sync was finished, or null if never synced.
-     * @throws NetworkException if network failure happens
+     * @throws IOException if fails to write to file
      */
-    private static Date getLastSyncTime() throws NetworkException {
+    private static Date getLastSyncTime() throws IOException {
         try {
-            Calendar calendar = calendarClient.calendars().get(calendarId).execute();
-            String line = calendar.getDescription();
-            if (line != null && line.startsWith(REMOTE_SYNC_FLAG_FORMAT)) {
-                try {
-                    return DATE_FORMAT.parse(line.replace(REMOTE_SYNC_FLAG_FORMAT, ""));
-                } catch (ParseException e) {
-                    return null;
-                }
-            } else {
-                return null;
-            }
-        } catch (IOException e) {
-            throw new NetworkException(e.getMessage(), e.getCause());
+            BufferedReader br = new BufferedReader(new FileReader(CURRENT_DIRECTORY + DATA_STORE_DIR + LAST_SYNC_FILE_NAME));
+            String line = br.readLine();
+            return DATE_FORMAT.parse(line);
+        } catch (FileNotFoundException e) {
+            return null;
+        } catch (ParseException e) {
+            return null;
         }
     }
 
