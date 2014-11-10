@@ -6,8 +6,6 @@ import org.junit.Test;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 
 import rubberduck.common.datatransfer.DatePair;
 import rubberduck.logic.command.AddCommand;
@@ -52,22 +50,27 @@ public class ParserTest {
             Method viewTypeMethod = ViewCommand.class.getDeclaredMethod(
                 "getViewType");
             viewTypeMethod.setAccessible(true);
+            ViewCommand.ViewType type;
+            DatePair range;
 
             /* Testing for arguments (number and validity) in input */
-            /* Boundary case for no argument partition */
+            /* Boundary case for 'prev' partition / no arguments */
             String noArgument = "view";
             Command noCommand = parser.parse(noArgument);
             assertEquals("will return VIEW command (prev)", true,
                          noCommand instanceof ViewCommand);
+            type = (ViewCommand.ViewType) viewTypeMethod.invoke(noCommand);
+            assertEquals("must be PREV view", ViewCommand.ViewType.PREV, type);
 
             /* Boundary case for date only partition */
             String dateArgument = "view 25 Oct";
             Command dateCommand = parser.parse(dateArgument);
             assertEquals("must be VIEW command", true,
                          dateCommand instanceof ViewCommand);
-
-            DatePair dp = (DatePair) viewRangeMethod.invoke(dateCommand);
-            assertEquals("must have a view date", true, dp.hasEndDate());
+            range = (DatePair) viewRangeMethod.invoke(dateCommand);
+            assertEquals("must have a view date", true, range.hasEndDate());
+            type = (ViewCommand.ViewType) viewTypeMethod.invoke(dateCommand);
+            assertEquals("must be DATE view", ViewCommand.ViewType.DATE, type);
 
 
             /* Boundary case for date range partition */
@@ -75,30 +78,42 @@ public class ParserTest {
             Command rangeCommand = parser.parse(rangeArgument);
             assertEquals("must be VIEW command", true,
                          rangeCommand instanceof ViewCommand);
-
-            dp = (DatePair) viewRangeMethod.invoke(rangeCommand);
-            assertEquals("must have a view range", true, dp.hasDateRange());
+            range = (DatePair) viewRangeMethod.invoke(rangeCommand);
+            assertEquals("must have a view range", true, range.hasDateRange());
+            type = (ViewCommand.ViewType) viewTypeMethod.invoke(rangeCommand);
+            assertEquals("must be DATE view", ViewCommand.ViewType.DATE, type);
 
             /* Boundary case for 'all' partition */
             String allArgument = "view all";
             Command allCommand = parser.parse(allArgument);
             assertEquals("must be VIEW command", true,
                          allCommand instanceof ViewCommand);
-            ViewCommand.ViewType vt = (ViewCommand.ViewType) viewTypeMethod
-                .invoke(allCommand);
-            assertEquals("boolean for viewAll should be true", true,
-                         vt == ViewCommand.ViewType.ALL);
+            type = (ViewCommand.ViewType) viewTypeMethod.invoke(allCommand);
+            assertEquals("must be ALL view", ViewCommand.ViewType.ALL, type);
 
-            /* Boundary case for other String input partition */
+            /* Boundary case for other String input partition / prev */
             String otherArgument = "view randomstring";
             Command otherCommand = parser.parse(otherArgument);
             assertEquals("will return VIEW command (prev)",
                          true, otherCommand instanceof ViewCommand);
+            type = (ViewCommand.ViewType) viewTypeMethod.invoke(otherCommand);
+            assertEquals("must be PREV view", ViewCommand.ViewType.PREV, type);
+
+            /* Boundary case for 'overdue' partition */
+            String overdueArgument = "view overdue";
+            Command overdueCommand = parser.parse(overdueArgument);
+            assertEquals("must be VIEW command", true,
+                         overdueCommand instanceof ViewCommand);
+            type = (ViewCommand.ViewType) viewTypeMethod.invoke(overdueCommand);
+            assertEquals("must be OVERDUE view", ViewCommand.ViewType.OVERDUE,
+                         type);
 
             /* Testing for different alias with valid input */
             assertEquals(true, parser.parse("view 25 oct 2014") instanceof
                 ViewCommand);
             assertEquals(true, parser.parse("display this week") instanceof
+                ViewCommand);
+            assertEquals(true, parser.parse("agenda today") instanceof
                 ViewCommand);
 
         } catch (NoSuchMethodException | IllegalAccessException |
@@ -155,6 +170,8 @@ public class ParserTest {
             Method datePairsMethod = AddCommand.class.getDeclaredMethod(
                 "getDatePairs");
             datePairsMethod.setAccessible(true);
+            String desc;
+            ArrayList dpList;
 
         /* Testing for number of arguments in input */
         /* Boundary case for no argument partition */
@@ -175,7 +192,7 @@ public class ParserTest {
             Command descCommand = parser.parse(descArgument);
             assertEquals("must be ADD command", true,
                          descCommand instanceof AddCommand);
-            String desc = (String) descriptionMethod.invoke(descCommand);
+            desc = (String) descriptionMethod.invoke(descCommand);
             assertEquals("description must be assigned", "meeting", desc);
 
         /* Boundary case for date and description partition */
@@ -183,10 +200,10 @@ public class ParserTest {
             Command descDateCommand = parser.parse(descDateArgument);
             assertEquals("must be ADD command", true,
                          descDateCommand instanceof AddCommand);
-            desc = (String) descriptionMethod.invoke(descCommand);
-            ArrayList dp = (ArrayList) datePairsMethod.invoke(descDateCommand);
+            desc = (String) descriptionMethod.invoke(descDateCommand);
+            dpList = (ArrayList) datePairsMethod.invoke(descDateCommand);
             assertEquals("description must be assigned", "meeting", desc);
-            assertEquals("date must be assigned", false, dp.isEmpty());
+            assertEquals("date must be assigned", false, dpList.isEmpty());
 
         /* Testing for different alias with valid input */
             assertEquals(true,
@@ -210,6 +227,7 @@ public class ParserTest {
             Method taskIdMethod = DeleteCommand.class.getDeclaredMethod(
                 "getTaskId");
             taskIdMethod.setAccessible(true);
+            int taskId;
 
             /* Testing for number of arguments in input */
             /* Boundary case for no argument partition */
@@ -223,7 +241,7 @@ public class ParserTest {
             Command twoCommand = parser.parse(twoArgument);
             assertEquals("must be DELETE command", true,
                          twoCommand instanceof DeleteCommand);
-            int taskId = (Integer) taskIdMethod.invoke(twoCommand);
+            taskId = (Integer) taskIdMethod.invoke(twoCommand);
             assertEquals("Only first argument will be parsed and assigned", 1,
                          taskId);
 
@@ -233,8 +251,7 @@ public class ParserTest {
             assertEquals("must be DELETE command", true,
                          oneCommand instanceof DeleteCommand);
             taskId = (Integer) taskIdMethod.invoke(oneCommand);
-            assertEquals("Task ID should be properly assigned", 4,
-                         taskId);
+            assertEquals("Task ID should be properly assigned", 4, taskId);
 
             /* Testing for invalid arguments in input */
             String notInteger = "delete notinteger";
@@ -263,6 +280,8 @@ public class ParserTest {
             Method datePairsMethod = UpdateCommand.class.getDeclaredMethod(
                 "getDatePairs");
             datePairsMethod.setAccessible(true);
+            String desc;
+            ArrayList list;
 
             /* Testing for number of arguments in input */
             /* Boundary case for no task ID partition */
@@ -282,12 +301,10 @@ public class ParserTest {
             Command haveCommand = parser.parse(haveArgument);
             assertEquals("will return UPDATE command since valid", true,
                          haveCommand instanceof UpdateCommand);
-            String desc = (String) descriptionMethod.invoke(haveCommand);
-            ArrayList datePairs = (ArrayList) datePairsMethod
-                .invoke(haveCommand);
-
+            desc = (String) descriptionMethod.invoke(haveCommand);
+            list = (ArrayList) datePairsMethod.invoke(haveCommand);
             assertEquals("description must be assigned", "desc", desc);
-            assertEquals("date must be assigned", false, datePairs.isEmpty());
+            assertEquals("date must be assigned", false, list.isEmpty());
 
             /* Testing for different alias with valid input */
             assertEquals(true,
@@ -326,6 +343,7 @@ public class ParserTest {
             Method taskIdMethod = MarkCommand.class.getDeclaredMethod(
                 "getTaskId");
             taskIdMethod.setAccessible(true);
+            int taskId;
 
             /* Testing for number of arguments in input */
             /* Boundary case for no arguments partition */
@@ -339,7 +357,7 @@ public class ParserTest {
             Command twoCommand = parser.parse(twoArgument);
             assertEquals("Must be a MARK command", true,
                          twoCommand instanceof MarkCommand);
-            int taskId = (Integer) taskIdMethod.invoke(twoCommand);
+            taskId = (Integer) taskIdMethod.invoke(twoCommand);
             assertEquals("Will only accept first argument", 1, taskId);
 
             /* Boundary case for 1 argument partition */
@@ -387,6 +405,8 @@ public class ParserTest {
             Method dateIdMethod = ConfirmCommand.class.getDeclaredMethod(
                 "getDateId");
             dateIdMethod.setAccessible(true);
+            int taskId;
+            int dateId;
 
             /* Testing for number of arguments in input */
             /* Boundary case for < 2 arguments partition */
@@ -400,8 +420,8 @@ public class ParserTest {
             Command threeCommand = parser.parse(threeArgument);
             assertEquals("Must be a CONFIRM command", true,
                          threeCommand instanceof ConfirmCommand);
-            int taskId = (Integer) taskIdMethod.invoke(threeCommand);
-            int dateId = (Integer) dateIdMethod.invoke(threeCommand);
+            taskId = (Integer) taskIdMethod.invoke(threeCommand);
+            dateId = (Integer) dateIdMethod.invoke(threeCommand);
             assertEquals("Will only accept first two arguments", 1, taskId);
             assertEquals("Will only accept first two arguments", 2, dateId);
 
@@ -542,27 +562,5 @@ public class ParserTest {
         /* Testing for different alias for EXIT command */
         assertEquals(true, parser.parse("exit") instanceof ExitCommand);
         assertEquals(true, parser.parse("quit") instanceof ExitCommand);
-    }
-
-    /* Helper methods to get variable dates for comparison */
-    private Date getDate(int day, int month, int year, int hour, int minute) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.DAY_OF_MONTH, day);
-        cal.set(Calendar.MONTH, month);
-        cal.set(Calendar.YEAR, year);
-        cal.set(Calendar.HOUR_OF_DAY, hour);
-        cal.set(Calendar.MINUTE, minute);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        return cal.getTime();
-    }
-
-    private Date getToday() {
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, 23);
-        cal.set(Calendar.MINUTE, 59);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        return cal.getTime();
     }
 }

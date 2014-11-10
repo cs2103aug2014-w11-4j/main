@@ -48,7 +48,7 @@ public class RubberDuck {
      * Grabs the global logger and setup a FileHandler to create a log file. It
      * will then set it as the default logging file by the Logger.
      */
-    public static void setupGlobalLogger() {
+    private static void setupGlobalLogger() {
         /* Suppress logger to Console using rootLogger */
         Logger rootLogger = Logger.getLogger("");
         Handler[] handlers = rootLogger.getHandlers();

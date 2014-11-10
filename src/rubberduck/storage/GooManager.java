@@ -130,6 +130,12 @@ public class GooManager {
     private static final String COLOR_ID_UNCOMPLETED = "4";
 
     /**
+     * Private constructor since GooManager is a static class.
+     */
+    private GooManager() {
+    }
+
+    /**
      * Authorize the application to access Google Accounts.
      *
      * @return Credential required by Google API Clients

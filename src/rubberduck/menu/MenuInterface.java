@@ -4,10 +4,11 @@ import java.util.logging.Logger;
 
 /**
  * This abstract class acts as the Factory class of the different interfaces
- * object. It handles the instantiation of a concrete MenuInterface class
- * dependent on the operating system the user is on. It also provides the
- * necessary attributes and methods for concrete classes to implement and handle
- * user input and output.
+ * object. It handles the instantiation of a concrete MenuInterface class,
+ * dependent on the operating system the user is on.
+ * <p/>
+ * It also provides the necessary attributes and methods for concrete classes to
+ * implement and handle user input and output.
  */
 //@author A0111736M
 public abstract class MenuInterface {

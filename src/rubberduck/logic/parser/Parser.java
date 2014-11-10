@@ -169,6 +169,7 @@ public class Parser {
      * @return the correct command object intended by user
      */
     private Command parseCommand(Command.CommandType userCommand, String args) {
+        assert userCommand != null : "userCommand should not be null";
         switch (userCommand) {
             case VIEW:
                 return parseView(args);
@@ -229,8 +230,7 @@ public class Parser {
         args = args.toLowerCase();
 
         /* Setup view filter specified by user */
-        ArrayList<ViewFilter> viewList =
-            new ArrayList<ViewFilter>();
+        ArrayList<ViewFilter> viewList = new ArrayList<ViewFilter>();
         if (args.contains("float")) {
             viewList.add(ViewFilter.FLOATING);
         }
@@ -701,6 +701,7 @@ public class Parser {
                 date.setStartDate(startDate);
                 date.setEndDate(endDate);
             } else if (dates.size() == 1) {
+                /* Set start date to be on the same day with default time */
                 date.setStartDate(dateToCalendar(dates.get(0)));
                 date.getStartDate().set(Calendar.HOUR_OF_DAY,
                                         DEFAULT_START_HOUR);
@@ -744,7 +745,7 @@ public class Parser {
                 for (DateGroup group : groups) {
                     List<Date> dates = group.getDates();
 
-                    /* Restrict parsing of natty */
+                    /* Restrict parsing of natty by analysing parsing location*/
                     Map<String, List<ParseLocation>> map =
                         group.getParseLocations();
 
@@ -808,8 +809,10 @@ public class Parser {
                         firstDateIndex = group.getPosition();
                     }
 
+                    /* Replace parsed date from description */
                     tentative = tentative.replace(group.getText(), "");
                     if (!tentative.trim().isEmpty() && replaceOr) {
+                         /* Compensate 'or' as it does not belong to date */
                         sb.append("or");
                     }
                     sb.append(tentative);

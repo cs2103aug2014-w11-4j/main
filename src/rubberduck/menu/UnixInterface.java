@@ -59,7 +59,6 @@ public class UnixInterface extends MenuInterface {
         }
     }
 
-
     /**
      * Handles the interface of the program. It prompts input from user and
      * passes to the parser to determine the command to be executed. It then

@@ -207,7 +207,7 @@ public class Formatter {
         ArrayList<DatePair> dates = t.getDateList();
         char isDone = t.getIsDone() ? 'Y' : 'N';
         SimpleDateFormat dateFormat = new SimpleDateFormat(currentTimeFormat,
-                                                           Locale.US);
+                                                           DEFAULT_LOCALE);
         if (t.isTentative()) {
             description += " (tentative)";
         }
