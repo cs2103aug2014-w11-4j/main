@@ -88,7 +88,7 @@ public class GooManager {
      */
     private static FileDataStoreFactory fileDataStoreFactory;
     private static final String CURRENT_DIRECTORY = System.getProperty("user.dir");
-    private static final String DATA_STORE_DIR = "/sync/";
+    private static final String DATA_STORE_DIR = "/data/sync/";
     private static final String DATA_STORE_NAME = "StoredCredential";
 
     /**
